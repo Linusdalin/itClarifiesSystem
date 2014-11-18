@@ -1,0 +1,27 @@
+<component name="libraryTable">
+  <library name="GCS">
+    <CLASSES>
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-GCS/google-api-java-client/libs" />
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-GCS/google-api-java-client/libs" />
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-GCS/google-http-java-client/libs" />
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-GCS/storage/libs" />
+      <root url="jar://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-GCS/appengine-gcs-client-0.4.1.jar!/" />
+      <root url="jar://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-GCS/guava-18.0.jar!/" />
+      <root url="jar://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-GCS/joda-time-2.4/joda-time-2.4.jar!/" />
+      <root url="jar://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-GCS/storage/google-api-services-storage-v1beta2-rev56-1.19.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-GCS/google-api-java-client/libs" />
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-GCS/google-api-java-client/libs" />
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-GCS/google-http-java-client/libs" />
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-GCS/storage/libs" />
+    </SOURCES>
+    <jarDirectory url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-GCS/google-api-java-client/libs" recursive="false" />
+    <jarDirectory url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-GCS/google-http-java-client/libs" recursive="false" />
+    <jarDirectory url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-GCS/storage/libs" recursive="false" />
+    <jarDirectory url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-GCS/google-api-java-client/libs" recursive="false" type="SOURCES" />
+    <jarDirectory url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-GCS/google-http-java-client/libs" recursive="false" type="SOURCES" />
+    <jarDirectory url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-GCS/storage/libs" recursive="false" type="SOURCES" />
+  </library>
+</component>

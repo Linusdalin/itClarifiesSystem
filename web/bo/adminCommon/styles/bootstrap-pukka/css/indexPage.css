@@ -1,0 +1,175 @@
+/*
+    Front page objects that are common
+*/
+
+.container-fluid .index-body {
+    min-height:300px;
+    width:1005px;
+    margin:auto;
+    background:url(../images/login-bg.png) top left no-repeat;
+}
+
+
+form input[class="wide button"]{
+    background:url(../images/btn.png) top left no-repeat;
+    width:140px;
+    height:26px;
+    border:none;
+    color:#FFF;
+    cursor:pointer;
+}
+
+
+
+
+.container-fluid .index-body .tagsline a{
+   display:block;
+   background:#006600;
+   float:right;
+   position:relative;
+   top: -20px;
+
+   background:url(../images/btn.png) top left no-repeat;
+   width:175px;
+   height:50px;
+   color:#FFFFFF;
+   text-decoration:none;
+   line-height:45px;
+   text-align:center;
+   font-weight:bold;
+   font-family:Arial;
+   font-size:30px;
+   margin:15px 0 0 70px;
+   }
+
+.container-fluid .index-body .tagsline{
+    float:left;
+    min-height:190px;
+width:380px;
+text-align:left;
+}
+
+.container-fluid .index-body .area{
+    float:left;
+min-height:190px;
+width:280px;
+text-align:left;
+}
+
+.container-fluid .index-body .tagsline h2{
+float:right;
+font-family:Arial;
+font-size:22px;
+color:#555555;
+font-weight:bold;
+margin-top:30px;
+}
+
+ .container-fluid .index-body .tagsline p{
+ float:right;
+ font-family:Arial;
+ font-size:12px;
+ color:#222222;
+ font-weight:bold;
+ margin-top:10px;
+ }
+
+
+.container-fluid .index-body .formx{
+background:url(../images/formbg.png) top left no-repeat;
+height:143px;
+width:292px;
+position:relative;
+top: 50px;
+float:right;
+margin-right:43px;
+}
+
+.container-fluid .index-body .formx .frminner{
+height:85px;
+width:234px;
+margin:5px;
+border:2px solid #efefef;
+padding:22px;
+}
+
+.container-fluid .index-body .formx .frminner form .fields span{
+    width:60px;
+    float:left;
+    margin-bottom:10px;
+    font-size: 12px;
+    font-family: Tahoma;
+
+}
+
+.container-fluid .index-body .formx .frminner form .fields input{
+    float:left;
+    margin-left:20px;
+    width:120px;
+    border:1px solid #CCCCCC;
+}
+
+.container-fluid .index-body .formx .frminner form .error{
+
+    color:#FF0000;
+    margin-top:-20px;
+    font-size: 10px;
+    margin-bottom: 30px;
+}
+
+.container-fluid .index-body .formx .frminner form .link{
+
+    color: #3333ff;
+    margin-top:-20px;
+    font-size: 10px;
+}
+
+
+
+.container-fluid .index-body .formx .frminner form input[type="submit"]{
+float:right;
+margin-right:10px;
+height:26px;
+width:88px;
+border:none;
+background:url(../images/btn2.png) top left;
+line-height:26px;
+color:#FFFFFF;
+}
+.container-fluid .index-body .sections{
+margin:0;
+padding:0;
+list-style:none;
+float:right;
+position:relative;
+top:-140px;
+}
+.container-fluid .index-body .sections li{
+border-left:1px solid #b7c5cf;
+border-right:1px solid #FFFFFF;
+min-width:200px;
+max-width:226px;
+min-height:95px;
+display:block;
+float:left;
+color:#464646;
+font-size:11px;
+padding:5px  10px  0 0px;
+}
+.container-fluid .index-body .sections li.lastli{
+border-right:none;
+}
+.container-fluid .index-body .sections li:first-child{
+border-left:none;
+}
+.container-fluid .index-body .sections li img{
+float:left;
+margin:0 5px;
+}
+   .footer, .push {
+height: 53px;
+   }
+   .push{
+width:1005px;
+margin:auto;
+   }

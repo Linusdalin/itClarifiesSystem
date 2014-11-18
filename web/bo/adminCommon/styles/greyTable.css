@@ -1,0 +1,49 @@
+#tableContent table{
+  border: 2px solid black;
+  border-spacing: 0px;
+}
+
+#tableContent table thead tr{
+  font-family: Arial, monospace;
+  font-size: 14px;
+}
+
+#tableContent table thead tr th{
+  border-bottom: 2px solid black;
+  border-top: 1px solid black;
+  margin: 0px;
+  padding: 2px;
+  background-color: #cccccc;
+}
+
+#tableContent table tr {
+  font-family: arial, monospace;
+  color: black;
+  font-size:12px;
+  background-color: white;
+}
+
+#tableContent table tr.odd {
+  background-color: #AAAAAA;
+}
+
+#tableContent table tr td, th{
+  border-bottom: 1px solid black;
+  padding: 2px;
+}
+
+#tableContent a:link{
+  font-family:arial, monospace;
+  text-decoration: none;
+  color: teal;
+}
+
+#tableContent a:hover{
+  text-decoration: underline;
+}
+
+#tableContent a:visited{
+  color:black;
+  text-decoration: none;
+}
+

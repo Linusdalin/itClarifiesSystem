@@ -1,0 +1,180 @@
+<html>
+
+<head>
+    <title>Service Documentation</title>
+    <link rel="stylesheet" type="text/css" href="docstyle.css" title="Style">
+</head>
+
+<body>
+<h1>Generic</h1>
+
+<p>There are some generic parameters:</p>
+
+<ul>
+    <li><span class="code">&session=&lt;token&gt;</span>, (Mandatory)To identify the user</li>
+    <li><span class="code">&html=on</span>, (Optional) to set the content type to html to be able to easily load in the browser (for testing)</li>
+    <li><span class="code">&pp=on</span>, (Optional) to add pretty printing to easier be able to read the json output(for testing)</li>
+
+</ul>
+
+<h1>Description of services</h1>
+
+
+<h2>Login:</h2>
+
+    <p><strong>Note:</strong> Login is not implemented. The service will return a static token "DummySessionToken" </p>
+<h3>GET Request:</h3>
+
+<p class="code">/Login?user=&lt;name&gt;&password=&lt;password&gt;</p>
+&lt; &gt;
+
+<h3>Response json:</h3>
+
+
+<p class="code">{ "Session" : "&lt;key&gt;" }</p>
+
+<h3>Error management:</h3>
+
+    <p>No error handling implemented</p>
+
+
+
+<h2>Project:</h2>
+
+    <p>Request a list of projects</p>
+
+
+<div style="float:left; width: 50%">
+<h3>GET Request:</h3>
+
+<p class="code">/Project?session=&lt;token&gt;&key=&lt;key&gt;</p>
+
+
+<h4>Response json:</h4>
+
+
+<p class="code">{ Project : [
+    { "id" : "&lt;key&gt;", "name" : "&lt;project name&gt;", "description" : "&lt;description text&gt;"}
+  ]
+}
+</p>
+
+<h4>Other examples:</h4>
+<p> <span class="code">/Project</span>            -- returns all projects</p>
+
+</div>
+<div style="float:left; width: 50%">
+
+<h3>POST Request:</h3>
+
+<p>The post request will either create a new entry or update an existing entry. For the update operation, all parameters has to be provided.</p>
+
+<p class="code">/Project?session=&lt;token&gt;&name=&lt;name&gt;&description=&lt;description&gt;</p>
+
+
+<h4>Response json:</h4>
+
+<p class="code">{ "Project" : &lt;key&gt; }</p>
+
+<p>The response contains the id to the created/updated project entry</p>
+
+        <h3>Error management:</h3>
+
+    <p>If the session token does not match an active token, the service will return 403 - forbidden.</p>
+
+
+<h4>Other examples:</h4>
+<p><span class="code">/Project?session=&lt;token&gt;&key=&lt;key&gt;&name=&lt;name&gt;&description=&lt;description&gt;</span> -- will update an existing project entry</p>
+
+    </div>
+
+<h2>Document:</h2>
+
+    <p>Request a list of documents for a specific project</p>
+    <p>NOTE: This request will return the project as a name, not an id. (change?)</p>
+
+        <h3>GET Request:</h3>
+
+<p><span class="code">/Document?session=&lt;token&gt;&project=&lt;key&gt;</span></p>
+
+            <h3>Response json:</h3>
+
+
+<p><span class="code">{ Document : [
+    { "id" : "&lt;key1&gt;", "name" : "&lt;document name1&gt;", "description" : "&lt;description text&gt;", "project" : "&lt;project name&gt;"},
+    { "id" : "&lt;key2&gt;", "name" : "&lt;document name2&gt;", "description" : "&lt;description text&gt;", "project" : "&lt;project name&gt;"}
+  ]
+}
+
+</span></p>
+
+                <h3>Error management:</h3>
+
+    <p>If the session token does not match an active token, the service will return 403 - forbidden.</p>
+
+
+<h3>Other examples:</h3>
+
+<p><span class="code">/Document?session=&lt;token&gt;</span>                   -- returns all documents</p>
+<p><span class="code">/Document?session=&lt;token&gt;&document=&lt;key&gt;</span>     -- returns a specific document</p>
+
+
+<h2>Fragment:</h2>
+
+
+        <p>Get all fragments related to a project</p>
+
+
+<h3>GET Request:</h3>
+
+        <p><span class="code">/Fragment?session={token}&project={key}</span></p>
+
+
+    <h3>Response json:</h3>
+
+            <p><span class="code">{ Fragment : [
+    { "id" : "&lt;key1&gt;", "Text" : "&lt;fragment text1&gt;", "Contract" : "&lt;Contract name&gt;", "project" : "&lt;project name&gt;"},
+    { "id" : "&lt;key2&gt;", "Text" : "&lt;fragment text2&gt;", "Contract" : "&lt;Contract name&gt;", "project" : "&lt;project name&gt;"}
+  ]
+}
+                </span></p>
+
+                                <h3>Error management:</h3>
+
+    <p>If the session token does not match an active token, the service will return 403 - forbidden.</p>
+
+
+<h3>Other examples:</h3>
+
+
+<p><span class="code">/Fragment?session=&lt;token&gt;&key=&lt;key&gt;</span>     -- returns a specific fragment</p>
+
+<h2>Keywords:</h2>
+
+
+        <p>Get all keywords related to a project. This should be used for the auto complete field in the search</p>
+
+
+<h3>GET Request:</h3>
+
+                    <p><span class="code">/Keywords?session=&lt;token&gt;&project=&lt;key&gt;</span></p>
+
+
+    <h3>Response json:</h3>
+
+                        <p><span class="code">
+{ "Keywords" : [
+{ "keyword" : "&lt;word&gt;"}
+{ "keyword" : "&lt;word&gt;"}
+]}
+                        </span></p>
+
+<h3>Error management:</h3>
+
+    <p>If the session token does not match an active token, the service will return 403 - forbidden.</p>
+
+
+
+
+</body>
+</html>

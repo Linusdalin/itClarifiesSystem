@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+		  http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+           version="2.5">
+
+
+    <!--  These are inherited from PukkaCore -->
+
+
+    <servlet>
+        <servlet-name>createDB</servlet-name>
+        <servlet-class>adminServices.CreateDBServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>createDB</servlet-name>
+        <url-pattern>/createDB</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>admin</servlet-name>
+        <servlet-class>api.AdminServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>admin</servlet-name>
+        <url-pattern>/admin.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>release</servlet-name>
+        <servlet-class>api.ReleaseServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>release</servlet-name>
+        <url-pattern>/releaseAdmin</url-pattern>
+    </servlet-mapping>
+
+
+
+    <servlet>
+        <servlet-name>createConstants</servlet-name>
+        <servlet-class>adminServices.CreateConstantsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>createConstants</servlet-name>
+        <url-pattern>/createConstants</url-pattern>
+    </servlet-mapping>
+
+    <!--  Just for test. This should be removed -->
+
+
+    <servlet>
+        <servlet-name>GCSTest</servlet-name>
+        <servlet-class>fileHandling.GCSTestServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GCSTest</servlet-name>
+        <url-pattern>/GCSTest</url-pattern>
+    </servlet-mapping>
+
+
+    <!--  Servlets for itClarifies -->
+
+
+    <servlet>
+        <servlet-name>User</servlet-name>
+        <servlet-class>userManagement.PortalUserServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>User</servlet-name>
+        <url-pattern>/User</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>UserExternal</servlet-name>
+        <servlet-class>userManagement.PortalUserExternalServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UserExternal</servlet-name>
+        <url-pattern>/UserExternal</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+        <servlet-name>Login</servlet-name>
+        <servlet-class>services.LoginServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Login</servlet-name>
+        <url-pattern>/Login</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>Validate</servlet-name>
+        <servlet-class>services.SessionServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Validate</servlet-name>
+        <url-pattern>/Validate</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+        <servlet-name>Logout</servlet-name>
+        <servlet-class>services.LogoutServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Logout</servlet-name>
+        <url-pattern>/Logout</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+         <servlet-name>Search</servlet-name>
+         <servlet-class>search.SearchServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>Search</servlet-name>
+         <url-pattern>/Search</url-pattern>
+     </servlet-mapping>
+
+    <servlet>
+         <servlet-name>SearchSelection</servlet-name>
+         <servlet-class>search.SearchSelectionServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>SearchSelection</servlet-name>
+         <url-pattern>/SearchSelection</url-pattern>
+     </servlet-mapping>
+
+
+    <servlet>
+         <servlet-name>Project</servlet-name>
+         <servlet-class>services.ProjectServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>Project</servlet-name>
+         <url-pattern>/Project</url-pattern>
+     </servlet-mapping>
+
+    <servlet>
+         <servlet-name>Document</servlet-name>
+         <servlet-class>services.ContractServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>Document</servlet-name>
+         <url-pattern>/Document</url-pattern>
+     </servlet-mapping>
+
+    <servlet>
+         <servlet-name>Ordering</servlet-name>
+         <servlet-class>services.OrderingServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>Ordering</servlet-name>
+         <url-pattern>/Order</url-pattern>
+     </servlet-mapping>
+
+    <servlet>
+         <servlet-name>DocumentDetails</servlet-name>
+         <servlet-class>services.ContractDetailServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>DocumentDetails</servlet-name>
+         <url-pattern>/DocumentDetails</url-pattern>
+     </servlet-mapping>
+
+
+
+    <servlet>
+         <servlet-name>Keywords</servlet-name>
+         <servlet-class>search.KeywordServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>Keywords</servlet-name>
+         <url-pattern>/Keywords</url-pattern>
+     </servlet-mapping>
+
+    <servlet>
+         <servlet-name>Fragment</servlet-name>
+         <servlet-class>services.FragmentServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>Fragment</servlet-name>
+         <url-pattern>/Fragment</url-pattern>
+     </servlet-mapping>
+
+    <servlet>
+         <servlet-name>FragmentDetails</servlet-name>
+         <servlet-class>services.FragmentDetailServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>FragmentDetails</servlet-name>
+         <url-pattern>/FragmentDetails</url-pattern>
+     </servlet-mapping>
+
+
+    <servlet>
+         <servlet-name>Annotation</servlet-name>
+         <servlet-class>services.AnnotationServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>Annotation</servlet-name>
+         <url-pattern>/Annotation</url-pattern>
+     </servlet-mapping>
+
+    <servlet>
+         <servlet-name>Action</servlet-name>
+         <servlet-class>actions.ActionServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>Action</servlet-name>
+         <url-pattern>/Action</url-pattern>
+     </servlet-mapping>
+
+
+    <servlet>
+         <servlet-name>ActionStatus</servlet-name>
+         <servlet-class>actions.ActionStatusServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>ActionStatus</servlet-name>
+         <url-pattern>/ActionStatus</url-pattern>
+     </servlet-mapping>
+
+
+    <servlet>
+         <servlet-name>ConvertToAction</servlet-name>
+         <servlet-class>actions.ConvertToActionServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>ConvertToAction</servlet-name>
+         <url-pattern>/ConvertToAction</url-pattern>
+     </servlet-mapping>
+
+
+    <servlet>
+         <servlet-name>Classification</servlet-name>
+         <servlet-class>services.ClassificationServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>Classification</servlet-name>
+         <url-pattern>/Classification</url-pattern>
+     </servlet-mapping>
+
+
+    <servlet>
+         <servlet-name>Class</servlet-name>
+         <servlet-class>services.ClassServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>Class</servlet-name>
+         <url-pattern>/Class</url-pattern>
+     </servlet-mapping>
+
+
+    <servlet>
+         <servlet-name>Risk</servlet-name>
+         <servlet-class>services.RiskFlagServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>Risk</servlet-name>
+         <url-pattern>/Risk</url-pattern>
+     </servlet-mapping>
+
+
+
+    <servlet>
+         <servlet-name>Upload</servlet-name>
+         <servlet-class>fileHandling.FileUploadServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>Upload</servlet-name>
+         <url-pattern>/Upload</url-pattern>
+     </servlet-mapping>
+
+    <servlet>
+         <servlet-name>Preview</servlet-name>
+         <servlet-class>services.PreviewServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>Preview</servlet-name>
+         <url-pattern>/Preview</url-pattern>
+     </servlet-mapping>
+
+
+    <servlet>
+         <servlet-name>FragmentType</servlet-name>
+         <servlet-class>services.FragmentTypeServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>FragmentType</servlet-name>
+         <url-pattern>/FragmentType</url-pattern>
+     </servlet-mapping>
+
+    <servlet>
+         <servlet-name>Ping</servlet-name>
+         <servlet-class>services.PingServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>Ping</servlet-name>
+         <url-pattern>/Ping</url-pattern>
+     </servlet-mapping>
+
+
+    <servlet>
+        <servlet-name>Constants</servlet-name>
+        <servlet-class>services.ConstantServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Constants</servlet-name>
+        <url-pattern>/Constants</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>VersionHistory</servlet-name>
+        <servlet-class>services.HistoryServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>VersionHistory</servlet-name>
+        <url-pattern>/VersionHistory</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+        <servlet-name>Diff</servlet-name>
+        <servlet-class>diff.DiffServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Diff</servlet-name>
+        <url-pattern>/Diff</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>Freeze</servlet-name>
+        <servlet-class>services.SnapshotServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Freeze</servlet-name>
+        <url-pattern>/Freeze</url-pattern>
+    </servlet-mapping>
+
+
+
+    <servlet>
+        <servlet-name>Reference</servlet-name>
+        <servlet-class>services.ReferenceServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Reference</servlet-name>
+        <url-pattern>/DocumentReference</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ACS</servlet-name>
+        <servlet-class>userManagement.ACSServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ACS</servlet-name>
+        <url-pattern>/AccessControl</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+        <servlet-name>Analysis</servlet-name>
+        <servlet-class>analysis.AnalysisServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Analysis</servlet-name>
+        <url-pattern>/Analyze</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>Export</servlet-name>
+        <servlet-class>fileHandling.ExportServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Export</servlet-name>
+        <url-pattern>/Export</url-pattern>
+    </servlet-mapping>
+
+
+        <welcome-file-list>
+            <welcome-file>index.html</welcome-file>
+            <welcome-file>index.jsp</welcome-file>
+        </welcome-file-list>
+
+
+</web-app>

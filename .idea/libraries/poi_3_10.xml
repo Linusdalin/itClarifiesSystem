@@ -1,0 +1,20 @@
+<component name="libraryTable">
+  <library name="poi-3.10">
+    <CLASSES>
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/poi-3.10-FINAL/lib" />
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/poi-3.10-FINAL/ooxml-lib" />
+      <root url="jar://$USER_HOME$/IdeaProjects/Artifacts/Libs/poi-3.10-FINAL/poi-3.10-FINAL-20140208.jar!/" />
+      <root url="jar://$USER_HOME$/IdeaProjects/Artifacts/Libs/poi-3.10-FINAL/poi-examples-3.10-FINAL-20140208.jar!/" />
+      <root url="jar://$USER_HOME$/IdeaProjects/Artifacts/Libs/poi-3.10-FINAL/poi-excelant-3.10-FINAL-20140208.jar!/" />
+      <root url="jar://$USER_HOME$/IdeaProjects/Artifacts/Libs/poi-3.10-FINAL/poi-ooxml-3.10-FINAL-20140208.jar!/" />
+      <root url="jar://$USER_HOME$/IdeaProjects/Artifacts/Libs/poi-3.10-FINAL/poi-ooxml-schemas-3.10-FINAL-20140208.jar!/" />
+      <root url="jar://$USER_HOME$/IdeaProjects/Artifacts/Libs/poi-3.10-FINAL/poi-scratchpad-3.10-FINAL-20140208.jar!/" />
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/poi-3.10-FINAL/lib" />
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/poi-3.10-FINAL/ooxml-lib" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+    <jarDirectory url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/poi-3.10-FINAL/lib" recursive="false" />
+    <jarDirectory url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/poi-3.10-FINAL/ooxml-lib" recursive="false" />
+  </library>
+</component>

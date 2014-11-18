@@ -1,0 +1,152 @@
+/**************************************************************
+
+  This is the styling file that is added to the standard bootstrap styling for Starlight
+
+*/
+
+
+@charset "utf-8";
+/* CSS Document */
+
+/*tables css*/
+h1.logotext
+{
+	font-size:32px;
+	color:#CCC;
+}
+.ui-datepicker
+{
+	z-index:10000 !important;
+}
+.state-bold
+{
+	font-weight:bold;
+}
+.state-normal
+{
+	font-weight:normal;
+}
+.state-grey
+{
+	color:grey;
+}
+
+.state-redbold
+{
+	color:red;
+	font-weight:bold;
+}
+.imagelist li span a.execute,table tr td a.execute { background: url(../images/icons/default/sprites.png);}
+.imagelist li span a.confirm,table tr td a.confirm { background: url(../images/icons/default/sprites.png);}
+.imagelist li span a.undo,table tr td a.undo { background: url(../images/icons/default/sprites.png);}
+.imagelist li span a.save,table tr td a.save { background: url(../images/icons/default/sprites.png);}
+
+.imagelist li span a.execute,table tr td a.execute
+{
+	background-position:-6px -518px;
+	text-indent: -9999px!important;
+	display: block;
+	background-repeat: no-repeat;
+	width: 40px;
+	margin: auto;	
+}
+
+.imagelist li span a.confirm,table tr td a.confirm
+{
+	background-position:-40px -518px;
+	text-indent: -9999px!important;
+	display: block;
+	background-repeat: no-repeat;
+	width: 40px;
+	margin: auto;	
+}
+.imagelist li span a.undo,table tr td a.undo
+{
+	background-position:-150px -486px;
+	text-indent: -9999px!important;
+	display: block;
+	background-repeat: no-repeat;
+	width: 40px;
+	margin: auto;	
+}
+.imagelist li span a.save,table tr td a.save
+{
+	background-position:-185px -486px;
+	text-indent: -9999px!important;
+	display: block;
+	background-repeat: no-repeat;
+	width: 40px;
+	margin: auto;	
+}
+
+
+/**************************************************************
+
+        Additional styling for the simple list template
+*/
+
+.minimalistContent {
+
+    margin: 20px;
+}
+
+.minimalist {
+    font-family: "Lucida Sans Unicode","Lucida Grande",Sans-Serif;
+    font-size: 12px;
+    background: none repeat scroll 0% 0% rgb(255, 255, 255);
+    width: 100%;
+    border:1px solid #666666;
+    border-collapse: collapse;
+    text-align: left;
+    padding: 50px;
+}
+
+
+.minimalist thead {
+
+    border:1px solid #333333;
+    background-color: #cccccc;
+
+}
+
+.minimalist .narrow {
+
+    height:30px;
+}
+
+.minimalist th {
+
+    padding-left: 20px
+}
+
+.minimalist td {
+
+    padding-left: 20px;
+    padding-bottom: 0px;
+    vertical-align: middle;
+
+}
+
+.minimalist tr:hover {
+
+    background-color: #eeeeee;
+    font-weight: bold;
+
+}
+
+a.btn_search_small      { background-position: -10px    -14px   !important;}
+a.btn_airplane_small    { background-position: -154px   -121px  !important; }
+a.btn_info_small        { background-position: -154px   -49px   !important; }
+a.btn_refresh_small     { background-position: -190px   -193px  !important; }
+
+
+a.btn3_small {
+    width: 34px;
+    height: 25px;
+}
+
+td.blocker      {   background-color: #000000; display: inline-block;}
+td.expensive    {   background-color: #BB2222; }
+td.risk         {   background-color: #EEEE55; }
+td.neutral      {   background-color: #FFFFFF; }
+td.advantage    {   background-color: #22BB22; }

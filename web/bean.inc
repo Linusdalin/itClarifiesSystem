@@ -1,0 +1,1 @@
+<jsp:useBean id="backOffice" scope="session" class="backend.ItClarifies"/>

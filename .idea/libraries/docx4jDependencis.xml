@@ -1,0 +1,17 @@
+<component name="libraryTable">
+  <library name="docx4jDependencis">
+    <CLASSES>
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/docx4jDependencis" />
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/docx4jDependencis" />
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/jaxb-ri-2.2.7/lib" />
+      <root url="jar://$USER_HOME$/IdeaProjects/Artifacts/Artifacts/docx4jLocal.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/jaxb-ri-2.2.7/lib" />
+    </SOURCES>
+    <jarDirectory url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/docx4jDependencis" recursive="false" />
+    <jarDirectory url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/jaxb-ri-2.2.7/lib" recursive="false" />
+    <jarDirectory url="file://$USER_HOME$/IdeaProjects/Artifacts/Libs/jaxb-ri-2.2.7/lib" recursive="false" type="SOURCES" />
+  </library>
+</component>

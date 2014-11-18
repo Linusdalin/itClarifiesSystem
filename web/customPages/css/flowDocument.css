@@ -1,0 +1,182 @@
+.paper{
+
+    width:80%;
+    margin-left:auto;
+    margin-right:auto;
+    border: 2px solid;
+    box-shadow: 10px 10px 5px #888888;
+}
+
+
+.fragmentRow{
+    width:100%;
+    background-color:#f5ffdd;
+    display:inline-block;
+    margin:0px;
+    clear:both;
+    padding:0px;
+    /*border:solid 1px #c3c3c3;   */
+}
+
+.headlineRow{
+    width:100%;
+    background-color:#f5ffdd;
+    display:inline-block;
+    margin:0px;
+    margin-top:20px;
+    clear:both;
+    padding:0px;
+    font-weight:bold;
+    font-size:14px;
+    font-family: Arial;
+    /*border:solid 1px #c3c3c3;   */
+}
+
+
+.col{
+    width:15%;
+    float:left;
+    background-color:inherit;
+}
+
+.textcol{
+    width:55%;
+    float:left;
+    background-color:inherit;
+    padding-left: 20px;
+}
+
+.buttoncol{
+    width:80px;
+    padding: 5px;
+    height:100%;
+    float:right;
+    background-color:inherit;
+}
+
+.input{
+    display:block;     // none to remove
+    width:100px;
+    background-color:inherit;
+}
+
+.noinput{
+    display:none;     // none to remove
+    width:100px;
+    background-color:inherit;
+}
+
+
+.text{
+    float:left;
+    display:inline;
+    background-color:inherit;
+}
+
+.deprecated{
+
+    text-decoration:line-through;
+
+}
+
+.newtext{
+    width:100%;
+    display:block;
+    float:left;
+    background-color:inherit;
+}
+
+
+
+
+
+
+.classificationBox
+{
+    border-radius: 50%;
+    width:15px;
+    height:15px;
+    display: block;
+    float: left;
+    padding:5px;
+    vertical-align:middle;
+}
+.headline
+{
+    width:15%;
+    float:left;
+    background-color:inherit;
+    height:100%;
+    font-weight: bold;
+    font-family: cursive;
+    color: #8b008b;
+}
+
+.reference{
+
+    font-weight: bold;
+    font-family: cursive;
+    color: #adb76b;
+
+}
+
+.highlight{
+
+    font-weight: bold;
+    background-color: #FFFF00
+}
+
+
+.rowNo
+{
+   width:1%;
+   height:100%;
+   float: left;
+   display: none;
+}
+
+.annotation{
+    width:15%;
+    height:100%;
+    float:right;
+    background-color:inherit;
+    padding:5px;
+
+}
+
+.rephrase{
+    padding:5px;
+
+}
+
+.note{
+    font-family: cursive;
+    color: #0000AA;
+}
+.risk
+{
+   background-color:#FFFF00;
+}
+.expensive
+{
+   background-color:#FF0000;
+}
+.blocker
+{
+    background-color:#000000;
+
+}
+.none
+{
+    background-color:#EEEEEE;
+}
+.unused
+{
+    background-color:inherit;
+}
+
+
+.label {
+   display: inline-block;
+   width: 5em;
+}
