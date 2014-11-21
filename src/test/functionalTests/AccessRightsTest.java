@@ -1,4 +1,4 @@
-package test;
+package test.functionalTests;
 
 import backend.ItClarifies;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
@@ -15,6 +15,8 @@ import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupItem;
 import pukkaBO.condition.ReferenceFilter;
 import services.*;
+import test.MockWriter;
+import test.ServletTests;
 
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,7 +36,7 @@ import static org.mockito.Mockito.when;
  */
 
 
-public class AccessRightsTest extends ServletTests{
+public class AccessRightsTest extends ServletTests {
 
 
     private static LocalServiceTestHelper helper;
@@ -101,6 +103,7 @@ public class AccessRightsTest extends ServletTests{
 
                 when(request.getParameter("session")).thenReturn("DummySessionToken");
                 when(request.getParameter("project")).thenReturn(project.getKey().toString());
+                when(request.getRemoteAddr()).thenReturn("127.0.0.1");
                 when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
                 new ContractServlet().doGet(request, response);
@@ -144,6 +147,7 @@ public class AccessRightsTest extends ServletTests{
 
             when(request.getParameter("session")).thenReturn("DummySessionToken");
             when(request.getParameter("document")).thenReturn(document.getKey().toString());
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
             new FragmentServlet().doGet(request, response);
@@ -196,6 +200,7 @@ public class AccessRightsTest extends ServletTests{
 
             when(request.getParameter("session")).thenReturn("DummySessionToken");
             when(request.getParameter("fragment")).thenReturn(fragment.getKey().toString());
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
             new FragmentDetailServlet().doGet(request, response);
@@ -248,6 +253,7 @@ public class AccessRightsTest extends ServletTests{
             when(request.getParameter("session")).thenReturn("DummySessionToken");
             when(request.getParameter("fragment")).thenReturn(fragment.getKey().toString());
             when(request.getParameter("body")).thenReturn("Testing to annotate this");
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
             new AnnotationServlet().doPost(request, response);
@@ -299,6 +305,7 @@ public class AccessRightsTest extends ServletTests{
             when(request.getParameter("session")).thenReturn("DummySessionToken");
             when(request.getParameter("annotation")).thenReturn(annotation.getKey().toString());
             when(request.getParameter("body")).thenReturn("Testing to annotate this");
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
             new AnnotationServlet().doPost(request, response);
@@ -349,6 +356,7 @@ public class AccessRightsTest extends ServletTests{
 
             when(request.getParameter("session")).thenReturn("DummySessionToken");
             when(request.getParameter("annotation")).thenReturn(annotation.getKey().toString());
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
             new AnnotationServlet().doDelete(request, response);
@@ -385,7 +393,7 @@ public class AccessRightsTest extends ServletTests{
      */
 
     @Test
-    public void testFailDeleteProject() throws Exception {
+    public void testFailDeleteReadOnly() throws Exception {
 
         try{
 
@@ -398,6 +406,7 @@ public class AccessRightsTest extends ServletTests{
 
             when(request.getParameter("session")).thenReturn("DummySessionToken");
             when(request.getParameter("Key")).thenReturn(project.getKey().toString());
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
             new ProjectServlet().doDelete(request, response);
@@ -422,6 +431,148 @@ public class AccessRightsTest extends ServletTests{
             assertTrue(false);
         }
     }
+
+
+    /*******************************************************************
+     *
+     *
+     *          eve belongs to another organization and should not be able to do anything
+     *
+     * @throws Exception
+     */
+
+
+        @Test
+        public void testDocumentsForProjectOutsideOrg() throws Exception {
+
+
+            try{
+
+
+                Project project = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), "Demo")));
+                assertTrue(project.exists());
+
+                MockWriter mockWriter = new MockWriter();
+
+                when(request.getParameter("session")).thenReturn("DummyEveToken");
+                when(request.getParameter("project")).thenReturn(project.getKey().toString());
+                when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+                when(response.getWriter()).thenReturn(mockWriter.getWriter());
+
+                new ContractServlet().doGet(request, response);
+
+
+                String output = mockWriter.getOutput();
+                PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
+
+                JSONObject json = new JSONObject(output);
+                JSONArray documents = json.getJSONArray("Document");
+
+                assertThat(documents.length(), is(0));
+
+
+
+        }catch(NullPointerException e){
+
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    /***************************************************************************************
+     *
+     *      The fact that the Google document is shared in the organization
+     *      does not mean eve should see it.
+     *
+     *
+     * @throws Exception
+     */
+
+    @Test
+    public void testFailFragmentsForSharedDocument() throws Exception {
+
+        try{
+
+            Contract document = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Google Analytics")));
+
+            request = mock(HttpServletRequest.class);
+            response = mock(HttpServletResponse.class);
+
+            MockWriter mockWriter = new MockWriter();
+
+            when(request.getParameter("session")).thenReturn("DummyEveToken");
+            when(request.getParameter("document")).thenReturn(document.getKey().toString());
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+            when(response.getWriter()).thenReturn(mockWriter.getWriter());
+
+            new FragmentServlet().doGet(request, response);
+
+
+            String output = mockWriter.getOutput();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
+
+            JSONObject json = new JSONObject(output);
+            JSONArray errors = json.getJSONArray("error");
+
+            assertThat(errors.length(), is(1));
+
+            JSONObject error = (JSONObject)errors.get( 0 );
+
+            assertThat(error.getString("message"), is( "Contract not found" ));
+            assertThat(error.getString("type"), is( "PERMISSION" ));
+
+
+        }catch(NullPointerException e){
+
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+
+
+    @Test
+    public void testFailDeleteProject() throws Exception {
+
+        try{
+
+            Project project = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), "Demo")));
+
+            request = mock(HttpServletRequest.class);
+            response = mock(HttpServletResponse.class);
+
+            MockWriter mockWriter = new MockWriter();
+
+            when(request.getParameter("session")).thenReturn("DummyEveToken");
+            when(request.getParameter("Key")).thenReturn(project.getKey().toString());
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+            when(response.getWriter()).thenReturn(mockWriter.getWriter());
+
+            new ProjectServlet().doDelete(request, response);
+
+
+            String output = mockWriter.getOutput();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
+
+            JSONObject json = new JSONObject(output);
+            JSONArray errors = json.getJSONArray("error");
+
+            assertThat(errors.length(), is(1));
+
+            JSONObject error = (JSONObject)errors.get( 0 );
+
+            assertThat(error.getString("message"), is( "Project read only" ));
+            assertThat(error.getString("type"), is( "PERMISSION" ));
+
+
+        }catch(NullPointerException e){
+
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+
 
 
 

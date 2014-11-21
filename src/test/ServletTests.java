@@ -64,6 +64,7 @@ public class ServletTests {
 
             when(request.getParameter("session")).thenReturn("DummyAdminToken");
             when(request.getParameter("project")).thenReturn(project.getKey().toString());
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
             new ContractServlet().doGet(request, response);
@@ -86,6 +87,7 @@ public class ServletTests {
 
         }catch(Exception e){
 
+            e.printStackTrace();
             assertThat("Error getting documents in project", false, is(true));
         }
 

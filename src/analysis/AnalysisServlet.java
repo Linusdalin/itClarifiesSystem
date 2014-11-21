@@ -11,9 +11,8 @@ import dataRepresentation.DBTimeStamp;
 import databaseLayer.DBKeyInterface;
 import databaseLayer.DatabaseAbstractionFactory;
 import document.*;
-import featureTypes.FeatureTypeDefinition;
-import featureTypes.FeatureTypeDefinitionDef;
 import featureTypes.FeatureTypeInterface;
+import featureTypes.FeatureTypeTree;
 import fileHandling.BlobRepository;
 import fileHandling.RepositoryFileHandler;
 import fileHandling.RepositoryInterface;
@@ -84,7 +83,7 @@ public class AnalysisServlet extends DocumentService {
             logRequest(req);
             ContractVersionInstance oldVersion = null;
 
-            if(!validateSession(req, resp))
+            if(!validateSession(req, resp, HttpServletResponse.SC_OK))    // Send OK here. A 403 would trigger a retry in the event queue
                 return;
 
             DBKeyInterface _version = getMandatoryKey("version", req);
@@ -124,7 +123,7 @@ public class AnalysisServlet extends DocumentService {
             // Check for the file on the server. It should have been uploaded through the FileUploadServlet.
 
             if(!repository.existsFile(fileHandler))
-                returnError("File " + versionInstance.getVersion() + " does not exist as a file on the server", HttpServletResponse.SC_BAD_REQUEST, resp);
+                returnError("File " + versionInstance.getVersion() + " does not exist as a file on the server", HttpServletResponse.SC_OK, resp);
 
 
             // Now parse the file
@@ -220,6 +219,7 @@ public class AnalysisServlet extends DocumentService {
         document.setStatus(ContractStatus.getAnalysing().getKey());  // Setting the status for the document
         document.update();
 
+        aProject.addDocument(aDocument);
 
         // Create an analyser and detect basic principles for the document.
 
@@ -362,7 +362,8 @@ public class AnalysisServlet extends DocumentService {
 
     }
 
-    private void analyseFragments(Analyser analyser, ContractVersionInstance documentVersion, AbstractDocument aDocument, Project project, Contract document, AbstractProject aProject, DBTimeStamp analysisTime, List<OutcomeMap> outcomeList) throws BackOfficeException {
+    private void analyseFragments(Analyser analyser, ContractVersionInstance documentVersion, AbstractDocument aDocument, Project project,
+                                  Contract document, AbstractProject aProject, DBTimeStamp analysisTime, List<OutcomeMap> outcomeList) throws BackOfficeException {
 
         List<ContractFragment> fragments = documentVersion.getFragmentsForVersion();
 
@@ -388,17 +389,14 @@ public class AnalysisServlet extends DocumentService {
                                           // this is additional text from surrounding parts of the document,
                                           // relevant for the analysis e.g. Lists
 
-                NewAnalysisOutcome analysisOutcome2 = analyser.analyseFragment2(fragment.getText(), headline, contextText, aDocument, aProject);
+                NewAnalysisOutcome analysisOutcome = analyser.analyseFragment2(fragment.getText(), headline, contextText, aDocument, aProject);
 
 
+                handleResult(analysisOutcome, fragment, project, analysisTime, aDocument);
 
-                //System.out.println("Handle result:");
-                handleResult(analysisOutcome2, fragment, project, analysisTime, aDocument);
+                // Store it for the second pass. In that pass we dont want to redo the parsing and analysis
 
-                //handleResultOld(analysisOutcome, fragment, project, analysisTime, aDocument);
-                //System.out.println("Storing outcome");
-                //outcomeList.add(new OutcomeMap(analysisOutcome, fragment));
-                //System.out.println("Done");
+                outcomeList.add(new OutcomeMap(analysisOutcome, fragment));
 
             }catch(BackOfficeException e){
 
@@ -420,7 +418,10 @@ public class AnalysisServlet extends DocumentService {
 
     /***********************************************************************
      *
-     *      Go through the entire project and see if there are references to close
+     *      Go through the entire project and see if there are references to close. This includes:
+     *
+     *       - Open references
+     *       - Definitions
      *
      * @param analyser
      * @param project
@@ -436,38 +437,40 @@ public class AnalysisServlet extends DocumentService {
 
         for(Reference reference : openReferencesForProject){
 
-            AnalysisOutcome outcome = analyser.analyseOpenReference(reference.getName(), aProject);
+            NewAnalysisOutcome outcome2 = analyser.analyseOpenReference2(reference.getName(), aProject);
+
+            System.out.println("***** New close delivered " + outcome2.getClassifications().size() + " classifications.");
+
+            for(Classification classification : outcome2.getClassifications()){
 
 
+                if(classification.getType().getName().equals(FeatureType.REFERENCE.name())){
 
-            for(FeatureDefinition featureDefinition : outcome.getDefinitions()){
+                    // This is a new reference target. The key (which comes from the AbstractStructureItem)
+                    // is extracted as semantic extraction
 
-                switch (featureDefinition.getAction()) {
+                    DBKeyInterface clauseId = new DatabaseAbstractionFactory().createKey(classification.getExtraction().getSemanticExtraction());
 
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "Closing an open reference(2) " + reference.getName() + ". Found matching clause " + clauseId.toString() );
 
-                    case CREATE_REFERENCE_TARGET:
+                    reference.setTo(clauseId);
+                    reference.setType(ReferenceType.getExplicit().getKey());
+                    reference.update();
 
-
-                        DBKeyInterface clauseId = new DatabaseAbstractionFactory().createKey(featureDefinition.getClause().getKey());
-
-                        reference.setTo(clauseId);
-                        reference.setType(ReferenceType.getExplicit().getKey());
-                        reference.update();
-
-                        PukkaLogger.log(PukkaLogger.Level.INFO, "Closing an open reference " + reference.getName() + ". Found matching clause " + featureDefinition.getClause().getTopElement().getBody() );
-
-                        break;
-
-                    default:
-
-                        PukkaLogger.log(PukkaLogger.Level.FATAL, "Action " + featureDefinition.getAction() + " not supported after analyseOpenReferences()");
+                    break;
                 }
+
+
+
+                PukkaLogger.log(PukkaLogger.Level.FATAL, "Action " + classification.getType().getName() + " not supported after analyseOpenReferences()");
+
             }
+
         }
 
-
-
     }
+
+
 
     /******************************************************************************************
      *
@@ -546,15 +549,19 @@ public class AnalysisServlet extends DocumentService {
 
     }
 
+
     private void analyseDefinitions(Analyser analyser, List<OutcomeMap> outcomeList, AbstractDocument aDocument, Project project, AbstractProject aProject, DBTimeStamp analysisTime) throws BackOfficeException{
+
+        System.out.println("**** Second pass with " + outcomeList.size() + " elements");
+
 
         for(OutcomeMap outcome : outcomeList){
 
-            //System.out.println("--------------------------------------------");
-            //System.out.println("Post processing fragment " + outcome.fragment.getName());
+            System.out.println("**** Post processing " + outcome.fragment.getText());
 
-            AnalysisOutcome newOutcome= analyser.postProcessFragment(outcome.outcome, aDocument, aProject);
-            handleResultOld(newOutcome, outcome.fragment, project, analysisTime, aDocument);
+            NewAnalysisOutcome newOutcome = analyser.postProcess(outcome.outcome, aProject);
+
+            handlePostProcessResult(newOutcome, outcome.fragment, project, analysisTime, aDocument);
 
         }
 
@@ -751,46 +758,94 @@ public class AnalysisServlet extends DocumentService {
 
         ContractRisk defaultRisk = getDefaultRiskLevel(project);
 
-        System.out.println("Found " + analysisResult.getClassifications() + " classifications ");
+        System.out.println("Found " + analysisResult.getClassifications().size() + " classifications ");
 
         for(Classification classification : analysisResult.getClassifications()){
 
-
-            if(classification == null){
-
-                System.out.println("This should not be");
-            }
-
             try{
 
-            // Lookup the classification in the database and validate that it exists
+                if(classification.getType().getName().equals(FeatureTypeTree.Reference.getName())){
+
+                    // The analysis has classified it as a reference. We create the reference here as open.
+                    // In the second phase we go through all the open references and try to close them.
+                    // We use the semantic extraction that will be the
 
 
-            FragmentClass fragmentClass = getClassificationClass(classification.getType());
-            if(!fragmentClass.exists()){
+                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating reference for fragment " + fragment.getName() + "(" + classification.getExtraction().getSemanticExtraction() + ")");
+
+                    ReferenceType type = ReferenceType.getOpen();
+
+                    Reference reference = new Reference(
+                            classification.getExtraction().getSemanticExtraction(),
+                            fragment.getKey(),
+                            fragment.getKey(),          // TODO: Points to itself, is this ok?
+                            fragment.getVersionId(),
+                            project.getKey(),
+                            type.getKey());
+                    reference.store();
+
+                    references++;
+                    updated = true;
+                    break;
+                }
 
 
-                PukkaLogger.log(PukkaLogger.Level.FATAL, "Classification " + classification.getType().getName() + " does not exist.");
-                break;
+                if(classification.getType().getName().equals(FeatureTypeTree.Definition.getName())){
 
-            }
+                    // The analysis has classified a definition Source.
+                    // We create a definition and also add a definition tag. (This may be removed
+                    // later when definitions are properly displayed and searchable from the frontend)
+
+                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating definition for fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
+
+                    Definition definition = new Definition(classification.getPattern().getText(), fragment.getKey(), fragment.getVersionId());
+                    definition.store();
+
+                    fragmentClassification = new FragmentClassification(
+                            fragment.getKey(),
+                            FragmentClass.getDefinitionS().getKey(),
+                            classification.getType().getName(),
+                            classification.getTag(),
+                            classification.getKeywords(),
+                            system.getKey(),
+                            fragment.getVersionId(),
+                            classification.getPattern().getText(),
+                            classification.getPattern().getPos(),
+                            classification.getPattern().getLength(),
+                            classification.getSignificance(),
+                            "not specified rule",                       //TODO: This should be implemented later
+                            analysisTime.getSQLTime().toString());
+                    fragmentClassification.store();
+                    classifications++;
+                    updated = true;
 
 
-            if(fragmentClass.isSame(FragmentClass.getDefinitionS())){
+                    // Also store the definition in the abstract document to be able to detect it later
+                    aDocument.addDefinition(definition.getName());
 
-                // The analysis has classified a definition Source.
-                // We create a definition and also add a definition tag. (This may be removed
-                // later when definitions are properly displayed and searchable from the frontend)
 
-                PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating definition for fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
+                     break;
+                }
 
-                Definition definition = new Definition(classification.getPattern().getText(), fragment.getKey(), fragment.getVersionId());
-                definition.store();
+
+                // Default action is to jut add the classification from the analysis
+
+                FragmentClass fragmentClass = getClassificationClass(classification.getType());
+                if(!fragmentClass.exists()){
+
+                    PukkaLogger.log(PukkaLogger.Level.FATAL, "Classification " + classification.getType().getName() + " does not exist.");
+                    break;
+
+                }
+
+
+
+                PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Classifying fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
 
                 fragmentClassification = new FragmentClassification(
                         fragment.getKey(),
                         fragmentClass.getKey(),
-                        fragmentClass.getName(),
+                        classification.getType().getName(),
                         classification.getTag(),
                         classification.getKeywords(),
                         system.getKey(),
@@ -799,50 +854,18 @@ public class AnalysisServlet extends DocumentService {
                         classification.getPattern().getPos(),
                         classification.getPattern().getLength(),
                         classification.getSignificance(),
-                        "not specified rule",                       //TODO: This should be implemented later
+                        "not specified rule",
                         analysisTime.getSQLTime().toString());
                 fragmentClassification.store();
-                classifications++;
-                updated = true;
 
+                // Only update the number of classifications if it is above the threshold
+                // for displaying in the front-end
 
-                // Also store the definition in the abstract document to be able to detect it later
-                aDocument.addDefinition(definition.getName());
+                if(classification.getSignificance() > Significance.DISPLAY_SIGNIFICANCE){
 
-
-                 break;
-            }
-
-
-            // Default action is to jut add the classification from the analysis
-
-
-            PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Classifying fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
-
-            fragmentClassification = new FragmentClassification(
-                    fragment.getKey(),
-                    fragmentClass.getKey(),
-                    classification.getType().getName(),
-                    classification.getTag(),
-                    classification.getKeywords(),
-                    system.getKey(),
-                    fragment.getVersionId(),
-                    classification.getPattern().getText(),
-                    classification.getPattern().getPos(),
-                    classification.getPattern().getLength(),
-                    classification.getSignificance(),
-                    "not specified rule",
-                    analysisTime.getSQLTime().toString());
-            fragmentClassification.store();
-
-            // Only update the number of classifications if it is above the threshold
-            // for displaying in the front-end
-
-            if(classification.getSignificance() > Significance.DISPLAY_SIGNIFICANCE){
-
-                classifications++;
-                updated = true;
-            }
+                    classifications++;
+                    updated = true;
+                }
 
 
 
@@ -861,111 +884,6 @@ public class AnalysisServlet extends DocumentService {
             switch (featureDefinition.getAction()) {
 
 
-                case CORRECT_DEFINITION_USAGE:
-
-                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating correct definition usage for fragment " + fragment.getName() + "(" + featureDefinition.getPattern() + ")");
-
-                    definitionFragment = getFragmentForDefinition(fragment, featureDefinition.getPattern());
-
-                    if(definitionFragment.exists()){
-                        ReferenceType type = ReferenceType.getDefinitionUsage();
-
-                        Reference reference = new Reference(
-                                featureDefinition.getPattern(),
-                                fragment.getKey(),
-                                definitionFragment.getKey(),     // Point to the definition
-                                fragment.getVersionId(),
-                                project.getKey(),
-                                type.getKey());
-                        reference.store();
-
-                        references++;
-                        updated = true;
-                    }
-                    else{
-                        PukkaLogger.log(PukkaLogger.Level.FATAL, "Internal error: Definition \""+ featureDefinition.getPattern()+
-                                "\" identified in analysis but then not found for processing. (Document: " + fragment.getVersion().getDocument().getName() + ")");
-                    }
-                    break;
-
-
-                case INCORRECT_DEFINITION_USAGE:
-
-                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating incorrect definition usage for fragment " + fragment.getName() + "(" + featureDefinition.getPattern() + ")");
-
-
-                    fragmentClassification = new FragmentClassification(
-                            fragment.getKey(),
-                            FragmentClass.getAmbiguity().getKey(),
-                            featureDefinition.getName(),
-                            featureDefinition.getTag(),
-                            featureDefinition.getKeywords().toString(),
-                            system.getKey(),
-                            fragment.getVersion().getDocumentId(),
-                            featureDefinition.getPattern(),
-                            featureDefinition.getPos(),
-                            featureDefinition.getLength(),
-                            featureDefinition.getSignificance(),
-                            "not specified rule",
-                            analysisTime.getSQLTime().toString());
-                    fragmentClassification.store();
-                    classifications++;
-                    updated = true;
-
-                    // Still create a reference, assuming it is the definition we are referencing to
-
-                    definitionFragment = getFragmentForDefinition(fragment, featureDefinition.getPattern());
-
-                    if(definitionFragment.exists()){
-                        ReferenceType type = ReferenceType.getDefinitionUsage();
-
-                        Reference reference = new Reference(
-                                featureDefinition.getPattern(),
-                                fragment.getKey(),
-                                definitionFragment.getKey(),     // Point to the definition
-                                fragment.getVersionId(),
-                                project.getKey(),
-                                type.getKey());
-                        reference.store();
-
-                        references++;
-                        updated = true;
-                    }
-                    else{
-                        PukkaLogger.log(PukkaLogger.Level.FATAL, "Internal error: Definition \""+ featureDefinition.getPattern()+"\" " +
-                                "identified in analysis but then not found for processing. (Document: " + fragment.getVersion().getDocument().getName() + ")");
-                    }
-                    break;
-
-                case CREATE_REFERENCE:
-
-                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating reference for fragment " + fragment.getName() + "(" + featureDefinition.getPattern() + ")");
-
-                    ReferenceType type = ReferenceType.getOpen();
-
-                    Reference reference = new Reference(
-                            featureDefinition.getPattern(),
-                            fragment.getKey(),
-                            fragment.getKey(),          // TODO: Points to itself, is this ok?
-                            fragment.getVersionId(),
-                            project.getKey(),
-                            type.getKey());
-                    reference.store();
-
-                    references++;
-                    updated = true;
-                    break;
-
-                case CLASSIFY:
-
-
-
-                    // Add the classification as a keyword
-
-                    //Keyword keyword = new Keyword(classification.getClassification().getName(), version, version.getContract().getProject());
-                    //keyword.store();
-
-                    break;
 
                 case CREATE_RISK:
 
@@ -1072,74 +990,41 @@ public class AnalysisServlet extends DocumentService {
             fragment.update();
 
     }
-    private void handleResultOld(AnalysisOutcome analysisResult, ContractFragment fragment, Project project, DBTimeStamp analysisTime, AbstractDocument aDocument) throws BackOfficeException{
+
+
+    private void handlePostProcessResult(NewAnalysisOutcome analysisResult, ContractFragment fragment, Project project, DBTimeStamp analysisTime, AbstractDocument aDocument) throws BackOfficeException{
 
         boolean updated = false;
         PortalUser system = PortalUser.getSystemUser();
         int classifications = 0;
         int references = 0;
         int annotations = 0;
-        FragmentClassification classification;
+        FragmentClassification fragmentClassification;
         ContractFragment definitionFragment;
 
-        ContractRisk defaultRisk = getDefaultRiskLevel(project);
+        System.out.println("Found " + analysisResult.getClassifications().size() + " classifications in post process of " + fragment.getText());
 
-        for(FeatureDefinition featureDefinition : analysisResult.getDefinitions()){
+        for(Classification classification : analysisResult.getClassifications()){
 
-            //TODO: Check significance here
+            try{
 
-            if(featureDefinition.getSignificance() < 50){
-
-
-                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring weak classification " + featureDefinition.getName());
-                break;
-            }
+                System.out.println("Classification is " + classification.getType().getName());
 
 
-            switch (featureDefinition.getAction()) {
+                if(classification.getType().getName().equals(FeatureTypeTree.DefinitionUsage.getName())){
 
-                case CREATE_DEFINITION:
+                    // The analysis has classified a definition usage
+                    // We create a definition usage tag.
 
-                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating definition for fragment " + fragment.getName() + "(" + featureDefinition.getPattern() + ")");
+                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating definition reference fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
 
-                    Definition definition = new Definition(featureDefinition.getPattern(), fragment.getKey(), fragment.getVersionId());
-                    definition.store();
-
-                    classification = new FragmentClassification(
-                            fragment.getKey(),
-                            getClassificationClass(featureDefinition.getType()).getKey(),
-                            featureDefinition.getName(),
-                            featureDefinition.getTag(),
-                            featureDefinition.getKeywords().toString(),
-                            system.getKey(),
-                            fragment.getVersionId(),
-                            featureDefinition.getPattern(),
-                            featureDefinition.getPos(),
-                            featureDefinition.getLength(),
-                            featureDefinition.getSignificance(),
-                            "not specified rule",                       //TODO: This should be implemented later
-                            analysisTime.getSQLTime().toString());
-                    classification.store();
-                    classifications++;
-                    updated = true;
-
-
-                    // Also store the definition in the abstract document to be able to detect it later
-                    aDocument.addDefinition(definition.getName());
-
-                    break;
-
-                case CORRECT_DEFINITION_USAGE:
-
-                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating correct definition usage for fragment " + fragment.getName() + "(" + featureDefinition.getPattern() + ")");
-
-                    definitionFragment = getFragmentForDefinition(fragment, featureDefinition.getPattern());
+                    definitionFragment = getFragmentForDefinition(fragment, classification.getPattern().getText());
 
                     if(definitionFragment.exists()){
                         ReferenceType type = ReferenceType.getDefinitionUsage();
 
                         Reference reference = new Reference(
-                                featureDefinition.getPattern(),
+                                classification.getPattern().getText(),
                                 fragment.getKey(),
                                 definitionFragment.getKey(),     // Point to the definition
                                 fragment.getVersionId(),
@@ -1151,220 +1036,25 @@ public class AnalysisServlet extends DocumentService {
                         updated = true;
                     }
                     else{
-                        PukkaLogger.log(PukkaLogger.Level.FATAL, "Internal error: Definition \""+ featureDefinition.getPattern()+
+                        PukkaLogger.log(PukkaLogger.Level.FATAL, "Internal error: Definition \""+ classification.getPattern().getText()+
                                 "\" identified in analysis but then not found for processing. (Document: " + fragment.getVersion().getDocument().getName() + ")");
                     }
                     break;
 
-
-                case INCORRECT_DEFINITION_USAGE:
-
-                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating incorrect definition usage for fragment " + fragment.getName() + "(" + featureDefinition.getPattern() + ")");
-
-
-                    classification = new FragmentClassification(
-                            fragment.getKey(),
-                            FragmentClass.getAmbiguity().getKey(),
-                            featureDefinition.getName(),
-                            featureDefinition.getTag(),
-                            featureDefinition.getKeywords().toString(),
-                            system.getKey(),
-                            fragment.getVersion().getDocumentId(),
-                            featureDefinition.getPattern(),
-                            featureDefinition.getPos(),
-                            featureDefinition.getLength(),
-                            featureDefinition.getSignificance(),
-                            "not specified rule",
-                            analysisTime.getSQLTime().toString());
-                    classification.store();
-                    classifications++;
-                    updated = true;
-
-                    // Still create a reference, assuming it is the definition we are referencing to
-
-                    definitionFragment = getFragmentForDefinition(fragment, featureDefinition.getPattern());
-
-                    if(definitionFragment.exists()){
-                        ReferenceType type = ReferenceType.getDefinitionUsage();
-
-                        Reference reference = new Reference(
-                                featureDefinition.getPattern(),
-                                fragment.getKey(),
-                                definitionFragment.getKey(),     // Point to the definition
-                                fragment.getVersionId(),
-                                project.getKey(),
-                                type.getKey());
-                        reference.store();
-
-                        references++;
-                        updated = true;
-                    }
-                    else{
-                        PukkaLogger.log(PukkaLogger.Level.FATAL, "Internal error: Definition \""+ featureDefinition.getPattern()+"\" " +
-                                "identified in analysis but then not found for processing. (Document: " + fragment.getVersion().getDocument().getName() + ")");
-                    }
-                    break;
-
-                case CREATE_REFERENCE:
-
-                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating reference for fragment " + fragment.getName() + "(" + featureDefinition.getPattern() + ")");
-
-                    ReferenceType type = ReferenceType.getOpen();
-
-                    Reference reference = new Reference(
-                            featureDefinition.getPattern(),
-                            fragment.getKey(),
-                            fragment.getKey(),          // TODO: Points to itself, is this ok?
-                            fragment.getVersionId(),
-                            project.getKey(),
-                            type.getKey());
-                    reference.store();
-
-                    references++;
-                    updated = true;
-                    break;
-
-                case CLASSIFY:
-
-                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Classifying fragment " + fragment.getName() + "(" + featureDefinition.getPattern() + ")");
-
-                    classification = new FragmentClassification(
-                            fragment.getKey(),
-                            getClassificationClass(featureDefinition.getType()).getKey(),
-                            featureDefinition.getName(),
-                            featureDefinition.getTag(),
-                            featureDefinition.getKeywords().toString(),
-                            system.getKey(),
-                            fragment.getVersionId(),
-                            featureDefinition.getPattern(),
-                            featureDefinition.getPos(),
-                            featureDefinition.getLength(),
-                            featureDefinition.getSignificance(),
-                            "not specified rule",
-                            analysisTime.getSQLTime().toString());
-                    classification.store();
-
-                    // Only update the number of classifications if it is above the threshold
-                    // for displaying in the front-end
-
-                    if(featureDefinition.getSignificance() > Significance.DISPLAY_SIGNIFICANCE){
-
-                        classifications++;
-                        updated = true;
-                    }
-
-
-                    /*
-
-                    //Temporarily add an annotation with the comment. This should really be shown in the annotation
-
-                    if(!featureDefinition.getTag().equals("")){
-
-                        ContractAnnotation annotation = new ContractAnnotation(
-                                "system@"+analysisTime.getSQLTime().toString(),
-                                fragment.getKey(),
-                                1,
-                                "Classification note: " + featureDefinition.getTag(),
-                                system.getKey(),
-                                fragment.getVersionId(),
-                                featureDefinition.getPattern(),
-                                analysisTime.getSQLTime().toString());
-                        annotation.store();
-                        annotations++;
-                        updated = true;
-
-                    }
-
-                      */
-
-                    // Add the classification as a keyword
-
-                    //Keyword keyword = new Keyword(classification.getClassification().getName(), version, version.getContract().getProject());
-                    //keyword.store();
-
-                    break;
-
-                case CREATE_RISK:
-
-                    // Create risk is the action from the risk analysis
+                }
 
 
 
-                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating risk for fragment " + fragment.getName() + "(" + featureDefinition.getPattern() + ")");
-
-                    RiskClassification risk = new RiskClassification(
-                            fragment.getKey(),
-                            defaultRisk.getKey(),
-                            featureDefinition.getTag(),
-                            system.getKey(),
-                            fragment.getVersionId(),
-                            featureDefinition.getPattern(),
-                            analysisTime.getSQLTime().toString());
-                    risk.store();
-
-                    fragment.setRisk(defaultRisk.getKey());  // Set it in the fragment too
-
-                    // Also create an implicit action for the risk. All risks should be mitigated or at least acknowledged.
+            }catch(BackOfficeException e){
 
 
-                    Action handleRiskAction = new Action(
-                            (long)0, // Not supported action id yet. This is a placeholder
-                            "assess risk",
-                            "Asses the impact of the automatically flagged potential risk " + featureDefinition.getName(),
-                            featureDefinition.getPattern(),
-                            fragment.getKey(),
-                            fragment.getVersionId(),
-                            project.getKey(),
-                            system.getKey(),
-                            PortalUser.getNoUser().getKey(),
-                            20,
-                            ActionStatus.getOpen().getKey(),
-                            analysisTime.getISODate(),
-                            new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00").getISODate(),
-                            new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00").getISODate());
-
-                    handleRiskAction.store();
-
-
-                    //Temporarily add an annotation with the comment. This should really be shown in the annotation
-
-                    if(!featureDefinition.getTag().equals("")){
-
-                        ContractAnnotation annotation = new ContractAnnotation(
-                                "system@"+analysisTime.getSQLTime().toString(),
-                                fragment.getKey(),
-                                1,
-                                "Classification note: " + featureDefinition.getTag(),
-                                system.getKey(),
-                                fragment.getVersionId(),
-                                featureDefinition.getPattern(),
-                                analysisTime.getSQLTime().toString());
-
-                        annotation.store();
-                        annotations++;
-
-                    }
-
-
-
-                    updated = true;
-
-
-
-                    break;
-
-                case NO_ACTION:
-
-                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** NO Action for fragment " + fragment.getName() + "(" + featureDefinition.getPattern() + ")");
-                    break;
-
-
-                default:
-                    throw new BackOfficeException(BackOfficeException.General, "Unknown action " + featureDefinition.getAction().name() + " in handle Result");
+                e.printStackTrace(System.out);
+                e.logError("Error in hanndleResult for fragment " + fragment + " and classification " + classification.getType().getName());
             }
 
-
         }
+
+
 
         if(classifications != 0){
 
@@ -1387,6 +1077,7 @@ public class AnalysisServlet extends DocumentService {
 
     }
 
+
     /*******************************************************************************'
      *
      *          look up the definition for the reference
@@ -1394,6 +1085,9 @@ public class AnalysisServlet extends DocumentService {
      * @param fragment
      * @param pattern
      * @return
+     *
+     *
+     *          //TODO: Optimize this. No need to lookup all definitions every time.
      */
 
     private ContractFragment getFragmentForDefinition(ContractFragment fragment, String pattern) throws BackOfficeException {

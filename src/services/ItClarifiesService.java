@@ -208,12 +208,18 @@ public class ItClarifiesService extends PukkaServlet {
 
     protected boolean validateSession(HttpServletRequest req, HttpServletResponse resp) throws BackOfficeException, IOException {
 
+        return validateSession(req, resp, HttpServletResponse.SC_FORBIDDEN);
+
+    }
+
+    protected boolean validateSession(HttpServletRequest req, HttpServletResponse resp, int errorCode) throws BackOfficeException, IOException {
+
         String sessionToken  = getMandatoryString("session", req);
         String ipAddress = getIPAddress(req);
 
         if(!sessionManagement.validate(sessionToken, ipAddress)){
 
-            returnError("No session", ErrorType.SESSION, HttpServletResponse.SC_FORBIDDEN, resp);
+            returnError("No session", ErrorType.SESSION, errorCode, resp);
             resp.flushBuffer();
             return false;
         }
@@ -221,6 +227,7 @@ public class ItClarifiesService extends PukkaServlet {
         return true;
 
     }
+
 
 
     /****************************************************************************************

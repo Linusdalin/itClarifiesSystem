@@ -1,4 +1,4 @@
-package test;
+package test.functionalTests;
 
 import analysis.*;
 import org.junit.Test;

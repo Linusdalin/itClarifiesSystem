@@ -121,7 +121,7 @@ public class LoginServlet extends ItClarifiesService{
 
     public void doDelete(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
-        returnError("Delete not supported in " + DataServletName, HttpServletResponse.SC_METHOD_NOT_ALLOWED, resp);
+        returnError("Delete not supported in Login", HttpServletResponse.SC_METHOD_NOT_ALLOWED, resp);
         resp.flushBuffer();
 
     }

@@ -1,6 +1,5 @@
-package test;
+package test.UnitTests;
 
-import document.AbstractClause;
 import document.AbstractFragment;
 import document.AbstractStructureItem;
 import document.StructureType;
@@ -9,12 +8,11 @@ import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 
 
 /**
- * Simple tests for the time stamp datatype.
+ *          TODO: Move this to Analysis
  */
 
 

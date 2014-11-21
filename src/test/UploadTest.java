@@ -130,6 +130,7 @@ public class UploadTest extends ServletTests {
 
                 when(request.getParameter("session")).thenReturn("DummyAdminToken");
                 when(request.getParameter("version")).thenReturn(newVersion.getKey().toString());
+                when(request.getRemoteAddr()).thenReturn("127.0.0.1");
                 when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
                 AnalysisServlet.MODEL_DIRECTORY = "web/models";
@@ -162,6 +163,7 @@ public class UploadTest extends ServletTests {
 
                 when(request.getParameter("session")).thenReturn("DummyAdminToken");
                 when(request.getParameter("version")).thenReturn(newVersion.getKey().toString());
+                when(request.getRemoteAddr()).thenReturn("127.0.0.1");
                 when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
                 AnalysisServlet.MODEL_DIRECTORY = "web/models";

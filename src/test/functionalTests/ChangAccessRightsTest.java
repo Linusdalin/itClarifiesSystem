@@ -1,4 +1,4 @@
-package test;
+package test.functionalTests;
 
 import backend.ItClarifies;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
@@ -15,6 +15,8 @@ import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupItem;
 
+import test.MockWriter;
+import test.ServletTests;
 import userManagement.ACSServlet;
 import services.ContractServlet;
 
@@ -36,7 +38,7 @@ import static org.mockito.Mockito.when;
  */
 
 
-public class ChangAccessRightsTest extends ServletTests{
+public class ChangAccessRightsTest extends ServletTests {
 
 
     private static LocalServiceTestHelper helper;
@@ -105,6 +107,7 @@ public class ChangAccessRightsTest extends ServletTests{
 
                 when(request.getParameter("session")).thenReturn("DummySessionToken");
                 when(request.getParameter("project")).thenReturn(project.getKey().toString());
+                when(request.getRemoteAddr()).thenReturn("127.0.0.1");
                 when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
                 new ContractServlet().doGet(request, response);

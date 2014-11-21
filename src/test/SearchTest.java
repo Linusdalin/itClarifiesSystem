@@ -100,17 +100,17 @@ public class SearchTest {
             JSONObject json;
 
             json = new SearchManager().getMatchJson("Google", demo, mockedSession);
-            expectMatches(json, 46);
+            expectMatches(json, 43);
 
             json = new SearchManager().getMatchJson("Google Analytics", demo, mockedSession);
-            expectMatches(json, 14);
+            expectMatches(json, 13);
 
             json = new SearchManager().getMatchJson("åäö", demo, mockedSession);
             expectMatches(json, 2);
 
 
         } catch (BackOfficeException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         }
 
 

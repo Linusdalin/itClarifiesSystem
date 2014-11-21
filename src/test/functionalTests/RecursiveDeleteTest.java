@@ -1,4 +1,4 @@
-package test;
+package test.functionalTests;
 
 import backend.ItClarifies;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;

@@ -1,6 +1,8 @@
 package analysis;
 
 import analysis.AnalysisOutcome;
+import analysis2.NewAnalysisOutcome;
+import classifiers.Classification;
 import contractManagement.ContractFragment;
 
 /**
@@ -12,10 +14,10 @@ import contractManagement.ContractFragment;
  */
 public class OutcomeMap {
 
-    public final AnalysisOutcome outcome;
+    public final NewAnalysisOutcome outcome;
     public final ContractFragment fragment;
 
-    public OutcomeMap(AnalysisOutcome outcome, ContractFragment fragment){
+    public OutcomeMap(NewAnalysisOutcome outcome, ContractFragment fragment){
 
         this.outcome = outcome;
         this.fragment = fragment;

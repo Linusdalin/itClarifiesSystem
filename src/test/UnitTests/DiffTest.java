@@ -1,4 +1,4 @@
-package test;
+package test.UnitTests;
 
 import diff.FragmentComparator;
 import diff.DiffStructure;
