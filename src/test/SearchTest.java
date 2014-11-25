@@ -33,7 +33,7 @@ import static org.mockito.Mockito.any;
  */
 
 
-public class SearchTest {
+public class SearchTest extends ServletTests {
 
     /******************************************************************
      *
@@ -269,19 +269,6 @@ public class SearchTest {
 
 
 
-
-    private void expectMatches(JSONObject json, int expected) {
-
-        JSONArray matches = json.getJSONArray("fragments");
-
-        if(matches.length() != expected){
-
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Expected " + expected + " matches but found " + matches + " in JSON:\n" + json);
-        }
-
-        assertThat(matches.length(), is(expected));
-
-    }
 
 
 }

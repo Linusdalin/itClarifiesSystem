@@ -158,6 +158,16 @@
      </servlet-mapping>
 
     <servlet>
+         <servlet-name>Priority</servlet-name>
+         <servlet-class>services.PriorityServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>Priority</servlet-name>
+         <url-pattern>/Prioritize</url-pattern>
+     </servlet-mapping>
+
+
+    <servlet>
          <servlet-name>DocumentDetails</servlet-name>
          <servlet-class>services.ContractDetailServlet</servlet-class>
      </servlet>

@@ -14,6 +14,7 @@ import pukkaBO.condition.LookupByKey;
 import pukkaBO.condition.LookupItem;
 import pukkaBO.condition.ReferenceFilter;
 import pukkaBO.exceptions.BackOfficeException;
+import test.ServletTests;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
@@ -26,7 +27,7 @@ import static org.junit.Assert.assertTrue;
 
 
 
-public class RecursiveDeleteTest {
+public class RecursiveDeleteTest extends ServletTests{
 
     private static LocalServiceTestHelper helper;
 

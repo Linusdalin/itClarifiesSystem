@@ -40,6 +40,34 @@ public class SessionManagement {
         if(internalIPAccess == null){
             internalIPAccess = new IPAccessList();
             internalIPAccess.allow("0.*.*.*");
+
+            internalIPAccess.allow("8.34.208.*");
+            internalIPAccess.allow("8.35.192.*");
+            internalIPAccess.allow("8.35.200.*");
+            internalIPAccess.allow("23.236.48.*");
+            internalIPAccess.allow("23.251.128.*");
+            internalIPAccess.allow("107.167.160.*");
+            internalIPAccess.allow("107.178.192.*");
+            internalIPAccess.allow("108.170.192.*");
+            internalIPAccess.allow("108.170.208.*");
+            internalIPAccess.allow("108.170.216.*");
+            internalIPAccess.allow("108.170.220.*");
+            internalIPAccess.allow("108.170.222.*");
+            internalIPAccess.allow("108.59.80.*");
+            internalIPAccess.allow("130.211.4*");
+            internalIPAccess.allow("146.148.16.*");
+            internalIPAccess.allow("146.148.2.*");
+            internalIPAccess.allow("146.148.32.*");
+            internalIPAccess.allow("146.148.4.*");
+            internalIPAccess.allow("146.148.64.*");
+            internalIPAccess.allow("146.148.8.*");
+            internalIPAccess.allow("162.216.148.*");
+            internalIPAccess.allow("162.222.176.*");
+            internalIPAccess.allow("173.255.112.*");
+            internalIPAccess.allow("192.158.28.*");
+            internalIPAccess.allow("199.192.112.*");
+            internalIPAccess.allow("199.223.232.*");
+            internalIPAccess.allow("199.223.236.*");
         }
     }
 

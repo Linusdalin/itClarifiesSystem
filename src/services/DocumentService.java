@@ -66,145 +66,155 @@ public class DocumentService extends ItClarifiesService{
 
         for(AbstractFragment aFragment : fragments){
 
-            AbstractStructureItem aStructureItem = aFragment.getStructureItem();
-            DBKeyInterface structureItemKey = null;
-            String fragmentName = createNameFromBody(aFragment);
-            //int indentation = aStructureItem.getIndentation();
-            int indentation = (int)aFragment.getIndentation();
-            int structureNo = aFragment.getStructureItem().getID();
-            boolean newStructureItemCreated = false;
+            try{
 
-            System.out.println("fragment " + fragmentNo + ": ("+ aFragment.getType().name()+")" + aFragment.getBody() +"\n      (" +
-                    indentation + ": " + aStructureItem.getStructureType().name() + ":" +
-                    (aStructureItem.getTopElement() != null ? aStructureItem.getTopElement().getBody() : "--") +")" );
+                AbstractStructureItem aStructureItem = aFragment.getStructureItem();
+                DBKeyInterface structureItemKey = null;
+                String fragmentName = createNameFromBody(aFragment);
+                //int indentation = aStructureItem.getIndentation();
+                int indentation = (int)aFragment.getIndentation();
+                int structureNo = aStructureItem.getID();
+                boolean newStructureItemCreated = false;
+
+                System.out.println("fragment " + fragmentNo + ": ("+ aFragment.getType().name()+")" + aFragment.getBody() +"\n      (" +
+                        indentation + ": " + aStructureItem.getStructureType().name() + ":" +
+                        (aStructureItem.getTopElement() != null ? aStructureItem.getTopElement().getBody() : "--") +")" );
 
 
 
-            int row = 0;
-            int column = 0;
+                int row = 0;
+                int column = 0;
 
-            if(aFragment.getCellInfo() != null){
+                if(aFragment.getCellInfo() != null){
 
-                row = aFragment.getCellInfo().row;
-                column = aFragment.getCellInfo().col;
+                    row = aFragment.getCellInfo().row;
+                    column = aFragment.getCellInfo().col;
+                }
+
+                // First check if this is an implicit top level fragment that we have not created yet
+
+                if(aFragment.getType() == StructureType.IMPLICIT ||
+                        aFragment.getType() == StructureType.TABLE){
+
+
+
+                    StructureItem item = new StructureItem(
+                            "Implicit Structure Item " + structureNo,
+                            fragmentNo,
+                            versionInstance,
+                            project,
+                            structureNo,
+                            aStructureItem.getStructureType().name(),
+                            indentation);
+
+                    item.store();
+                    System.out.println(" **** Storing item " + (structureNo) + " now there are " +
+                            new StructureItemTable(new LookupList().addFilter(new ReferenceFilter(StructureItemTable.Columns.Version.name(), versionInstance.getKey()))).getCount() + " items in the DB for project");
+
+                    /*
+                    structureItemKey = item.getKey();
+                    aStructureItem.setKey(structureItemKey.toString());  // Store the key here as all fragments under this structure element will need the key
+
+
+                    ContractFragment fragment = new ContractFragment(
+                            "Implicit",                                     //TODO: This should really be an attribute
+                            versionInstance.getKey(),
+                            structureNo - 1,                        // Using id as key here for quicker lookup
+                            fragmentNo++,
+                            "implicit",
+                            aFragment.getIndentation(),                //TODO: Remove - Deprecated...
+                            StructureType.IMPLICIT.name(),
+                            defaultRisk.getKey(),
+                            0,     // annotation
+                            0,     // reference
+                            0,     // classificaton
+                            column,
+                            row
+
+                    );
+
+
+                    System.out.println("  -- Adding a fragment " + fragment.getName());
+                    fragmentsToStore.add(fragment);
+
+                    */
+
+                    indentation++;     // When creating an implicit element, the indentation automatically increases
+
+                }
+
+                String numbering = "";
+
+                if(aFragment.getType() == StructureType.HEADING)
+                    numbering = autoNumberer.getNewNumber((int)aFragment.getIndentation(), AutoNumberer.CONTINUE);
+
+                // Now see if this is a new top level item. If that is the case, we create a new structure item for the fragment
+
+                StructureItem item = null;
+                ContractFragment fragment;
+
+                if(aStructureItem.getTopElement() == aFragment){
+
+                    System.out.println("Fragment " + aFragment.getBody() + " is a top item on indentation level " + aFragment.getIndentation());
+
+                    item = new StructureItem(
+                            addNumber(numbering, aFragment.getBody()),
+                            fragmentNo,
+                            versionInstance,
+                            project,
+                            structureNo,
+                            aStructureItem.getStructureType().name(),
+                            aStructureItem.getIndentation());
+
+                    item.store();
+
+
+                }
+
+                // We want to ignore empty fragments. They are not really needed in the presentation
+
+                if(aFragment.getType() == StructureType.TEXT && aFragment.getBody().equals("")){
+
+                    PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring empty fragment");
+
+                }
+                else{
+
+                    // Finally we create the actual fragment
+
+                    fragment = new ContractFragment(
+                            fragmentName,
+                            versionInstance.getKey(),
+                            project.getKey(),
+                            aStructureItem.getID(),
+                            fragmentNo++,
+                            addNumber(numbering, aFragment.getBody()),  //TODO: Add warning to this too
+                            aFragment.getIndentation(),
+                            aFragment.getType().name(),
+                            defaultRisk.getKey(),
+                            0,     // annotation
+                            0,     // reference
+                            0,     // classificaton
+                            0,     // actions
+                            column,
+                            row
+
+                    );
+
+
+                    fragmentsToStore.add(fragment);
+                    System.out.println("  -- Adding a fragment " + fragment.getName() + " with structure item " + fragment.getStructureNo());
+
+
+                }
+
+            }catch(Exception e){
+
+                e.printStackTrace(System.out);
+                PukkaLogger.log(PukkaLogger.Level.FATAL, "Internal Error analysing fragment \"" + aFragment.getBody() + "\" in document "+ document.getName()+ "Error:" + e.getMessage());
             }
 
-            // First check if this is an implicit top level fragment that we have not created yet
 
-            if(aFragment.getType() == StructureType.IMPLICIT ||
-                    aFragment.getType() == StructureType.TABLE){
-
-
-
-                StructureItem item = new StructureItem(
-                        "Implicit Structure Item " + structureNo,
-                        fragmentNo,
-                        versionInstance,
-                        project,
-                        structureNo,
-                        aStructureItem.getStructureType().name(),
-                        indentation);
-
-                item.store();
-                System.out.println(" **** Storing item " + (structureNo) + " now there are " +
-                        new StructureItemTable(new LookupList().addFilter(new ReferenceFilter(StructureItemTable.Columns.Version.name(), versionInstance.getKey()))).getCount() + " items in the DB for project");
-
-                /*
-                structureItemKey = item.getKey();
-                aStructureItem.setKey(structureItemKey.toString());  // Store the key here as all fragments under this structure element will need the key
-
-
-                ContractFragment fragment = new ContractFragment(
-                        "Implicit",                                     //TODO: This should really be an attribute
-                        versionInstance.getKey(),
-                        structureNo - 1,                        // Using id as key here for quicker lookup
-                        fragmentNo++,
-                        "implicit",
-                        aFragment.getIndentation(),                //TODO: Remove - Deprecated...
-                        StructureType.IMPLICIT.name(),
-                        defaultRisk.getKey(),
-                        0,     // annotation
-                        0,     // reference
-                        0,     // classificaton
-                        column,
-                        row
-
-                );
-
-
-                System.out.println("  -- Adding a fragment " + fragment.getName());
-                fragmentsToStore.add(fragment);
-
-                */
-
-                indentation++;     // When creating an implicit element, the indentation automatically increases
-
-            }
-
-            String numbering = "";
-
-            if(aFragment.getType() == StructureType.HEADING)
-                numbering = autoNumberer.getNewNumber((int)aFragment.getIndentation(), AutoNumberer.CONTINUE);
-
-            // Now see if this is a new top level item. If that is the case, we create a new structure item for the fragment
-
-            StructureItem item = null;
-            ContractFragment fragment;
-
-            if(aStructureItem.getTopElement() == aFragment){
-
-                System.out.println("Fragment " + aFragment.getBody() + " is a top item on indentation level " + aFragment.getIndentation());
-
-                item = new StructureItem(
-                        addNumber(numbering, aFragment.getBody()),
-                        fragmentNo,
-                        versionInstance,
-                        project,
-                        structureNo,
-                        aStructureItem.getStructureType().name(),
-                        aStructureItem.getIndentation());
-
-                item.store();
-
-
-            }
-
-            // We want to ignore empty fragments. They are not really needed in the presentation
-
-            if(aFragment.getType() == StructureType.TEXT && aFragment.getBody().equals("")){
-
-                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring empty fragment");
-
-            }
-            else{
-
-                // Finally we create the actual fragment
-
-                fragment = new ContractFragment(
-                        fragmentName,
-                        versionInstance.getKey(),
-                        project.getKey(),
-                        aStructureItem.getID(),
-                        fragmentNo++,
-                        addNumber(numbering, aFragment.getBody()),  //TODO: Add warning to this too
-                        aFragment.getIndentation(),
-                        aFragment.getType().name(),
-                        defaultRisk.getKey(),
-                        0,     // annotation
-                        0,     // reference
-                        0,     // classificaton
-                        0,     // actions
-                        column,
-                        row
-
-                );
-
-
-                fragmentsToStore.add(fragment);
-                System.out.println("  -- Adding a fragment " + fragment.getName() + " with structure item " + fragment.getStructureNo());
-
-
-            }
 
 
             // Store all new keywords from the fragment

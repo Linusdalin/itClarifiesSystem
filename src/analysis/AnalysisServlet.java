@@ -44,6 +44,8 @@ import java.util.List;
  *
  *          This is a web hook for the Analysis Queue
  *
+ * //TODO: The check:        if(classification.getType().getName().equals(FeatureTypeTree.Reference.getName())){ should be optimized
+
  */
 
 public class AnalysisServlet extends DocumentService {
@@ -402,10 +404,11 @@ public class AnalysisServlet extends DocumentService {
 
                 // Log this and continue with the other fragments
                 e.logError("Error analysing fragment " + fragment.getText());
+
             }catch(NullPointerException e){
 
                 // Log this and continue with the other fragments
-                e.printStackTrace();
+                e.printStackTrace(System.out);
                 PukkaLogger.log(PukkaLogger.Level.FATAL, "Internal Error analysing fragment " + fragment.getText());
             }
         }
@@ -494,6 +497,14 @@ public class AnalysisServlet extends DocumentService {
                 .addFilter(new ReferenceFilter(ContractClauseTable.Columns.Version.name(), versionInstance.getKey())));
 
         if(!firstFragment.exists()){
+
+            List<ContractFragment> fragmentList = versionInstance.getFragmentsForVersion();
+
+            System.out.println("These are the fragments:");
+            for(ContractFragment fragment : fragmentList){
+
+                System.out.println("Fragment: " + fragment.getName() + " " + fragment.getOrdinal());
+            }
 
             PukkaLogger.log(PukkaLogger.Level.FATAL, "The document " + currentDocument.getName() + " does not have a first fragment to direct references to");
             return;
@@ -827,6 +838,52 @@ public class AnalysisServlet extends DocumentService {
                      break;
                 }
 
+                if(classification.getType().getName().equals(FeatureTypeTree.Risk.getName())){
+
+                    // Detecting a risk should result in a risk created in the system.
+
+                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating risk for fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
+
+                    RiskClassification risk = new RiskClassification(
+                            fragment.getKey(),
+                            defaultRisk.getKey(),
+                            classification.getTag(),
+                            system.getKey(),
+                            fragment.getVersionId(),
+                            classification.getPattern().getText(),
+                            analysisTime.getSQLTime().toString());
+                    risk.store();
+
+                    fragment.setRisk(defaultRisk.getKey());  // Set it in the fragment too
+
+                    // Also create an implicit action for the risk. All risks should be mitigated or at least acknowledged.
+
+
+                    Action handleRiskAction = new Action(
+                            (long)0, // Not supported action id yet. This is a placeholder
+                            "assess risk for the use of " + classification.getPattern().getText(),
+                            "Asses the impact of the automatically flagged potential risk " + classification.getPattern().getText(),
+                            classification.getPattern().getText(),
+                            fragment.getKey(),
+                            fragment.getVersionId(),
+                            project.getKey(),
+                            system.getKey(),
+                            PortalUser.getNoUser().getKey(),
+                            20,
+                            ActionStatus.getOpen().getKey(),
+                            analysisTime.getISODate(),
+                            new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00").getISODate(),
+                            new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00").getISODate());
+
+                    handleRiskAction.store();
+
+
+
+                    updated = true;
+                    break;
+
+                }
+
 
                 // Default action is to jut add the classification from the analysis
 
@@ -837,6 +894,8 @@ public class AnalysisServlet extends DocumentService {
                     break;
 
                 }
+
+
 
 
 

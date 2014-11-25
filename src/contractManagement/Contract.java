@@ -506,4 +506,332 @@ public class Contract extends DataObject implements DataObjectInterface{
 
 
     }
+
+
+    private static final String[] types = { "HEADING", "TEXT", "LISTITEM", "TABLE"};
+
+
+    /**********************************************************************************************'
+     *
+     *
+     * @param editable - is it possible to edit (adding form for changing style)
+     * @return - html version of the document for backoffice view
+     * @throws BackOfficeException
+     *
+     */
+
+    public String getInternalView(boolean editable) throws BackOfficeException {
+
+        StringBuffer html = new StringBuffer();
+
+        boolean tableMode = false;      // Are we in a table or not? Tables will compile all cells into one display
+        long tableRow = 0;
+
+        ContractVersionInstance version = this.getHeadVersion();
+
+        PukkaLogger.log(PukkaLogger.Level.DEBUG, "Getting fragments for version " + version.getVersion());
+        html.append("<p>Version: "+ version.getVersion()+"</p>");
+
+        // Load all the fragments for the document
+
+        List<ContractFragment> fragmentsForDocument = version.getFragmentsForVersion(new LookupList().addOrdering(ContractFragmentTable.Columns.Ordinal.name(), Ordering.FIRST));
+
+        //TODO: This is only for printing.Remove for optimization
+
+        StructureItem[] structureItemsForDocument = version.getStructureItemsForVersionAsArray(new LookupList().addOrdering(ContractFragmentTable.Columns.Ordinal.name(), Ordering.FIRST));
+
+        int j=0;
+        for(StructureItem structureItem : structureItemsForDocument){
+
+            System.out.println("SI:" + j + " no:" + structureItem.getOrdinal() + " (" + structureItem.getType() + ") top->" + structureItem.getFragmentForStructureItem().getName() );
+
+            j++;
+        }
+
+        html.append("<table width=\"100%\">");
+
+        int i =0;
+        for(ContractFragment fragment : fragmentsForDocument){
+
+            System.out.println("structureItem for fragment " + fragment.getOrdinal() + " = " + fragment.getStructureNo());
+
+            StructureItem structureItem = structureItemsForDocument[(int)fragment.getStructureNo()];
+
+            System.out.println(" Fragment " + i++ + ": (i:" + structureItem.getIndentation() + " style: " + fragment.getType() + " struct: " + structureItem.getType() + "/" +
+                    " name: " + structureItem.getName() + ") " + fragment.getName());
+
+        }
+
+
+        if(fragmentsForDocument == null){
+
+            html.append("Table is empty...");
+
+        }
+        else{
+
+            StringBuffer style = null;
+            StringBuffer body = null;
+            StringBuffer comments = null;
+
+            for(ContractFragment fragment : fragmentsForDocument){
+
+                if(!tableMode){
+
+                    // Clear all from last fragment.
+
+                    style = new StringBuffer();
+                    body = new StringBuffer();
+                    comments = new StringBuffer();
+
+                }
+
+                if(fragment.getType().equals("TABLE") && !tableMode){
+
+                    // Entering table mode
+                    tableMode = true;
+                    tableRow = 0;
+
+                }else if(!fragment.getType().equals("TABLE") && tableMode){
+
+                    // Leaving table mode. Create the (multi) line
+
+                    if(editable)
+                        html.append(createLine(this, fragment, style, body , comments));
+                    else
+                        html.append(createLine(null, null, style, body , comments));
+
+                    // And Clear all from last fragment.
+
+                    style = new StringBuffer();
+                    body = new StringBuffer();
+                    comments = new StringBuffer();
+
+                }
+
+
+                // Display Annotations
+
+                List<ContractAnnotation> annotations = fragment.getAnnotationsForFragment();
+
+                for(ContractAnnotation annotation : annotations){
+
+                    comments.append(" Annotation: \"" + annotation.getDescription() + "\"( for " + annotation.getPattern() + ") by " + annotation.getCreator().getName() + "@" + annotation.getTime().getISODate() +
+                            "<br/>");
+                }
+
+
+
+               //comments.append("Annotations: " + fragment.getAnnotationCount() + " (fragment ac:"+ fragment.getAnnotationCount()+")</br>");
+
+
+                // Add classifications
+                List<FragmentClassification> classifications = fragment.getClassificationsForFragment();
+
+                for(FragmentClassification classification : classifications){
+
+                    comments.append(" Classification: \"" + classification.getName() + "\"(" + classification.getClassification().getName() + "/" + classification.getSignificance() + ")(\""+  classification.getPattern() + "\" " +
+                            classification.getPos() + "-" + (classification.getPos() + classification.getLength()) +  "\") by " + classification.getCreator().getName() + "@" + classification.getTime().getISODate() +
+                            " comment: \"" + classification.getComment() + " keywords: \"" + classification.getKeywords() +"\"<br/>");
+
+                }
+
+                // Add Definitions
+                List<Definition> definitions = fragment.getDefinitionsForFragment();
+
+                for(Definition definition : definitions){
+
+                    comments.append(" Definition of: \"" + definition.getName() + "\"<br/>");
+                }
+
+               // Add references
+                List<Reference> references = fragment.getReferencesForFragment();
+
+                for(Reference reference : references){
+
+                    if(reference.getType().isSame(ReferenceType.getOpen()))
+                        comments.append(" Open Reference " + reference.getName() +" <br/>");
+                    else{
+
+                        // Reference too. We are assuming that the "to"-fragment exists
+
+                        if(reference.getTo() == null){
+
+                            PukkaLogger.log(PukkaLogger.Level.FATAL, "No To-reference in the closed reference " + reference.getName());
+                            comments.append("Invalid to-reference... " + reference.getName());
+
+                        }
+                        else{
+
+                            comments.append(" Reference To: " + reference.getTo().getName() + " for \""+ reference.getName()+"\"( type "+ reference.getType().getName()+") <br/>");
+                        }
+                    }
+                }
+
+
+                // Display Actions
+
+                List<Action> actions = fragment.getActionsForFragment();
+
+                for(Action action : actions){
+
+                    comments.append(" Action: \"" + action.getDescription() + "\"( for " + action.getPattern() + ") " + action.getIssuer().getName() + " -> " + action.getAssignee().getName() + "@" + action.getCreated().getISODate() +
+                            "<br/>");
+                }
+
+
+
+
+                // Add risk
+                try{
+
+                    if(!fragment.getRisk().isSame(ContractRisk.getNone())){
+
+                        RiskClassification classification = fragment.getLastRiskClassificationForFragment(RiskClassificationTable.Columns.Time.name());
+
+                        comments.append(" Risk: Lvl \""+ classification.getRisk().getName()+"\" (\"" + classification.getPattern() + "\") by "+
+                                classification.getCreator().getName() + "@" + classification.getTime().getISODate() + " comment: \"" + classification.getComment() + "\"<br/>");
+                    }
+
+                }catch(BackOfficeException e){
+
+
+                    PukkaLogger.log(PukkaLogger.Level.WARNING, "No classification found for fragment " + fragment.getName());
+                }
+
+
+                if(tableMode){
+
+                    if(fragment.getyPos() > tableRow){
+
+                        // New row
+
+                        tableRow = fragment.getyPos();
+                        body.append("<div style=\"clear:both\">&nbsp;</div>\n");
+
+                    }
+
+                    // Create a table cell
+
+                    body.append("<div style=\"float:left\">"+fragment.getText()+"</div>\n");
+
+                }else if(fragment.getType().equals(document.StructureType.HEADING.name())){
+
+                    body.append("<b>"+fragment.getText()+"</b>");
+
+                }else if(fragment.getType().equals(document.StructureType.TEXT.name())){
+
+                    body.append(fragment.getText());
+
+                }else if(fragment.getType().equals(document.StructureType.IMPLICIT.name())){
+
+                    body.append("");
+
+                }else if(fragment.getType().equals(document.StructureType.LISTITEM.name())){
+
+                    // This is a list item. However, only items with indentation are actually new list items. The rest is
+                    // continuation of existing list bullets.
+
+                    if(fragment.getIndentation() >= 0){
+
+                        // Calculate an appropriate indentation for the css. This is a bit arbitrary for the display in the backoffice
+                        long indentationInEm = 2 * (fragment.getIndentation() + 1);
+
+                        body.append("<li style=\"margin-left: "+indentationInEm+"em;\">" + fragment.getText() + "</li>");
+
+                    }
+                    else{
+                        // TODO: Indentation is not implemented
+                        body.append(fragment.getText());
+
+                    }
+
+                }else{
+
+                    //style = "Type: " + fragment.getType();
+                    body.append(fragment.getText());
+
+                }
+
+
+                //System.out.println("Style = " + fragment.getType());
+
+                if(!tableMode){
+
+                    style.append(" ( i: " + fragment.getIndentation());
+                    style.append(" S: " + fragment.getStructureNo());
+                    style.append(")");
+
+
+                    // Only generate a line if it is not a table. The table is withheld and generated upon leaving the table
+
+                    if(editable)
+                        html.append(createLine(this, fragment, style, body , comments));
+                    else
+                        html.append(createLine(null, null, style, body , comments));
+
+                }
+
+            }
+        }
+
+        html.append("</table>");
+
+        return html.toString();
+    }
+
+
+    /*************************************************************************'
+     *
+     *          Create one line in the preview
+     *
+     *              NOTE: The style form is a back-office function
+     *
+     *
+     * @param contract
+     * @param fragment
+     * @param textTags
+     * @param fragmentText
+     * @param analysisTags   @return    */
+
+    private String createLine(Contract contract, ContractFragment fragment, StringBuffer textTags, StringBuffer fragmentText, StringBuffer analysisTags){
+
+        String styleForm = "";
+
+        try{
+
+            if(fragment != null){
+
+                ContractFragmentTypeTable allTypes = new ContractFragmentTypeTable();
+                styleForm = "<FORM METHOD=POST action=\"?id="+contract.getKey().toString()+
+                        "&list=DocumentList" +
+                        "&action=Item" +
+                        "&callbackAction="+ backend.DocumentList.Callback_Action_ChangeStyle+
+                        "&section=Documents" +
+                        "&fragment="+fragment.getKey().toString()+"\" name=\"styleForm\">\n";
+                //styleForm += allTypes.getDropDown().generate("styleType", fragment.getType(), null, null, true);
+
+                styleForm += pukkaBO.style.Html.dropDown("styleType", types, fragment.getType(), " onchange='this.form.submit()'");
+                //styleForm += fragment.getType();
+                styleForm += "</FORM>";
+            }
+
+        }catch(Exception e){
+
+            PukkaLogger.log(PukkaLogger.Level.WARNING, "Could not get style for fragment " + fragmentText);
+        }
+
+
+        return "<tr>" +
+                  "<td width=\"10%\">"+ textTags.toString()+"</td>" +
+                  "<td style=\"border-bottom:1pt solid black;\" width=\"10%\">"+ styleForm + "</td>" +
+                  "<td width=\"30px\"></td>" +
+                  "<td style=\"border-bottom:1pt solid black;\" width=\"40%\">"+ fragmentText.toString() +"</td>" +
+                  "<td style=\"border-bottom:1pt solid black;\" width=\"40%\">"+ analysisTags.toString() +"</td>" +
+                "</tr>";
+    }
+
+
+
+
 }

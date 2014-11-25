@@ -5,6 +5,7 @@ import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.Matcher;
 import services.ContractServlet;
 import services.ItClarifiesService;
 
@@ -93,7 +94,23 @@ public class ServletTests {
 
     }
 
+    protected void expectMatches(JSONObject json, int expected) {
 
+        JSONArray matches = json.getJSONArray("fragments");
+
+        assertVerbose("Expected " + expected + " matches but found " + matches + " in JSON:\n" + json, matches.length(), CoreMatchers.is(expected));
+
+    }
+
+
+
+
+
+    protected static <T> void assertVerbose(String explanation, T result, Matcher<T> matcher){
+
+        assertThat(explanation, result, matcher);
+        System.out.println(" - Test Pass: " + explanation);
+    }
 
 
 

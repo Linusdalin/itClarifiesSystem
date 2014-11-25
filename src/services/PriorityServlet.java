@@ -1,17 +1,15 @@
 package services;
 
-import contractManagement.*;
-import dataRepresentation.DBTimeStamp;
-import dataRepresentation.DataObjectInterface;
+import actions.Action;
+import contractManagement.Contract;
+import contractManagement.Project;
 import databaseLayer.DBKeyInterface;
-import log.PukkaLogger;
+import databaseLayer.DatabaseAbstractionFactory;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import pukkaBO.condition.LookupByKey;
-import pukkaBO.condition.LookupList;
 import pukkaBO.exceptions.BackOfficeException;
-import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,9 +22,9 @@ import java.util.List;
  *
  */
 
-public class OrderingServlet extends DocumentService{
+public class PriorityServlet extends DocumentService{
 
-    public static final String DataServletName = "Ordering";
+    public static final String DataServletName = "Priority";
 
 
     /***********************************************************************************
@@ -65,11 +63,11 @@ public class OrderingServlet extends DocumentService{
             if(!mandatoryObjectExists(project, resp))
                 return;
 
-            String jsonList = getMandatoryString("documents", req);
+            String jsonList = getMandatoryString("actions", req);
 
-            JSONArray documentArray = new JSONArray(jsonList);
+            JSONArray actionArray = new JSONArray(jsonList);
 
-            setDocumentOrder(project, documentArray);
+            setActionPriority(project, actionArray);
 
             JSONObject json = new JSONObject();
             sendJSONResponse(json, formatter, resp);
@@ -96,51 +94,33 @@ public class OrderingServlet extends DocumentService{
 
     /********************************************************************************
      *
-     *          Update all documents with the new order
+     *          Update all actions with the new order
      *
-     *          The array is simply an array of {"key", "....."}
+     *          The array is simply an array of objects {"key":"<key>, "priority":prio}
      *
      *
      * @param project - the project affected
-     * @param documentArray - array of document ids in the new order
-     * @throws BackOfficeException
+     * @param actionArray - array of action ids in the new order
+     * @throws pukkaBO.exceptions.BackOfficeException
      *
      *
-     *          //TODO: This could be optimized with a batch update
+     *          //TODO: This could be optimized with loading once and a batch update
      */
 
-    private void setDocumentOrder(Project project, JSONArray documentArray)  throws BackOfficeException{
+    private void setActionPriority(Project project, JSONArray actionArray)  throws BackOfficeException{
 
 
-        List<Contract> documents = project.getContractsForProject();
+        for(int i = 0; i < actionArray.length(); i++){
 
-        // Check that the numbers are correct. We might be able to make a work around,
-        // but it is better to be stringent and throw an error otherwise
+            JSONObject update = actionArray.getJSONObject( i );
+            DBKeyInterface key = new DatabaseAbstractionFactory().createKey(update.getString("key"));
+            int newPriority = update.getInt("priority");
 
-        if(documents.size() != documentArray.length())
-            throw new BackOfficeException(BackOfficeException.Usage, "Got " + documentArray.length() + " elements but expected " + documents.size());
+            Action action = new Action(new LookupByKey(key));
 
-        // Set new numbers by looping over the documents. It would be quicker to loo over the elements in the array,
-        // but that would not check that all documents actually are updated
+            action.setPriority( newPriority );
+            action.update();
 
-        for(Contract document : documents){
-
-            // Look for the document in the array
-
-            boolean found = false;
-            for(int i = 0; i < documentArray.length(); i++){
-
-                if(document.getKey().toString().equals(documentArray.getJSONObject(i).getString("key"))){
-
-                    document.setOrdinal( i ); // Set the document number to the position in the json array
-                    document.update();
-                    found = true;
-                    break;
-                }
-            }
-
-            if(!found)
-                throw new BackOfficeException(BackOfficeException.Usage, "Document " + document.getName() + " was not present in the order list");
         }
 
     }

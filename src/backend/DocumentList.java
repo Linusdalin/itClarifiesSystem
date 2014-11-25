@@ -20,21 +20,21 @@ import pukkaBO.list.*;
 import pukkaBO.renderer.GroupListRenderer;
 import pukkaBO.renderer.ListRendererInterface;
 import pukkaBO.style.Html;
-import services.DocumentService;
 import services.ItClarifiesService;
 import services.PreviewServlet;
-import userManagement.OrganizationTable;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
 
-/**
+/*************************************************************************'
  *
  *          Document list
  *
+ *          Viewing all documents or a specific document.
  *
+ *          The documents are grouped by Project
  *
  */
 
@@ -275,7 +275,7 @@ public class DocumentList extends GroupByList implements ListInterface{
             docView.append(Html.paragraph(Html.link("?id="+document.getKey().toString()+"&list=" + name + "&action=Item&callbackAction=" + Callback_Action_Analyse + "&section=" + section, "Re-analyse")));
             docView.append(Html.paragraph(Html.link("/Export?document="+document.getKey().toString()+"&session=SystemSessionToken", "Download Document")));
             docView.append(Html.paragraph(Html.link("/Export?document="+document.getKey().toString()+"&inject=true&session=SystemSessionToken", "Export Document")));
-            docView.append(new PreviewServlet().getDocumentView(document, true));
+            docView.append(document.getInternalView(true));
 
             return docView.toString();
 

@@ -314,7 +314,7 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
     public static FragmentClass getDefinitionS( ) throws BackOfficeException{
 
        if(FragmentClass.DefinitionS == null)
-          FragmentClass.DefinitionS = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "Definition Source")));
+          FragmentClass.DefinitionS = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "Definition Källa")));
        if(!FragmentClass.DefinitionS.exists())
           throw new BackOfficeException(BackOfficeException.TableError, "Constant DefinitionS is missing (db update required?)");
 

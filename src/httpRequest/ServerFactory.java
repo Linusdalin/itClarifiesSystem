@@ -59,7 +59,7 @@ public class ServerFactory {
 
 
 
-    private static String getApplicationID(){
+    public static String getApplicationID(){
 
         String ID = SystemProperty.applicationId.get();
         System.out.println("ID = " + ID);
