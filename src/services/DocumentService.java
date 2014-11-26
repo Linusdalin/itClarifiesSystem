@@ -62,7 +62,8 @@ public class DocumentService extends ItClarifiesService{
 
         Set<String> newKeywords = new HashSet<String>();  // To store all new keywords
 
-        System.out.println("Found " + fragmenter.getFragments().size() + " abstract fragments");
+        PukkaLogger.log(PukkaLogger.Level.ACTION, "*******************Phase II: Fragmenting Document");
+        PukkaLogger.log(PukkaLogger.Level.INFO, "Found " + fragmenter.getFragments().size() + " abstract fragments from the parsing");
 
         for(AbstractFragment aFragment : fragments){
 
@@ -76,7 +77,7 @@ public class DocumentService extends ItClarifiesService{
                 int structureNo = aStructureItem.getID();
                 boolean newStructureItemCreated = false;
 
-                System.out.println("fragment " + fragmentNo + ": ("+ aFragment.getType().name()+")" + aFragment.getBody() +"\n      (" +
+                PukkaLogger.log(PukkaLogger.Level.INFO, "fragment " + fragmentNo + ": ("+ aFragment.getType().name()+")" + aFragment.getBody() +"     (" +
                         indentation + ": " + aStructureItem.getStructureType().name() + ":" +
                         (aStructureItem.getTopElement() != null ? aStructureItem.getTopElement().getBody() : "--") +")" );
 
@@ -108,8 +109,6 @@ public class DocumentService extends ItClarifiesService{
                             indentation);
 
                     item.store();
-                    System.out.println(" **** Storing item " + (structureNo) + " now there are " +
-                            new StructureItemTable(new LookupList().addFilter(new ReferenceFilter(StructureItemTable.Columns.Version.name(), versionInstance.getKey()))).getCount() + " items in the DB for project");
 
                     /*
                     structureItemKey = item.getKey();
@@ -155,7 +154,7 @@ public class DocumentService extends ItClarifiesService{
 
                 if(aStructureItem.getTopElement() == aFragment){
 
-                    System.out.println("Fragment " + aFragment.getBody() + " is a top item on indentation level " + aFragment.getIndentation());
+                    PukkaLogger.log(PukkaLogger.Level.DEBUG, "Fragment " + aFragment.getBody() + " is a top item on indentation level " + aFragment.getIndentation());
 
                     item = new StructureItem(
                             addNumber(numbering, aFragment.getBody()),

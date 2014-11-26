@@ -151,7 +151,7 @@ public class AnalysisServlet extends DocumentService {
             document.setStatus(ContractStatus.getAnalysing().getKey());
             document.update();
 
-            System.out.println("Continuing with the analysis");
+            PukkaLogger.log(PukkaLogger.Level.ACTION, "*****************************\nPhase III: The analysis");
 
 
             // Perform the analysis and the transposing
@@ -1215,15 +1215,15 @@ public class AnalysisServlet extends DocumentService {
 
             RepositoryInterface repository = new BlobRepository();
 
-            System.out.println("Trying to access document: " + document.getFile() + " locally. ");
+            //System.out.println("Trying to access document: " + document.getFile() + " locally. ");
 
             RepositoryFileHandler fileHandler = new RepositoryFileHandler(document.getFile());
 
-            System.out.println("So far so good");
+            //System.out.println("So far so good");
 
             stream = repository.getInputStream(fileHandler);
 
-            System.out.println("Got the stream!");
+            //System.out.println("Got the stream!");
 
 
         }catch(IOException e){
@@ -1235,6 +1235,7 @@ public class AnalysisServlet extends DocumentService {
 
         try{
 
+            PukkaLogger.log(PukkaLogger.Level.ACTION, "*******************Phase I: Parsing document");
             docXManager = new DocumentManager(document.getFile(), stream);
 
         }catch (DocumentAnalysisException e){
@@ -1264,6 +1265,7 @@ public class AnalysisServlet extends DocumentService {
 
             throw new BackOfficeException(BackOfficeException.General, "Could not detect language from the document.");
         }
+
 
         fragmentDocument(document.getFile(), version, docXManager);
 

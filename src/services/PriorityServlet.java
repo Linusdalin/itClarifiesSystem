@@ -14,6 +14,7 @@ import pukkaBO.exceptions.BackOfficeException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.List;
 
 /********************************************************
@@ -64,6 +65,8 @@ public class PriorityServlet extends DocumentService{
                 return;
 
             String jsonList = getMandatoryString("actions", req);
+            jsonList = URLDecoder.decode(jsonList, "UTF-8");
+
 
             JSONArray actionArray = new JSONArray(jsonList);
 

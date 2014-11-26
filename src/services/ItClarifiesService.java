@@ -86,19 +86,14 @@ public class ItClarifiesService extends PukkaServlet {
         if(data == null)
                 return null;
 
-        data = data.replace("\n", "\\n");
+        //data = data.replaceAll("\n", "\\n");
         data = data.replace("[", "(");
-        data = data.replace("]", ")");
-        data = data.replace("\t", "   ");       // TODO: Improvement: Tab not passed to frontend
-        /*
-        try {
-            return new String(data.getBytes("UTF-8"));
+        data = data.replaceAll("]", ")");
 
-        } catch (UnsupportedEncodingException e) {
+        // This is a sneak variant of tabs, just adding a span for the text.
 
-            return data;
-        }
-          */
+        data = data.replaceAll("^(.*)\t", "<span style=\"display: inline-block; width: 120px;\">$1</span>");
+        data = data.replaceAll("\t", "&nbsp; &nbsp; ");
 
         return data;
 

@@ -77,7 +77,7 @@ public class FragmentClassTable extends DataTable implements DataTableInterface{
           {"Nummer", "NUMEX", "", "A number", "no org", "top", "system"},
           {"Email", "EMAIL", "", "A mail address", "no org", "top", "system"},
           {"Definition", "DEFINITION", "", "Definition of a specific term", "no org", "top", "system"},
-          {"Definition Källa", "DEFINITIONSOURCE", "", "Definition of a specific term", "no org", "top", "system"},
+          {"Definition Source", "DEFINITIONSOURCE", "", "Definition of a specific term", "no org", "top", "system"},
           {"Definition Referens", "DEFINITIONUSAGE", "", "Usage of a specific term", "no org", "top", "system"},
           {"Avtalsperiod", "TERM", "", "Definition of a specific term", "no org", "top", "system"},
           {"Betalning", "PAYMENT", "", "Related to payments and delivery", "no org", "top", "system"},

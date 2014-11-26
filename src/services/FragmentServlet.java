@@ -373,6 +373,7 @@ public class FragmentServlet extends ItClarifiesService{
 
                 //PukkaLogger.log(PukkaLogger.Level.INFO, "Got fragment " + fragment.getText().substring(0, (fragment.getText().length() > 40 ? 40 : fragment.getText().length())) + "...");
 
+
                 JSONObject fragmentJSON = new JSONObject()
                     .put("id",              fragment.getKey().toString())
                     .put("ordinal",         fragment.getOrdinal())
@@ -394,9 +395,12 @@ public class FragmentServlet extends ItClarifiesService{
 
                 boolean newRow = isNewRow(fragment);
 
+
                 if(newRow && rowObject != null){
+
                     fragmentList.put(rowObject);
                     rowObject = null;
+
                 }
 
                 rowObject = merge(rowObject, fragmentJSON);
@@ -406,6 +410,8 @@ public class FragmentServlet extends ItClarifiesService{
             //PukkaLogger.log(PukkaLogger.Level.INFO, "After json loop");
 
             fragmentList.put(rowObject);
+
+            System.out.println("Fragment JSON: " + rowObject);
 
             PukkaLogger.log(PukkaLogger.Level.DEBUG, "Created fragment json");
             return fragmentList;
@@ -434,14 +440,13 @@ public class FragmentServlet extends ItClarifiesService{
         if(rowObject == null)
             return fragment;
 
-        //test this. It has not been run!
 
         //TODO: Handle fragment details too. As it is now, the details will be lost for the other fragments in the row
 
         JSONObject mergedJSON = new JSONObject()
             .put("id",              rowObject.getString("id"))
             .put("ordinal",         rowObject.getInt("ordinal"))
-            .put("text",            rowObject.getString("text") + " // " + fragment.getString("text"))
+            .put("text",            rowObject.getString("text") + " &nbsp; &nbsp; &nbsp; &nbsp; " + fragment.getString("text"))
             .put("document",        rowObject.getString("document"))
             .put("project",         rowObject.getString("project"))
 
