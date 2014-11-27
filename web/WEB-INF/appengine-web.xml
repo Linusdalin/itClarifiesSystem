@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
   <application>itclarifiesapistage</application>
-   <version>1-5-7</version>
+   <version>1-5-8</version>
   <threadsafe>true</threadsafe>
 
     <system-properties>
@@ -18,6 +18,8 @@
                     1-5-5:          Access rights changes, Search in Actions
                     1-5-6:          New Keyword and risk  extraction
                     1-5-7:          Fixes for styling and some parsing (definitions and SFS)
+                    1-5-8:          Fatal logging and mail improvements,
+                                    Action default priority, only one action for potential risk
 
       -->
 

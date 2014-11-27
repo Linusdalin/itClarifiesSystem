@@ -4,6 +4,7 @@ import dataRepresentation.DBTimeStamp;
 import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
 import contractManagement.*;
+import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import pukkaBO.condition.*;
@@ -111,9 +112,13 @@ public class ProjectServlet extends ItClarifiesService{
 
         } catch (BackOfficeException e) {
 
-            e.logError("Error (POST) in " + DataServletName);
-            returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            resp.flushBuffer();
+            PukkaLogger.log( e );
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+
+        } catch (Exception e) {
+
+            PukkaLogger.log( e );
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
         }
 
 
@@ -187,15 +192,16 @@ public class ProjectServlet extends ItClarifiesService{
 
            sendJSONResponse(json, formatter, resp);
 
+
         }catch(BackOfficeException e){
 
-           returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-           e.printStackTrace(System.out);
+           PukkaLogger.log( e );
+           returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
 
         } catch ( Exception e) {
 
-           returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-           e.printStackTrace(System.out);
+           PukkaLogger.log( e );
+           returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
         }
     }
 
@@ -248,13 +254,13 @@ public class ProjectServlet extends ItClarifiesService{
 
         }catch(BackOfficeException e){
         
+            PukkaLogger.log( e );
             returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            e.printStackTrace();
 
         }catch ( Exception e) {
 
+            PukkaLogger.log( e );
             returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            e.printStackTrace();
 
         }
 

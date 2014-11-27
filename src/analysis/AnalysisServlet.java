@@ -368,6 +368,9 @@ public class AnalysisServlet extends DocumentService {
                                   Contract document, AbstractProject aProject, DBTimeStamp analysisTime, List<OutcomeMap> outcomeList) throws BackOfficeException {
 
         List<ContractFragment> fragments = documentVersion.getFragmentsForVersion();
+        StringBuffer errorMessages = new StringBuffer();
+
+        int risks = 0;
 
         for(ContractFragment fragment : fragments){
 
@@ -394,7 +397,7 @@ public class AnalysisServlet extends DocumentService {
                 NewAnalysisOutcome analysisOutcome = analyser.analyseFragment2(fragment.getText(), headline, contextText, aDocument, aProject);
 
 
-                handleResult(analysisOutcome, fragment, project, analysisTime, aDocument);
+                risks += handleResult(analysisOutcome, fragment, project, analysisTime, aDocument);
 
                 // Store it for the second pass. In that pass we dont want to redo the parsing and analysis
 
@@ -402,16 +405,52 @@ public class AnalysisServlet extends DocumentService {
 
             }catch(BackOfficeException e){
 
-                // Log this and continue with the other fragments
-                e.logError("Error analysing fragment " + fragment.getText());
+                String message = "Error analysing fragment " + fragment.getText() + PukkaLogger.getMessage(e);
+                errorMessages.append( message );
+                PukkaLogger.log( PukkaLogger.Level.WARNING, message );
 
             }catch(NullPointerException e){
 
-                // Log this and continue with the other fragments
-                e.printStackTrace(System.out);
-                PukkaLogger.log(PukkaLogger.Level.FATAL, "Internal Error analysing fragment " + fragment.getText());
+                String message = "Internal Error analysing fragment " + fragment.getText() + PukkaLogger.getMessage(e);
+                errorMessages.append(message);
+                PukkaLogger.log( PukkaLogger.Level.WARNING, message );
             }
         }
+
+        // Create an action to review the potential risks.
+        // This may have to be updated when re-uploading documents is implemented and we should only
+        // issue an action if there are new unseen risk
+
+
+        String actionTitle = "Assess " + risks +" potential risk"+(risks > 1 ? "s" : "")+"  in " + document.getName();
+        String actionDescription = "Assess " + risks +" potential risk"+(risks > 1 ? "s" : "")+"  found in the analysis of " + document.getName();
+
+        PortalUser system = PortalUser.getSystemUser();
+        ContractFragment fragment = documentVersion.getFirstFragment();
+                                // Also create an implicit action for the risk. All risks should be mitigated or at least acknowledged.
+
+
+        Action handleRiskAction = new Action(
+                (long)0, // Not supported action id yet. This is a placeholder
+                actionTitle,
+                actionDescription,
+                "",
+                fragment.getKey(),
+                fragment.getVersionId(),
+                project.getKey(),
+                system.getKey(),
+                PortalUser.getNoUser().getKey(),
+                -1,
+                ActionStatus.getOpen().getKey(),
+                analysisTime.getISODate(),
+                new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00").getISODate(),
+                new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00").getISODate());
+
+        handleRiskAction.store();
+
+
+
+
 
         document.setStatus(ContractStatus.getAnalysed().getKey());  // Setting the status for the document
         document.update();
@@ -757,16 +796,21 @@ public class AnalysisServlet extends DocumentService {
      */
 
 
-    private void handleResult(NewAnalysisOutcome analysisResult, ContractFragment fragment, Project project, DBTimeStamp analysisTime, AbstractDocument aDocument) throws BackOfficeException{
+    private int handleResult(NewAnalysisOutcome analysisResult, ContractFragment fragment, Project project, DBTimeStamp analysisTime, AbstractDocument aDocument) throws BackOfficeException{
 
         boolean updated = false;
         PortalUser system = PortalUser.getSystemUser();
+        Contract document = fragment.getVersion().getDocument();
+
+        // Counters for updating the fragment
+
         int classifications = 0;
         int references = 0;
         int annotations = 0;
-        FragmentClassification fragmentClassification;
-        ContractFragment definitionFragment;
+        int risks = 0;
 
+
+        FragmentClassification fragmentClassification;
         ContractRisk defaultRisk = getDefaultRiskLevel(project);
 
         System.out.println("Found " + analysisResult.getClassifications().size() + " classifications ");
@@ -853,30 +897,8 @@ public class AnalysisServlet extends DocumentService {
                             classification.getPattern().getText(),
                             analysisTime.getSQLTime().toString());
                     risk.store();
-
+                    risks++;
                     fragment.setRisk(defaultRisk.getKey());  // Set it in the fragment too
-
-                    // Also create an implicit action for the risk. All risks should be mitigated or at least acknowledged.
-
-
-                    Action handleRiskAction = new Action(
-                            (long)0, // Not supported action id yet. This is a placeholder
-                            "assess risk for the use of " + classification.getPattern().getText(),
-                            "Asses the impact of the automatically flagged potential risk " + classification.getPattern().getText(),
-                            classification.getPattern().getText(),
-                            fragment.getKey(),
-                            fragment.getVersionId(),
-                            project.getKey(),
-                            system.getKey(),
-                            PortalUser.getNoUser().getKey(),
-                            20,
-                            ActionStatus.getOpen().getKey(),
-                            analysisTime.getISODate(),
-                            new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00").getISODate(),
-                            new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00").getISODate());
-
-                    handleRiskAction.store();
-
 
 
                     updated = true;
@@ -888,13 +910,20 @@ public class AnalysisServlet extends DocumentService {
                 // Default action is to jut add the classification from the analysis
 
                 FragmentClass fragmentClass = getClassificationClass(classification.getType());
+
                 if(!fragmentClass.exists()){
 
-                    PukkaLogger.log(PukkaLogger.Level.FATAL, "Classification " + classification.getType().getName() + " does not exist.");
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "Classification " + classification.getType().getName() + " does not exist.");
                     break;
 
                 }
 
+                if(fragmentClass.equals(FragmentClass.getUnknown())){
+
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "Classification " + classification.getType().getName() + " is ignored");
+                    break;
+
+                }
 
 
 
@@ -937,96 +966,6 @@ public class AnalysisServlet extends DocumentService {
 
 
 
-           /*
-
-
-            switch (featureDefinition.getAction()) {
-
-
-
-                case CREATE_RISK:
-
-                    // Create risk is the action from the risk analysis
-
-
-
-                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating risk for fragment " + fragment.getName() + "(" + featureDefinition.getPattern() + ")");
-
-                    RiskClassification risk = new RiskClassification(
-                            fragment.getKey(),
-                            defaultRisk.getKey(),
-                            featureDefinition.getTag(),
-                            system.getKey(),
-                            fragment.getVersionId(),
-                            featureDefinition.getPattern(),
-                            analysisTime.getSQLTime().toString());
-                    risk.store();
-
-                    fragment.setRisk(defaultRisk.getKey());  // Set it in the fragment too
-
-                    // Also create an implicit action for the risk. All risks should be mitigated or at least acknowledged.
-
-
-                    Action handleRiskAction = new Action(
-                            (long)0, // Not supported action id yet. This is a placeholder
-                            "assess risk",
-                            "Asses the impact of the automatically flagged potential risk " + featureDefinition.getName(),
-                            featureDefinition.getPattern(),
-                            fragment.getKey(),
-                            fragment.getVersionId(),
-                            project.getKey(),
-                            system.getKey(),
-                            PortalUser.getNoUser().getKey(),
-                            20,
-                            ActionStatus.getOpen().getKey(),
-                            analysisTime.getISODate(),
-                            new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00").getISODate(),
-                            new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00").getISODate());
-
-                    handleRiskAction.store();
-
-
-                    //Temporarily add an annotation with the comment. This should really be shown in the annotation
-
-                    if(!featureDefinition.getTag().equals("")){
-
-                        ContractAnnotation annotation = new ContractAnnotation(
-                                "system@"+analysisTime.getSQLTime().toString(),
-                                fragment.getKey(),
-                                1,
-                                "Classification note: " + featureDefinition.getTag(),
-                                system.getKey(),
-                                fragment.getVersionId(),
-                                featureDefinition.getPattern(),
-                                analysisTime.getSQLTime().toString());
-
-                        annotation.store();
-                        annotations++;
-
-                    }
-
-
-
-                    updated = true;
-
-
-
-                    break;
-
-                case NO_ACTION:
-
-                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** NO Action for fragment " + fragment.getName() + "(" + featureDefinition.getPattern() + ")");
-                    break;
-
-
-                default:
-                    throw new BackOfficeException(BackOfficeException.General, "Unknown action " + featureDefinition.getAction().name() + " in handle Result");
-
-
-            }
-
-        */
-
         }
 
         if(classifications != 0){
@@ -1045,9 +984,12 @@ public class AnalysisServlet extends DocumentService {
         }
 
 
+
+
         if(updated)
             fragment.update();
 
+        return risks;
     }
 
 

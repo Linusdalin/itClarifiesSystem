@@ -12,6 +12,7 @@ import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
 import userManagement.AccessGrant;
+import userManagement.AccessRight;
 import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
@@ -136,6 +137,11 @@ public class ContractServlet extends DocumentService{
                    Contract contract = (Contract)object;
 
                    AccessGrant grant = sessionManagement.getGrantForDocument(contract);
+                   AccessRight right = grant.getAccessRight();
+                   String accessName = "ro";
+
+                   if(right.exists())
+                       accessName = right.getName();
 
                    if(sessionManagement.getReadAccess(contract)){
 
@@ -148,7 +154,7 @@ public class ContractServlet extends DocumentService{
                             .put("owner", contract.getOwnerId().toString())
                             .put("creation", contract.getCreation().getSQLTime().toString())
                             .put("visibility", grant.getVisibility().getName())
-                            .put("access", grant.getAccessRight().getName());
+                            .put("access", accessName);
 
                        documentList.put(document);
                        PukkaLogger.log(PukkaLogger.Level.INFO, "Adding " + contract.getName() + " to document list.");
@@ -179,7 +185,7 @@ public class ContractServlet extends DocumentService{
        } catch ( Exception e) {
 
            e.printStackTrace(System.out);
-           returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+           returnError(e.getLocalizedMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
 
        }
     }

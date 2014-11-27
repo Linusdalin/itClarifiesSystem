@@ -238,17 +238,17 @@ public class AnnotationServlet extends ItClarifiesService{
 
 
 
-        }catch(BackOfficeException e){
+        } catch (BackOfficeException e) {
 
-            e.logError("Error (POST) in Annotation");
-            returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+            PukkaLogger.log( e );
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
 
-        } catch ( Exception e) {
+        } catch (Exception e) {
 
-            PukkaLogger.log(PukkaLogger.Level.FATAL, e.getMessage());
-            returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-
+            PukkaLogger.log( e );
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
         }
+
 
     }
 

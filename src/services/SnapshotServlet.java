@@ -89,11 +89,15 @@ public class SnapshotServlet extends ItClarifiesService{
 
         } catch (BackOfficeException e) {
 
-            e.logError("Error (Post) in Snapshot Servlet");
-            returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            resp.flushBuffer();
+            PukkaLogger.log( e );
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
 
+        } catch (Exception e) {
+
+            PukkaLogger.log( e );
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
         }
+
 
 
      }
@@ -168,11 +172,15 @@ public class SnapshotServlet extends ItClarifiesService{
 
         } catch (BackOfficeException e) {
 
-            e.logError("Error (Get) in Snapshot Servlet");
-            returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            resp.flushBuffer();
+            PukkaLogger.log( e );
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
 
+        } catch (Exception e) {
+
+            PukkaLogger.log( e );
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
         }
+
 
 
     }

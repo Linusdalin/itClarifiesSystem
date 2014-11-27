@@ -531,16 +531,17 @@ public class FragmentServlet extends ItClarifiesService{
             JSONObject json = createDeletedResponse(DataServletName, fragment);
             sendJSONResponse(json, formatter, resp);
 
-        }catch(BackOfficeException e){
+        } catch (BackOfficeException e) {
 
-            e.logError("Error (DELETE) in " + DataServletName);
-            returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            resp.flushBuffer();
+            PukkaLogger.log( e );
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
 
-        }catch ( Exception e) {
+        } catch (Exception e) {
 
-            e.printStackTrace();
+            PukkaLogger.log( e );
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
         }
+
 
     }
 

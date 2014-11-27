@@ -411,4 +411,12 @@ public class ContractVersionInstance extends DataObject implements DataObjectInt
         return getRiskClassificationsForVersion(new LookupList());
     }
 
+    // TODO: Optimize this
+
+    public ContractFragment getFirstFragment() throws BackOfficeException{
+
+        List<ContractFragment> fragmentsForDocument = getFragmentsForVersion(new LookupList().addOrdering(ContractFragmentTable.Columns.Ordinal.name(), Ordering.FIRST));
+        return fragmentsForDocument.get( 0 );
+
+    }
 }

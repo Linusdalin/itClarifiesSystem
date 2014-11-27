@@ -3,6 +3,7 @@ package services;
 import backend.ItClarifies;
 import contractManagement.*;
 import dataRepresentation.DataTableInterface;
+import log.PukkaLogger;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.exceptions.BackOfficeException;
 import search.KeywordTable;
@@ -115,10 +116,15 @@ public class ConstantServlet extends ItClarifiesService{
 
         } catch (BackOfficeException e) {
 
-            e.logError("Error (POST) in loginService");
-            returnError(e.narration, HttpServletResponse.SC_BAD_REQUEST, resp);
-            resp.flushBuffer();
+            PukkaLogger.log(e);
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_BAD_REQUEST, resp);
+
+        } catch (Exception e) {
+
+            PukkaLogger.log(e);
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
         }
+
 
 
      }

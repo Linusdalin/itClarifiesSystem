@@ -138,15 +138,16 @@ public class FragmentTypeServlet extends ItClarifiesService{
             JSONObject json = new JSONObject().put(DataServletName, typeList);
             sendJSONResponse(json, formatter, resp);
 
-    } catch (BackOfficeException e) {
+        } catch (BackOfficeException e) {
 
-        e.logError("Error (Get) in " + DataServletName);
-        returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-        resp.flushBuffer();
-    }
+            PukkaLogger.log( e );
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
 
+        } catch (Exception e) {
 
-        //out.print("{    \"fragments\": [ {\"show\":0}, {\"show\":1}, {\"show\":2}, {\"show\":3} ] }\n");
+            PukkaLogger.log( e );
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+        }
 
 
     }

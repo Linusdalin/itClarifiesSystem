@@ -128,11 +128,15 @@ public class ReferenceServlet extends ItClarifiesService{
 
         } catch (BackOfficeException e) {
 
-            e.logError("Error (Get) in reference Servlet");
-            returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            resp.flushBuffer();
+            PukkaLogger.log( e );
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
 
+        } catch (Exception e) {
+
+            PukkaLogger.log( e );
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
         }
+
 
 
     }

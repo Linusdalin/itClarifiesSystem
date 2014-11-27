@@ -134,7 +134,7 @@ public class ItClarifiesService extends PukkaServlet {
 
     protected void returnError(String message, ErrorType errorCode, int httpError, HttpServletResponse resp) throws IOException {
 
-        returnError(message, errorCode, httpError, PukkaLogger.Level.ACTION, resp);
+        returnError(message, errorCode, httpError, PukkaLogger.Level.INFO, resp);
 
     }
 

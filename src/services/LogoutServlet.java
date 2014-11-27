@@ -1,6 +1,7 @@
 package services;
 
 import backend.ItClarifies;
+import log.PukkaLogger;
 import net.sf.json.JSONObject;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.exceptions.BackOfficeException;
@@ -55,11 +56,14 @@ public class LogoutServlet extends ItClarifiesService{
 
 
         } catch (BackOfficeException e) {
-            e.logError("Error (POST) in logoutService");
 
-            returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            resp.flushBuffer();
-            return;
+            PukkaLogger.log(e);
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+
+        } catch (Exception e) {
+
+            PukkaLogger.log(e);
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
         }
 
 

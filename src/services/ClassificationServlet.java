@@ -342,19 +342,17 @@ public class ClassificationServlet extends DocumentService{
             JSONObject response = createDeletedResponse(DataServletName, classification);
             sendJSONResponse(response, formatter, resp);
 
-        }catch(BackOfficeException e){
+        } catch (BackOfficeException e) {
 
-            e.logError("Error (Delete) in Classification");
-            returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+            PukkaLogger.log( e );
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
 
-        } catch ( Exception e) {
+        } catch (Exception e) {
 
-           e.printStackTrace(System.out);
-
-            returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            resp.flushBuffer();
-
+            PukkaLogger.log( e );
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
         }
+
 
 
     }
