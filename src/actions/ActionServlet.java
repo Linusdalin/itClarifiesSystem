@@ -350,7 +350,12 @@ public class ActionServlet extends ItClarifiesService {
 
             // Now delete
 
+            int priority = (int)action.getPriority();   // Store the priority
+
             new ActionTable().deleteItem( action );
+            Project project = action.getProject();
+            List<Action> remainingActions = project.getActionsForProject();
+            adjustPriority(priority, remainingActions);
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Clearing cache for document " + document.getName() + " after deleting actions");
             invalidateFragmentCache(version);
@@ -359,20 +364,47 @@ public class ActionServlet extends ItClarifiesService {
             sendJSONResponse(result, formatter, resp);
 
 
+        } catch (BackOfficeException e) {
 
+            PukkaLogger.log( e );
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
 
-        }catch(BackOfficeException e){
+        } catch (Exception e) {
 
-            e.logError("Error (DELETE) in Action");
-            returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-
-        } catch ( Exception e) {
-
-            PukkaLogger.log(PukkaLogger.Level.FATAL, e.getMessage());
-            returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-
+            PukkaLogger.log( e );
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
         }
 
+
+    }
+
+    /*************************************************************
+     *
+     *      When deleting an action, all actions with higher priority should be updated.
+     *
+     * @param priority            - priority of deleted action
+     * @param remainingActions    - all actions left
+     *
+     *      //TODO: Optimize with bach update
+     */
+
+    private void adjustPriority(int priority, List<Action> remainingActions) {
+
+        for(Action action : remainingActions){
+
+            if(action.getPriority() > priority){
+
+                try {
+                    action.setPriority(action.getPriority() - 1);
+                    action.update();
+
+                } catch (BackOfficeException e) {
+
+                    PukkaLogger.log( e );
+                }
+            }
+
+        }
     }
 
 
