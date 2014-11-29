@@ -98,6 +98,17 @@ public class ProjectServlet extends ItClarifiesService{
             }
             else{
 
+                Project existingProject = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), name)));
+
+                if(existingProject.exists()){
+
+                    returnError("Project with name " + name + "already exists.", ErrorType.DATA, HttpServletResponse.SC_BAD_REQUEST, resp);
+                    return;
+
+                }
+
+
+
                 // No project parameter given. We create a new project entry
 
                 DBTimeStamp creationTime = new DBTimeStamp();
