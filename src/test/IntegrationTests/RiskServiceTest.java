@@ -11,7 +11,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.*;
-import services.RiskFlagServlet;
+import risk.ContractRisk;
+import risk.RiskClassification;
+import risk.RiskClassificationTable;
+import risk.RiskFlagServlet;
 import test.MockWriter;
 import test.ServletTests;
 

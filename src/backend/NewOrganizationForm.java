@@ -1,6 +1,7 @@
 package backend;
 
 import pukkaBO.backOffice.BackOfficeInterface;
+import pukkaBO.backOffice.BackOfficeLocation;
 import pukkaBO.exceptions.BackOfficeException;
 import pukkaBO.form.*;
 
@@ -16,30 +17,27 @@ import java.util.List;
  */
 
 
-public class NewOrganizationForm extends Form implements FormInterface, FormInternalInterface {
+public class NewOrganizationForm extends Form implements FormInterface {
 
     public NewOrganizationForm(BackOfficeInterface bo, String section, String list){
 
         this.name = "newOrganization";
         title = "Create New Organization";
 
-        try {
+        List<FormFieldInterface> elements = new ArrayList<FormFieldInterface>();
 
+        elements.add(new TextField("Name", "Name",
+                "", "org name", "The name of the organization", 0, 20, 20));
+        elements.add(new TextField("Description", "Description",
+                "", "description", "Longer description", 0, 20, 20));
 
-            List<FormFieldInterface> elements = new ArrayList<FormFieldInterface>();
+        elements.add(new Button("Submit", FormPlacement.NEW_LINE, false));
 
-            elements.add(new TextField("Name", "Name",
-                    "", "org name", "The name of the organization", 0, 20, 20));
-            elements.add(new TextField("Description", "Description",
-                    "", "description", "Longer description", 0, 20, 20));
+        setElements(elements);
+        setRenderer(new StarlightFormRenderer());
+        setBackOfficeLocation(new BackOfficeLocation(bo, "User", ""));
 
-            elements.add(new Button("Submit", FormPlacement.NEW_LINE, false));
-            super.init(elements, FormInterface.STARLIGHT, null, bo, 0);
-            setActionURL("?list="+list+"&section="+section, "Create", true);
+        setActionURL("?list="+list, "Create", true);
 
-        } catch (BackOfficeException e) {
-
-            e.logError("Error creating form");
-        }
     }
 }

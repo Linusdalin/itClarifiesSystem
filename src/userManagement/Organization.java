@@ -1,5 +1,6 @@
 package userManagement;
 
+import risk.*;
 import contractManagement.*;
 import userManagement.*;
 import versioning.*;
@@ -189,24 +190,4 @@ public class Organization extends DataObject implements DataObjectInterface{
 
 
 
-    public List<ContractRisk> getRisksForOrganization(ConditionInterface condition) throws BackOfficeException{
-
-        condition.addFilter(new ReferenceFilter(ContractRiskTable.Columns.Organization.name(), getKey()));
-
-        List<DataObjectInterface> objects = new ContractRiskTable(condition).getValues();
-
-        List<ContractRisk> list = (List<ContractRisk>)(List<?>) objects;
-
-        return list;
-    }
-
-
-
-
-    // No condition retrieves all items
-
-    public List<ContractRisk> getRisksForOrganization() throws BackOfficeException{
-
-        return getRisksForOrganization(new LookupList());
-    }
 }

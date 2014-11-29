@@ -1,4 +1,4 @@
-package services;
+package risk;
 
 import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
@@ -9,6 +9,8 @@ import net.sf.json.JSONObject;
 import pukkaBO.condition.*;
 
 import pukkaBO.exceptions.BackOfficeException;
+import services.DocumentService;
+import services.Formatter;
 import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,7 +23,7 @@ import java.io.IOException;
  *
  */
 
-public class RiskFlagServlet extends DocumentService{
+public class RiskFlagServlet extends DocumentService {
 
     public static final String DataServletName = "Risk";
 
@@ -157,7 +159,6 @@ public class RiskFlagServlet extends DocumentService{
             DBKeyInterface organization = sessionManagement.getUser().getOrganizationId();
 
             ContractRiskTable risks = new ContractRiskTable(new LookupList()
-                .addFilter(new ReferenceFilter(ContractRiskTable.Columns.Organization.name(), organization))
                 .addSorting(new Sorting(ContractRiskTable.Columns.Severity.name(), Ordering.LAST)));
 
             for(DataObjectInterface object : risks.getValues()){

@@ -4,6 +4,7 @@
 <%@ page import="pukkaBO.condition.LookupItem" %>
 <%@ page import="pukkaBO.condition.ColumnFilter" %>
 <%@ page import="contractManagement.*" %>
+<%@ page import="risk.ContractRiskTable" %>
 <html>
 
 

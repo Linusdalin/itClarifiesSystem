@@ -92,5 +92,9 @@
             <property name="Ordinal" direction="asc"/>
         </datastore-index>
 
+    <datastore-index kind="FragmentClass" ancestor="false" source="manual">
+            <property name="Organization" direction="asc"/>
+            <property name="Name" direction="asc"/>
+        </datastore-index>
 
 </datastore-indexes>

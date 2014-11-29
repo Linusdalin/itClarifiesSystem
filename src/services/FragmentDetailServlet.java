@@ -11,6 +11,8 @@ import net.sf.json.JSONObject;
 import pukkaBO.condition.*;
 
 import pukkaBO.exceptions.BackOfficeException;
+import risk.RiskClassification;
+import risk.RiskClassificationTable;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

@@ -393,6 +393,8 @@ public class FragmentServlet extends ItClarifiesService{
                 // Check if this is a continuation of a table row. If that is the case we don't add it as a fragment but merge it into the
                 // one fragment json object for the entire row. When we see there is a new row we put anything stored in the rowObject
 
+                /*
+
                 boolean newRow = isNewRow(fragment);
 
 
@@ -404,12 +406,15 @@ public class FragmentServlet extends ItClarifiesService{
                 }
 
                 rowObject = merge(rowObject, fragmentJSON);
+                 */
+
+                fragmentList.put(fragmentJSON);
 
             }
 
             //PukkaLogger.log(PukkaLogger.Level.INFO, "After json loop");
 
-            fragmentList.put(rowObject);
+            //fragmentList.put(rowObject);
 
             System.out.println("Fragment JSON: " + rowObject);
 

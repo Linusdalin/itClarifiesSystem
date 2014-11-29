@@ -6,9 +6,6 @@ import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestC
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import contractManagement.*;
 import fileHandling.BlobRepository;
-import fileHandling.DocXFile;
-import fileHandling.Exporter;
-import fileHandling.RepositoryFileHandler;
 import log.PukkaLogger;
 import net.sf.json.JSONObject;
 import org.junit.AfterClass;
@@ -18,8 +15,8 @@ import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupItem;
 import analysis.UploadServlet;
-import pukkaBO.exceptions.BackOfficeException;
 
+import risk.RiskClassification;
 import userManagement.AccessRight;
 import userManagement.PortalUser;
 import userManagement.PortalUserTable;

@@ -4,11 +4,11 @@ import contractManagement.*;
 import document.AbstractComment;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
+import risk.RiskClassification;
 import userManagement.PortalUser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.FileHandler;
 
 /**
  *

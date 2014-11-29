@@ -1,5 +1,6 @@
 package actions;
 
+import risk.*;
 import contractManagement.*;
 import userManagement.*;
 import versioning.*;

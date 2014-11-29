@@ -1,6 +1,6 @@
 package backend;
 
-import contractManagement.ContractRisk;
+import risk.ContractRisk;
 import dataRepresentation.DBTimeStamp;
 import dataRepresentation.DataObjectInterface;
 import dataRepresentation.DataTableInterface;
@@ -24,7 +24,6 @@ import pukkaBO.renderer.ListRendererJSStatic;
 import userManagement.Organization;
 import userManagement.OrganizationConf;
 import userManagement.OrganizationTable;
-import userManagement.PortalUserTable;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -201,9 +200,9 @@ public class OrganizationList extends SimpleList implements ListInterface{
     public String addForm(String section)throws BackOfficeException{
 
         DataTableInterface table = new OrganizationTable();
-        String htmlOld = new TableEditForm(table, null, TableEditForm.FormType.ADD, backOffice, section, "&list=" + Name).renderForm("", 0);
+        //String htmlOld = new TableEditForm(table, null, TableEditForm.FormType.ADD, backOffice, section, "&list=" + Name).renderForm("", 0);
 
-        String html = new NewOrganizationForm(backOffice, section, Name).renderForm("", 0);
+        String html = new NewOrganizationForm(backOffice, section, Name).renderForm();
 
         return html;
     }
@@ -262,7 +261,7 @@ public class OrganizationList extends SimpleList implements ListInterface{
 
             // Create a new Organization config
 
-            OrganizationConf newConfig = new OrganizationConf(name, defaultRisk);
+            OrganizationConf newConfig = new OrganizationConf(name);
             newConfig.store();
 
             Organization newOrganization = new Organization(name, timeStamp.getISODate(), description, newConfig.getKey());

@@ -9,6 +9,7 @@ import databaseLayer.DBKeyInterface;
 import databaseLayer.DatabaseAbstractionFactory;
 import log.PukkaLogger;
 import pukkaBO.backOffice.BackOfficeInterface;
+import pukkaBO.backOffice.BackOfficeLocation;
 import pukkaBO.backOffice.Icon;
 import pukkaBO.condition.LookupByKey;
 import pukkaBO.condition.LookupList;
@@ -301,7 +302,8 @@ public class DocumentList extends GroupByList implements ListInterface{
     public String addForm(String section)throws BackOfficeException{
 
         DataTableInterface table = new ContractTable();
-        String html = new TableEditForm(table, null, TableEditForm.FormType.ADD, backOffice, section, "&list=" + Name).renderForm("", 0);
+        BackOfficeLocation location = new BackOfficeLocation(backOffice, section, "");
+        String html = new TableEditForm(table, null, TableEditForm.FormType.ADD, location, "&list=" + Name).renderForm();
 
         return html;
     }

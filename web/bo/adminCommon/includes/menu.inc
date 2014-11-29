@@ -1,15 +1,14 @@
-<%@ page import="pukkaBO.backOffice.Section" %>
 <%@ page import="pukkaBO.exceptions.BackOfficeException" %>
 <%@ page import="pukkaBO.backOffice.Menu" %>
 
 
 <div class="mainleft">
-  	<div class="mainleftinner">
+    <div class="mainleftinner">
 
-      	<div class="leftmenu">
+        <div class="leftmenu">
             <ul>
 
-                  <%    Menu menu = backOffice.getMenu();
+                <%    Menu menu = backOffice.getMenu();
                         out.print(menu.render(selection, displayBrand, acsSystem));
                   %>
 

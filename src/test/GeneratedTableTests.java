@@ -51,33 +51,26 @@ public class GeneratedTableTests{
      
              try{
      
-                 contractManagement.ContractRisk table1 = new contractManagement.ContractRisk("text 1", dummyKey, 3, "text 4");
+                 risk.ContractRisk table1 = new risk.ContractRisk("text 1", 2, "text 3");
 
                  assertThat(table1.getName(), is("text 1"));
-                 assertThat(table1.getOrganizationId(), is(dummyKey));
-                 assertThat(table1.getOrganization().exists(), is(false));
-                 assertThat(table1.getSeverity(), is((long)3));
-                 assertThat(table1.getDescription(), is("text 4"));
+                 assertThat(table1.getSeverity(), is((long)2));
+                 assertThat(table1.getDescription(), is("text 3"));
 
                  table1.store();
-                 contractManagement.ContractRisk table2 = new contractManagement.ContractRisk();
+                 risk.ContractRisk table2 = new risk.ContractRisk();
                  table2.load(new LookupByKey(table1.getKey()));
 
                  assertThat(table2.getName(), is("text 1"));
-                 assertThat(table2.getOrganizationId(), is(dummyKey));
-                 assertThat(table2.getOrganization().exists(), is(false));
-                 assertThat(table2.getSeverity(), is((long)3));
-                 assertThat(table2.getDescription(), is("text 4"));
+                 assertThat(table2.getSeverity(), is((long)2));
+                 assertThat(table2.getDescription(), is("text 3"));
 
                  table1.setName("text 11");
-                 table1.setOrganization( dummyKey);
-                 table1.setSeverity(13);
-                 table1.setDescription("text 14");
+                 table1.setSeverity(12);
+                 table1.setDescription("text 13");
                  assertThat(table1.getName(), is("text 11"));
-                 assertThat(table1.getOrganizationId(), is(dummyKey));
-                 assertThat(table1.getOrganization().exists(), is(false));
-                 assertThat(table1.getSeverity(), is((long)13));
-                 assertThat(table1.getDescription(), is("text 14"));
+                 assertThat(table1.getSeverity(), is((long)12));
+                 assertThat(table1.getDescription(), is("text 13"));
 
              }catch(BackOfficeException e){
      
@@ -90,11 +83,13 @@ public class GeneratedTableTests{
                  assertTrue(false);
              }
              try{
-                assertThat(contractManagement.ContractRisk.getBlack(), is(contractManagement.ContractRisk.getBlack()));
-                assertThat(contractManagement.ContractRisk.getRed(), is(contractManagement.ContractRisk.getRed()));
-                assertThat(contractManagement.ContractRisk.getAmber(), is(contractManagement.ContractRisk.getAmber()));
-                assertThat(contractManagement.ContractRisk.getUnknown(), is(contractManagement.ContractRisk.getUnknown()));
-                assertThat(contractManagement.ContractRisk.getNone(), is(contractManagement.ContractRisk.getNone()));
+                assertThat(risk.ContractRisk.getBlack(), is(risk.ContractRisk.getBlack()));
+                assertThat(risk.ContractRisk.getRed(), is(risk.ContractRisk.getRed()));
+                assertThat(risk.ContractRisk.getAmber(), is(risk.ContractRisk.getAmber()));
+                assertThat(risk.ContractRisk.getUnknown(), is(risk.ContractRisk.getUnknown()));
+                assertThat(risk.ContractRisk.getNone(), is(risk.ContractRisk.getNone()));
+                assertThat(risk.ContractRisk.getNotSet(), is(risk.ContractRisk.getNotSet()));
+                assertThat(risk.ContractRisk.getAdvantage(), is(risk.ContractRisk.getAdvantage()));
 
              }catch(BackOfficeException e){
      
@@ -367,25 +362,18 @@ public class GeneratedTableTests{
      
              try{
      
-                 userManagement.OrganizationConf table1 = new userManagement.OrganizationConf("text 1", dummyKey);
+                 userManagement.OrganizationConf table1 = new userManagement.OrganizationConf("text 1");
 
                  assertThat(table1.getName(), is("text 1"));
-                 assertThat(table1.getDefaultRiskId(), is(dummyKey));
-                 assertThat(table1.getDefaultRisk().exists(), is(false));
 
                  table1.store();
                  userManagement.OrganizationConf table2 = new userManagement.OrganizationConf();
                  table2.load(new LookupByKey(table1.getKey()));
 
                  assertThat(table2.getName(), is("text 1"));
-                 assertThat(table2.getDefaultRiskId(), is(dummyKey));
-                 assertThat(table2.getDefaultRisk().exists(), is(false));
 
                  table1.setName("text 11");
-                 table1.setDefaultRisk( dummyKey);
                  assertThat(table1.getName(), is("text 11"));
-                 assertThat(table1.getDefaultRiskId(), is(dummyKey));
-                 assertThat(table1.getDefaultRisk().exists(), is(false));
 
              }catch(BackOfficeException e){
      
@@ -1757,7 +1745,7 @@ public class GeneratedTableTests{
      
              try{
      
-                 contractManagement.RiskClassification table1 = new contractManagement.RiskClassification(dummyKey, dummyKey, "text 3", dummyKey, dummyKey, "text 6", "2012-01-07");
+                 risk.RiskClassification table1 = new risk.RiskClassification(dummyKey, dummyKey, "text 3", dummyKey, dummyKey, "text 6", "2012-01-07");
 
                  assertThat(table1.getFragmentId(), is(dummyKey));
                  assertThat(table1.getFragment().exists(), is(false));
@@ -1772,7 +1760,7 @@ public class GeneratedTableTests{
                  assertThat(table1.getTime().getISODate(), is("2012-01-07"));
 
                  table1.store();
-                 contractManagement.RiskClassification table2 = new contractManagement.RiskClassification();
+                 risk.RiskClassification table2 = new risk.RiskClassification();
                  table2.load(new LookupByKey(table1.getKey()));
 
                  assertThat(table2.getFragmentId(), is(dummyKey));

@@ -11,6 +11,7 @@ import pukkaBO.condition.LookupList;
 import pukkaBO.condition.Ordering;
 import pukkaBO.condition.Sorting;
 import pukkaBO.exceptions.BackOfficeException;
+import risk.RiskClassification;
 import services.FragmentServlet;
 
 import java.util.List;

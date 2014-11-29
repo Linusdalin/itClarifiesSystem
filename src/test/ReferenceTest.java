@@ -15,6 +15,7 @@ import org.junit.Test;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupItem;
+import risk.ContractRisk;
 import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;

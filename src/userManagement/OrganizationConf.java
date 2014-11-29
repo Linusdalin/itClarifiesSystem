@@ -1,5 +1,6 @@
 package userManagement;
 
+import risk.*;
 import contractManagement.*;
 import userManagement.*;
 import versioning.*;
@@ -39,13 +40,7 @@ public class OrganizationConf extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public OrganizationConf(String name, DataObjectInterface defaultrisk) throws BackOfficeException{
-
-        this(name, defaultrisk.getKey());
-    }
-
-
-    public OrganizationConf(String name, DBKeyInterface defaultrisk) throws BackOfficeException{
+    public OrganizationConf(String name) throws BackOfficeException{
 
         this();
         ColumnStructureInterface[] columns = getColumnFromTable();
@@ -54,7 +49,6 @@ public class OrganizationConf extends DataObject implements DataObjectInterface{
         data = new ColumnDataInterface[columns.length];
 
         data[0] = new StringData(name);
-        data[1] = new ReferenceData(defaultrisk, columns[1].getTableReference());
 
         exists = true;
 
@@ -100,26 +94,6 @@ public class OrganizationConf extends DataObject implements DataObjectInterface{
 
         StringData data = (StringData) this.data[0];
         data.setStringValue(name);
-    }
-
-
-
-    public DBKeyInterface getDefaultRiskId(){
-
-        ReferenceData data = (ReferenceData)this.data[1];
-        return data.value;
-    }
-
-    public ContractRisk getDefaultRisk(){
-
-        ReferenceData data = (ReferenceData)this.data[1];
-        return new ContractRisk(new LookupByKey(data.value));
-    }
-
-    public void setDefaultRisk(DBKeyInterface defaultrisk){
-
-        ReferenceData data = (ReferenceData)this.data[1];
-        data.value = defaultrisk;
     }
 
 

@@ -7,7 +7,6 @@ import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestC
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
-import document.AbstractStructureItem;
 import fileHandling.BlobRepository;
 import language.LanguageCode;
 import log.PukkaLogger;
@@ -18,6 +17,7 @@ import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.*;
 
 import pukkaBO.exceptions.BackOfficeException;
+import risk.ContractRisk;
 import userManagement.AccessRight;
 import userManagement.PortalUser;
 import userManagement.PortalUserTable;
@@ -147,7 +147,7 @@ public class ReplaceDocumentTest extends ServletTests{
             FragmentClass classification = classifications.get(0).getClassification();
             ContractAnnotation    annotation     = annotations.get(0);
             Action                action         = actions.get(0);
-            ContractRisk          risk           = new ContractRisk(new LookupByKey(first.getRiskId()));
+            ContractRisk risk           = new ContractRisk(new LookupByKey(first.getRiskId()));
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Class: " + classification.getName() + " Risk: " + risk.getName() + " Annotation: " + annotation.getDescription());
 

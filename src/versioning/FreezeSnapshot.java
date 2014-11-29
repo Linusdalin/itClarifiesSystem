@@ -9,6 +9,7 @@ import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupItem;
 import pukkaBO.condition.ReferenceFilter;
 import pukkaBO.exceptions.BackOfficeException;
+import risk.RiskClassification;
 import userManagement.PortalUser;
 
 import java.util.List;

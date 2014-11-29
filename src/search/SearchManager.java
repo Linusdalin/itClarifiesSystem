@@ -6,20 +6,18 @@ import analysis.Significance;
 import contractManagement.*;
 import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
-import language.English;
 import language.LanguageAnalyser;
-import language.LanguageInterface;
-import language.Swedish;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
 import pukkaBO.condition.*;
 
 import pukkaBO.exceptions.BackOfficeException;
+import risk.ContractRisk;
+import risk.ContractRiskTable;
+import risk.RiskClassification;
 import services.ItClarifiesService;
 import system.TextMatcher;
-import userManagement.Organization;
 import userManagement.PortalUser;
 import userManagement.SessionManagement;
 
@@ -125,9 +123,7 @@ public class SearchManager {
         DBKeyInterface organization = user.getOrganizationId();
 
         Map<String, String> riskMap = new HashMap<String, String>();
-        ContractRiskTable riskTable = new ContractRiskTable(new LookupList()
-                .addFilter(new ReferenceFilter(ContractRiskTable.Columns.Organization.name(), organization))
-        );
+        ContractRiskTable riskTable = new ContractRiskTable(new LookupList());
 
         for(DataObjectInterface object : riskTable.getValues()){
 

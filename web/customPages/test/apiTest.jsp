@@ -6,6 +6,7 @@
 <%@ page import="contractManagement.*" %>
 <%@ page import="actions.ActionStatusTable" %>
 <%@ page import="userManagement.PortalUserTable" %>
+<%@ page import="risk.ContractRiskTable" %>
 <html>
 
 

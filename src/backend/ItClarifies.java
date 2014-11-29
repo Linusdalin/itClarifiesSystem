@@ -12,6 +12,8 @@ import log.PukkaLogger;
 import pukkaBO.acs.ACS_User;
 import pukkaBO.acs.ACS_UserTable;
 import pukkaBO.password.PasswordManager;
+import risk.ContractRiskTable;
+import risk.RiskClassificationTable;
 import search.KeywordTable;
 import versioning.SnapshotTable;
 import pukkaAnalysis.DashboardPage;

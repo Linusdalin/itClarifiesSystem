@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
   <application>itclarifiesapistage</application>
-   <version>1-5-8</version>
+   <version>1-6-1</version>
   <threadsafe>true</threadsafe>
 
     <system-properties>
@@ -20,7 +20,8 @@
                     1-5-7:          Fixes for styling and some parsing (definitions and SFS)
                     1-5-8:          Fatal logging and mail improvements,
                                     Action default priority, only one action for potential risk
-
+                    1-6-0:          Removed risk per organization
+                    1-6-1:          Removed the cell merge for tables, removed emails for db failures
       -->
 
 </appengine-web-app>

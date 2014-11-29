@@ -45,7 +45,7 @@
 
                         if(form != null)
                             if(!action.equals("submit"))
-                                out.print(form.renderForm("page", 0));
+                                out.print(form.renderForm());
                             else
                                 out.print(form.submitCallBack(values, backOffice));
                         else

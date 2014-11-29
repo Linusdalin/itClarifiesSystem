@@ -60,7 +60,7 @@
                         if(action == null || action.equals("")){
 
                             // Render form
-                            out.print(form.renderForm("page", 0));
+                            out.print(form.renderForm());
 
                         }
                         else{

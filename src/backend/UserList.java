@@ -16,9 +16,11 @@ import pukkaBO.backOffice.Icon;
 import pukkaBO.condition.LookupByKey;
 
 import pukkaBO.exceptions.BackOfficeException;
+import pukkaBO.form.FormInterface;
 import pukkaBO.list.*;
 import pukkaBO.renderer.GroupListRenderer;
 import pukkaBO.renderer.ListRendererInterface;
+import pukkaBO.style.Html;
 import userManagement.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -84,6 +86,7 @@ public class UserList extends GroupByList implements ListInterface{
         // They may however not all be present in all states.
 
         actions.add(new ListAction(Callback_Action_Delete,    ActionType.List, "Delete").setIcon(Icon.Trash));
+        actions.add(new ListAction(Callback_Action_View,      ActionType.Item, "Details").setIcon(Icon.Pencil));
 
         setAddAction(new ListAction(Callback_Action_Add, ActionType.Add, "Create User"));
 
@@ -154,7 +157,7 @@ public class UserList extends GroupByList implements ListInterface{
                     // This is a view type, so the return value will be the content of an html page.
                     // Returning null here would be an error
 
-                    return "This is a detailed view on a separate page with  " + user.getName().toLowerCase() + "No more information is implemented yet...";
+                    return detailedView(user);
             }
 
         }catch(Exception e){
@@ -164,6 +167,24 @@ public class UserList extends GroupByList implements ListInterface{
 
         return "Error: No action performed...";
 
+    }
+
+    private String detailedView(PortalUser user) {
+
+        StringBuffer page = new StringBuffer();
+
+        try {
+
+            page.append(Html.heading(1, "Details for User " + user.getName()));
+            FormInterface userDetailForm = new NewUserForm(backOffice, "", Name );
+
+            page.append(userDetailForm.renderForm());
+
+        } catch (BackOfficeException e) {
+            page.append(Html.paragraph("Could not render user detail form..."));
+        }
+
+        return page.toString();
     }
 
 
@@ -182,7 +203,7 @@ public class UserList extends GroupByList implements ListInterface{
         DataTableInterface table = new PortalUserTable();
         //String html = new TableEditForm(table, null, TableEditForm.FormType.ADD, backOffice, section, "&list=" + Name).renderForm("", 0);
 
-        String html = new NewUserForm(backOffice, section, Name).renderForm("", 0);
+        String html = new NewUserForm(backOffice, section, Name).renderForm();
 
 
         return html;
@@ -204,13 +225,17 @@ public class UserList extends GroupByList implements ListInterface{
             // Get the parameters
 
             String name                 = request.getParameter("Name");
+            String email                = request.getParameter("Email");
+            boolean wsAdmin            = request.getParameter("wsAdmin") != null;
             String password             = request.getParameter("Password");
             String confirmPassword      = request.getParameter("Confirm");
             String organizationKey      = request.getParameter("Organization");
             DBTimeStamp timeStamp       = new DBTimeStamp();
 
-            String salt = "Random salt";            //TODO: Look at the effect of salt here. Should it be randomized?
-            String email = "no email given";
+            String salt = "Random salt";
+
+
+            //TODO Add checks for completeness of form data here
 
             DBKeyInterface _organization = new DatabaseAbstractionFactory().createKey(organizationKey);
 
@@ -254,7 +279,7 @@ public class UserList extends GroupByList implements ListInterface{
 
 
 
-            PortalUser newUser = new PortalUser(name, userId, email, timeStamp.getISODate(), organization.getKey(), true, true);
+            PortalUser newUser = new PortalUser(name, userId, email, timeStamp.getISODate(), organization.getKey(), true, wsAdmin);
             newUser.store();
 
 

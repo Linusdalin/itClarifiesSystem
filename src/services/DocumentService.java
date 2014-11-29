@@ -4,11 +4,11 @@ import analysis.*;
 import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
 import databaseLayer.DBKeyInterface;
-import databaseLayer.DatabaseAbstractionFactory;
 import document.*;
 import log.PukkaLogger;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
+import risk.ContractRisk;
 import search.Keyword;
 import search.KeywordTable;
 import userManagement.PortalUser;
@@ -47,7 +47,7 @@ public class DocumentService extends ItClarifiesService{
         Project project = document.getProject();
 
         AutoNumberer autoNumberer = new AutoNumberer();
-        ContractRisk defaultRisk = ContractRisk.getNone();
+        ContractRisk defaultRisk = ContractRisk.getNotSet();
         DBTimeStamp analysisTime = new DBTimeStamp();
 
         List<AbstractFragment> fragments = fragmenter.getFragments();
@@ -495,19 +495,6 @@ public class DocumentService extends ItClarifiesService{
 
       */
 
-    /******************************************************************
-     *
-     *
-     *
-     * @param project
-     * @return
-     */
-
-    protected ContractRisk getDefaultRiskLevel(Project project) {
-
-        ContractRisk defaultRisk = project.getOrganization().getConfig().getDefaultRisk();
-        return defaultRisk;
-    }
 
     /***************************************************
      *

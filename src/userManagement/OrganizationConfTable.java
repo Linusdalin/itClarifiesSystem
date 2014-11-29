@@ -1,5 +1,6 @@
 package userManagement;
 
+import risk.*;
 import contractManagement.*;
 import userManagement.*;
 import versioning.*;
@@ -31,12 +32,11 @@ public class OrganizationConfTable extends DataTable implements DataTableInterfa
     public static final String TABLE = "OrganizationConf";
     private static final String DESCRIPTION = "Configuration data for organizations";
 
-    public enum Columns {Name, DefaultRisk, }
+    public enum Columns {Name, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
             new StringColumn("Name", DataColumn.noFormatting),
-            new ReferenceColumn("DefaultRisk", DataColumn.noFormatting, new TableReference("ContractRisk", "Name")),
     };
 
     private static final OrganizationConf associatedObject = new OrganizationConf();
@@ -63,16 +63,16 @@ public class OrganizationConfTable extends DataTable implements DataTableInterfa
     }
     private static final String[][] DefaultValues = {
 
-          {"Config for no org", "Not Set", "system"},
-          {"Config for itClarifies", "Not Set", "system"},
+          {"Config for no org", "system"},
+          {"Config for itClarifies", "system"},
 
 
 
     };
     private static final String[][] TestValues = {
 
-          {"Config for demo", "Potential", "system"},
-          {"Config for another org", "Not Set", "system"},
+          {"Config for demo", "system"},
+          {"Config for another org", "system"},
 
 
 

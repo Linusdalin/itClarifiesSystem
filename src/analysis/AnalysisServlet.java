@@ -21,6 +21,10 @@ import log.PukkaLogger;
 import net.sf.json.JSONObject;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
+import risk.ContractRisk;
+import risk.ContractRiskTable;
+import risk.RiskClassification;
+import risk.RiskClassificationTable;
 import search.Keyword;
 import search.KeywordTable;
 import services.DocumentService;
@@ -35,7 +39,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /********************************************************
@@ -280,7 +283,11 @@ public class AnalysisServlet extends DocumentService {
 
         } catch (DocumentAnalysisException e) {
 
-            e.log("Error in document analysis");
+            PukkaLogger.log( e );
+
+        } catch (Exception e) {
+
+            PukkaLogger.log( e );
 
         }
 
@@ -648,7 +655,7 @@ public class AnalysisServlet extends DocumentService {
 
         // Add risks
 
-        List<ContractRisk> risks = organization.getRisksForOrganization();
+        List<ContractRisk> risks = new ContractRiskTable().getAll();
 
         for(ContractRisk risk : risks){
 
@@ -811,7 +818,7 @@ public class AnalysisServlet extends DocumentService {
 
 
         FragmentClassification fragmentClassification;
-        ContractRisk defaultRisk = getDefaultRiskLevel(project);
+        ContractRisk defaultRisk = ContractRisk.getUnknown();
 
         System.out.println("Found " + analysisResult.getClassifications().size() + " classifications ");
 
@@ -887,18 +894,36 @@ public class AnalysisServlet extends DocumentService {
                     // Detecting a risk should result in a risk created in the system.
 
                     PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating risk for fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
+                    String riskDescription = "The phrasing " + classification.getPattern().getText() + "(" + classification.getTag()+ ")";
 
                     RiskClassification risk = new RiskClassification(
                             fragment.getKey(),
                             defaultRisk.getKey(),
-                            classification.getTag(),
+                            riskDescription,
                             system.getKey(),
                             fragment.getVersionId(),
                             classification.getPattern().getText(),
-                            analysisTime.getSQLTime().toString());
+                            analysisTime.getSQLTime().toString()
+                    );
                     risk.store();
                     risks++;
                     fragment.setRisk(defaultRisk.getKey());  // Set it in the fragment too
+
+                    // Creating a risk description. This should really be part of displaying the risk, but the
+
+                    ContractAnnotation riskAnnotation = new ContractAnnotation(
+                            "Risk Description",
+                            fragment.getKey(),
+                            0,  // This is the first anyway...
+                            riskDescription,
+                            system.getKey(),
+                            fragment.getVersionId(),
+                            classification.getPattern().getText(),
+                            analysisTime.getSQLTime().toString()
+                    );
+
+                    riskAnnotation.store();
+                    annotations++;
 
 
                     updated = true;

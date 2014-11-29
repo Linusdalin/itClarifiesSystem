@@ -1,9 +1,9 @@
 <%@ page import="pukkaBO.form.Form" %>
-<%@ page import="pukkaBO.backOffice.LightBox" %>
 <%@ page import="pukkaBO.renderer.TableRendererInterface" %>
 <%@ page import="pukkaBO.formsPredefined.TableFilterForm" %>
 <%@ page import="static junit.framework.Assert.assertTrue" %>
 <%@ page import="pukkaBO.pivot.*" %>
+<%@ page import="pukkaBO.backOffice.*" %>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 
@@ -79,8 +79,9 @@
 
             PivotTable pivotTable = new PivotTable(table, backOffice);
 
-            FormInterface pivotForm = new pukkaBO.pivot.PivotSelectionForm(pageParameter, pivotTable, selection, request, tabId);
-            out.print(pivotForm.renderForm(pageParameter, tabId));
+            pukkaBO.backOffice.BackOfficeLocation location = new BackOfficeLocation((BackOfficeInterface)backOffice, selection, pageParameter, tabId);
+            FormInterface pivotForm = new pukkaBO.pivot.PivotSelectionForm(location,  pivotTable, request);
+            out.print(pivotForm.renderForm());
 
 
          %>

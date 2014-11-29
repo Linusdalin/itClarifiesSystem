@@ -6,6 +6,7 @@
 <%@ page import="pukkaBO.formsPredefined.TableEditForm" %>
 <%@ page import="pukkaBO.condition.LookupByKey" %>
 <%@ page import="pukkaBO.style.Html" %>
+<%@ page import="pukkaBO.backOffice.BackOfficeLocation" %>
 
 <%@ include file="../bean.inc" %>
 <%
@@ -22,6 +23,8 @@
             List<String> parameterList = new ArrayList<String>();
             //out.print("<h1>Add value</h1>");
             DataObjectInterface object = null;
+
+            BackOfficeLocation location = new BackOfficeLocation(backOffice, selection, pageParameter, tabId);
 
             // Start by reading the parameters
 
@@ -47,7 +50,7 @@
 
                     object = table.getDataObject(parameterList);
                     newId  = table.store(object);
-                    form = new TableEditForm(table, object, TableEditForm.FormType.ADD, backOffice, selection);
+                    form = new TableEditForm(table, object, TableEditForm.FormType.ADD, location);
 
                     out.print(Html.successBox("Added new entry"));
 
@@ -82,7 +85,7 @@
 
                     boolean success = (table.update(object) != null);
 
-                    form = new TableEditForm(table, object, TableEditForm.FormType.UPDATE, backOffice, selection);
+                    form = new TableEditForm(table, object, TableEditForm.FormType.UPDATE, location);
 
                     if(success){
 
@@ -155,7 +158,7 @@
 
                         //table.loadFromDatabase();
                         object = table.getDataObject(new LookupByKey(id));
-                        form = new TableEditForm(table, object, TableEditForm.FormType.UPDATE, backOffice, selection);
+                        form = new TableEditForm(table, object, TableEditForm.FormType.UPDATE, location);
                     }
                     catch(BackOfficeException e){
 
@@ -168,7 +171,7 @@
                     try{
 
                         object = table.getDataObject(parameterList);
-                        form = new TableEditForm(table, object, TableEditForm.FormType.ADD, backOffice, selection);
+                        form = new TableEditForm(table, object, TableEditForm.FormType.ADD, location);
 
                     }
                     catch(BackOfficeException e){
@@ -181,7 +184,7 @@
             }
 
                 if(form != null)
-                    out.print(form.renderForm(pageParameter, tabId));
+                    out.print(form.renderForm());
                 else
                     out.print("<p>Error no form "+ formParameter + "</p>");
 
