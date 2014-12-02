@@ -319,7 +319,8 @@ public class UploadServlet extends DocumentService {
      * @param portalUser
      * @param accessRight
      * @param visibility
-     * @param sessionToken       @return
+     * @param sessionToken
+     * @return
      * @throws BackOfficeException
      * @throws DocumentAnalysisException
      * @throws IOException

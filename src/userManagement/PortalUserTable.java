@@ -79,6 +79,8 @@ public class PortalUserTable extends DataTable implements DataTableInterface{
     };
     private static final String[][] TestValues = {
 
+          {"System", "0", "", "2014-01-01", "demo.org", "true", "true", "system"},
+          {"External", "0", "", "2014-01-01", "demo.org", "true", "true", "system"},
           {"demo", "2", "demo@dev.null", "2014-01-01", "demo.org", "true", "false", "system"},
           {"admin", "3", "admin@dev.null", "2014-01-01", "demo.org", "true", "true", "system"},
           {"linus", "4", "linus@dev.null", "2014-01-01", "demo.org", "true", "true", "system"},

@@ -100,6 +100,13 @@ public class AnalysisServlet extends DocumentService {
             Contract document = versionInstance.getDocument();
             Project project = document.getProject();
 
+            if(!document.exists()){
+
+                returnError("Document does not exist", ErrorType.DATA, HttpServletResponse.SC_OK, resp );
+                return;
+            }
+
+
             if(!mandatoryObjectExists(document, resp))
                 return;
 
@@ -256,7 +263,7 @@ public class AnalysisServlet extends DocumentService {
 
             // Retrieve and store all keywords
 
-            storeKeywords(newVersion, analyser.getKeywords(), organization);
+            storeKeywords(newVersion, analyser, document, project, organization);
 
 
             // If there is an old version (update rather than upload new) we need to transpose all old attributes
@@ -350,7 +357,7 @@ public class AnalysisServlet extends DocumentService {
 
             // Retrieve and store all keywords
 
-            storeKeywords(documentVersion, analyser.getKeywords(), organization);
+            storeKeywords(documentVersion, analyser, document, project, organization);
 
 
             // Now reanalyse project to find existing references to the new document
@@ -402,7 +409,6 @@ public class AnalysisServlet extends DocumentService {
                                           // relevant for the analysis e.g. Lists
 
                 NewAnalysisOutcome analysisOutcome = analyser.analyseFragment2(fragment.getText(), headline, contextText, aDocument, aProject);
-
 
                 risks += handleResult(analysisOutcome, fragment, project, analysisTime, aDocument);
 
@@ -631,7 +637,7 @@ public class AnalysisServlet extends DocumentService {
      *
      *
      * @param versionInstance  - the analysed version
-     * @param keywords         - list of keywords from the analysis
+     * @param analyser         - list of keywords from the analysis
      * @param organization
      * @throws BackOfficeException
      *
@@ -640,12 +646,11 @@ public class AnalysisServlet extends DocumentService {
      */
 
 
-    private void storeKeywords(ContractVersionInstance versionInstance, List<String> keywords, Organization organization) throws BackOfficeException {
+    private void storeKeywords(ContractVersionInstance versionInstance, Analyser analyser, Contract document, Project project, Organization organization) throws BackOfficeException {
 
         KeywordTable table = new KeywordTable();
         table.createEmpty();
-        Contract document = versionInstance.getDocument();
-        Project project = document.getProject();
+        List<String> keywords = analyser.getKeywords();
 
         for(String word : keywords){
 
@@ -662,6 +667,29 @@ public class AnalysisServlet extends DocumentService {
             Keyword keyword = new Keyword("#" + risk.getName(), document, project);
             table.add(keyword);
         }
+
+        // Add all classifications if this is a new language for this project
+
+        ContractTable contractsForLanguage = new ContractTable(new LookupList()
+                .addFilter(new ColumnFilter(ContractTable.Columns.Language.name(), analyser.getLanguage().getLanguageCode().code))
+                .addFilter(new ReferenceFilter(ContractTable.Columns.Project.name(), project.getKey())));
+
+        System.out.println("*** Found " + contractsForLanguage.getCount() + " documents with language " + analyser.getLanguage().getLanguageCode().code);
+        if(contractsForLanguage.getCount() <= 1){
+
+            String[] classificationTagKeywords = analyser.getAllClassificationKeywords();
+
+            System.out.println("*** Adding " + classificationTagKeywords.length + " keywords");
+
+            for (String classificationTagKeyword : classificationTagKeywords) {
+
+                Keyword keyword = new Keyword("#" + classificationTagKeyword, document, project);
+                table.add(keyword);
+            }
+
+        }
+
+
 
         Keyword keyword = new Keyword("#Risk", document, project);
         table.add(keyword);
@@ -806,8 +834,6 @@ public class AnalysisServlet extends DocumentService {
     private int handleResult(NewAnalysisOutcome analysisResult, ContractFragment fragment, Project project, DBTimeStamp analysisTime, AbstractDocument aDocument) throws BackOfficeException{
 
         boolean updated = false;
-        PortalUser system = PortalUser.getSystemUser();
-        Contract document = fragment.getVersion().getDocument();
 
         // Counters for updating the fragment
 
@@ -818,9 +844,11 @@ public class AnalysisServlet extends DocumentService {
 
 
         FragmentClassification fragmentClassification;
-        ContractRisk defaultRisk = ContractRisk.getUnknown();
 
-        System.out.println("Found " + analysisResult.getClassifications().size() + " classifications ");
+        ContractRisk defaultRisk = ContractRisk.getUnknown();
+        PortalUser system = PortalUser.getSystemUser();
+
+        System.out.println("Found " + analysisResult.getClassifications().size() + " classifications in analysis");
 
         for(Classification classification : analysisResult.getClassifications()){
 
@@ -969,6 +997,7 @@ public class AnalysisServlet extends DocumentService {
                         classification.getSignificance(),
                         "not specified rule",
                         analysisTime.getSQLTime().toString());
+
                 fragmentClassification.store();
 
                 // Only update the number of classifications if it is above the threshold
@@ -1008,11 +1037,11 @@ public class AnalysisServlet extends DocumentService {
             fragment.setAnnotationCount(fragment.getAnnotationsForFragment().size());   // Using actual value here to correct any issues
         }
 
-
-
+        // Todo: This takes a lot of time. Look into optimizing this. Perhaps storing all of these for a batch update
 
         if(updated)
             fragment.update();
+
 
         return risks;
     }

@@ -85,11 +85,18 @@ public class DocumentService extends ItClarifiesService{
 
                 int row = 0;
                 int column = 0;
+                int border = 0;
+                int height = -1;
+                int width = -1;
+                String backgroundColour = "#FFFFFF";
+                String fontColour = "#000000";
 
                 if(aFragment.getCellInfo() != null){
 
                     row = aFragment.getCellInfo().row;
                     column = aFragment.getCellInfo().col;
+                    width = aFragment.getCellInfo().width;
+                    backgroundColour = "#" + aFragment.getCellInfo().colour;
                 }
 
                 // First check if this is an implicit top level fragment that we have not created yet
@@ -98,6 +105,7 @@ public class DocumentService extends ItClarifiesService{
                         aFragment.getType() == StructureType.TABLE){
 
 
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "Creating a new implicit structure item");
 
                     StructureItem item = new StructureItem(
                             "Implicit Structure Item " + structureNo,
@@ -109,6 +117,8 @@ public class DocumentService extends ItClarifiesService{
                             indentation);
 
                     item.store();
+
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "  - Stored");
 
                     /*
                     structureItemKey = item.getKey();
@@ -196,7 +206,13 @@ public class DocumentService extends ItClarifiesService{
                             0,     // classificaton
                             0,     // actions
                             column,
-                            row
+                            row,
+                            width,
+                            height,
+                            fontColour,
+                            backgroundColour,
+                            border
+
 
                     );
 

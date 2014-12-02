@@ -502,8 +502,10 @@ public class FragmentServlet extends ItClarifiesService{
                 .put("type", fragment.getType())
                 .put("structurehead", fragment.getStructureNo())
                 .put("indentation", fragment.getIndentation())
-                .put("row", fragment.getxPos())
-                .put("col", fragment.getyPos());
+                .put("row", fragment.getyPos())
+                .put("col", fragment.getxPos())
+                .put("width", fragment.getwidth())
+                .put("background", fragment.getbackgroundColour());
 
         return displayInfo;
 

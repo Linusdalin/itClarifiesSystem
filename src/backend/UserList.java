@@ -176,7 +176,7 @@ public class UserList extends GroupByList implements ListInterface{
         try {
 
             page.append(Html.heading(1, "Details for User " + user.getName()));
-            FormInterface userDetailForm = new NewUserForm(backOffice, "", Name );
+            FormInterface userDetailForm = new EditUserForm(backOffice, "", Name, user );
 
             page.append(userDetailForm.renderForm());
 
@@ -211,7 +211,7 @@ public class UserList extends GroupByList implements ListInterface{
 
     /*************************************************************************************************
      *
-     *          //TODO; ws Admin is hardcoded to true. Add to the form
+     *          Submit can receive values from either the new user or the edit user
      *
      * @param request
      * @return
@@ -224,9 +224,11 @@ public class UserList extends GroupByList implements ListInterface{
 
             // Get the parameters
 
+            String userKey              = request.getParameter("Key");
             String name                 = request.getParameter("Name");
             String email                = request.getParameter("Email");
-            boolean wsAdmin            = request.getParameter("wsAdmin") != null;
+            boolean wsAdmin             = request.getParameter("wsAdmin") != null;
+            boolean active              = request.getParameter("active") != null;
             String password             = request.getParameter("Password");
             String confirmPassword      = request.getParameter("Confirm");
             String organizationKey      = request.getParameter("Organization");
@@ -235,66 +237,140 @@ public class UserList extends GroupByList implements ListInterface{
             String salt = "Random salt";
 
 
-            //TODO Add checks for completeness of form data here
-
-            DBKeyInterface _organization = new DatabaseAbstractionFactory().createKey(organizationKey);
-
-            Organization organization = new Organization(new LookupByKey(_organization));
-            if(!organization.exists()){
-
-                return("Error: No Organization with key " + organizationKey + " exists. Cannot create user");
-
-            }
-
-            if(!password.equals(confirmPassword)){
-
-                return("Error: Passwords does not match \"" + password + "\" \"" + confirmPassword + "\"");
-
-            }
-
-
-            // Create a user in the Login service
-
             String loginServer = ServerFactory.getLoginServer();
             String thisServer = ServerFactory.getLocalSystem();
 
-            RequestHandler requestHandler = new RequestHandler(loginServer + "/User");
-            String output = requestHandler.excutePost(
-                    "user=" + name +
-                    "&password=" + password +
-                    "&organization="+ organization.getName() +
-                    "&session=SystemSessionToken");
 
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Got response from login server" + output);
+            if(userKey == null){
 
-            JSONObject response = new JSONObject(output);
+                // If there is no key passed, we will create a new user
 
-            if(response.has("error")){
 
-                String errorMessage = ((JSONObject) response.getJSONArray("error").get(0)).getString("message");
-                return("Error: Got error from login service " + errorMessage);
+                // First check mandatory data
+
+                DBKeyInterface _organization = new DatabaseAbstractionFactory().createKey(organizationKey);
+
+
+                Organization organization = new Organization(new LookupByKey(_organization));
+                if(!organization.exists()){
+
+                    return("Error: No Organization with key " + organizationKey + " exists. Cannot create/update user");
+
+                }
+
+
+                if(!password.equals(confirmPassword)){
+
+                    return("Error: Passwords does not match \"" + password + "\" \"" + confirmPassword + "\"");
+
+                }
+
+                // Create a user in the Login service
+
+                RequestHandler requestHandler = new RequestHandler(loginServer + "/User");
+                String output = requestHandler.excutePost(
+                        "user=" + name +
+                        "&password=" + password +
+                        "&organization="+ organization.getName() +
+                        "&session=SystemSessionToken");
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Got response from login server" + output);
+
+                JSONObject response = new JSONObject(output);
+
+                if(response.has("error")){
+
+                    String errorMessage = ((JSONObject) response.getJSONArray("error").get(0)).getString("message");
+                    return("Error: Got error from login service " + errorMessage);
+                }
+
+                int userId = response.getInt("user");
+
+
+
+                PortalUser newUser = new PortalUser(name, userId, email, timeStamp.getISODate(), organization.getKey(), true, wsAdmin);
+                newUser.store();
+
+
+                return ("Success:A new User \""+newUser.getName()+"\"with id " + newUser.getKey() + " was created");
+
+            }
+            else{
+
+                // This is an update of an existing user.
+
+                DBKeyInterface _user         = new DatabaseAbstractionFactory().createKey(userKey);
+                PortalUser user = new PortalUser(new LookupByKey(_user));
+
+                if(!user.exists()){
+
+                    return("Error: No User with key " + userKey + " exists. Cannot update user");
+
+                }
+
+
+                if(password != null && !password.equals("")){
+
+
+                    // If there is a password given in the update. It has to match the verify password field
+
+                    if(!password.equals(confirmPassword)){
+
+                        return("Error: Passwords does not match \"" + password + "\" \"" + confirmPassword + "\"");
+
+                    }
+
+
+                    RequestHandler requestHandler = new RequestHandler(loginServer + "/User");
+                    String output = requestHandler.excutePost(
+                            "id=" + user.getUserId() +
+                            "&user=" + name +
+                            "&password=" + password +
+                            "&session=SystemSessionToken");
+
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "Got response from login server" + output);
+
+                    JSONObject response = new JSONObject(output);
+
+                    if(response.has("error")){
+
+                        String errorMessage = ((JSONObject) response.getJSONArray("error").get(0)).getString("message");
+                        return("Error: Got error from login service " + errorMessage);
+                    }
+
+
+
+                }
+                else{
+
+                    if(!user.getName().equals(name))
+                        return("Error: cant update name without a password.");
+                }
+
+                user.setName(name);
+                user.setEmail(email);
+                user.setWSAdmin(wsAdmin);
+                user.setActive(active);
+
+
+                user.update();
+
+                return ("Success:Updated User \""+user.getName()+"\"");
+
+
             }
 
-            int userId = response.getInt("user");
-
-
-
-            PortalUser newUser = new PortalUser(name, userId, email, timeStamp.getISODate(), organization.getKey(), true, wsAdmin);
-            newUser.store();
-
-
-            return ("Success:A new User \""+newUser.getName()+"\"with id " + newUser.getKey() + " was created");
 
         }
         catch(BackOfficeException e){
 
-            System.out.println("Error: Error adding element " + e.narration);
-            e.printStackTrace(System.out);
+            PukkaLogger.log( e );
+            return "Could not add user (" + e.narration + ")";
+
         }
         catch(JSONException e){
 
-            System.out.println("Error: Error parsing result from login server : ");
-            e.printStackTrace(System.out);
+            PukkaLogger.log( e );
         }
 
         return "Error: Could not create Item...";

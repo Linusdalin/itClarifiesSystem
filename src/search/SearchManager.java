@@ -99,6 +99,9 @@ public class SearchManager {
      * @param project    - project to search in
      * @param session    - session (for access rights lookup)
      *
+     *
+     *
+     *
      * @throws BackOfficeException
      */
 
@@ -209,19 +212,33 @@ public class SearchManager {
 
                         String matchPatternForClassification = classification.getName() + " " + classification.getComment() + " " + classification.getKeywords();
 
-                        System.out.println("*** Trying to match classification: \"" + matchPatternForClassification + "\"");
+                        PukkaLogger.log(PukkaLogger.Level.INFO, "*** Trying to match classification: \"" + matchPatternForClassification + "\"");
 
                         if(textmatcher.getMatch(matchPatternForClassification) != null){
+
+                            PukkaLogger.log(PukkaLogger.Level.INFO, "*** Matched!");
+                            ContractFragment fragment = classification.getFragment();
 
                             List<String> match = new ArrayList<String>();
                             match.add(classification.getPattern());
 
-                            results.add(new SearchHit(classification.getFragment(), document, match)
+                            results.add(new SearchHit(fragment, document, match)
                                     .withClassification(classification));
 
 
-                        }
+                            // If the classification is a header, we want to add all the children too
 
+                            PukkaLogger.log(PukkaLogger.Level.INFO, "Adding: " + fragment.getChildren().size() + " children");
+
+
+                            for(ContractFragment child : fragment.getChildren()){
+
+                                results.add(new SearchHit(child, document, match)
+                                        .withClassification(classification));
+
+                            }
+
+                        }
 
                     }
                     else{

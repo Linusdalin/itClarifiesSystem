@@ -61,8 +61,9 @@ public class PortalUserExternalServlet extends ItClarifiesService {
                 PortalUser user = (PortalUser)o;
 
                 // Filter out the "non-user" users. They are not supposed to be sent to the frontend
+                //if(user.getUserId() != 0)
+                // Moved this check to the frontend
 
-                if(user.getUserId() != 0)
                     users.put(createExternalUserInfoObject(user));
 
             }
@@ -105,9 +106,16 @@ public class PortalUserExternalServlet extends ItClarifiesService {
 
     private JSONObject createExternalUserInfoObject(PortalUser user){
 
-        return new JSONObject()
+
+
+        JSONObject infoObject = new JSONObject()
              .put("id", user.getKey().toString())
              .put("name", user.getName());
+
+
+        infoObject.put("internal", (user.getUserId() == 0 ? "true" : "false"));
+
+        return infoObject;
 
     }
 

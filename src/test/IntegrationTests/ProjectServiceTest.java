@@ -13,6 +13,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.LookupByKey;
+import pukkaBO.condition.LookupList;
+import services.ItClarifiesService;
 import services.ProjectServlet;
 import test.MockWriter;
 import test.ServletTests;
@@ -151,6 +153,75 @@ public class ProjectServiceTest extends ServletTests {
 
 
 
+
+
+
+    }catch(NullPointerException e){
+
+        e.printStackTrace();
+        assertTrue(false);
+    }
+}
+
+
+    @Test
+    public void testDuplicateName() throws Exception {
+
+        try{
+
+            BackOfficeInterface bo;
+
+            bo = new ItClarifies();
+            bo.createDb();
+            bo.populateValues(true);
+
+            int projectsBefore = new ProjectTable(new LookupList()).getCount();
+
+            MockWriter mockWriter = new MockWriter();
+
+            when(request.getParameter("session")).thenReturn("DummyAdminToken");
+            when(request.getParameter("name")).thenReturn("New Project");
+            when(request.getParameter("description")).thenReturn("A description");
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+            when(response.getWriter()).thenReturn(mockWriter.getWriter());
+
+            new ProjectServlet().doPost(request, response);
+
+            String output = mockWriter.getOutput();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
+
+            int projectsAfterCreate = new ProjectTable(new LookupList()).getCount();
+
+            // Get the key
+
+            JSONObject json = new JSONObject(output);
+            DBKeyInterface key = new DatabaseAbstractionFactory().createKey(json.getString("Project"));
+
+            Project project = new Project(new LookupByKey(key));
+
+            assertVerbose("The new project is in the database", project.exists(), is(true));
+            assertVerbose("There should be one more project", projectsAfterCreate, is(projectsBefore + 1));
+
+            // Now try to create a new project with the same name
+
+            mockWriter = new MockWriter();
+
+            when(request.getParameter("session")).thenReturn("DummyAdminToken");
+            when(request.getParameter("name")).thenReturn("New Project");
+            when(request.getParameter("description")).thenReturn("Tis is irrelevant");
+            when(response.getWriter()).thenReturn(mockWriter.getWriter());
+
+            new ProjectServlet().doPost(request, response);
+
+
+            output = mockWriter.getOutput();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
+
+            int projectsAfterSecondCreate = new ProjectTable(new LookupList()).getCount();
+
+            json = new JSONObject(output);
+            assertError(json, ItClarifiesService.ErrorType.DATA);
+            assertVerbose("There should be no more projects created", projectsAfterSecondCreate, is(projectsAfterCreate));
 
 
 

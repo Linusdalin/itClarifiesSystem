@@ -161,7 +161,7 @@
 
         if(form == null){
 
-            new BackOfficeException(BackOfficeException.FormError, "Form is null for form=" + formParameter).logError("Error in parameter.inc");
+            new BackOfficeException(BackOfficeException.FormError, "Form is null for form=" + formParameter).logAsMinor("Error in parameter.inc");
 
         }else{
 

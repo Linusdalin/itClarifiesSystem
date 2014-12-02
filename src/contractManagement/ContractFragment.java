@@ -38,13 +38,13 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public ContractFragment(String name, DataObjectInterface version, DataObjectInterface project, long structureno, long ordinal, String text, long indentation, String type, DataObjectInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos) throws BackOfficeException{
+    public ContractFragment(String name, DataObjectInterface version, DataObjectInterface project, long structureno, long ordinal, String text, long indentation, String type, DataObjectInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, long width, long height, String fontcolour, String backgroundcolour, long border) throws BackOfficeException{
 
-        this(name, version.getKey(), project.getKey(), structureno, ordinal, text, indentation, type, risk.getKey(), annotationcount, referencecount, classificatoncount, actioncount, xpos, ypos);
+        this(name, version.getKey(), project.getKey(), structureno, ordinal, text, indentation, type, risk.getKey(), annotationcount, referencecount, classificatoncount, actioncount, xpos, ypos, width, height, fontcolour, backgroundcolour, border);
     }
 
 
-    public ContractFragment(String name, DBKeyInterface version, DBKeyInterface project, long structureno, long ordinal, String text, long indentation, String type, DBKeyInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos) throws BackOfficeException{
+    public ContractFragment(String name, DBKeyInterface version, DBKeyInterface project, long structureno, long ordinal, String text, long indentation, String type, DBKeyInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, long width, long height, String fontcolour, String backgroundcolour, long border) throws BackOfficeException{
 
         this();
         ColumnStructureInterface[] columns = getColumnFromTable();
@@ -67,6 +67,11 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
         data[12] = new IntData(actioncount);
         data[13] = new IntData(xpos);
         data[14] = new IntData(ypos);
+        data[15] = new IntData(width);
+        data[16] = new IntData(height);
+        data[17] = new StringData(fontcolour);
+        data[18] = new StringData(backgroundcolour);
+        data[19] = new IntData(border);
 
         exists = true;
 
@@ -330,6 +335,76 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
 
 
+    public long getwidth(){
+
+        IntData data = (IntData) this.data[15];
+        return data.value;
+    }
+
+    public void setwidth(long width){
+
+        IntData data = (IntData) this.data[15];
+        data.value = width;
+    }
+
+
+
+    public long getheight(){
+
+        IntData data = (IntData) this.data[16];
+        return data.value;
+    }
+
+    public void setheight(long height){
+
+        IntData data = (IntData) this.data[16];
+        data.value = height;
+    }
+
+
+
+    public String getfontColour(){
+
+        StringData data = (StringData) this.data[17];
+        return data.getStringValue();
+    }
+
+    public void setfontColour(String fontcolour){
+
+        StringData data = (StringData) this.data[17];
+        data.setStringValue(fontcolour);
+    }
+
+
+
+    public String getbackgroundColour(){
+
+        StringData data = (StringData) this.data[18];
+        return data.getStringValue();
+    }
+
+    public void setbackgroundColour(String backgroundcolour){
+
+        StringData data = (StringData) this.data[18];
+        data.setStringValue(backgroundcolour);
+    }
+
+
+
+    public long getborder(){
+
+        IntData data = (IntData) this.data[19];
+        return data.value;
+    }
+
+    public void setborder(long border){
+
+        IntData data = (IntData) this.data[19];
+        data.value = border;
+    }
+
+
+
 
     public static void clearConstantCache(){
 
@@ -520,5 +595,31 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
         }
 
         throw new BackOfficeException(BackOfficeException.General, "Cant find structure item for fragment " + this.getName());
+    }
+
+    public List<ContractFragment> getChildren() {
+
+        List<ContractFragment> children = new java.util.ArrayList<ContractFragment>();
+
+        try {
+            StructureItem headline = getStructureItem();
+            if(headline.getTopElement() == getOrdinal() ){
+
+
+                ContractFragmentTable table = headline.getChildrenUnderStructureItem();
+                for(DataObjectInterface o : table.getValues()){
+
+                    children.add((ContractFragment)o);
+                }
+
+            }
+
+        } catch (BackOfficeException e) {
+
+            PukkaLogger.log(PukkaLogger.Level.WARNING, "Error getting structure item for fragment " + getDescription());
+        }
+        return children;
+
+
     }
 }

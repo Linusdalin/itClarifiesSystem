@@ -259,4 +259,19 @@ public class StructureItem extends DataObject implements DataObjectInterface{
 
 
     }
+
+    public ContractFragmentTable getChildrenUnderStructureItem() {
+
+        System.out.print(" *** Getting children for structure item " + getOrdinal());
+
+        ContractFragmentTable children = new ContractFragmentTable(new LookupList()
+                .addFilter(new ColumnFilter(ContractFragmentTable.Columns.Version.name(), this.getVersionId()))
+                .addFilter(new ColumnFilter(ContractFragmentTable.Columns.StructureNo.name(), getOrdinal())));
+
+        System.out.println("... found " + children.values.size() + children );
+
+
+        return children;
+
+    }
 }

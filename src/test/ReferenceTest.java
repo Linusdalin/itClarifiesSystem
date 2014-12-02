@@ -121,7 +121,7 @@ public class ReferenceTest extends ServletTests {
 
                 // Add a new fragment to the document. This is what the document reference will point to.
 
-                ContractFragment aFirstFragment = new ContractFragment("Test Document", version, project, 0, 0, "text", 0, "Headline", ContractRisk.getNone(), 0, 0, 0, 0, 0, 0);
+                ContractFragment aFirstFragment = new ContractFragment("Test Document", version, project, 0, 0, "text", 0, "Headline", ContractRisk.getNone(), 0, 0, 0, 0, 0, 0, -1, -1, "FFFFFF", "000000", 0);
                 aFirstFragment.store();
 
                 List<Reference> referencesForFragment;
