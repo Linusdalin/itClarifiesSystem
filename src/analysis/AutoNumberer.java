@@ -15,7 +15,9 @@ public class AutoNumberer {
 
     int current[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     private int currentIndentation = 1;
+
     public static final boolean CONTINUE = false;
+    public static final boolean RESTART = true;
 
 
     /******************************************************

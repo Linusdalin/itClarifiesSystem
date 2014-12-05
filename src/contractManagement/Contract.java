@@ -509,7 +509,7 @@ public class Contract extends DataObject implements DataObjectInterface{
     }
 
 
-    private static final String[] types = { "HEADING", "TEXT", "LISTITEM", "TABLE"};
+    private static final String[] types = { "HEADING", "TEXT", "LISTITEM", "TABLE", "IMPLICIT"};
 
 
     /**********************************************************************************************'
@@ -536,10 +536,13 @@ public class Contract extends DataObject implements DataObjectInterface{
         // Load all the fragments for the document
 
         List<ContractFragment> fragmentsForDocument = version.getFragmentsForVersion(new LookupList().addOrdering(ContractFragmentTable.Columns.Ordinal.name(), Ordering.FIRST));
-
-        //TODO: This is only for printing.Remove for optimization
-
         StructureItem[] structureItemsForDocument = version.getStructureItemsForVersionAsArray(new LookupList().addOrdering(ContractFragmentTable.Columns.Ordinal.name(), Ordering.FIRST));
+
+        html.append("<table width=\"100%\">");
+
+
+        /*
+          This is only for printing.Remove for optimization
 
         int j=0;
         for(StructureItem structureItem : structureItemsForDocument){
@@ -549,7 +552,7 @@ public class Contract extends DataObject implements DataObjectInterface{
             j++;
         }
 
-        html.append("<table width=\"100%\">");
+
 
         int i =0;
         for(ContractFragment fragment : fragmentsForDocument){
@@ -562,6 +565,7 @@ public class Contract extends DataObject implements DataObjectInterface{
                     " name: " + structureItem.getName() + ") " + fragment.getName());
 
         }
+        */
 
 
         if(fragmentsForDocument == null){
@@ -601,6 +605,8 @@ public class Contract extends DataObject implements DataObjectInterface{
                         html.append(createLine(this, fragment, style, body , comments));
                     else
                         html.append(createLine(null, null, style, body , comments));
+
+                    tableMode = false;
 
                     // And Clear all from last fragment.
 
@@ -686,7 +692,7 @@ public class Contract extends DataObject implements DataObjectInterface{
                 // Add risk
                 try{
 
-                    if(!fragment.getRisk().isSame(ContractRisk.getNone())){
+                    if(!fragment.getRisk().isSame(ContractRisk.getNotSet())){
 
                         RiskClassification classification = fragment.getLastRiskClassificationForFragment(RiskClassificationTable.Columns.Time.name());
 

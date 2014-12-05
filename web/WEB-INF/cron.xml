@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries>
+
+    <cron>
+        <url>/HealthCheck</url>
+        <description>Test the system every hour</description>
+        <schedule>every 1 hours</schedule>
+    </cron>
+
+
+    <cron>
+        <url>/_ah/datastore_admin/backup.create?name=itClarifies_automatic&amp;kind=Project&amp;kind=Contract&amp;kind=Fragment&amp;kind=FragmentClassification&amp;kind=ContractVersionInstance&amp;kind=StructureItem</url>
+        <description>Automatic Backup</description>
+        <schedule>every day 01:00</schedule>
+        <timezone>Europe/Stockholm</timezone>
+        <target>ah-builtin-python-bundle</target>
+
+    </cron>
+
+
+</cronentries>

@@ -30,9 +30,19 @@ public class ItClarifiesService extends PukkaServlet {
     protected SessionManagement sessionManagement = new SessionManagement();
     public static String MODEL_DIRECTORY = "models";
 
+    /********************************************************************************
+     *
+     *          Init is run when the servlet is instantiated.
+     *          //TODO: Add cache warm-up here
+     *
+     *
+     * @param dataServletName
+     */
+
+
     public void init(String dataServletName) {
 
-        PukkaLogger.log(PukkaLogger.Level.INFO, "Warmup in servlet" + dataServletName);
+        PukkaLogger.log(PukkaLogger.Level.INFO, "Warmup in servlet " + dataServletName);
 
     }
 

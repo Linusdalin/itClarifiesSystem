@@ -5,6 +5,7 @@ import cache.ServiceCache;
 import contractManagement.*;
 import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
+import document.CellInfo;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
@@ -504,8 +505,9 @@ public class FragmentServlet extends ItClarifiesService{
                 .put("indentation", fragment.getIndentation())
                 .put("row", fragment.getyPos())
                 .put("col", fragment.getxPos())
-                .put("width", fragment.getwidth())
-                .put("background", fragment.getbackgroundColour());
+                .put("displayInfo", fragment.getdisplay())
+        ;
+
 
         return displayInfo;
 

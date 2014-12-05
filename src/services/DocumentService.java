@@ -5,7 +5,9 @@ import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
 import databaseLayer.DBKeyInterface;
 import document.*;
+import document.SimpleStyle;
 import log.PukkaLogger;
+import net.sf.json.JSONObject;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
 import risk.ContractRisk;
@@ -77,32 +79,23 @@ public class DocumentService extends ItClarifiesService{
                 int structureNo = aStructureItem.getID();
                 boolean newStructureItemCreated = false;
 
-                PukkaLogger.log(PukkaLogger.Level.INFO, "fragment " + fragmentNo + ": ("+ aFragment.getType().name()+")" + aFragment.getBody() +"     (" +
+                PukkaLogger.log(PukkaLogger.Level.INFO, "fragment " + fragmentNo + ": ("+ aFragment.getStyle().type.name()+")" + aFragment.getBody() +"     (" +
                         indentation + ": " + aStructureItem.getStructureType().name() + ":" +
                         (aStructureItem.getTopElement() != null ? aStructureItem.getTopElement().getBody() : "--") +")" );
 
 
+                CellInfo cellinfo = aFragment.getCellInfo();
+                if(cellinfo == null)
+                    cellinfo = new CellInfo();
 
-                int row = 0;
-                int column = 0;
-                int border = 0;
-                int height = -1;
-                int width = -1;
-                String backgroundColour = "#FFFFFF";
-                String fontColour = "#000000";
 
-                if(aFragment.getCellInfo() != null){
-
-                    row = aFragment.getCellInfo().row;
-                    column = aFragment.getCellInfo().col;
-                    width = aFragment.getCellInfo().width;
-                    backgroundColour = "#" + aFragment.getCellInfo().colour;
-                }
+                int row = cellinfo.row;
+                int column = cellinfo.col;
 
                 // First check if this is an implicit top level fragment that we have not created yet
 
-                if(aFragment.getType() == StructureType.IMPLICIT ||
-                        aFragment.getType() == StructureType.TABLE){
+                if(aFragment.getStyle().type == StructureType.IMPLICIT ||
+                        aFragment.getStyle().type == StructureType.TABLE){
 
 
                     PukkaLogger.log(PukkaLogger.Level.INFO, "Creating a new implicit structure item");
@@ -152,10 +145,8 @@ public class DocumentService extends ItClarifiesService{
 
                 }
 
-                String numbering = "";
+                String bodyText = testAddingHeadlineNumber(aFragment, autoNumberer);
 
-                if(aFragment.getType() == StructureType.HEADING)
-                    numbering = autoNumberer.getNewNumber((int)aFragment.getIndentation(), AutoNumberer.CONTINUE);
 
                 // Now see if this is a new top level item. If that is the case, we create a new structure item for the fragment
 
@@ -167,7 +158,7 @@ public class DocumentService extends ItClarifiesService{
                     PukkaLogger.log(PukkaLogger.Level.DEBUG, "Fragment " + aFragment.getBody() + " is a top item on indentation level " + aFragment.getIndentation());
 
                     item = new StructureItem(
-                            addNumber(numbering, aFragment.getBody()),
+                            bodyText,
                             fragmentNo,
                             versionInstance,
                             project,
@@ -182,7 +173,7 @@ public class DocumentService extends ItClarifiesService{
 
                 // We want to ignore empty fragments. They are not really needed in the presentation
 
-                if(aFragment.getType() == StructureType.TEXT && aFragment.getBody().equals("")){
+                if(aFragment.getStyle().type == StructureType.TEXT && aFragment.getBody().equals("")){
 
                     PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring empty fragment");
 
@@ -197,9 +188,9 @@ public class DocumentService extends ItClarifiesService{
                             project.getKey(),
                             aStructureItem.getID(),
                             fragmentNo++,
-                            addNumber(numbering, aFragment.getBody()),  //TODO: Add warning to this too
+                            bodyText,
                             aFragment.getIndentation(),
-                            aFragment.getType().name(),
+                            aFragment.getStyle().type.name(),
                             defaultRisk.getKey(),
                             0,     // annotation
                             0,     // reference
@@ -207,12 +198,7 @@ public class DocumentService extends ItClarifiesService{
                             0,     // actions
                             column,
                             row,
-                            width,
-                            height,
-                            fontColour,
-                            backgroundColour,
-                            border
-
+                            toJSON(cellinfo)
 
                     );
 
@@ -290,6 +276,68 @@ public class DocumentService extends ItClarifiesService{
             }
 
         }
+
+    }
+
+    /******************************************************************************''''
+     *
+     *
+     *
+     *
+     * @param aFragment
+     * @param autoNumberer
+     * @return
+     *
+     *
+     *          //TODO: handle numbering restart
+     */
+
+    private String testAddingHeadlineNumber(AbstractFragment aFragment, AutoNumberer autoNumberer) {
+
+        String body = aFragment.getBody();
+
+        if(aFragment.getStyle().type != StructureType.HEADING)
+            return body;
+
+        if(aFragment.getStyle().numbering == SimpleStyle.Numbering.NONE)
+            return body;
+
+        boolean restartCount = (aFragment.getStyle().numbering == SimpleStyle.Numbering.RESTART);
+
+        String numberPrefix = autoNumberer.getNewNumber((int)aFragment.getIndentation(), restartCount);
+
+
+        if(numberPrefix.equals(""))
+            return body;
+
+        if(startsWithNumber(aFragment.getBody())){
+
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Fragment starts with numbers so we assume numbering has been done manually");
+            return body;
+        }
+
+
+        return numberPrefix + " " + body;
+
+    }
+
+    private static boolean startsWithNumber(String body) {
+
+        return body.matches("^(\\d+[\\s]*\\.)[\\s]*.*");
+    }
+
+
+    private String toJSON(CellInfo cellinfo) {
+
+        JSONObject json = new JSONObject()
+                .put("backgroundColour", "#" + cellinfo.colour)
+                .put("colSpan", cellinfo.span.cols)
+                .put("rowSpan", cellinfo.span.rows)
+                .put("width", cellinfo.width)
+                .put("wrap", cellinfo.wrap)
+
+        ;
+        return json.toString();
 
     }
 
@@ -510,41 +558,6 @@ public class DocumentService extends ItClarifiesService{
     }
 
       */
-
-
-    /***************************************************
-     *
-     *
-     *
-     * @param numbering
-     * @param body
-     * @return
-     *
-     *      TODO: Enhancement: This modification should be turn-on-and-offable
-     *      TODO: Enhancement: This should generate a warning
-     */
-
-    private String addNumber(String numbering, String body) {
-
-        if(numbering.equals(""))
-            return body;
-
-        if(startsWithNumber(body)){
-
-
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Fragment starts with numbers so we assume numbering has been done manually");
-            return body;
-        }
-
-
-        return numbering + " " + body;
-
-    }
-
-    private static boolean startsWithNumber(String body) {
-
-        return body.matches("^(\\d+[\\s]*\\.)[\\s]*.*");
-    }
 
 
     public static void main(String[] args){

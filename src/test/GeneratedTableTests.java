@@ -1244,7 +1244,7 @@ public class GeneratedTableTests{
      
              try{
      
-                 contractManagement.ContractFragment table1 = new contractManagement.ContractFragment("text 1", dummyKey, dummyKey, 4, 5, "text 6", 7, "text 8", dummyKey, 10, 11, 12, 13, 14, 15, 16, 17, "text 18", "text 19", 20);
+                 contractManagement.ContractFragment table1 = new contractManagement.ContractFragment("text 1", dummyKey, dummyKey, 4, 5, "text 6", 7, "text 8", dummyKey, 10, 11, 12, 13, 14, 15, "text 16");
 
                  assertThat(table1.getName(), is("text 1"));
                  assertThat(table1.getVersionId(), is(dummyKey));
@@ -1264,11 +1264,7 @@ public class GeneratedTableTests{
                  assertThat(table1.getActionCount(), is((long)13));
                  assertThat(table1.getxPos(), is((long)14));
                  assertThat(table1.getyPos(), is((long)15));
-                 assertThat(table1.getwidth(), is((long)16));
-                 assertThat(table1.getheight(), is((long)17));
-                 assertThat(table1.getfontColour(), is("text 18"));
-                 assertThat(table1.getbackgroundColour(), is("text 19"));
-                 assertThat(table1.getborder(), is((long)20));
+                 assertThat(table1.getdisplay(), is("text 16"));
 
                  table1.store();
                  contractManagement.ContractFragment table2 = new contractManagement.ContractFragment();
@@ -1292,11 +1288,7 @@ public class GeneratedTableTests{
                  assertThat(table2.getActionCount(), is((long)13));
                  assertThat(table2.getxPos(), is((long)14));
                  assertThat(table2.getyPos(), is((long)15));
-                 assertThat(table2.getwidth(), is((long)16));
-                 assertThat(table2.getheight(), is((long)17));
-                 assertThat(table2.getfontColour(), is("text 18"));
-                 assertThat(table2.getbackgroundColour(), is("text 19"));
-                 assertThat(table2.getborder(), is((long)20));
+                 assertThat(table2.getdisplay(), is("text 16"));
 
                  table1.setName("text 11");
                  table1.setVersion( dummyKey);
@@ -1313,11 +1305,7 @@ public class GeneratedTableTests{
                  table1.setActionCount(23);
                  table1.setxPos(24);
                  table1.setyPos(25);
-                 table1.setwidth(26);
-                 table1.setheight(27);
-                 table1.setfontColour("text 28");
-                 table1.setbackgroundColour("text 29");
-                 table1.setborder(30);
+                 table1.setdisplay("text 26");
                  assertThat(table1.getName(), is("text 11"));
                  assertThat(table1.getVersionId(), is(dummyKey));
                  assertThat(table1.getVersion().exists(), is(false));
@@ -1336,11 +1324,7 @@ public class GeneratedTableTests{
                  assertThat(table1.getActionCount(), is((long)23));
                  assertThat(table1.getxPos(), is((long)24));
                  assertThat(table1.getyPos(), is((long)25));
-                 assertThat(table1.getwidth(), is((long)26));
-                 assertThat(table1.getheight(), is((long)27));
-                 assertThat(table1.getfontColour(), is("text 28"));
-                 assertThat(table1.getbackgroundColour(), is("text 29"));
-                 assertThat(table1.getborder(), is((long)30));
+                 assertThat(table1.getdisplay(), is("text 26"));
 
              }catch(BackOfficeException e){
      

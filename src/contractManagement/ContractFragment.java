@@ -38,13 +38,13 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public ContractFragment(String name, DataObjectInterface version, DataObjectInterface project, long structureno, long ordinal, String text, long indentation, String type, DataObjectInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, long width, long height, String fontcolour, String backgroundcolour, long border) throws BackOfficeException{
+    public ContractFragment(String name, DataObjectInterface version, DataObjectInterface project, long structureno, long ordinal, String text, long indentation, String type, DataObjectInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, String display) throws BackOfficeException{
 
-        this(name, version.getKey(), project.getKey(), structureno, ordinal, text, indentation, type, risk.getKey(), annotationcount, referencecount, classificatoncount, actioncount, xpos, ypos, width, height, fontcolour, backgroundcolour, border);
+        this(name, version.getKey(), project.getKey(), structureno, ordinal, text, indentation, type, risk.getKey(), annotationcount, referencecount, classificatoncount, actioncount, xpos, ypos, display);
     }
 
 
-    public ContractFragment(String name, DBKeyInterface version, DBKeyInterface project, long structureno, long ordinal, String text, long indentation, String type, DBKeyInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, long width, long height, String fontcolour, String backgroundcolour, long border) throws BackOfficeException{
+    public ContractFragment(String name, DBKeyInterface version, DBKeyInterface project, long structureno, long ordinal, String text, long indentation, String type, DBKeyInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, String display) throws BackOfficeException{
 
         this();
         ColumnStructureInterface[] columns = getColumnFromTable();
@@ -67,11 +67,7 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
         data[12] = new IntData(actioncount);
         data[13] = new IntData(xpos);
         data[14] = new IntData(ypos);
-        data[15] = new IntData(width);
-        data[16] = new IntData(height);
-        data[17] = new StringData(fontcolour);
-        data[18] = new StringData(backgroundcolour);
-        data[19] = new IntData(border);
+        data[15] = new StringData(display);
 
         exists = true;
 
@@ -335,72 +331,16 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
 
 
-    public long getwidth(){
+    public String getdisplay(){
 
-        IntData data = (IntData) this.data[15];
-        return data.value;
-    }
-
-    public void setwidth(long width){
-
-        IntData data = (IntData) this.data[15];
-        data.value = width;
-    }
-
-
-
-    public long getheight(){
-
-        IntData data = (IntData) this.data[16];
-        return data.value;
-    }
-
-    public void setheight(long height){
-
-        IntData data = (IntData) this.data[16];
-        data.value = height;
-    }
-
-
-
-    public String getfontColour(){
-
-        StringData data = (StringData) this.data[17];
+        StringData data = (StringData) this.data[15];
         return data.getStringValue();
     }
 
-    public void setfontColour(String fontcolour){
+    public void setdisplay(String display){
 
-        StringData data = (StringData) this.data[17];
-        data.setStringValue(fontcolour);
-    }
-
-
-
-    public String getbackgroundColour(){
-
-        StringData data = (StringData) this.data[18];
-        return data.getStringValue();
-    }
-
-    public void setbackgroundColour(String backgroundcolour){
-
-        StringData data = (StringData) this.data[18];
-        data.setStringValue(backgroundcolour);
-    }
-
-
-
-    public long getborder(){
-
-        IntData data = (IntData) this.data[19];
-        return data.value;
-    }
-
-    public void setborder(long border){
-
-        IntData data = (IntData) this.data[19];
-        data.value = border;
+        StringData data = (StringData) this.data[15];
+        data.setStringValue(display);
     }
 
 

@@ -1,5 +1,6 @@
 package contractManagement;
 
+import document.StructureType;
 import risk.*;
 import contractManagement.*;
 import userManagement.*;
@@ -317,7 +318,8 @@ public class ContractVersionInstance extends DataObject implements DataObjectInt
 
             document.AbstractStructureItem aStructureItem =
                     new document.AbstractStructureItem()
-                            .setTopElement(new document.AbstractFragment(document.StructureType.TEXT, item.getName()));
+                            .setTopElement(new document.AbstractFragment(item.getName())
+                                                .setStyle(new document.SimpleStyle(StructureType.TEXT)));
 
 
             if(topElement.exists())
