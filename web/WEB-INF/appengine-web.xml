@@ -23,7 +23,7 @@
                     1-6-0:          Removed risk per organization
                     1-6-1:          Removed the cell merge for tables, removed emails for db failures
                     1-6-2:          Improvements for search, edit user, x/y table issue, background colour, minor optimizations
-                    1-6-3:          empty cell w colour, cron jobs, cell styling width
+                    1-6-3:          empty cell w colour, cron jobs, cell styling width, analysis exception fixes
       -->
 
 </appengine-web-app>

@@ -94,8 +94,7 @@ public class DocumentService extends ItClarifiesService{
 
                 // First check if this is an implicit top level fragment that we have not created yet
 
-                if(aFragment.getStyle().type == StructureType.IMPLICIT ||
-                        aFragment.getStyle().type == StructureType.TABLE){
+                if(aFragment.getStyle().type == StructureType.IMPLICIT){
 
 
                     PukkaLogger.log(PukkaLogger.Level.INFO, "Creating a new implicit structure item");
@@ -204,7 +203,7 @@ public class DocumentService extends ItClarifiesService{
 
 
                     fragmentsToStore.add(fragment);
-                    System.out.println("  -- Adding a fragment " + fragment.getName() + " with structure item " + fragment.getStructureNo());
+                    //System.out.println("  -- Adding a fragment " + fragment.getName() + " with structure item " + fragment.getStructureNo());
 
 
                 }

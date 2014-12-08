@@ -1,8 +1,8 @@
 package search;
 
 import actions.Action;
-import analysis.DocumentAnalysisException;
 import analysis.Significance;
+import analysis2.AnalysisException;
 import contractManagement.*;
 import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
@@ -150,9 +150,10 @@ public class SearchManager {
                 textmatcher.setLanguage(new LanguageAnalyser().getLanguageByName(document.getLanguage()), ItClarifiesService.MODEL_DIRECTORY);
                 textmatcher.prepareSearchString(searchText).useSynonyms().useStemMatch().caseInsensitive();
 
-            } catch (DocumentAnalysisException e) {
+            } catch (AnalysisException e) {
 
-                throw new BackOfficeException(BackOfficeException.General, "Error matching text: " + e.getMessage());
+
+                throw new BackOfficeException(BackOfficeException.General, "Error matching text: " + e.getMessage() + " in document " + e.document);
             }
 
             // Only look in documents that the user have access too

@@ -1,7 +1,6 @@
 package queue;
 
 import analysis.AnalysisServlet;
-import analysis.DocumentAnalysisException;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import contractManagement.ContractVersionInstance;

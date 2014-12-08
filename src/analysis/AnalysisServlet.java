@@ -3,6 +3,7 @@ package analysis;
 import actions.Action;
 import actions.ActionStatus;
 import actions.ActionTable;
+import analysis2.AnalysisException;
 import analysis2.NewAnalysisOutcome;
 import classifiers.Classification;
 import contractManagement.*;
@@ -54,6 +55,7 @@ import java.util.List;
 public class AnalysisServlet extends DocumentService {
 
     public static final String DataServletName = "Analysis";
+    private static final int RELEVANCE_THRESHOLD = 40;          // What is the relevance needed to actually create an entry in the database
 
 
     public void doGet(HttpServletRequest req, HttpServletResponse resp)throws IOException {
@@ -288,7 +290,7 @@ public class AnalysisServlet extends DocumentService {
 
 
 
-        } catch (DocumentAnalysisException e) {
+        } catch (AnalysisException e) {
 
             PukkaLogger.log( e );
 
@@ -370,9 +372,9 @@ public class AnalysisServlet extends DocumentService {
 
 
 
-        } catch (DocumentAnalysisException e) {
+        } catch (AnalysisException e) {
 
-            e.log("Error in document analysis");
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Error in document analysis");
 
         }
 
@@ -978,38 +980,42 @@ public class AnalysisServlet extends DocumentService {
 
                 }
 
+                if(classification.getRelevance() < RELEVANCE_THRESHOLD){
 
-
-
-                PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Classifying fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
-
-                fragmentClassification = new FragmentClassification(
-                        fragment.getKey(),
-                        fragmentClass.getKey(),
-                        classification.getType().getName(),
-                        classification.getTag(),
-                        classification.getKeywords(),
-                        system.getKey(),
-                        fragment.getVersionId(),
-                        classification.getPattern().getText(),
-                        classification.getPattern().getPos(),
-                        classification.getPattern().getLength(),
-                        classification.getSignificance(),
-                        "not specified rule",
-                        analysisTime.getSQLTime().toString());
-
-                fragmentClassification.store();
-
-                // Only update the number of classifications if it is above the threshold
-                // for displaying in the front-end
-
-                if(classification.getSignificance() > Significance.DISPLAY_SIGNIFICANCE){
-
-                    classifications++;
-                    updated = true;
+                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Ignoring classification " + fragment.getName() + "( relevance "+ classification.getRelevance()+" below threshold)");
                 }
+                else{
+
+                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Classifying fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
+
+                    fragmentClassification = new FragmentClassification(
+                            fragment.getKey(),
+                            fragmentClass.getKey(),
+                            classification.getType().getName(),
+                            classification.getTag(),
+                            classification.getKeywords(),
+                            system.getKey(),
+                            fragment.getVersionId(),
+                            classification.getPattern().getText(),
+                            classification.getPattern().getPos(),
+                            classification.getPattern().getLength(),
+                            classification.getSignificance(),
+                            "not specified rule",
+                            analysisTime.getSQLTime().toString());
+
+                    fragmentClassification.store();
+
+                    // Only update the number of classifications if it is above the threshold
+                    // for displaying in the front-end
+
+                    if(classification.getSignificance() > Significance.DISPLAY_SIGNIFICANCE){
+
+                        classifications++;
+                        updated = true;
+                    }
 
 
+                }
 
             }catch(BackOfficeException e){
 
@@ -1234,7 +1240,7 @@ public class AnalysisServlet extends DocumentService {
             PukkaLogger.log(PukkaLogger.Level.ACTION, "*******************Phase I: Parsing document");
             docXManager = new DocumentManager(document.getFile(), stream);
 
-        }catch (DocumentAnalysisException e){
+        }catch (AnalysisException e){
 
             // We failed to parse the document. We will return an error and have to delete the version.
             // If this was the only version for the document we remove it too.
@@ -1251,15 +1257,15 @@ public class AnalysisServlet extends DocumentService {
 
         try{
 
-            LanguageCode languageCode = Analyser.detectLanguage(docXManager.getBody());
+            LanguageCode languageCode = Analyser.detectLanguage(document.getFile(), docXManager.getBody());
             document.setLanguage(languageCode.code);
             document.update();
 
-        }catch(DocumentAnalysisException e){
+        }catch(AnalysisException e){
 
             //Fail to detect Language
 
-            throw new BackOfficeException(BackOfficeException.General, "Could not detect language from the document.");
+            throw new BackOfficeException(BackOfficeException.General, "Could not detect language from the document." + e.document);
         }
 
 

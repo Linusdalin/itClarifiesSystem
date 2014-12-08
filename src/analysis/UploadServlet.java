@@ -1,5 +1,6 @@
 package analysis;
 
+import analysis2.AnalysisException;
 import contractManagement.*;
 import databaseLayer.DatabaseAbstractionFactory;
 import document.DocumentManager;
@@ -281,7 +282,7 @@ public class UploadServlet extends DocumentService {
 
            }
 
-        }catch(DocumentAnalysisException ex) {
+        }catch(AnalysisException ex) {
 
 
             returnError("Could not parse document.  (" + ex.getMessage() + ")", HttpServletResponse.SC_BAD_REQUEST, resp);
@@ -322,12 +323,12 @@ public class UploadServlet extends DocumentService {
      * @param sessionToken
      * @return
      * @throws BackOfficeException
-     * @throws DocumentAnalysisException
+     * @throws AnalysisException
      * @throws IOException
      */
 
 
-    public ContractVersionInstance handleUpload(String fileName, RepositoryFileHandler fileHandler, Contract document, Project project, PortalUser portalUser, AccessRight accessRight, Visibility visibility, String sessionToken) throws BackOfficeException, DocumentAnalysisException, IOException{
+    public ContractVersionInstance handleUpload(String fileName, RepositoryFileHandler fileHandler, Contract document, Project project, PortalUser portalUser, AccessRight accessRight, Visibility visibility, String sessionToken) throws BackOfficeException, AnalysisException, IOException{
 
         ContractVersionInstance version;
 
@@ -340,7 +341,7 @@ public class UploadServlet extends DocumentService {
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Adding new document in db");
 
-            LanguageCode languageCode = Analyser.detectLanguage(docXManager.getBody());
+            LanguageCode languageCode = Analyser.detectLanguage(fileName, docXManager.getBody());
             version = new ContractTable().addNewDocument(project, fileName, fileHandler, languageCode, portalUser, accessRight, visibility);
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Fragmenting");
