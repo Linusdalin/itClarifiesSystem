@@ -115,20 +115,6 @@ public class ExportServlet extends ItClarifiesService{
 
 
 
-    /***********************************************************************
-     *
-     *          Delete a project with recursively deleting all documents, fragments etc.
-     *
-     *
-     * @param req -
-     * @param resp -
-     * @throws java.io.IOException
-     *
-     *          //TODO: Delete project should recursively delete all documents
-     *          //TODO: Fix return values correctly
-     *
-     */
-
     public void doPost(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
         returnError("Post not supported in " + DataServletName, HttpServletResponse.SC_METHOD_NOT_ALLOWED, resp);

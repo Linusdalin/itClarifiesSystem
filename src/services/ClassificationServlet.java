@@ -101,13 +101,14 @@ public class ClassificationServlet extends DocumentService{
             //Now update the fragment with a new classification
 
             FragmentClassification classification = new FragmentClassification(
-                    fragment,
-                    fragmentClass,
+                    fragment.getKey(),
+                    fragmentClassKey,
                     fragmentClass.getName(),            // Set the name from the fragment class name
                     comment,
                     keyword,
-                    classifier,
-                    version,
+                    classifier.getKey(),
+                    version.getKey(),
+                    document.getProjectId(),
                     pattern,
                     pos,
                     length,

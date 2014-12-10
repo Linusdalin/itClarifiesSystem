@@ -111,7 +111,7 @@ public class ReferenceTest extends ServletTests {
                 ContractStatus status = ContractStatus.getAnalysing();
                 PortalUser user = PortalUser.getSystemUser();
                 DBTimeStamp creationTime = new DBTimeStamp();
-                Contract newDocument = new Contract("pricelist", "Test Document.docx", 3, documentType, status,  "no message", "test document", project, user, creationTime.toString(), "EN");
+                Contract newDocument = new Contract("pricelist", "Test Document.docx", 3, documentType, status,  "no message", "test document", project, user, creationTime.toString(), "EN", "not set");
                 newDocument.store();
 
                 // Create a new version for the document

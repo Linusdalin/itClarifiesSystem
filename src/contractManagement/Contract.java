@@ -38,13 +38,13 @@ public class Contract extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public Contract(String name, String file, long ordinal, DataObjectInterface type, DataObjectInterface status, String message, String description, DataObjectInterface project, DataObjectInterface owner, String creation, String language) throws BackOfficeException{
+    public Contract(String name, String file, long ordinal, DataObjectInterface type, DataObjectInterface status, String message, String description, DataObjectInterface project, DataObjectInterface owner, String creation, String language, String access) throws BackOfficeException{
 
-        this(name, file, ordinal, type.getKey(), status.getKey(), message, description, project.getKey(), owner.getKey(), creation, language);
+        this(name, file, ordinal, type.getKey(), status.getKey(), message, description, project.getKey(), owner.getKey(), creation, language, access);
     }
 
 
-    public Contract(String name, String file, long ordinal, DBKeyInterface type, DBKeyInterface status, String message, String description, DBKeyInterface project, DBKeyInterface owner, String creation, String language) throws BackOfficeException{
+    public Contract(String name, String file, long ordinal, DBKeyInterface type, DBKeyInterface status, String message, String description, DBKeyInterface project, DBKeyInterface owner, String creation, String language, String access) throws BackOfficeException{
 
         this();
         ColumnStructureInterface[] columns = getColumnFromTable();
@@ -63,6 +63,7 @@ public class Contract extends DataObject implements DataObjectInterface{
         data[8] = new ReferenceData(owner, columns[8].getTableReference());
         data[9] = new DateData(creation);
         data[10] = new StringData(language);
+        data[11] = new StringData(access);
 
         exists = true;
 
@@ -276,6 +277,20 @@ public class Contract extends DataObject implements DataObjectInterface{
 
 
 
+    public String getAccess(){
+
+        StringData data = (StringData) this.data[11];
+        return data.getStringValue();
+    }
+
+    public void setAccess(String access){
+
+        StringData data = (StringData) this.data[11];
+        data.setStringValue(access);
+    }
+
+
+
 
     public static void clearConstantCache(){
 
@@ -359,14 +374,13 @@ public class Contract extends DataObject implements DataObjectInterface{
            noClassifications += allClassifications.getCount();
            allClassifications.delete();
 
-            // Get all clauses for this version and delete them
+            // Get all structure items for this version and delete them
 
+           StructureItemTable allStructureItems = new StructureItemTable(new LookupItem()
+                   .addFilter(new ReferenceFilter(StructureItemTable.Columns.Version.name(), version.getKey())));
 
-           ContractClauseTable allClauses = new ContractClauseTable(new LookupItem()
-                   .addFilter(new ReferenceFilter(ContractClauseTable.Columns.Version.name(), version.getKey())));
-
-           noClauses += allClauses.getCount();
-           allClauses.delete();
+           noClauses += allStructureItems.getCount();
+           allStructureItems.delete();
 
             // Get all risk for this version and delete them
 

@@ -84,7 +84,10 @@ public class PortalUserTable extends DataTable implements DataTableInterface{
           {"demo", "2", "demo@dev.null", "2014-01-01", "demo.org", "true", "false", "system"},
           {"admin", "3", "admin@dev.null", "2014-01-01", "demo.org", "true", "true", "system"},
           {"linus", "4", "linus@dev.null", "2014-01-01", "demo.org", "true", "true", "system"},
-          {"eve", "5", "eve@dev.null", "2014-01-01", "evil.org", "true", "true", "system"},
+          {"ulf", "5", "ulf@dev.null", "2014-01-01", "demo.org", "true", "true", "system"},
+          {"tolga", "6", "ulf@dev.null", "2014-01-01", "demo.org", "true", "true", "system"},
+          {"henrik", "7", "ulf@dev.null", "2014-01-01", "demo.org", "true", "true", "system"},
+          {"eve", "8", "eve@dev.null", "2014-01-01", "evil.org", "true", "true", "system"},
 
 
 

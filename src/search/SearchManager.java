@@ -152,8 +152,10 @@ public class SearchManager {
 
             } catch (AnalysisException e) {
 
+                System.out.println("Error in search");
+                e.printStackTrace();
 
-                throw new BackOfficeException(BackOfficeException.General, "Error matching text: " + e.getMessage() + " in document " + e.document);
+                throw new BackOfficeException(BackOfficeException.General, "Error matching text: " + e.narration + " in document " + e.document);
             }
 
             // Only look in documents that the user have access too

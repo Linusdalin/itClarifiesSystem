@@ -11,10 +11,7 @@ import log.PukkaLogger;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.backOffice.BackOfficeLocation;
 import pukkaBO.backOffice.Icon;
-import pukkaBO.condition.LookupByKey;
-import pukkaBO.condition.LookupList;
-import pukkaBO.condition.Ordering;
-import pukkaBO.condition.Sorting;
+import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
 import pukkaBO.formsPredefined.TableEditForm;
 import pukkaBO.list.*;
@@ -22,7 +19,9 @@ import pukkaBO.renderer.GroupListRenderer;
 import pukkaBO.renderer.ListRendererInterface;
 import pukkaBO.style.Html;
 import services.ItClarifiesService;
-import services.PreviewServlet;
+import userManagement.AccessGrant;
+import userManagement.AccessGrantTable;
+import userManagement.Visibility;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -59,6 +58,13 @@ public class DocumentList extends GroupByList implements ListInterface{
     public static final int Callback_Action_Analyse     = 6;
     public static final int Callback_Action_MoveToTop   = 7;
     public static final int Callback_Action_ChangeStyle = 8;
+
+    public static final int Callback_Action_ViewDoc = 9;
+
+    public static final int Callback_Action_SetAccessRO = 10;
+    public static final int Callback_Action_SetAccessRC = 11;
+    public static final int Callback_Action_SetAccessRWD = 12;
+
 
     public static final ListRendererInterface Renderer = new GroupListRenderer();
 
@@ -220,6 +226,16 @@ public class DocumentList extends GroupByList implements ListInterface{
 
                     return Html.variableBox("Set style "+ styleType +" for fragment " + fragment.getName()) + getDocumentView(document, section);
 
+                case Callback_Action_SetAccessRC:
+                case Callback_Action_SetAccessRO:
+                case Callback_Action_SetAccessRWD:
+
+                    return Html.variableBox("Set access Right not implemented");
+
+                case Callback_Action_ViewDoc:
+
+                    return(Html.paragraph(Html.link("?id="+document.getKey().toString()+"&list=" + name + "&action=Item&callbackAction=" + Callback_Action_View + "&section=" + section, "Back")) +
+                            document.getInternalView(true));
 
 
             }
@@ -276,7 +292,8 @@ public class DocumentList extends GroupByList implements ListInterface{
             docView.append(Html.paragraph(Html.link("?id="+document.getKey().toString()+"&list=" + name + "&action=Item&callbackAction=" + Callback_Action_Analyse + "&section=" + section, "Re-analyse")));
             docView.append(Html.paragraph(Html.link("/Export?document="+document.getKey().toString()+"&session=SystemSessionToken", "Download Document")));
             docView.append(Html.paragraph(Html.link("/Export?document="+document.getKey().toString()+"&inject=true&session=SystemSessionToken", "Export Document")));
-            docView.append(document.getInternalView(true));
+            docView.append(getAccessOptions(document, section));
+            docView.append(Html.paragraph(Html.link("?id=" + document.getKey().toString() + "&list=" + name + "&action=Item&callbackAction=" + Callback_Action_ViewDoc + "&section=" + section, "View Content")));
 
             return docView.toString();
 
@@ -285,6 +302,41 @@ public class DocumentList extends GroupByList implements ListInterface{
             PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not generate document view ofr document " + document.getName());
             return "No document view could be generated";
         }
+
+    }
+
+    private Object getAccessOptions(Contract document, String section) throws BackOfficeException {
+
+        AccessGrant grant = new AccessGrant(new LookupItem()
+            .addFilter(new ReferenceFilter(AccessGrantTable.Columns.Document.name(), document.getKey()))
+            .addFilter(new ReferenceFilter(AccessGrantTable.Columns.Visibility.name(), Visibility.getOrg().getKey())));
+
+        String access = "no";
+        if(grant.exists()){
+
+            access = grant.getAccessRight().getName();
+        }
+
+        System.out.println("Access: " + access);
+        String roOption, rcOption, rwdOption;
+
+        if(access.equals("ro"))
+            roOption = Html.bold("RO ");
+        else
+            roOption = Html.link("?id=" + document.getKey().toString() + "&list=" + name + "&action=Item&callbackAction=" + Callback_Action_SetAccessRO + "&section=" + section, "Set RO ");
+
+        if(access.equals("rc"))
+            rcOption = Html.bold("RC ");
+        else
+            rcOption = Html.link("?id=" + document.getKey().toString() + "&list=" + name + "&action=Item&callbackAction=" + Callback_Action_SetAccessRC + "&section=" + section, "Set RC ");
+
+        if(access.equals("rwd"))
+            rwdOption = Html.bold("RWD ");
+        else
+            rwdOption = Html.link("?id=" + document.getKey().toString() + "&list=" + name + "&action=Item&callbackAction=" + Callback_Action_SetAccessRWD + "&section=" + section, "Set RWD ");
+
+        return (Html.paragraph(roOption + rcOption + rwdOption));
+
 
     }
 

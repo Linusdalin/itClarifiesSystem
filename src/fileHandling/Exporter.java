@@ -2,6 +2,8 @@ package fileHandling;
 
 import contractManagement.*;
 import document.AbstractComment;
+import document.AbstractDocument;
+import document.AbstractProject;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
 import risk.RiskClassification;
@@ -104,22 +106,23 @@ public class Exporter {
 
             List<AbstractComment> commentList = new ArrayList<AbstractComment>();
 
-
             PukkaLogger.log(PukkaLogger.Level.INFO, "Adding all classification comments");
             commentList.addAll(createCommentsFromClassifications(classificationsForDocument));
 
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Adding all risk comments");
-            commentList.addAll(createCommentsFromRisks(risksForDocument));
+            /*
+                Removing risk from the export. The risk has an associated risk description annotation.
+                //TODO: When the risk annotation is integrated into the risk, this should be changed back
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Adding all risk comments");
+                commentList.addAll(createCommentsFromRisks(risksForDocument));
+
+            */
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Adding all annotation comments");
             commentList.addAll(createCommentsFromAnnotations(annotationsForDocument));
 
-
-
-            //System.out.println("Found " + classificationsForDocument.size() + " classifications to add...");
-
             PukkaLogger.log(PukkaLogger.Level.INFO, "Adding comments to docX file");
-            document.addClassificationComments(commentList);
+            document.addComments(commentList, documentVersion);
             PukkaLogger.log(PukkaLogger.Level.INFO, "Done");
 
         } catch (BackOfficeException e) {
@@ -147,7 +150,8 @@ public class Exporter {
 
         for(FragmentClassification classification : classificationsForDocument){
 
-            list.add(new AbstractComment("Classification", classification.getPattern(), classification.getName(), (int)classification.getFragment().getOrdinal()));
+            list.add(new AbstractComment("Classification", classification.getPattern(), classification.getName(),
+                    (int)classification.getFragment().getOrdinal(), (int)classification.getPos(), (int)classification.getLength()));
         }
 
         return list;
@@ -169,7 +173,7 @@ public class Exporter {
 
         for(RiskClassification risk : risksForDocument){
 
-            list.add(new AbstractComment("Risk", risk.getPattern(), "Risk(" + risk.getRisk().getName() + ")", (int)risk.getFragment().getOrdinal()));
+            list.add(new AbstractComment("Risk", risk.getPattern(), "Risk(" + risk.getRisk().getName() + ")", (int)risk.getFragment().getOrdinal(), -1, -1));
         }
 
         return list;
@@ -198,9 +202,11 @@ public class Exporter {
 
                 // Annotations made by external users are already in the document, so we don't need to add them back
 
-                if(!annotation.getCreatorId().equals(PortalUser.getExternalUser().getKey()))
+                if(!annotation.getCreatorId().equals(PortalUser.getExternalUser().getKey())){
 
-                    list.add(new AbstractComment("Annotation", annotation.getPattern(), annotation.getDescription(), (int)annotation.getFragment().getOrdinal()));
+                    list.add(new AbstractComment("Annotation", annotation.getPattern(), annotation.getDescription(), (int)annotation.getFragment().getOrdinal(), -1, -1));
+                    System.out.println("**** Annotation " + annotation.getDescription() + " for fragment " + annotation.getFragment().getName() + " with id " + annotation.getFragment().getOrdinal());
+                }
 
             } catch (BackOfficeException e) {
 

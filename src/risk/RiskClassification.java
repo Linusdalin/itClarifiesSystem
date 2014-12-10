@@ -38,13 +38,13 @@ public class RiskClassification extends DataObject implements DataObjectInterfac
             table = TABLE;
     }
 
-    public RiskClassification(DataObjectInterface fragment, DataObjectInterface risk, String comment, DataObjectInterface creator, DataObjectInterface version, String pattern, String time) throws BackOfficeException{
+    public RiskClassification(DataObjectInterface fragment, DataObjectInterface risk, String comment, DataObjectInterface creator, DataObjectInterface version, DataObjectInterface project, String pattern, String time) throws BackOfficeException{
 
-        this(fragment.getKey(), risk.getKey(), comment, creator.getKey(), version.getKey(), pattern, time);
+        this(fragment.getKey(), risk.getKey(), comment, creator.getKey(), version.getKey(), project.getKey(), pattern, time);
     }
 
 
-    public RiskClassification(DBKeyInterface fragment, DBKeyInterface risk, String comment, DBKeyInterface creator, DBKeyInterface version, String pattern, String time) throws BackOfficeException{
+    public RiskClassification(DBKeyInterface fragment, DBKeyInterface risk, String comment, DBKeyInterface creator, DBKeyInterface version, DBKeyInterface project, String pattern, String time) throws BackOfficeException{
 
         this();
         ColumnStructureInterface[] columns = getColumnFromTable();
@@ -57,8 +57,9 @@ public class RiskClassification extends DataObject implements DataObjectInterfac
         data[2] = new TextData(comment);
         data[3] = new ReferenceData(creator, columns[3].getTableReference());
         data[4] = new ReferenceData(version, columns[4].getTableReference());
-        data[5] = new TextData(pattern);
-        data[6] = new DateData(time);
+        data[5] = new ReferenceData(project, columns[5].getTableReference());
+        data[6] = new TextData(pattern);
+        data[7] = new DateData(time);
 
         exists = true;
 
@@ -188,15 +189,35 @@ public class RiskClassification extends DataObject implements DataObjectInterfac
 
 
 
+    public DBKeyInterface getProjectId(){
+
+        ReferenceData data = (ReferenceData)this.data[5];
+        return data.value;
+    }
+
+    public Project getProject(){
+
+        ReferenceData data = (ReferenceData)this.data[5];
+        return new Project(new LookupByKey(data.value));
+    }
+
+    public void setProject(DBKeyInterface project){
+
+        ReferenceData data = (ReferenceData)this.data[5];
+        data.value = project;
+    }
+
+
+
     public String getPattern(){
 
-        TextData data = (TextData) this.data[5];
+        TextData data = (TextData) this.data[6];
         return data.getStringValue();
     }
 
     public void setPattern(String pattern){
 
-        TextData data = (TextData) this.data[5];
+        TextData data = (TextData) this.data[6];
         data.setStringValue(pattern);
     }
 
@@ -204,13 +225,13 @@ public class RiskClassification extends DataObject implements DataObjectInterfac
 
     public DBTimeStamp getTime()throws BackOfficeException{
 
-        DateData data = (DateData) this.data[6];
+        DateData data = (DateData) this.data[7];
         return new DBTimeStamp(DBTimeStamp.ISO_DATE, data.value);
     }
 
     public void setTime(DBTimeStamp time){
 
-        DateData data = (DateData) this.data[6];
+        DateData data = (DateData) this.data[7];
         data.value = time.getISODate().toString();
     }
 

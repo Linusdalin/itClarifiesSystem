@@ -32,7 +32,7 @@ public class FragmentClassificationTable extends DataTable implements DataTableI
     public static final String TABLE = "FragmentClassification";
     private static final String DESCRIPTION = "Classifications";
 
-    public enum Columns {Fragment, Classification, Name, Comment, Keywords, Creator, Version, Pattern, Pos, Length, Significance, RuleId, Time, }
+    public enum Columns {Fragment, Classification, Name, Comment, Keywords, Creator, Version, Project, Pattern, Pos, Length, Significance, RuleId, Time, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
@@ -43,6 +43,7 @@ public class FragmentClassificationTable extends DataTable implements DataTableI
             new TextColumn("Keywords", DataColumn.noFormatting),
             new ReferenceColumn("Creator", DataColumn.noFormatting, new TableReference("PortalUser", "Name")),
             new ReferenceColumn("Version", DataColumn.noFormatting, new TableReference("ContractVersionInstance", "Version")),
+            new ReferenceColumn("Project", DataColumn.noFormatting, new TableReference("Project", "Name")),
             new TextColumn("Pattern", DataColumn.noFormatting),
             new IntColumn("Pos", DataColumn.noFormatting),
             new IntColumn("Length", DataColumn.noFormatting),
@@ -81,7 +82,7 @@ public class FragmentClassificationTable extends DataTable implements DataTableI
     };
     private static final String[][] TestValues = {
 
-          {"first fragment", "Datum", "Datum", "keywords", "comment...", "demo", "Cannon v1.0", "2014-07-01", "10", "10", "70", "0", "2014-07-10 00:00:00", "system"},
+          {"first fragment", "Datum", "Datum", "keywords", "comment...", "demo", "Cannon v1.0", "Demo", "2014-07-01", "10", "10", "70", "0", "2014-07-10 00:00:00", "system"},
 
 
 

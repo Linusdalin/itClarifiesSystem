@@ -35,8 +35,18 @@ public class LogoutServlet extends ItClarifiesService{
         try{
             logRequest(req);
 
-            if(!validateSession(req, resp))
+            // Manually validate session
+
+            String sessionToken  = getMandatoryString("session", req);
+            String ipAddress = getIPAddress(req);
+            Formatter formatter = getFormatFromParameters(req);
+
+            if(!sessionManagement.validate(sessionToken, ipAddress)){
+
+                JSONObject json = new JSONObject().put("status", "Closed");
+                sendJSONResponse(json, formatter, resp);
                 return;
+            }
 
             if(blockedSmokey(sessionManagement, resp))
                 return;
@@ -44,9 +54,6 @@ public class LogoutServlet extends ItClarifiesService{
             setLoggerByParameters(req);
 
 
-            Formatter formatter = getFormatFromParameters(req);
-
-            String sessionToken  = getMandatoryString("session", req);
 
             String status = sessionManagement.close(sessionToken);
 

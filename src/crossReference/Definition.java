@@ -38,13 +38,13 @@ public class Definition extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public Definition(String name, DataObjectInterface definedin, DataObjectInterface version) throws BackOfficeException{
+    public Definition(String name, DataObjectInterface definedin, DataObjectInterface version, DataObjectInterface project) throws BackOfficeException{
 
-        this(name, definedin.getKey(), version.getKey());
+        this(name, definedin.getKey(), version.getKey(), project.getKey());
     }
 
 
-    public Definition(String name, DBKeyInterface definedin, DBKeyInterface version) throws BackOfficeException{
+    public Definition(String name, DBKeyInterface definedin, DBKeyInterface version, DBKeyInterface project) throws BackOfficeException{
 
         this();
         ColumnStructureInterface[] columns = getColumnFromTable();
@@ -55,6 +55,7 @@ public class Definition extends DataObject implements DataObjectInterface{
         data[0] = new StringData(name);
         data[1] = new ReferenceData(definedin, columns[1].getTableReference());
         data[2] = new ReferenceData(version, columns[2].getTableReference());
+        data[3] = new ReferenceData(project, columns[3].getTableReference());
 
         exists = true;
 
@@ -140,6 +141,26 @@ public class Definition extends DataObject implements DataObjectInterface{
 
         ReferenceData data = (ReferenceData)this.data[2];
         data.value = version;
+    }
+
+
+
+    public DBKeyInterface getProjectId(){
+
+        ReferenceData data = (ReferenceData)this.data[3];
+        return data.value;
+    }
+
+    public Project getProject(){
+
+        ReferenceData data = (ReferenceData)this.data[3];
+        return new Project(new LookupByKey(data.value));
+    }
+
+    public void setProject(DBKeyInterface project){
+
+        ReferenceData data = (ReferenceData)this.data[3];
+        data.value = project;
     }
 
 

@@ -38,13 +38,13 @@ public class FragmentClassification extends DataObject implements DataObjectInte
             table = TABLE;
     }
 
-    public FragmentClassification(DataObjectInterface fragment, DataObjectInterface classification, String name, String comment, String keywords, DataObjectInterface creator, DataObjectInterface version, String pattern, long pos, long length, long significance, String ruleid, String time) throws BackOfficeException{
+    public FragmentClassification(DataObjectInterface fragment, DataObjectInterface classification, String name, String comment, String keywords, DataObjectInterface creator, DataObjectInterface version, DataObjectInterface project, String pattern, long pos, long length, long significance, String ruleid, String time) throws BackOfficeException{
 
-        this(fragment.getKey(), classification.getKey(), name, comment, keywords, creator.getKey(), version.getKey(), pattern, pos, length, significance, ruleid, time);
+        this(fragment.getKey(), classification.getKey(), name, comment, keywords, creator.getKey(), version.getKey(), project.getKey(), pattern, pos, length, significance, ruleid, time);
     }
 
 
-    public FragmentClassification(DBKeyInterface fragment, DBKeyInterface classification, String name, String comment, String keywords, DBKeyInterface creator, DBKeyInterface version, String pattern, long pos, long length, long significance, String ruleid, String time) throws BackOfficeException{
+    public FragmentClassification(DBKeyInterface fragment, DBKeyInterface classification, String name, String comment, String keywords, DBKeyInterface creator, DBKeyInterface version, DBKeyInterface project, String pattern, long pos, long length, long significance, String ruleid, String time) throws BackOfficeException{
 
         this();
         ColumnStructureInterface[] columns = getColumnFromTable();
@@ -59,12 +59,13 @@ public class FragmentClassification extends DataObject implements DataObjectInte
         data[4] = new TextData(keywords);
         data[5] = new ReferenceData(creator, columns[5].getTableReference());
         data[6] = new ReferenceData(version, columns[6].getTableReference());
-        data[7] = new TextData(pattern);
-        data[8] = new IntData(pos);
-        data[9] = new IntData(length);
-        data[10] = new IntData(significance);
-        data[11] = new TextData(ruleid);
-        data[12] = new TimeStampData(time);
+        data[7] = new ReferenceData(project, columns[7].getTableReference());
+        data[8] = new TextData(pattern);
+        data[9] = new IntData(pos);
+        data[10] = new IntData(length);
+        data[11] = new IntData(significance);
+        data[12] = new TextData(ruleid);
+        data[13] = new TimeStampData(time);
 
         exists = true;
 
@@ -222,15 +223,35 @@ public class FragmentClassification extends DataObject implements DataObjectInte
 
 
 
+    public DBKeyInterface getProjectId(){
+
+        ReferenceData data = (ReferenceData)this.data[7];
+        return data.value;
+    }
+
+    public Project getProject(){
+
+        ReferenceData data = (ReferenceData)this.data[7];
+        return new Project(new LookupByKey(data.value));
+    }
+
+    public void setProject(DBKeyInterface project){
+
+        ReferenceData data = (ReferenceData)this.data[7];
+        data.value = project;
+    }
+
+
+
     public String getPattern(){
 
-        TextData data = (TextData) this.data[7];
+        TextData data = (TextData) this.data[8];
         return data.getStringValue();
     }
 
     public void setPattern(String pattern){
 
-        TextData data = (TextData) this.data[7];
+        TextData data = (TextData) this.data[8];
         data.setStringValue(pattern);
     }
 
@@ -238,13 +259,13 @@ public class FragmentClassification extends DataObject implements DataObjectInte
 
     public long getPos(){
 
-        IntData data = (IntData) this.data[8];
+        IntData data = (IntData) this.data[9];
         return data.value;
     }
 
     public void setPos(long pos){
 
-        IntData data = (IntData) this.data[8];
+        IntData data = (IntData) this.data[9];
         data.value = pos;
     }
 
@@ -252,13 +273,13 @@ public class FragmentClassification extends DataObject implements DataObjectInte
 
     public long getLength(){
 
-        IntData data = (IntData) this.data[9];
+        IntData data = (IntData) this.data[10];
         return data.value;
     }
 
     public void setLength(long length){
 
-        IntData data = (IntData) this.data[9];
+        IntData data = (IntData) this.data[10];
         data.value = length;
     }
 
@@ -266,13 +287,13 @@ public class FragmentClassification extends DataObject implements DataObjectInte
 
     public long getSignificance(){
 
-        IntData data = (IntData) this.data[10];
+        IntData data = (IntData) this.data[11];
         return data.value;
     }
 
     public void setSignificance(long significance){
 
-        IntData data = (IntData) this.data[10];
+        IntData data = (IntData) this.data[11];
         data.value = significance;
     }
 
@@ -280,13 +301,13 @@ public class FragmentClassification extends DataObject implements DataObjectInte
 
     public String getRuleId(){
 
-        TextData data = (TextData) this.data[11];
+        TextData data = (TextData) this.data[12];
         return data.getStringValue();
     }
 
     public void setRuleId(String ruleid){
 
-        TextData data = (TextData) this.data[11];
+        TextData data = (TextData) this.data[12];
         data.setStringValue(ruleid);
     }
 
@@ -294,13 +315,13 @@ public class FragmentClassification extends DataObject implements DataObjectInte
 
     public DBTimeStamp getTime()throws BackOfficeException{
 
-        TimeStampData data = (TimeStampData) this.data[12];
+        TimeStampData data = (TimeStampData) this.data[13];
         return new DBTimeStamp(DBTimeStamp.SQL_TIMESTAMP, data.value);
     }
 
     public void setTime(DBTimeStamp time){
 
-        TimeStampData data = (TimeStampData) this.data[12];
+        TimeStampData data = (TimeStampData) this.data[13];
         data.value = time.getSQLTime().toString();
     }
 

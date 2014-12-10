@@ -92,11 +92,12 @@ public class RiskFlagServlet extends DocumentService {
             // TODO: add transaction commit here
 
             RiskClassification classification = new RiskClassification(
-                    fragment,
-                    risk,
+                    fragment.getKey(),
+                    risk.getKey(),
                     comment,
-                    classifier,
-                    version,
+                    classifier.getKey(),
+                    version.getKey(),
+                    document.getProjectId(),
                     pattern,
                     now.getISODate());
             classification.store();

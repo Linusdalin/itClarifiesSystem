@@ -191,8 +191,8 @@ public class SessionManagement {
 
 
         boolean isInternal = internalIPAccess.check(ip);
-        System.out.println("Check internal: " + isInternal + " for ip: " + ip);
-        System.out.println("List of internal: " + internalIPAccess.toString());
+        //System.out.println("Check internal: " + isInternal + " for ip: " + ip);
+        //System.out.println("List of internal: " + internalIPAccess.toString());
         return isInternal;
 
     }
@@ -210,15 +210,10 @@ public class SessionManagement {
 
             if(grant.exists()){
 
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Got grant" + grant.getName());
-
                 String access = grant.getAccessRight().getName();
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Got grant " + access + " for document " + document.getKey());
 
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Putting" );
                 orgAccess.put(document.getKey().toString(), access);
-                PukkaLogger.log(PukkaLogger.Level.INFO, "stored access");
-                System.out.println("**** Caching Org wide access " + access + " for document " + document.getName());
-                PukkaLogger.log(PukkaLogger.Level.INFO, "done");
 
                 return access;
             }
@@ -229,7 +224,7 @@ public class SessionManagement {
 
       }catch(Exception e){
 
-          e.printStackTrace();
+            PukkaLogger.log( e );
       }
 
         return "no";

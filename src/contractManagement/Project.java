@@ -38,13 +38,13 @@ public class Project extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public Project(String name, String description, DataObjectInterface creator, DataObjectInterface organization, String creationtime) throws BackOfficeException{
+    public Project(String name, String description, DataObjectInterface creator, DataObjectInterface organization, String creationtime, String access) throws BackOfficeException{
 
-        this(name, description, creator.getKey(), organization.getKey(), creationtime);
+        this(name, description, creator.getKey(), organization.getKey(), creationtime, access);
     }
 
 
-    public Project(String name, String description, DBKeyInterface creator, DBKeyInterface organization, String creationtime) throws BackOfficeException{
+    public Project(String name, String description, DBKeyInterface creator, DBKeyInterface organization, String creationtime, String access) throws BackOfficeException{
 
         this();
         ColumnStructureInterface[] columns = getColumnFromTable();
@@ -57,6 +57,7 @@ public class Project extends DataObject implements DataObjectInterface{
         data[2] = new ReferenceData(creator, columns[2].getTableReference());
         data[3] = new ReferenceData(organization, columns[3].getTableReference());
         data[4] = new TimeStampData(creationtime);
+        data[5] = new StringData(access);
 
         exists = true;
 
@@ -170,6 +171,20 @@ public class Project extends DataObject implements DataObjectInterface{
 
         TimeStampData data = (TimeStampData) this.data[4];
         data.value = creationtime.getSQLTime().toString();
+    }
+
+
+
+    public String getAccess(){
+
+        StringData data = (StringData) this.data[5];
+        return data.getStringValue();
+    }
+
+    public void setAccess(String access){
+
+        StringData data = (StringData) this.data[5];
+        data.setStringValue(access);
     }
 
 

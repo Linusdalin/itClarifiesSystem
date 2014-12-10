@@ -112,7 +112,7 @@ public class ProjectServlet extends ItClarifiesService{
                 // No project parameter given. We create a new project entry
 
                 DBTimeStamp creationTime = new DBTimeStamp();
-                project = new Project(name, description, portalUser.getKey(), portalUser.getOrganizationId(), creationTime.getISODate());
+                project = new Project(name, description, portalUser.getKey(), portalUser.getOrganizationId(), creationTime.getISODate(), "not set");
                 project.store();
             }
 

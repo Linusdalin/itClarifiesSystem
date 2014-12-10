@@ -134,13 +134,14 @@ public class PortalUserServlet extends ItClarifiesService {
 
         }catch(BackOfficeException e){
 
-            returnError("Error deleting user: " + e.narration, ErrorType.GENERAL, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, PukkaLogger.Level.FATAL, resp);
-            e.printStackTrace();
+            PukkaLogger.log( e );
+            returnError("Error accessing user details: " + e.narration, ErrorType.GENERAL, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, PukkaLogger.Level.FATAL, resp);
+
 
         }catch ( Exception e) {
 
-            returnError("Error deleting user: " + e.getMessage(), ErrorType.GENERAL, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, PukkaLogger.Level.FATAL, resp);
-            e.printStackTrace();
+            PukkaLogger.log( e );
+            returnError("Error accessing user details.", ErrorType.GENERAL, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, PukkaLogger.Level.FATAL, resp);
         }
 
     }

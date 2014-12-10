@@ -126,7 +126,7 @@ public class ReplaceDocumentTest extends ServletTests{
             // Now create some fragments, classifications and risk for the initial version
 
             mockParseDocument(project, initialVersion);
-            mockAnnotateAndClassify(initialVersion, creator);
+            mockAnnotateAndClassify(project, initialVersion, creator);
 
 
             // Check so there ara classifications and annotations on the first fragment
@@ -224,7 +224,7 @@ public class ReplaceDocumentTest extends ServletTests{
 
 
 
-    private void mockAnnotateAndClassify(ContractVersionInstance version, PortalUser user) throws BackOfficeException{
+    private void mockAnnotateAndClassify(Project project, ContractVersionInstance version, PortalUser user) throws BackOfficeException{
 
         DBTimeStamp now = new DBTimeStamp();
 
@@ -240,7 +240,7 @@ public class ReplaceDocumentTest extends ServletTests{
 
         new ContractAnnotation("", first, 1, "a comment", user, version, "", now.getISODate()).store();
 
-        new FragmentClassification(first, FragmentClass.getDefinition(),"name", "", "", user, version, "", 0, 0, 70, "no rule specified", now.getISODate()).store();
+        new FragmentClassification(first, FragmentClass.getDefinition(),"name", "", "", user, version, project, "", 0, 0, 70, "no rule specified", now.getISODate()).store();
 
         new Action(0, "name", "action description", "pattern", first, version, first.getVersion().getDocument().getProject(),
                 adminUser, adminUser, (long)4711, ActionStatus.getInProgress(), new DBTimeStamp().getISODate(), new DBTimeStamp().getISODate(), new DBTimeStamp().getISODate()).store();

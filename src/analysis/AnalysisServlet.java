@@ -436,36 +436,35 @@ public class AnalysisServlet extends DocumentService {
         // This may have to be updated when re-uploading documents is implemented and we should only
         // issue an action if there are new unseen risk
 
+        if(risks > 0){
 
-        String actionTitle = "Assess " + risks +" potential risk"+(risks > 1 ? "s" : "")+"  in " + document.getName();
-        String actionDescription = "Assess " + risks +" potential risk"+(risks > 1 ? "s" : "")+"  found in the analysis of " + document.getName();
+            String actionTitle = "Assess " + risks +" potential risk"+(risks > 1 ? "s" : "")+"  in " + document.getName();
+             String actionDescription = "Assess " + risks +" potential risk"+(risks > 1 ? "s" : "")+"  found in the analysis of " + document.getName();
 
-        PortalUser system = PortalUser.getSystemUser();
-        ContractFragment fragment = documentVersion.getFirstFragment();
-                                // Also create an implicit action for the risk. All risks should be mitigated or at least acknowledged.
-
-
-        Action handleRiskAction = new Action(
-                (long)0, // Not supported action id yet. This is a placeholder
-                actionTitle,
-                actionDescription,
-                "",
-                fragment.getKey(),
-                fragment.getVersionId(),
-                project.getKey(),
-                system.getKey(),
-                PortalUser.getNoUser().getKey(),
-                -1,
-                ActionStatus.getOpen().getKey(),
-                analysisTime.getISODate(),
-                new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00").getISODate(),
-                new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00").getISODate());
-
-        handleRiskAction.store();
+             PortalUser system = PortalUser.getSystemUser();
+             ContractFragment fragment = documentVersion.getFirstFragment();
+                                     // Also create an implicit action for the risk. All risks should be mitigated or at least acknowledged.
 
 
+             Action handleRiskAction = new Action(
+                     (long)0, // Not supported action id yet. This is a placeholder
+                     actionTitle,
+                     actionDescription,
+                     "",
+                     fragment.getKey(),
+                     fragment.getVersionId(),
+                     project.getKey(),
+                     system.getKey(),
+                     PortalUser.getNoUser().getKey(),
+                     -1,
+                     ActionStatus.getOpen().getKey(),
+                     analysisTime.getISODate(),
+                     new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00").getISODate(),
+                     new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00").getISODate());
 
+             handleRiskAction.store();
 
+        }
 
         document.setStatus(ContractStatus.getAnalysed().getKey());  // Setting the status for the document
         document.update();
@@ -890,7 +889,11 @@ public class AnalysisServlet extends DocumentService {
 
                     PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating definition for fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
 
-                    Definition definition = new Definition(classification.getPattern().getText(), fragment.getKey(), fragment.getVersionId());
+                    Definition definition = new Definition(
+                            classification.getPattern().getText(),
+                            fragment.getKey(),
+                            fragment.getVersionId(),
+                            project.getKey());
                     definition.store();
 
                     fragmentClassification = new FragmentClassification(
@@ -901,6 +904,7 @@ public class AnalysisServlet extends DocumentService {
                             classification.getKeywords(),
                             system.getKey(),
                             fragment.getVersionId(),
+                            project.getKey(),
                             classification.getPattern().getText(),
                             classification.getPattern().getPos(),
                             classification.getPattern().getLength(),
@@ -932,6 +936,7 @@ public class AnalysisServlet extends DocumentService {
                             riskDescription,
                             system.getKey(),
                             fragment.getVersionId(),
+                            project.getKey(),
                             classification.getPattern().getText(),
                             analysisTime.getSQLTime().toString()
                     );
@@ -996,6 +1001,7 @@ public class AnalysisServlet extends DocumentService {
                             classification.getKeywords(),
                             system.getKey(),
                             fragment.getVersionId(),
+                            project.getKey(),
                             classification.getPattern().getText(),
                             classification.getPattern().getPos(),
                             classification.getPattern().getLength(),

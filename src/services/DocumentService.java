@@ -202,8 +202,10 @@ public class DocumentService extends ItClarifiesService{
                     );
 
 
+
+
                     fragmentsToStore.add(fragment);
-                    //System.out.println("  -- Adding a fragment " + fragment.getName() + " with structure item " + fragment.getStructureNo());
+                    System.out.println("  ***** Adding a fragment " + fragment.getName() + " with ordinal " + (fragmentNo - 1));
 
 
                 }

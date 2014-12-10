@@ -32,7 +32,7 @@ public class RiskClassificationTable extends DataTable implements DataTableInter
     public static final String TABLE = "RiskClassification";
     private static final String DESCRIPTION = "Risk Classifications";
 
-    public enum Columns {Fragment, Risk, Comment, Creator, Version, Pattern, Time, }
+    public enum Columns {Fragment, Risk, Comment, Creator, Version, Project, Pattern, Time, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
@@ -41,6 +41,7 @@ public class RiskClassificationTable extends DataTable implements DataTableInter
             new TextColumn("Comment", DataColumn.noFormatting),
             new ReferenceColumn("Creator", DataColumn.noFormatting, new TableReference("PortalUser", "Name")),
             new ReferenceColumn("Version", DataColumn.noFormatting, new TableReference("ContractVersionInstance", "Version")),
+            new ReferenceColumn("Project", DataColumn.noFormatting, new TableReference("Project", "Name")),
             new TextColumn("Pattern", DataColumn.noFormatting),
             new DateColumn("Time", DataColumn.noFormatting),
     };
@@ -75,7 +76,7 @@ public class RiskClassificationTable extends DataTable implements DataTableInter
     };
     private static final String[][] TestValues = {
 
-          {"first fragment", "Blocker", "No particular reason...", "demo", "Cannon v1.0", "2014-07-01", "2014-07-10", "system"},
+          {"first fragment", "Blocker", "No particular reason...", "demo", "Cannon v1.0", "Demo", "2014-07-01", "2014-07-10", "system"},
 
 
 

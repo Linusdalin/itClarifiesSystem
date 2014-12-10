@@ -28,9 +28,17 @@
 
             // Start by reading the parameters
 
+            System.out.println("!!The action is: " + action);
+            System.out.println("!!The FORM action is: " + formAction);
+            if(formAction == null){
+                formAction = "No Form Action";
+            }
 
 
-            if(action.equalsIgnoreCase("add")){
+            if(formAction.equalsIgnoreCase("add")){
+
+                // Form action is add. This means parse the parameters and add an object
+
 
                 System.out.println("Adding object!");
 
@@ -63,7 +71,10 @@
                     e.printStackTrace();
                 }
             }
-            else if(action.equalsIgnoreCase("update")){
+            else if(formAction.equalsIgnoreCase("update")){
+
+                // Update an existing object
+
 
                 System.out.println("Updating object!");
 
@@ -104,7 +115,7 @@
                     e.printStackTrace();
                 }
             }
-            else if(action.equalsIgnoreCase("DELETE")){
+            else if(formAction.equalsIgnoreCase("DELETE")){
 
                 try{
 
