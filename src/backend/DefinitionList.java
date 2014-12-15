@@ -140,6 +140,7 @@ public class DefinitionList extends GroupByList implements ListInterface{
                 case Callback_Action_Delete:
 
                     //TODO: Delete both definitions and definition source & usage classifications
+                    // How do we connect the definition usage with the definition?
 
                     return ("Warning: Delete not implemented");
 

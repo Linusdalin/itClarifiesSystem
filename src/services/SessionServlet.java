@@ -68,6 +68,14 @@ public class SessionServlet extends ItClarifiesService{
             PukkaLogger.log(PukkaLogger.Level.INFO, "Got response from Login Service: " + responseString);
             JSONObject response = new JSONObject(responseString);
 
+            if(response.has("error")){
+
+                String errorMessage = ((JSONObject) response.getJSONArray("error").get(0)).getString("message");
+                returnError("Got error from login service " + errorMessage, HttpServletResponse.SC_FORBIDDEN, resp);
+                return;
+
+            }
+
             PukkaLogger.log(PukkaLogger.Level.DEBUG, "Got response " + response);
 
 

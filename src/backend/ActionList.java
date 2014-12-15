@@ -1,6 +1,7 @@
 package backend;
 
 import actions.Action;
+import actions.ActionStatus;
 import actions.ActionTable;
 import contractManagement.FragmentClassification;
 import contractManagement.FragmentClassificationTable;
@@ -45,6 +46,7 @@ public class ActionList extends GroupByList implements ListInterface{
     // ids for the callback actions
 
     public static final int Callback_Action_Delete      = 1;
+    public static final int Callback_Action_Close       = 2;
 
     public static final ListRendererInterface Renderer = new GroupListRenderer();
 
@@ -55,7 +57,6 @@ public class ActionList extends GroupByList implements ListInterface{
 
         List<ListColumnInterface> columnStructure = new ArrayList<ListColumnInterface>() {{
 
-            add(new ListTableColumn( 1, table ).withNameFromTableColumn().withFormat(new DisplayFormat(DisplayFormat.SMALL)));
             add(new ListTableColumn( 2, table ).withNameFromTableColumn().withFormat(new DisplayFormat(DisplayFormat.WIDE)));
             add(new ListTableColumn( 3, table ).withNameFromTableColumn());
             add(new ListTableColumn( 5, table ).withNameFromTableColumn());
@@ -82,6 +83,7 @@ public class ActionList extends GroupByList implements ListInterface{
 
         //actions.add(new ListAction(Callback_Action_Do,        ActionType.List, "Do").setIcon(Icon.Check));
         actions.add(new ListAction(Callback_Action_Delete,     ActionType.List, "Delete").setIcon(Icon.Trash));
+        actions.add(new ListAction(Callback_Action_Close,      ActionType.List, "Close").setIcon(Icon.Check));
 
         // Set the number of elements to display
         displaySize = 20;                                 //TODO: Size not implemented in the Starlight table
@@ -133,11 +135,21 @@ public class ActionList extends GroupByList implements ListInterface{
 
             switch(action){
 
+                case Callback_Action_Close:
+
+                    // Set to completed
+
+                    ActionStatus completed = ActionStatus.getCompleted();
+                    theAction.setStatus(completed.getKey());
+                    theAction.update();
+
+                    return ("Success: Action is set to completed");
+
                 case Callback_Action_Delete:
 
-                    //TODO: Delete both definitions and definition source & usage classifications
+                    theAction.delete();
 
-                    return ("Warning: Delete not implemented");
+                    return ("Success: Action " + theAction.getName() + " deleted!");
 
                 default:
 

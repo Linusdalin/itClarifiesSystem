@@ -135,9 +135,11 @@ public class ClassificationList extends GroupByList implements ListInterface{
 
                 case Callback_Action_Delete:
 
-                    //TODO: Delete both definitions and definition source & usage classifications
+                    // Just delete the classification
 
-                    return ("Warning: Delete not implemented");
+                    classification.delete();
+
+                    return ("Success: Classification "+ classification.getClassification().getName() +"for fragment "+ classification.getFragment().getName()+" was deleted");
 
                 default:
 

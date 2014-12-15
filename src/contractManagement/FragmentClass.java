@@ -29,7 +29,6 @@ import pukkaBO.acs.*;
 public class FragmentClass extends DataObject implements DataObjectInterface{
 
     private static FragmentClass Unknown = null;  
-    private static FragmentClass NoParent = null;  
     private static FragmentClass Link = null;  
     private static FragmentClass LegalEntity = null;  
     private static FragmentClass Date = null;  
@@ -46,11 +45,15 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
     private static FragmentClass Regulation = null;  
     private static FragmentClass Arbitration = null;  
     private static FragmentClass Organizational = null;  
-    private static FragmentClass Risk = null;  
     private static FragmentClass Ambiguity = null;  
     private static FragmentClass Compensation = null;  
     private static FragmentClass AwardCriteria = null;  
     private static FragmentClass Operations = null;  
+    private static FragmentClass Risk = null;  
+    private static FragmentClass Uncertainty = null;  
+    private static FragmentClass Restriction = null;  
+    private static FragmentClass Right = null;  
+    private static FragmentClass RightsObl = null;  
 
 
     private static final DataTableInterface TABLE = (DataTableInterface) new FragmentClassTable();
@@ -61,13 +64,13 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public FragmentClass(String name, String type, String keywords, String description, DataObjectInterface organization, DataObjectInterface parent) throws BackOfficeException{
+    public FragmentClass(String name, String type, String keywords, String description, DataObjectInterface organization) throws BackOfficeException{
 
-        this(name, type, keywords, description, organization.getKey(), parent.getKey());
+        this(name, type, keywords, description, organization.getKey());
     }
 
 
-    public FragmentClass(String name, String type, String keywords, String description, DBKeyInterface organization, DBKeyInterface parent) throws BackOfficeException{
+    public FragmentClass(String name, String type, String keywords, String description, DBKeyInterface organization) throws BackOfficeException{
 
         this();
         ColumnStructureInterface[] columns = getColumnFromTable();
@@ -80,7 +83,6 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
         data[2] = new TextData(keywords);
         data[3] = new TextData(description);
         data[4] = new ReferenceData(organization, columns[4].getTableReference());
-        data[5] = new ReferenceData(parent, columns[5].getTableReference());
 
         exists = true;
 
@@ -192,26 +194,6 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
 
 
 
-    public DBKeyInterface getParentId(){
-
-        ReferenceData data = (ReferenceData)this.data[5];
-        return data.value;
-    }
-
-    public FragmentClass getParent(){
-
-        ReferenceData data = (ReferenceData)this.data[5];
-        return new FragmentClass(new LookupByKey(data.value));
-    }
-
-    public void setParent(DBKeyInterface parent){
-
-        ReferenceData data = (ReferenceData)this.data[5];
-        data.value = parent;
-    }
-
-
-
     public static FragmentClass getUnknown( ) throws BackOfficeException{
 
        if(FragmentClass.Unknown == null)
@@ -220,16 +202,6 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant Unknown is missing (db update required?)");
 
        return FragmentClass.Unknown;
-     }
-
-    public static FragmentClass getNoParent( ) throws BackOfficeException{
-
-       if(FragmentClass.NoParent == null)
-          FragmentClass.NoParent = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "top")));
-       if(!FragmentClass.NoParent.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant NoParent is missing (db update required?)");
-
-       return FragmentClass.NoParent;
      }
 
     public static FragmentClass getLink( ) throws BackOfficeException{
@@ -392,16 +364,6 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
        return FragmentClass.Organizational;
      }
 
-    public static FragmentClass getRisk( ) throws BackOfficeException{
-
-       if(FragmentClass.Risk == null)
-          FragmentClass.Risk = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "Granska Risk")));
-       if(!FragmentClass.Risk.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Risk is missing (db update required?)");
-
-       return FragmentClass.Risk;
-     }
-
     public static FragmentClass getAmbiguity( ) throws BackOfficeException{
 
        if(FragmentClass.Ambiguity == null)
@@ -442,13 +404,62 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
        return FragmentClass.Operations;
      }
 
+    public static FragmentClass getRisk( ) throws BackOfficeException{
+
+       if(FragmentClass.Risk == null)
+          FragmentClass.Risk = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "Granska Risk")));
+       if(!FragmentClass.Risk.exists())
+          throw new BackOfficeException(BackOfficeException.TableError, "Constant Risk is missing (db update required?)");
+
+       return FragmentClass.Risk;
+     }
+
+    public static FragmentClass getUncertainty( ) throws BackOfficeException{
+
+       if(FragmentClass.Uncertainty == null)
+          FragmentClass.Uncertainty = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "Uncertainty")));
+       if(!FragmentClass.Uncertainty.exists())
+          throw new BackOfficeException(BackOfficeException.TableError, "Constant Uncertainty is missing (db update required?)");
+
+       return FragmentClass.Uncertainty;
+     }
+
+    public static FragmentClass getRestriction( ) throws BackOfficeException{
+
+       if(FragmentClass.Restriction == null)
+          FragmentClass.Restriction = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "Restriction")));
+       if(!FragmentClass.Restriction.exists())
+          throw new BackOfficeException(BackOfficeException.TableError, "Constant Restriction is missing (db update required?)");
+
+       return FragmentClass.Restriction;
+     }
+
+    public static FragmentClass getRight( ) throws BackOfficeException{
+
+       if(FragmentClass.Right == null)
+          FragmentClass.Right = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "Right")));
+       if(!FragmentClass.Right.exists())
+          throw new BackOfficeException(BackOfficeException.TableError, "Constant Right is missing (db update required?)");
+
+       return FragmentClass.Right;
+     }
+
+    public static FragmentClass getRightsObl( ) throws BackOfficeException{
+
+       if(FragmentClass.RightsObl == null)
+          FragmentClass.RightsObl = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "Restriction")));
+       if(!FragmentClass.RightsObl.exists())
+          throw new BackOfficeException(BackOfficeException.TableError, "Constant RightsObl is missing (db update required?)");
+
+       return FragmentClass.RightsObl;
+     }
+
 
     public static void clearConstantCache(){
 
         //  Clear all cache when the application is uploaded.
 
         FragmentClass.Unknown = null;
-        FragmentClass.NoParent = null;
         FragmentClass.Link = null;
         FragmentClass.LegalEntity = null;
         FragmentClass.Date = null;
@@ -465,11 +476,15 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
         FragmentClass.Regulation = null;
         FragmentClass.Arbitration = null;
         FragmentClass.Organizational = null;
-        FragmentClass.Risk = null;
         FragmentClass.Ambiguity = null;
         FragmentClass.Compensation = null;
         FragmentClass.AwardCriteria = null;
         FragmentClass.Operations = null;
+        FragmentClass.Risk = null;
+        FragmentClass.Uncertainty = null;
+        FragmentClass.Restriction = null;
+        FragmentClass.Right = null;
+        FragmentClass.RightsObl = null;
     }
 
     /* Code below this point will not be replaced when regenerating the file*/

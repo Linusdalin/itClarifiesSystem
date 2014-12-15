@@ -32,7 +32,7 @@ public class FragmentClassTable extends DataTable implements DataTableInterface{
     public static final String TABLE = "FragmentClass";
     private static final String DESCRIPTION = "Manual classification of a contract fragment";
 
-    public enum Columns {Name, Type, Keywords, Description, Organization, Parent, }
+    public enum Columns {Name, Type, Keywords, Description, Organization, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
@@ -41,7 +41,6 @@ public class FragmentClassTable extends DataTable implements DataTableInterface{
             new TextColumn("Keywords", DataColumn.noFormatting),
             new TextColumn("Description", DataColumn.noFormatting),
             new ReferenceColumn("Organization", DataColumn.noFormatting, new TableReference("Organization", "Name")),
-            new ReferenceColumn("Parent", DataColumn.noFormatting, new TableReference("FragmentClass", "Name")),
     };
 
     private static final FragmentClass associatedObject = new FragmentClass();
@@ -68,29 +67,32 @@ public class FragmentClassTable extends DataTable implements DataTableInterface{
     }
     private static final String[][] DefaultValues = {
 
-          {"unknown", "UNKNOWN", "", "Unknown class", "no org", "top", "system"},
-          {"top", "top", "", "Top class", "no org", "top", "system"},
-          {"Url", "URL", "", "A link", "no org", "top", "system"},
-          {"Entitet", "LEGALENTITY", "", "A legal entity in the contract (physical or organization)", "no org", "top", "system"},
-          {"Datum", "DATE", "", "A defined date", "no org", "top", "system"},
-          {"Siffra", "AMOUNT", "", "A figure", "no org", "top", "system"},
-          {"Procent", "PERCENTAGE", "", "A defined percentage", "no org", "top", "system"},
-          {"Nummer", "NUMEX", "", "A number", "no org", "top", "system"},
-          {"Email", "EMAIL", "", "A mail address", "no org", "top", "system"},
-          {"Definition", "DEFINITION", "", "Definition of a specific term", "no org", "top", "system"},
-          {"Definition Source", "DEFINITIONSOURCE", "", "Definition of a specific term", "no org", "top", "system"},
-          {"Definition Referens", "DEFINITIONUSAGE", "", "Usage of a specific term", "no org", "top", "system"},
-          {"Avtalsperiod", "TERM", "", "Definition of a specific term", "no org", "top", "system"},
-          {"Betalning", "PAYMENT", "", "Related to payments and delivery", "no org", "top", "system"},
-          {"Finansiering", "CAPITALIZATION", "", "Related to financial status", "no org", "top", "system"},
-          {"Lagar", "REGULATION", "", "Legal aspects", "no org", "top", "system"},
-          {"Tvist", "ARBITRATION", "", "Governing law and arbitration rules", "no org", "top", "system"},
-          {"Organisation", "ORGANIZATION", "", "Organizational aspects", "no org", "top", "system"},
-          {"Granska Risk", "RISK", "", "A potential risk that should be reviewd", "no org", "top", "system"},
-          {"Tvetydighet", "AMBIGUITY", "", "A potential problem in the iterpretation", "no org", "top", "system"},
-          {"Kompensation", "COMPENSATION", "", "compensation", "no org", "top", "system"},
-          {"Tilldelningsgrund", "AWARD_CRITERIA", "", "How the contract proposals will be evaluated", "no org", "top", "system"},
-          {"IT-drift", "ITOPERATION", "", "IT Operations", "no org", "top", "system"},
+          {"unknown", "#UNKNOWN", "", "Unknown class", "no org", "top", "system"},
+          {"Url", "#URL", "", "A link", "no org", "top", "system"},
+          {"Entitet", "#LEGALENTITY", "", "A legal entity in the contract (physical or organization)", "no org", "top", "system"},
+          {"Datum", "#DATE", "", "A defined date", "no org", "top", "system"},
+          {"Siffra", "#AMOUNT", "", "A figure", "no org", "top", "system"},
+          {"Procent", "#PERCENTAGE", "", "A defined percentage", "no org", "top", "system"},
+          {"Nummer", "#NUMEX", "", "A number", "no org", "top", "system"},
+          {"Email", "#EMAIL", "", "A mail address", "no org", "top", "system"},
+          {"Definition", "#DEFINITION", "", "Definition of a specific term", "no org", "top", "system"},
+          {"Definition Source", "#DEFINITIONSOURCE", "", "Definition of a specific term", "no org", "top", "system"},
+          {"Definition Referens", "#DEFINITIONUSAGE", "", "Usage of a specific term", "no org", "top", "system"},
+          {"Avtalsperiod", "#TERM", "", "Definition of a specific term", "no org", "top", "system"},
+          {"Betalning", "#PAYMENT", "", "Related to payments and delivery", "no org", "top", "system"},
+          {"Finansiering", "#CAPITALIZATION", "", "Related to financial status", "no org", "top", "system"},
+          {"Lagar", "#REGULATION", "", "Legal aspects", "no org", "top", "system"},
+          {"Tvist", "#ARBITRATION", "", "Governing law and arbitration rules", "no org", "top", "system"},
+          {"Organisation", "#ORGANIZATION", "", "Organizational aspects", "no org", "top", "system"},
+          {"Tvetydighet", "#AMBIGUITY", "", "A potential problem in the iterpretation", "no org", "top", "system"},
+          {"Kompensation", "#COMPENSATION", "", "compensation", "no org", "top", "system"},
+          {"Tilldelningsgrund", "#AWARDCRITERIA", "", "How the contract proposals will be evaluated", "no org", "top", "system"},
+          {"IT-drift", "#ITOPERATION", "", "IT Operations", "no org", "top", "system"},
+          {"Granska Risk", "#RISK", "", "A potential risk that should be reviewd", "no org", "top", "system"},
+          {"Uncertainty", "#UNCERTAINTY", "", "Unspecified", "no org", "system"},
+          {"Restriction", "#RESTRICTION", "", "A restriction on rights", "no org", "system"},
+          {"Right", "#RIGHT", "", "A right", "no org", "system"},
+          {"Restriction", "#RIGTHSANDOBLIGATIONS", "", "Restrictions and obligations", "no org", "system"},
 
 
 

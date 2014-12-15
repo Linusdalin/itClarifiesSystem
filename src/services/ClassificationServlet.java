@@ -208,6 +208,8 @@ public class ClassificationServlet extends DocumentService{
 
             JSONArray list = new JSONArray();
 
+            /*
+
             FragmentClassTable organizationSpecificClasses = new FragmentClassTable(new LookupList()
                     .addFilter(new ReferenceFilter(FragmentClassTable.Columns.Organization.name(), user.getOrganization().getKey())));
 
@@ -223,10 +225,11 @@ public class ClassificationServlet extends DocumentService{
 
             }
 
+            */
+
             // Now add all generic classes
 
-            FragmentClassTable genericClasses = new FragmentClassTable(new LookupList()
-                    .addFilter(new ReferenceFilter(FragmentClassTable.Columns.Organization.name(), Organization.getnone().getKey())));
+            FragmentClassTable genericClasses = new FragmentClassTable(new LookupList());
 
             for(DataObjectInterface object : genericClasses.getValues()){
 

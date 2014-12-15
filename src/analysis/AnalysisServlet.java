@@ -63,6 +63,7 @@ public class AnalysisServlet extends DocumentService {
         returnError("Get not supported in " + DataServletName, HttpServletResponse.SC_METHOD_NOT_ALLOWED, resp);
         resp.flushBuffer();
 
+
      }
 
 
@@ -426,6 +427,7 @@ public class AnalysisServlet extends DocumentService {
 
             }catch(NullPointerException e){
 
+                e.printStackTrace();
                 String message = "Internal Error analysing fragment " + fragment.getText() + PukkaLogger.getMessage(e);
                 errorMessages.append(message);
                 PukkaLogger.log( PukkaLogger.Level.WARNING, message );
@@ -690,6 +692,7 @@ public class AnalysisServlet extends DocumentService {
 
         }
 
+        // TODO: Move these to create project
 
 
         Keyword keyword = new Keyword("#Risk", document, project);
@@ -913,6 +916,9 @@ public class AnalysisServlet extends DocumentService {
                             analysisTime.getSQLTime().toString());
                     fragmentClassification.store();
                     classifications++;
+
+
+
                     updated = true;
 
 
@@ -928,6 +934,7 @@ public class AnalysisServlet extends DocumentService {
                     // Detecting a risk should result in a risk created in the system.
 
                     PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating risk for fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
+
                     String riskDescription = "The phrasing " + classification.getPattern().getText() + "(" + classification.getTag()+ ")";
 
                     RiskClassification risk = new RiskClassification(
@@ -966,6 +973,29 @@ public class AnalysisServlet extends DocumentService {
 
                 }
 
+                if(classification.getType().getName().equals(FeatureTypeTree.DefinitionUsage.getName())){
+
+                    // Handle definition usage classifications. They should generate a reference to the actual definition
+
+                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating Definition Usage reference for fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
+
+
+                        ReferenceType type = ReferenceType.getDefinitionUsage();
+
+                        Reference reference = new Reference(
+                                classification.getExtraction().getSemanticExtraction(),
+                                fragment.getKey(),
+                                getDefinitionSource(classification, fragment, project),
+                                fragment.getVersionId(),
+                                project.getKey(),
+                                type.getKey());
+                        reference.store();
+
+                        references++;
+                        updated = true;
+
+
+                }
 
                 // Default action is to jut add the classification from the analysis
 
@@ -993,6 +1023,8 @@ public class AnalysisServlet extends DocumentService {
 
                     PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Classifying fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
 
+                    System.out.println(classification.getType().getName() + " " + classification.getTag());
+
                     fragmentClassification = new FragmentClassification(
                             fragment.getKey(),
                             fragmentClass.getKey(),
@@ -1010,6 +1042,9 @@ public class AnalysisServlet extends DocumentService {
                             analysisTime.getSQLTime().toString());
 
                     fragmentClassification.store();
+
+
+
 
                     // Only update the number of classifications if it is above the threshold
                     // for displaying in the front-end
@@ -1058,15 +1093,33 @@ public class AnalysisServlet extends DocumentService {
         return risks;
     }
 
+    /***************************************************************************************************
+     *
+     *              Locate the definition source in the project
+     *
+     *
+     *
+     * @param classification      - the definition usage classification
+     * @param fragment            - the fragment where it is used
+     * @param project             - the active project
+     * @return                    - key to the fragment for the definition
+     */
+
+
+    private DBKeyInterface getDefinitionSource(Classification classification, ContractFragment fragment, Project project) {
+
+        //TODO: Not implemented locating definition source.
+
+        return fragment.getKey();
+    }
+
 
     private void handlePostProcessResult(NewAnalysisOutcome analysisResult, ContractFragment fragment, Project project, DBTimeStamp analysisTime, AbstractDocument aDocument) throws BackOfficeException{
 
         boolean updated = false;
-        PortalUser system = PortalUser.getSystemUser();
         int classifications = 0;
         int references = 0;
         int annotations = 0;
-        FragmentClassification fragmentClassification;
         ContractFragment definitionFragment;
 
         System.out.println("Found " + analysisResult.getClassifications().size() + " classifications in post process of " + fragment.getText());
@@ -1236,8 +1289,7 @@ public class AnalysisServlet extends DocumentService {
 
         }catch(IOException e){
 
-            System.out.println("Error in parseFile!");
-            e.printStackTrace(System.out);
+            PukkaLogger.log( e );
             throw new BackOfficeException(BackOfficeException.General, "Could not get document.");
         }
 

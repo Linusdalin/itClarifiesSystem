@@ -2,8 +2,6 @@ package fileHandling;
 
 import contractManagement.*;
 import document.AbstractComment;
-import document.AbstractDocument;
-import document.AbstractProject;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
 import risk.RiskClassification;
@@ -122,7 +120,7 @@ public class Exporter {
             commentList.addAll(createCommentsFromAnnotations(annotationsForDocument));
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Adding comments to docX file");
-            document.addComments(commentList, documentVersion);
+            document.annotateFile(commentList, documentVersion);
             PukkaLogger.log(PukkaLogger.Level.INFO, "Done");
 
         } catch (BackOfficeException e) {

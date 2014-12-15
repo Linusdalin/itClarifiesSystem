@@ -36,6 +36,7 @@ public class AdminServlet extends GenericAdminServlet {
 
 
         resp.getWriter().println("<html>");
+        resp.getWriter().println("<head><title>"+environment.name()+" Adm</title></head>");
         resp.getWriter().println("<body bgColor=\""+bgColour+"\">");
         resp.getWriter().println("<h1>"+ heading +"</h1>");
 

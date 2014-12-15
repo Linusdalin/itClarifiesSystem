@@ -34,21 +34,37 @@ import java.util.List;
  *
  *              DocX file handler
  *
+ *              Using docx4J to create a file
+ *
  */
 
 
 public class DocXFile {
 
     WordprocessingMLPackage document = null;
-    static ObjectFactory factory = Context.getWmlObjectFactory();
+    static ObjectFactory factory = Context.getWmlObjectFactory();  // Factory to create objects
     private String fileName;
+
+
+    /*****************************************************************
+     *
+     *          Create a docxFile internally given a file handler to
+     *          a file in storage (disk, cloud...)
+     *
+     *
+     * @param fileHandler
+     * @throws BackOfficeException
+     */
 
 
     public DocXFile(RepositoryFileHandler fileHandler) throws BackOfficeException{
 
+
+
         try {
 
             this.fileName = fileHandler.getFileName();
+            PukkaLogger.log(PukkaLogger.Level.DEBUG, "*** Reading file " + fileName + " from repository");
 
             RepositoryInterface repository = new BlobRepository();
             InputStream fileFromRepository = repository.getInputStream(fileHandler);
@@ -66,10 +82,21 @@ public class DocXFile {
 
     }
 
-  //TODO: Change name
+    /******************************************************************************'
+     *
+     *          Store a file to cloud storage
+     *
+     *
+     * @param fileName
+     * @return
+     * @throws BackOfficeException
+     */
+
+
 
     public RepositoryFileHandler saveToRepository(String fileName)throws BackOfficeException{
 
+        PukkaLogger.log(PukkaLogger.Level.DEBUG, " *** Saving file " + fileName + " to repository");
 
         try{
             GcsService gcsService = GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
@@ -80,7 +107,6 @@ public class DocXFile {
 
             GcsOutputChannel outputChannel = gcsService.createOrReplace(gcsFile, GcsFileOptions.getDefaultInstance());
 
-            //ObjectOutputStream oout = new ObjectOutputStream(Channels.newOutputStream(outputChannel));
             OutputStream output = Channels.newOutputStream(outputChannel);
 
             SaveToZipFile saver = new SaveToZipFile(document);
@@ -106,70 +132,26 @@ public class DocXFile {
 
     }
 
-
-    public RepositoryFileHandler saveToBlobStore() throws BackOfficeException{
-
-
-        try{
-
-
-            FileService fileService = FileServiceFactory.getFileService();
-
-            // Create a new Blob file with mime-type "text/plain"
-            AppEngineFile file = fileService.createNewBlobFile("text/plain");
-
-            // Open a channel to write to it
-            boolean lock = true;
-            FileWriteChannel writeChannel = fileService.openWriteChannel(file, lock);
-
-            //OutputStream output = Channels.newOutputStream(writeChannel);
-            document.save(new File("dummy"));
-
-            //output.flush();
-            //output.close();
-
-            writeChannel.closeFinally();
-
-            return new RepositoryFileHandler(fileName);
-
-        } catch (/*Docx4J */Exception e) {
-
-            throw new BackOfficeException(BackOfficeException.AccessError, "Could not save file " + fileName + " in document repository; " + e.getMessage());
-
-        }
+    /*************************************************************************************************************
+     *
+     *
+     *              Annotate the original file with attributes as comments.
+     *
+     *              The update is done as a sideeffect to "document"
+     *
+     *
+     *
+     *
+     * @param commentsForDocument    - comments compiled from risks, annotations, definitions and classifications
+     * @param version                - the document
+     */
 
 
-    }
+    public void annotateFile(List<AbstractComment> commentsForDocument, ContractVersionInstance version) {
 
-    public void addComments(List<AbstractComment> commentsForDocument, ContractVersionInstance version) {
-
-
-        MainDocumentPart main = document.getMainDocumentPart();
-        CommentsPart commentsPart = main.getCommentsPart();
-        Comments comments;
 
         try {
 
-
-            if(commentsPart == null){
-
-                // If there are no comments in the document, we set up the comments part
-
-                CommentsPart cp = new CommentsPart();
-                document.getMainDocumentPart().addTargetPart(cp);
-
-                // Part must have minimal contents
-                comments = factory.createComments();
-                cp.setJaxbElement(comments);
-
-            }
-            else{
-
-                comments = commentsPart.getJaxbElement();
-
-            }
-
-            //document.addTargetPart(addCommentToMain(document));
             List<ContractFragment> fragmentsForDocument = version.getFragmentsForVersion(new LookupList().addOrdering(ContractFragmentTable.Columns.Ordinal.name(), Ordering.FIRST));
 
             addCommentToMain(document, commentsForDocument, fragmentsForDocument);
@@ -178,12 +160,10 @@ public class DocXFile {
         } catch (InvalidFormatException e) {
 
             PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create comments for document");
-            return;
 
         } catch (BackOfficeException e) {
 
             PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create comments for document " + e.narration);
-            return;
 
         }
 
@@ -250,7 +230,6 @@ public class DocXFile {
 
                 for (AbstractComment abstractComment : commentsForParagraph) {
 
-
                     Comments.Comment theComment = createComment(commentId, "Author", null, abstractComment.getComment() + ": " + abstractComment.getAnchor());
            		    comments.getComment().add(theComment);
 
@@ -258,7 +237,7 @@ public class DocXFile {
 
                     if(abstractComment.getStart() == -1){
 
-                        R newRun = createRun(paragraph, abstractComment.getAnchor());
+                        R newRun = factory.createR();
                         Text text = new Text();
                         text.setValue( abstractComment.getType());
                         createCommentReference(text, newRun, commentId);
@@ -325,7 +304,7 @@ public class DocXFile {
                 paragraphNo++;
             }
             else
-                System.out.println("Ignoring empty run");
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring empty run");
 
         }
 
@@ -420,12 +399,17 @@ public class DocXFile {
     }
 
 
+    /************************************************************************************'
+     *
+     *          Extracting relevant elements for the paragraph. This includes:
+     *
+     *          Run, CommentRangeStart and CommentRangeEnd
+     *
+     *
+     * @param paragraph     - paragraph to look at
+     * @return              - list of all the relevant objects
+     */
 
-    private R createRun(P paragraph, String anchor) {
-
-        R run = factory.createR();
-        return run;
-    }
 
     private static List<Object> getAllElementForParagraph(P paragraph) {
 
@@ -456,15 +440,20 @@ public class DocXFile {
 
     	  List<Object> result = new ArrayList<Object>();
 
-    	  if (obj instanceof JAXBElement) obj = ((JAXBElement<?>) obj).getValue();
+    	  if (obj instanceof JAXBElement)
+              obj = ((JAXBElement<?>) obj).getValue();
 
     	  if (obj.getClass().equals(toSearch))
-    	   result.add(obj);
+              result.add(obj);
     	  else if (obj instanceof ContentAccessor) {
-    	   List<?> children = ((ContentAccessor) obj).getContent();
-    	   for (Object child : children) {
-    	    result.addAll(getAllElementFromObject(child, toSearch));
-    	   }
+
+              List<?> children = ((ContentAccessor) obj).getContent();
+
+              for (Object child : children) {
+
+                  result.addAll(getAllElementFromObject(child, toSearch));
+
+              }
 
     	  }
     	  return result;
@@ -528,8 +517,6 @@ public class DocXFile {
         rangeEnd.setId( commentId );
         commentRef.setId( commentId );
 
-        //run = factory.createR();
-        //run.getContent().remove(0);        //TODO: Handle comments to existing text
         run.getContent().add(rangeStart);
         run.getContent().add(text);
         run.getContent().add(rangeEnd);
@@ -564,11 +551,6 @@ public class DocXFile {
         return "no file";
 
     }
-
-    public String getFileName() {
-        return fileName;
-    }
-
 
 
 }

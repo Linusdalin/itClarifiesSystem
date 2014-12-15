@@ -71,7 +71,7 @@ public class ClassServlet extends DocumentService{
 
             PortalUser user = sessionManagement.getUser();
 
-            FragmentClass newClass = new FragmentClass(className, className, keywords, description, user.getOrganizationId(), FragmentClass.getNoParent().getKey());
+            FragmentClass newClass = new FragmentClass(className, className, keywords, description, user.getOrganizationId());
             newClass.store();
 
 

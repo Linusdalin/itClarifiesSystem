@@ -16,6 +16,7 @@ import pukkaBO.list.*;
 import pukkaBO.renderer.GroupListRenderer;
 import pukkaBO.renderer.ListRendererInterface;
 import pukkaBO.style.Html;
+import risk.ContractRisk;
 import risk.RiskClassification;
 import risk.RiskClassificationTable;
 
@@ -137,9 +138,13 @@ public class RiskList extends GroupByList implements ListInterface{
 
                 case Callback_Action_Delete:
 
-                    //TODO: Delete both definitions and definition source & usage classifications
+                    // Setting the risk to "Not Set"
 
-                    return ("Warning: Delete not implemented");
+                    ContractRisk risk = ContractRisk.getNotSet();
+                    classification.setRisk(risk.getKey());
+                    classification.update();
+
+                    return ("Success: Risk for fragment " + classification.getFragment().getName() + " was reverted to Not Set!");
 
                 default:
 

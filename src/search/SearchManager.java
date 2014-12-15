@@ -113,7 +113,7 @@ public class SearchManager {
         List<SearchHit> results = new ArrayList<SearchHit>();
 
         TextMatcher textmatcher = new TextMatcher();
-        String strippedSearch = searchText.replaceAll("[@#]", "");
+        String strippedSearch = searchText.replaceAll("[@]", "");
 
         List<String> emptyMatch = new ArrayList<String>();
         emptyMatch.add("");
@@ -201,7 +201,8 @@ public class SearchManager {
 
                 PukkaLogger.log(PukkaLogger.Level.INFO , "***************** Found " + classifications.size() + " classifications");
 
-                textmatcher.prepareSearchString(strippedSearch).caseInsensitive();
+                textmatcher.prepareSearchString(searchText)
+                        .caseInsensitive().useHashTags();
 
                 for(FragmentClassification classification : classifications){
 
@@ -213,7 +214,7 @@ public class SearchManager {
 
                         // Searching in name and comment. (That contains the tags and parent classes)
 
-                        String matchPatternForClassification = classification.getName() + " " + classification.getComment() + " " + classification.getKeywords();
+                        String matchPatternForClassification = classification.getComment() + " " + classification.getKeywords();
 
                         PukkaLogger.log(PukkaLogger.Level.INFO, "*** Trying to match classification: \"" + matchPatternForClassification + "\"");
 

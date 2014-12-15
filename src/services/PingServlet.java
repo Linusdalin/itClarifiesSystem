@@ -1,54 +1,63 @@
 package services;
 
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-/********************************************************
- *
- *          Contract Servlet returning one contract
- *
- */
 
-public class PingServlet extends ItClarifiesService{
+public class PingServlet extends ItClarifiesService {
 
     public static final String DataServletName = "Ping";
 
 
-    /*****************************************************************************
+    /****************************************************************************'
+     *
+     *          Post to åing service will fire up server or scale up during load
      *
      *
      * @param req
      * @param resp
      * @throws java.io.IOException
+     *
+     *
      */
 
 
     public void doPost(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
-        boolean prettyPrint, htmlEncode;
+        try{
+        logRequest(req);
+        Formatter formatter = getFormatFromParameters(req);
 
-        returnError("Pong", HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-        resp.flushBuffer();
-        return;
+            JSONObject response = new JSONObject()
+                    .put(DataServletName, "Pong");
+
+            sendJSONResponse(response, formatter, resp);
+
+
+        } catch (JSONException e) {
+
+            returnError(e.getMessage(), HttpServletResponse.SC_BAD_REQUEST, resp);
+            e.printStackTrace();
+
+        } catch (Exception e) {
+
+            returnError("Internal Error", HttpServletResponse.SC_BAD_REQUEST, resp);
+            e.printStackTrace();
+
+        }
 
      }
-
-    /*************************************************************************
-     *
-     *          GET is not implemented
-     *
-     * @throws java.io.IOException
-     */
 
 
     public void doGet(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
-        returnError("Get not supported in " + DataServletName, HttpServletResponse.SC_METHOD_NOT_ALLOWED, resp);
-        resp.flushBuffer();
+        doPost(req, resp);
 
     }
-
 
     public void doDelete(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 

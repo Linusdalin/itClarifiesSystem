@@ -158,7 +158,7 @@ public class GeneratedTableTests{
      
              try{
      
-                 contractManagement.FragmentClass table1 = new contractManagement.FragmentClass("text 1", "text 2", "text 3", "text 4", dummyKey, dummyKey);
+                 contractManagement.FragmentClass table1 = new contractManagement.FragmentClass("text 1", "text 2", "text 3", "text 4", dummyKey);
 
                  assertThat(table1.getName(), is("text 1"));
                  assertThat(table1.getType(), is("text 2"));
@@ -166,8 +166,6 @@ public class GeneratedTableTests{
                  assertThat(table1.getDescription(), is("text 4"));
                  assertThat(table1.getOrganizationId(), is(dummyKey));
                  assertThat(table1.getOrganization().exists(), is(false));
-                 assertThat(table1.getParentId(), is(dummyKey));
-                 assertThat(table1.getParent().exists(), is(false));
 
                  table1.store();
                  contractManagement.FragmentClass table2 = new contractManagement.FragmentClass();
@@ -179,23 +177,18 @@ public class GeneratedTableTests{
                  assertThat(table2.getDescription(), is("text 4"));
                  assertThat(table2.getOrganizationId(), is(dummyKey));
                  assertThat(table2.getOrganization().exists(), is(false));
-                 assertThat(table2.getParentId(), is(dummyKey));
-                 assertThat(table2.getParent().exists(), is(false));
 
                  table1.setName("text 11");
                  table1.setType("text 12");
                  table1.setKeywords("text 13");
                  table1.setDescription("text 14");
                  table1.setOrganization( dummyKey);
-                 table1.setParent( dummyKey);
                  assertThat(table1.getName(), is("text 11"));
                  assertThat(table1.getType(), is("text 12"));
                  assertThat(table1.getKeywords(), is("text 13"));
                  assertThat(table1.getDescription(), is("text 14"));
                  assertThat(table1.getOrganizationId(), is(dummyKey));
                  assertThat(table1.getOrganization().exists(), is(false));
-                 assertThat(table1.getParentId(), is(dummyKey));
-                 assertThat(table1.getParent().exists(), is(false));
 
              }catch(BackOfficeException e){
      
@@ -209,7 +202,6 @@ public class GeneratedTableTests{
              }
              try{
                 assertThat(contractManagement.FragmentClass.getUnknown(), is(contractManagement.FragmentClass.getUnknown()));
-                assertThat(contractManagement.FragmentClass.getNoParent(), is(contractManagement.FragmentClass.getNoParent()));
                 assertThat(contractManagement.FragmentClass.getLink(), is(contractManagement.FragmentClass.getLink()));
                 assertThat(contractManagement.FragmentClass.getLegalEntity(), is(contractManagement.FragmentClass.getLegalEntity()));
                 assertThat(contractManagement.FragmentClass.getDate(), is(contractManagement.FragmentClass.getDate()));
@@ -226,11 +218,15 @@ public class GeneratedTableTests{
                 assertThat(contractManagement.FragmentClass.getRegulation(), is(contractManagement.FragmentClass.getRegulation()));
                 assertThat(contractManagement.FragmentClass.getArbitration(), is(contractManagement.FragmentClass.getArbitration()));
                 assertThat(contractManagement.FragmentClass.getOrganizational(), is(contractManagement.FragmentClass.getOrganizational()));
-                assertThat(contractManagement.FragmentClass.getRisk(), is(contractManagement.FragmentClass.getRisk()));
                 assertThat(contractManagement.FragmentClass.getAmbiguity(), is(contractManagement.FragmentClass.getAmbiguity()));
                 assertThat(contractManagement.FragmentClass.getCompensation(), is(contractManagement.FragmentClass.getCompensation()));
                 assertThat(contractManagement.FragmentClass.getAwardCriteria(), is(contractManagement.FragmentClass.getAwardCriteria()));
                 assertThat(contractManagement.FragmentClass.getOperations(), is(contractManagement.FragmentClass.getOperations()));
+                assertThat(contractManagement.FragmentClass.getRisk(), is(contractManagement.FragmentClass.getRisk()));
+                assertThat(contractManagement.FragmentClass.getUncertainty(), is(contractManagement.FragmentClass.getUncertainty()));
+                assertThat(contractManagement.FragmentClass.getRestriction(), is(contractManagement.FragmentClass.getRestriction()));
+                assertThat(contractManagement.FragmentClass.getRight(), is(contractManagement.FragmentClass.getRight()));
+                assertThat(contractManagement.FragmentClass.getRightsObl(), is(contractManagement.FragmentClass.getRightsObl()));
 
              }catch(BackOfficeException e){
      
