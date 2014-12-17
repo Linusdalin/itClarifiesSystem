@@ -223,7 +223,7 @@ public class GeneratedTableTests{
                 assertThat(contractManagement.FragmentClass.getAwardCriteria(), is(contractManagement.FragmentClass.getAwardCriteria()));
                 assertThat(contractManagement.FragmentClass.getOperations(), is(contractManagement.FragmentClass.getOperations()));
                 assertThat(contractManagement.FragmentClass.getRisk(), is(contractManagement.FragmentClass.getRisk()));
-                assertThat(contractManagement.FragmentClass.getUnspecified(), is(contractManagement.FragmentClass.getUnspecified()));
+                assertThat(contractManagement.FragmentClass.getUnspecific(), is(contractManagement.FragmentClass.getUnspecific()));
                 assertThat(contractManagement.FragmentClass.getRestriction(), is(contractManagement.FragmentClass.getRestriction()));
                 assertThat(contractManagement.FragmentClass.getRight(), is(contractManagement.FragmentClass.getRight()));
                 assertThat(contractManagement.FragmentClass.getRightsObl(), is(contractManagement.FragmentClass.getRightsObl()));
@@ -1767,21 +1767,23 @@ public class GeneratedTableTests{
      
              try{
      
-                 risk.RiskClassification table1 = new risk.RiskClassification(dummyKey, dummyKey, "text 3", dummyKey, dummyKey, dummyKey, "text 7", "2012-01-08");
+                 risk.RiskClassification table1 = new risk.RiskClassification(dummyKey, dummyKey, "text 3", "text 4", dummyKey, dummyKey, dummyKey, "text 8", 9, "2012-01-10");
 
                  assertThat(table1.getFragmentId(), is(dummyKey));
                  assertThat(table1.getFragment().exists(), is(false));
                  assertThat(table1.getRiskId(), is(dummyKey));
                  assertThat(table1.getRisk().exists(), is(false));
                  assertThat(table1.getComment(), is("text 3"));
+                 assertThat(table1.getKeywords(), is("text 4"));
                  assertThat(table1.getCreatorId(), is(dummyKey));
                  assertThat(table1.getCreator().exists(), is(false));
                  assertThat(table1.getVersionId(), is(dummyKey));
                  assertThat(table1.getVersion().exists(), is(false));
                  assertThat(table1.getProjectId(), is(dummyKey));
                  assertThat(table1.getProject().exists(), is(false));
-                 assertThat(table1.getPattern(), is("text 7"));
-                 assertThat(table1.getTime().getISODate(), is("2012-01-08"));
+                 assertThat(table1.getPattern(), is("text 8"));
+                 assertThat(table1.getPatternPos(), is((long)9));
+                 assertThat(table1.getTime().getISODate(), is("2012-01-10"));
 
                  table1.store();
                  risk.RiskClassification table2 = new risk.RiskClassification();
@@ -1792,36 +1794,42 @@ public class GeneratedTableTests{
                  assertThat(table2.getRiskId(), is(dummyKey));
                  assertThat(table2.getRisk().exists(), is(false));
                  assertThat(table2.getComment(), is("text 3"));
+                 assertThat(table2.getKeywords(), is("text 4"));
                  assertThat(table2.getCreatorId(), is(dummyKey));
                  assertThat(table2.getCreator().exists(), is(false));
                  assertThat(table2.getVersionId(), is(dummyKey));
                  assertThat(table2.getVersion().exists(), is(false));
                  assertThat(table2.getProjectId(), is(dummyKey));
                  assertThat(table2.getProject().exists(), is(false));
-                 assertThat(table2.getPattern(), is("text 7"));
-                 assertThat(table2.getTime().getISODate(), is("2012-01-08"));
+                 assertThat(table2.getPattern(), is("text 8"));
+                 assertThat(table2.getPatternPos(), is((long)9));
+                 assertThat(table2.getTime().getISODate(), is("2012-01-10"));
 
                  table1.setFragment( dummyKey);
                  table1.setRisk( dummyKey);
                  table1.setComment("text 13");
+                 table1.setKeywords("text 14");
                  table1.setCreator( dummyKey);
                  table1.setVersion( dummyKey);
                  table1.setProject( dummyKey);
-                 table1.setPattern("text 17");
-                 table1.setTime(new DBTimeStamp(DBTimeStamp.ISO_DATE, "2012-01-18"));
+                 table1.setPattern("text 18");
+                 table1.setPatternPos(19);
+                 table1.setTime(new DBTimeStamp(DBTimeStamp.ISO_DATE, "2012-01-20"));
                  assertThat(table1.getFragmentId(), is(dummyKey));
                  assertThat(table1.getFragment().exists(), is(false));
                  assertThat(table1.getRiskId(), is(dummyKey));
                  assertThat(table1.getRisk().exists(), is(false));
                  assertThat(table1.getComment(), is("text 13"));
+                 assertThat(table1.getKeywords(), is("text 14"));
                  assertThat(table1.getCreatorId(), is(dummyKey));
                  assertThat(table1.getCreator().exists(), is(false));
                  assertThat(table1.getVersionId(), is(dummyKey));
                  assertThat(table1.getVersion().exists(), is(false));
                  assertThat(table1.getProjectId(), is(dummyKey));
                  assertThat(table1.getProject().exists(), is(false));
-                 assertThat(table1.getPattern(), is("text 17"));
-                 assertThat(table1.getTime().getISODate(), is("2012-01-18"));
+                 assertThat(table1.getPattern(), is("text 18"));
+                 assertThat(table1.getPatternPos(), is((long)19));
+                 assertThat(table1.getTime().getISODate(), is("2012-01-20"));
 
              }catch(BackOfficeException e){
      

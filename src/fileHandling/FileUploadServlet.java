@@ -264,7 +264,7 @@ public class FileUploadServlet extends DocumentService {
 
                         document = newVersion.getDocument();
 
-                        document.setMessage("Document "+ document.getName()+" uploaded at " + uploadTime.getSQLTime().toString());
+                        document.setMessage("Uploaded. Analyzing Document...");
                         document.setStatus(ContractStatus.getUploaded().getKey());
                         document.update();
 

@@ -163,7 +163,7 @@ public class ContractTable extends DataTable implements DataTableInterface{
             ContractType type = ContractType.getUnclassified();
             DBTimeStamp creationTime = new DBTimeStamp();               // Now
             String desc = "Unclassified document";
-            String defaultMessage = "Document uploaded at " + creationTime.getISODate();
+            String defaultMessage = "Successfully uploaded ";
 
             //PukkaLogger.log(PukkaLogger.Level.INFO, "Adding new document " + name);
 

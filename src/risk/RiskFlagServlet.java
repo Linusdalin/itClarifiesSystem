@@ -62,6 +62,7 @@ public class RiskFlagServlet extends DocumentService {
 
             String comment                   = getOptionalString("comment", req, "");
             String pattern                   = getOptionalString("pattern", req, "");
+            long patternPos                  = getOptionalLong("patternPos", req, -1);
 
             ContractFragment fragment = new ContractFragment(new LookupByKey(key));
             if(!mandatoryObjectExists(fragment, resp))
@@ -88,6 +89,15 @@ public class RiskFlagServlet extends DocumentService {
             PortalUser classifier = sessionManagement.getUser();
             DBTimeStamp now = new DBTimeStamp();
 
+            if(patternPos == -1){
+
+                // If the pattern position is not given, fallback to finding the first occurrence
+
+                patternPos = fragment.getText().indexOf(pattern);
+
+            }
+
+
             // Create the classification object
             // TODO: add transaction commit here
 
@@ -95,10 +105,12 @@ public class RiskFlagServlet extends DocumentService {
                     fragment.getKey(),
                     risk.getKey(),
                     comment,
+                    "#RISK",
                     classifier.getKey(),
                     version.getKey(),
                     document.getProjectId(),
                     pattern,
+                    patternPos,
                     now.getISODate());
             classification.store();
 

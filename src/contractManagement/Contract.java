@@ -544,8 +544,18 @@ public class Contract extends DataObject implements DataObjectInterface{
 
         ContractVersionInstance version = this.getHeadVersion();
 
+        String versionName = version.getVersion();
+
+        //versionName = new String(version.getVersion().getBytes(), "ISO-8859-1");
+        try {
+            versionName = new String(version.getVersion().getBytes(), "UTF-8");
+        } catch (java.io.UnsupportedEncodingException e) {
+            //Swallow
+        }
+
+
         PukkaLogger.log(PukkaLogger.Level.DEBUG, "Getting fragments for version " + version.getVersion());
-        html.append("<p>Version: "+ version.getVersion()+"</p>");
+        html.append("<p>Version: "+ versionName+"</p>");
 
         // Load all the fragments for the document
 
@@ -711,7 +721,7 @@ public class Contract extends DataObject implements DataObjectInterface{
                         RiskClassification classification = fragment.getLastRiskClassificationForFragment(RiskClassificationTable.Columns.Time.name());
 
                         comments.append(" Risk: Lvl \""+ classification.getRisk().getName()+"\" (\"" + classification.getPattern() + "\") by "+
-                                classification.getCreator().getName() + "@" + classification.getTime().getISODate() + " comment: \"" + classification.getComment() + "\"<br/>");
+                                classification.getCreator().getName() + "@" + classification.getTime().getISODate() + " comment: \"" + classification.getComment() + " keywords: \"" + classification.getKeywords() + "\"<br/>");
                     }
 
                 }catch(BackOfficeException e){

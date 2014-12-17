@@ -23,6 +23,7 @@ import userManagement.OrganizationTable;
 import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -230,6 +231,18 @@ public class ReclassificationList extends GroupByList implements ListInterface{
             classificationDate = "unknown";
         }
 
+        String fileName = reclassification.getDocument().getFile();
+
+        //versionName = new String(version.getVersion().getBytes(), "ISO-8859-1");
+        try {
+
+            fileName = new String(fileName.getBytes(), "ISO-8859-1");
+
+        } catch (UnsupportedEncodingException e) {
+            //Swallow
+        }
+
+
 
         html.append(Html.heading(3, "Code example for testing this:\n\n"));
 
@@ -277,7 +290,7 @@ public class ReclassificationList extends GroupByList implements ListInterface{
         html.append("     */\n");
 
         html.append("    private static final DemoComment[] demoCommentList = {\n");
-        html.append(        "            new DemoComment(\""+reclassification.getClassification().getType()+"\", \""+reclassification.getDocument().getFile()+"\", 2, \""+
+        html.append(        "            new DemoComment(\""+reclassification.getClassification().getType()+"\", \""+fileName+"\", "+ reclassification.getFragmentNo()+", \""+
                 reclassification.getRiskLevel().getName()+"\", \""+ reclassification.getPattern()+"\", \""+reclassification.getComment()+"\", \""+ reclassification.getUser().getName()+"\"),\n\n");
         html.append("    };\n");
         html.append("\n");

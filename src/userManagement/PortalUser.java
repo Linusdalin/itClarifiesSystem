@@ -205,7 +205,7 @@ public class PortalUser extends DataObject implements DataObjectInterface{
     public static PortalUser getSystemUser( ) throws BackOfficeException{
 
        if(PortalUser.SystemUser == null)
-          PortalUser.SystemUser = new PortalUser(new LookupItem().addFilter(new ColumnFilter("Name", "System")));
+          PortalUser.SystemUser = new PortalUser(new LookupItem().addFilter(new ColumnFilter("Name", "itClarifies")));
        if(!PortalUser.SystemUser.exists())
           throw new BackOfficeException(BackOfficeException.TableError, "Constant SystemUser is missing (db update required?)");
 

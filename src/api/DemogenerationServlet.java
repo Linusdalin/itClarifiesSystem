@@ -36,8 +36,30 @@ public class DemogenerationServlet extends GenericAdminServlet {
     protected enum Environment {UNKNOWN, LOCAL, STAGE, LIVE}
 
 
+    /****************************************************''
+     *
+     *          This is the demo comments that should be added to the demos
+     *
+     *
+     */
+
+
     private static final DemoComment[] demoCommentList = {
-            new DemoComment("#RISK", "Test document.docx", 2, "Medium", "later chapter", "var är detta???", "admin"),
+
+            new DemoComment("#RISK",        "Test document.docx", 2, "Medium", "later chapter", "var är detta???", "itClarifies"),
+
+            new DemoComment("#RISK",        "Förfrågningsunderlag for Interaktiva utbildningar.docx",       369, "Potential",   "minst likvärdig kompetens", "Subjektivt och ensidikt", "itClarifies"),
+            new DemoComment("#RISK",        "Förfrågningsunderlag for Interaktiva utbildningar.docx",       452, "Not set", "fast pris", "Fast Pris", "itClarifies"),
+            new DemoComment("#UNSPECIFIC",  "Förfrågningsunderlag for Interaktiva utbildningar.docx",       387, "Not set",     "flera utbildningar samtidigt", "Oklar numrering", "itClarifies"),
+            new DemoComment("#UNSPECIFIC",  "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  234, "Not set",     "backup på all lagrad data", "Krav för restore saknas", "itClarifies"),
+            new DemoComment("#UNSPECIFIC",  "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  289, "Not set",     "ska informationen nedan lagras", "Ej avgränsad tid", "itClarifies"),
+            new DemoComment("#UNSPECIFIC",  "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  158, "Not set",     "utan tillkommande kostnad", "Uttrycket (etc.)", "itClarifies"),
+            new DemoComment("#UNSPECIFIC",  "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  265, "Potential",   "vid var tillfälle", "Odefinierat: tillfälle", "itClarifies"),
+            new DemoComment("#UNSPECIFIC",  "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  229, "Potential",   "kritisk karraktär", "Odefinierat: kritisk", "itClarifies"),
+            new DemoComment("#AMBIGUITY",   "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  229, "Not set",     "besvaras", "Tvetydigt: besvaras", "itClarifies"),
+            new DemoComment("#UNSPECIFIC",  "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  243, "Not set",     "kan härledas till Las Vegass server/it-miljö eller handhavande", "Odefinierat : Responsibility", "itClarifies"),
+            new DemoComment("#UNSPECIFIC",  "Bilaga 3A - Ramavtal Interaktiva utbildningar.docx",            41, "Not set",     "avser samtliga de resultat", "Ej avgränsad", "itClarifies"),
+
 
 
     };
@@ -197,10 +219,12 @@ public class DemogenerationServlet extends GenericAdminServlet {
                     fragment.getKey(),
                     risk.getKey(),
                     "demo",
+                    "#RISK",
                     user.getKey(),
                     version.getKey(),
                     document.getProjectId(),
                     comment.pattern,
+                    patternPos,
                     analysisTime.getISODate());
 
 
@@ -213,6 +237,7 @@ public class DemogenerationServlet extends GenericAdminServlet {
 
             System.out.println("RiskClassification: " + riskClassification.getKey().toString());
             fragment.setRisk(risk.getKey());
+
             feedback.append("<br/> - Adding risk \""+ risk.getName()+"\" to fragment no "+ comment.ordinal+" in document " + document.getName());
 
         }
@@ -230,7 +255,7 @@ public class DemogenerationServlet extends GenericAdminServlet {
                 analysisTime.getISODate());
 
         classification.store();
-        fragment.setClassificatonCount(fragment.getClassificatonCount());
+        fragment.setClassificatonCount(fragment.getClassificatonCount() + 1);
         feedback.append("<br/> - Adding classification \""+ fragmentClass.getName()+"\" to fragment no "+ comment.ordinal+" in document " + document.getName());
 
         annotation.store();

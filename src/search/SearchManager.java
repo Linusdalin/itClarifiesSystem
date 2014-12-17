@@ -215,8 +215,7 @@ public class SearchManager {
                         // Searching in name and comment. (That contains the tags and parent classes)
 
                         String matchPatternForClassification = classification.getName() + " " + classification.getComment() + " " + classification.getKeywords();
-
-                        PukkaLogger.log(PukkaLogger.Level.INFO, "*** Trying to match classification: \"" + matchPatternForClassification + "\"");
+                        PukkaLogger.log(PukkaLogger.Level.DEBUG, "*** Trying to match classification: \"" + matchPatternForClassification + "\"");
 
                         if(textmatcher.getMatch(matchPatternForClassification) != null){
 
@@ -309,19 +308,21 @@ public class SearchManager {
                 PukkaLogger.log(PukkaLogger.Level.INFO, "Get Matches 6");
 
                 List<RiskClassification> risks = head.getRiskClassificationsForVersion();
-                textmatcher.prepareSearchString(strippedSearch).caseInsensitive();
+
+
+                textmatcher.prepareSearchString(strippedSearch).caseInsensitive().useHashTags();
 
                 PukkaLogger.log(PukkaLogger.Level.INFO , "***************** Found " + classifications.size() + " risks");
 
                 for(RiskClassification classification : risks){
 
-
-
                     DBKeyInterface risk = classification.getRiskId();
                     String riskName = riskMap.get(risk.toString());
-                    PukkaLogger.log(PukkaLogger.Level.DEBUG, "Risk : " + riskName);
 
-                    List<String> res = textmatcher.getMatch(riskName);
+                    String matchPatternForClassification = "#" + riskName + " " + classification.getComment() + " " + classification.getKeywords();
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "*** Trying to match classification: \"" + matchPatternForClassification + "\"");
+
+                    List<String> res = textmatcher.getMatch(matchPatternForClassification);
                     if(res != null){
 
                         List<String> pattern = new ArrayList<String>();

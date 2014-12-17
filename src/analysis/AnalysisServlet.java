@@ -686,7 +686,7 @@ public class AnalysisServlet extends DocumentService {
 
             for (String classificationTagKeyword : classificationTagKeywords) {
 
-                Keyword keyword = new Keyword("#" + classificationTagKeyword, document, project);
+                Keyword keyword = new Keyword(classificationTagKeyword, document, project);
                 table.add(keyword);
             }
 
@@ -941,10 +941,12 @@ public class AnalysisServlet extends DocumentService {
                             fragment.getKey(),
                             defaultRisk.getKey(),
                             riskDescription,
+                            "#RISK",
                             system.getKey(),
                             fragment.getVersionId(),
                             project.getKey(),
                             classification.getPattern().getText(),
+                            classification.getPattern().getPos(),
                             analysisTime.getSQLTime().toString()
                     );
                     risk.store();

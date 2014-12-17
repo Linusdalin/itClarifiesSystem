@@ -38,13 +38,13 @@ public class RiskClassification extends DataObject implements DataObjectInterfac
             table = TABLE;
     }
 
-    public RiskClassification(DataObjectInterface fragment, DataObjectInterface risk, String comment, DataObjectInterface creator, DataObjectInterface version, DataObjectInterface project, String pattern, String time) throws BackOfficeException{
+    public RiskClassification(DataObjectInterface fragment, DataObjectInterface risk, String comment, String keywords, DataObjectInterface creator, DataObjectInterface version, DataObjectInterface project, String pattern, long patternpos, String time) throws BackOfficeException{
 
-        this(fragment.getKey(), risk.getKey(), comment, creator.getKey(), version.getKey(), project.getKey(), pattern, time);
+        this(fragment.getKey(), risk.getKey(), comment, keywords, creator.getKey(), version.getKey(), project.getKey(), pattern, patternpos, time);
     }
 
 
-    public RiskClassification(DBKeyInterface fragment, DBKeyInterface risk, String comment, DBKeyInterface creator, DBKeyInterface version, DBKeyInterface project, String pattern, String time) throws BackOfficeException{
+    public RiskClassification(DBKeyInterface fragment, DBKeyInterface risk, String comment, String keywords, DBKeyInterface creator, DBKeyInterface version, DBKeyInterface project, String pattern, long patternpos, String time) throws BackOfficeException{
 
         this();
         ColumnStructureInterface[] columns = getColumnFromTable();
@@ -55,11 +55,13 @@ public class RiskClassification extends DataObject implements DataObjectInterfac
         data[0] = new ReferenceData(fragment, columns[0].getTableReference());
         data[1] = new ReferenceData(risk, columns[1].getTableReference());
         data[2] = new TextData(comment);
-        data[3] = new ReferenceData(creator, columns[3].getTableReference());
-        data[4] = new ReferenceData(version, columns[4].getTableReference());
-        data[5] = new ReferenceData(project, columns[5].getTableReference());
-        data[6] = new TextData(pattern);
-        data[7] = new DateData(time);
+        data[3] = new TextData(keywords);
+        data[4] = new ReferenceData(creator, columns[4].getTableReference());
+        data[5] = new ReferenceData(version, columns[5].getTableReference());
+        data[6] = new ReferenceData(project, columns[6].getTableReference());
+        data[7] = new TextData(pattern);
+        data[8] = new IntData(patternpos);
+        data[9] = new DateData(time);
 
         exists = true;
 
@@ -149,21 +151,35 @@ public class RiskClassification extends DataObject implements DataObjectInterfac
 
 
 
+    public String getKeywords(){
+
+        TextData data = (TextData) this.data[3];
+        return data.getStringValue();
+    }
+
+    public void setKeywords(String keywords){
+
+        TextData data = (TextData) this.data[3];
+        data.setStringValue(keywords);
+    }
+
+
+
     public DBKeyInterface getCreatorId(){
 
-        ReferenceData data = (ReferenceData)this.data[3];
+        ReferenceData data = (ReferenceData)this.data[4];
         return data.value;
     }
 
     public userManagement.PortalUser getCreator(){
 
-        ReferenceData data = (ReferenceData)this.data[3];
+        ReferenceData data = (ReferenceData)this.data[4];
         return new userManagement.PortalUser(new LookupByKey(data.value));
     }
 
     public void setCreator(DBKeyInterface creator){
 
-        ReferenceData data = (ReferenceData)this.data[3];
+        ReferenceData data = (ReferenceData)this.data[4];
         data.value = creator;
     }
 
@@ -171,19 +187,19 @@ public class RiskClassification extends DataObject implements DataObjectInterfac
 
     public DBKeyInterface getVersionId(){
 
-        ReferenceData data = (ReferenceData)this.data[4];
+        ReferenceData data = (ReferenceData)this.data[5];
         return data.value;
     }
 
     public ContractVersionInstance getVersion(){
 
-        ReferenceData data = (ReferenceData)this.data[4];
+        ReferenceData data = (ReferenceData)this.data[5];
         return new ContractVersionInstance(new LookupByKey(data.value));
     }
 
     public void setVersion(DBKeyInterface version){
 
-        ReferenceData data = (ReferenceData)this.data[4];
+        ReferenceData data = (ReferenceData)this.data[5];
         data.value = version;
     }
 
@@ -191,19 +207,19 @@ public class RiskClassification extends DataObject implements DataObjectInterfac
 
     public DBKeyInterface getProjectId(){
 
-        ReferenceData data = (ReferenceData)this.data[5];
+        ReferenceData data = (ReferenceData)this.data[6];
         return data.value;
     }
 
     public Project getProject(){
 
-        ReferenceData data = (ReferenceData)this.data[5];
+        ReferenceData data = (ReferenceData)this.data[6];
         return new Project(new LookupByKey(data.value));
     }
 
     public void setProject(DBKeyInterface project){
 
-        ReferenceData data = (ReferenceData)this.data[5];
+        ReferenceData data = (ReferenceData)this.data[6];
         data.value = project;
     }
 
@@ -211,27 +227,41 @@ public class RiskClassification extends DataObject implements DataObjectInterfac
 
     public String getPattern(){
 
-        TextData data = (TextData) this.data[6];
+        TextData data = (TextData) this.data[7];
         return data.getStringValue();
     }
 
     public void setPattern(String pattern){
 
-        TextData data = (TextData) this.data[6];
+        TextData data = (TextData) this.data[7];
         data.setStringValue(pattern);
+    }
+
+
+
+    public long getPatternPos(){
+
+        IntData data = (IntData) this.data[8];
+        return data.value;
+    }
+
+    public void setPatternPos(long patternpos){
+
+        IntData data = (IntData) this.data[8];
+        data.value = patternpos;
     }
 
 
 
     public DBTimeStamp getTime()throws BackOfficeException{
 
-        DateData data = (DateData) this.data[7];
+        DateData data = (DateData) this.data[9];
         return new DBTimeStamp(DBTimeStamp.ISO_DATE, data.value);
     }
 
     public void setTime(DBTimeStamp time){
 
-        DateData data = (DateData) this.data[7];
+        DateData data = (DateData) this.data[9];
         data.value = time.getISODate().toString();
     }
 
