@@ -50,7 +50,7 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
     private static FragmentClass AwardCriteria = null;  
     private static FragmentClass Operations = null;  
     private static FragmentClass Risk = null;  
-    private static FragmentClass Uncertainty = null;  
+    private static FragmentClass Unspecified = null;  
     private static FragmentClass Restriction = null;  
     private static FragmentClass Right = null;  
     private static FragmentClass RightsObl = null;  
@@ -414,14 +414,14 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
        return FragmentClass.Risk;
      }
 
-    public static FragmentClass getUncertainty( ) throws BackOfficeException{
+    public static FragmentClass getUnspecified( ) throws BackOfficeException{
 
-       if(FragmentClass.Uncertainty == null)
-          FragmentClass.Uncertainty = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "Uncertainty")));
-       if(!FragmentClass.Uncertainty.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Uncertainty is missing (db update required?)");
+       if(FragmentClass.Unspecified == null)
+          FragmentClass.Unspecified = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "Unspecified")));
+       if(!FragmentClass.Unspecified.exists())
+          throw new BackOfficeException(BackOfficeException.TableError, "Constant Unspecified is missing (db update required?)");
 
-       return FragmentClass.Uncertainty;
+       return FragmentClass.Unspecified;
      }
 
     public static FragmentClass getRestriction( ) throws BackOfficeException{
@@ -481,7 +481,7 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
         FragmentClass.AwardCriteria = null;
         FragmentClass.Operations = null;
         FragmentClass.Risk = null;
-        FragmentClass.Uncertainty = null;
+        FragmentClass.Unspecified = null;
         FragmentClass.Restriction = null;
         FragmentClass.Right = null;
         FragmentClass.RightsObl = null;

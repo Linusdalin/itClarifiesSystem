@@ -103,7 +103,7 @@ public class ClassificationServlet extends DocumentService{
             FragmentClassification classification = new FragmentClassification(
                     fragment.getKey(),
                     fragmentClassKey,
-                    fragmentClass.getName(),            // Set the name from the fragment class name
+                    fragmentClass.getType(),
                     comment,
                     keyword,
                     classifier.getKey(),
@@ -137,13 +137,15 @@ public class ClassificationServlet extends DocumentService{
             Reclassification reclassification = new Reclassification(
                     name,
                     isPositiveClassification,
-                    classifier,
+                    classifier.getKey(),
                     fragment.getText(),
                     headline.getText(),
+                    fragment.getOrdinal(),
                     pattern,
                     comment,
-                    fragmentClass,
-                    document,
+                    fragmentClass.getKey(),
+                    fragment.getRiskId(),
+                    document.getKey(),
                     now.getISODate(),
                     false);
 
@@ -314,9 +316,11 @@ public class ClassificationServlet extends DocumentService{
                         sessionManagement.getUser().getKey(),
                         fragment.getText(),
                         headline.getText(),
+                        fragment.getOrdinal(),
                         classification.getPattern(),
                         classification.getComment(),
                         classification.getClassificationId(),
+                        fragment.getRiskId(),
                         fragment.getVersion().getDocumentId(),
                         now.getISODate(),
                         false);

@@ -32,7 +32,7 @@ public class ReclassificationTable extends DataTable implements DataTableInterfa
     public static final String TABLE = "Reclassification";
     private static final String DESCRIPTION = "Classifications that are manually corrected  for review and automatic analysis";
 
-    public enum Columns {Name, isPositive, User, Fragment, Headline, Pattern, Tag, Classification, Document, Date, Closed, }
+    public enum Columns {Name, isPositive, User, Fragment, Headline, FragmentNo, Pattern, Comment, Classification, RiskLevel, Document, Date, Closed, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
@@ -41,9 +41,11 @@ public class ReclassificationTable extends DataTable implements DataTableInterfa
             new ReferenceColumn("User", DataColumn.noFormatting, new TableReference("PortalUser", "Name")),
             new BlobColumn("Fragment", DataColumn.noFormatting),
             new BlobColumn("Headline", DataColumn.noFormatting),
-            new StringColumn("Pattern", DataColumn.noFormatting),
-            new StringColumn("Tag", DataColumn.noFormatting),
+            new IntColumn("FragmentNo", DataColumn.noFormatting),
+            new TextColumn("Pattern", DataColumn.noFormatting),
+            new TextColumn("Comment", DataColumn.noFormatting),
             new ReferenceColumn("Classification", DataColumn.noFormatting, new TableReference("FragmentClass", "Name")),
+            new ReferenceColumn("RiskLevel", DataColumn.noFormatting, new TableReference("ContractRisk", "Name")),
             new ReferenceColumn("Document", DataColumn.noFormatting, new TableReference("Contract", "Name")),
             new DateColumn("Date", DataColumn.noFormatting),
             new BoolColumn("Closed", DataColumn.noFormatting),

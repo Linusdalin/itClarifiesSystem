@@ -90,9 +90,11 @@ public class AdminServlet extends GenericAdminServlet {
         resp.getWriter().println("<a href=\"_ah/admin/datastore\">Database Viewer</a><br>");
 
         resp.getWriter().println("<a href=\"customPages/test/apiTest.jsp\">Api Test</a> ( <a href=\"customPages/test/apiTest.jsp?useToken=true\">Real Tokens</a> ) <br/>");
-        resp.getWriter().println("<a href=\"customPages/test/emailTest.jsp\">Test email</a><br/>");
-        resp.getWriter().println("<a href=\"customPages/test/uploadTest.jsp\">Pre-analyse File</a><br/>");
+        //resp.getWriter().println("<a href=\"customPages/test/emailTest.jsp\">Test email</a><br/>");
+        //resp.getWriter().println("<a href=\"customPages/test/uploadTest.jsp\">Pre-analyse File</a><br/>");
 
+
+        resp.getWriter().println("<a href=\"generateDemo\">Add demo data</a><br>");
 
 
 

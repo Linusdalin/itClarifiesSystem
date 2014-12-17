@@ -214,7 +214,7 @@ public class SearchManager {
 
                         // Searching in name and comment. (That contains the tags and parent classes)
 
-                        String matchPatternForClassification = classification.getComment() + " " + classification.getKeywords();
+                        String matchPatternForClassification = classification.getName() + " " + classification.getComment() + " " + classification.getKeywords();
 
                         PukkaLogger.log(PukkaLogger.Level.INFO, "*** Trying to match classification: \"" + matchPatternForClassification + "\"");
 

@@ -38,13 +38,13 @@ public class Reclassification extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public Reclassification(String name, boolean ispositive, DataObjectInterface user, String fragment, String headline, String pattern, String tag, DataObjectInterface classification, DataObjectInterface document, String date, boolean closed) throws BackOfficeException{
+    public Reclassification(String name, boolean ispositive, DataObjectInterface user, String fragment, String headline, long fragmentno, String pattern, String comment, DataObjectInterface classification, DataObjectInterface risklevel, DataObjectInterface document, String date, boolean closed) throws BackOfficeException{
 
-        this(name, ispositive, user.getKey(), fragment, headline, pattern, tag, classification.getKey(), document.getKey(), date, closed);
+        this(name, ispositive, user.getKey(), fragment, headline, fragmentno, pattern, comment, classification.getKey(), risklevel.getKey(), document.getKey(), date, closed);
     }
 
 
-    public Reclassification(String name, boolean ispositive, DBKeyInterface user, String fragment, String headline, String pattern, String tag, DBKeyInterface classification, DBKeyInterface document, String date, boolean closed) throws BackOfficeException{
+    public Reclassification(String name, boolean ispositive, DBKeyInterface user, String fragment, String headline, long fragmentno, String pattern, String comment, DBKeyInterface classification, DBKeyInterface risklevel, DBKeyInterface document, String date, boolean closed) throws BackOfficeException{
 
         this();
         ColumnStructureInterface[] columns = getColumnFromTable();
@@ -57,12 +57,14 @@ public class Reclassification extends DataObject implements DataObjectInterface{
         data[2] = new ReferenceData(user, columns[2].getTableReference());
         data[3] = new BlobData(fragment);
         data[4] = new BlobData(headline);
-        data[5] = new StringData(pattern);
-        data[6] = new StringData(tag);
-        data[7] = new ReferenceData(classification, columns[7].getTableReference());
-        data[8] = new ReferenceData(document, columns[8].getTableReference());
-        data[9] = new DateData(date);
-        data[10] = new BoolData(closed);
+        data[5] = new IntData(fragmentno);
+        data[6] = new TextData(pattern);
+        data[7] = new TextData(comment);
+        data[8] = new ReferenceData(classification, columns[8].getTableReference());
+        data[9] = new ReferenceData(risklevel, columns[9].getTableReference());
+        data[10] = new ReferenceData(document, columns[10].getTableReference());
+        data[11] = new DateData(date);
+        data[12] = new BoolData(closed);
 
         exists = true;
 
@@ -174,69 +176,103 @@ public class Reclassification extends DataObject implements DataObjectInterface{
 
 
 
+    public long getFragmentNo(){
+
+        IntData data = (IntData) this.data[5];
+        return data.value;
+    }
+
+    public void setFragmentNo(long fragmentno){
+
+        IntData data = (IntData) this.data[5];
+        data.value = fragmentno;
+    }
+
+
+
     public String getPattern(){
 
-        StringData data = (StringData) this.data[5];
+        TextData data = (TextData) this.data[6];
         return data.getStringValue();
     }
 
     public void setPattern(String pattern){
 
-        StringData data = (StringData) this.data[5];
+        TextData data = (TextData) this.data[6];
         data.setStringValue(pattern);
     }
 
 
 
-    public String getTag(){
+    public String getComment(){
 
-        StringData data = (StringData) this.data[6];
+        TextData data = (TextData) this.data[7];
         return data.getStringValue();
     }
 
-    public void setTag(String tag){
+    public void setComment(String comment){
 
-        StringData data = (StringData) this.data[6];
-        data.setStringValue(tag);
+        TextData data = (TextData) this.data[7];
+        data.setStringValue(comment);
     }
 
 
 
     public DBKeyInterface getClassificationId(){
 
-        ReferenceData data = (ReferenceData)this.data[7];
+        ReferenceData data = (ReferenceData)this.data[8];
         return data.value;
     }
 
     public FragmentClass getClassification(){
 
-        ReferenceData data = (ReferenceData)this.data[7];
+        ReferenceData data = (ReferenceData)this.data[8];
         return new FragmentClass(new LookupByKey(data.value));
     }
 
     public void setClassification(DBKeyInterface classification){
 
-        ReferenceData data = (ReferenceData)this.data[7];
+        ReferenceData data = (ReferenceData)this.data[8];
         data.value = classification;
+    }
+
+
+
+    public DBKeyInterface getRiskLevelId(){
+
+        ReferenceData data = (ReferenceData)this.data[9];
+        return data.value;
+    }
+
+    public ContractRisk getRiskLevel(){
+
+        ReferenceData data = (ReferenceData)this.data[9];
+        return new ContractRisk(new LookupByKey(data.value));
+    }
+
+    public void setRiskLevel(DBKeyInterface risklevel){
+
+        ReferenceData data = (ReferenceData)this.data[9];
+        data.value = risklevel;
     }
 
 
 
     public DBKeyInterface getDocumentId(){
 
-        ReferenceData data = (ReferenceData)this.data[8];
+        ReferenceData data = (ReferenceData)this.data[10];
         return data.value;
     }
 
     public Contract getDocument(){
 
-        ReferenceData data = (ReferenceData)this.data[8];
+        ReferenceData data = (ReferenceData)this.data[10];
         return new Contract(new LookupByKey(data.value));
     }
 
     public void setDocument(DBKeyInterface document){
 
-        ReferenceData data = (ReferenceData)this.data[8];
+        ReferenceData data = (ReferenceData)this.data[10];
         data.value = document;
     }
 
@@ -244,13 +280,13 @@ public class Reclassification extends DataObject implements DataObjectInterface{
 
     public DBTimeStamp getDate()throws BackOfficeException{
 
-        DateData data = (DateData) this.data[9];
+        DateData data = (DateData) this.data[11];
         return new DBTimeStamp(DBTimeStamp.ISO_DATE, data.value);
     }
 
     public void setDate(DBTimeStamp date){
 
-        DateData data = (DateData) this.data[9];
+        DateData data = (DateData) this.data[11];
         data.value = date.getISODate().toString();
     }
 
@@ -258,13 +294,13 @@ public class Reclassification extends DataObject implements DataObjectInterface{
 
     public boolean getClosed(){
 
-        BoolData data = (BoolData) this.data[10];
+        BoolData data = (BoolData) this.data[12];
         return data.value;
     }
 
     public void setClosed(boolean closed){
 
-        BoolData data = (BoolData) this.data[10];
+        BoolData data = (BoolData) this.data[12];
         data.value = closed;
     }
 

@@ -89,7 +89,7 @@ public class FragmentClassTable extends DataTable implements DataTableInterface{
           {"Tilldelningsgrund", "#AWARDCRITERIA", "", "How the contract proposals will be evaluated", "no org", "top", "system"},
           {"IT-drift", "#ITOPERATION", "", "IT Operations", "no org", "top", "system"},
           {"Granska Risk", "#RISK", "", "A potential risk that should be reviewd", "no org", "top", "system"},
-          {"Uncertainty", "#UNCERTAINTY", "", "Unspecified", "no org", "system"},
+          {"Unspecified", "#UNSPECIFIED", "", "Unspecified or uncertain", "no org", "system"},
           {"Restriction", "#RESTRICTION", "", "A restriction on rights", "no org", "system"},
           {"Right", "#RIGHT", "", "A right", "no org", "system"},
           {"Restriction", "#RIGTHSANDOBLIGATIONS", "", "Restrictions and obligations", "no org", "system"},

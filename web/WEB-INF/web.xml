@@ -47,16 +47,13 @@
         <url-pattern>/createConstants</url-pattern>
     </servlet-mapping>
 
-    <!--  Just for test. This should be removed -->
-
-
     <servlet>
-        <servlet-name>GCSTest</servlet-name>
-        <servlet-class>fileHandling.GCSTestServlet</servlet-class>
+        <servlet-name>demo</servlet-name>
+        <servlet-class>api.DemogenerationServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>GCSTest</servlet-name>
-        <url-pattern>/GCSTest</url-pattern>
+        <servlet-name>demo</servlet-name>
+        <url-pattern>/generateDemo</url-pattern>
     </servlet-mapping>
 
 

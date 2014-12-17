@@ -1,5 +1,6 @@
 package backend;
 
+import classifiers.Classification;
 import contractManagement.*;
 import dataRepresentation.DataObjectInterface;
 import dataRepresentation.DataTableInterface;
@@ -42,7 +43,7 @@ public class ReclassificationList extends GroupByList implements ListInterface{
     public static final String Name = "ReclassificationList";
     public static final String Title = "Reclassifications";
     public static final String Description = "All reclassifications grouped by class";
-    public static final int GroupColumn = 8; // Group by Classification
+    public static final int GroupColumn = 9; // Group by Classification
 
     // ids for the callback actions
 
@@ -211,35 +212,75 @@ public class ReclassificationList extends GroupByList implements ListInterface{
 
         StringBuilder html = new StringBuilder();
         String languageCode = reclassification.getDocument().getLanguage();
-        String parser = "EnglishParser";
+        String parser = "englishParser";
         if(languageCode.equals("SE"))
-            parser = "SwedishParser";
+            parser = "swedishParser";
 
 
 
-        String classificationType = reclassification.getClassification().getType();
+        String classificationType = reclassification.getClassification().getType().replaceAll("#", "");
+        classificationType = classificationType.substring(0, 1) + classificationType.substring(1).toLowerCase();
 
         html.append("<pre style=\"font:Courier;\">");
+        String classificationDate;
+
+        try {
+            classificationDate = reclassification.getDate().getISODate();
+        } catch (BackOfficeException e) {
+            classificationDate = "unknown";
+        }
+
 
         html.append(Html.heading(3, "Code example for testing this:\n\n"));
 
+        html.append("    /***********************************************************\n");
+        html.append("     *\n");
+        html.append("     *      Classification by "+ reclassification.getUser().getName()+" @"+ classificationDate+"\n");
+        html.append("     *      Document:   \""+ reclassification.getDocument().getName()+"\"\n");
+        html.append("     *      FragmentNo: "+ reclassification.getFragmentNo()+"\n");
+        html.append("     *      Body: \""+ reclassification.getFragment()+"\"\n");
+        html.append("     *\n");
+        html.append("     */\n");
+
 
         html.append("    @Test\n");
-        html.append("    public void test"+ classificationType +"Extractor"+ languageCode+"(){\n");
+        html.append("    public void test"+ classificationType +"Classifier"+ languageCode+"(){\n");
+        html.append("        try {\n" +
+                "\n" +
+                "               new ClassificationTester(\""+reclassification.getFragment() +"\")\n" +
+                "                        .withParser("+ parser +")\n" +
+                "                        .withHeadline(\""+ reclassification.getHeadline() +"\")\n" +
+                "                        .withClassifier(new "+classificationType+ "Classifier"+ languageCode+"())\n");
+        if(reclassification.getisPositive()){
+
+            html.append("                        .expectingClassification(new ClassificationAssertion(FeatureTypeTree."+ classificationType+", 1)\n");
+            html.append("                            .withTag(\""+ reclassification.getComment()+"\")\n");
+        }
+        else{
+
+            html.append("                        .expectingClassification(new ClassificationAssertion(FeatureTypeTree."+ classificationType+", 0)\n");
+
+        }
+        html.append("                      )\n" +
+                "                    .test();\n");
+        html.append(
+                "           } catch (Exception e) {\n" +
+                "                e.printStackTrace();\n" +
+                "                assertTrue(false);\n" +
+                "           }\n" +
+                "        }\n\n");
+
+        html.append("    /***********************************************************\n");
+        html.append("     *\n");
+        html.append("     *      Regeneration of risk, comment and annotation\n");
+        html.append("     *\n");
+        html.append("     */\n");
+
+        html.append("    private static final DemoComment[] demoCommentList = {\n");
+        html.append(        "            new DemoComment(\""+reclassification.getClassification().getType()+"\", \""+reclassification.getDocument().getFile()+"\", 2, \""+
+                reclassification.getRiskLevel().getName()+"\", \""+ reclassification.getPattern()+"\", \""+reclassification.getComment()+"\", \""+ reclassification.getUser().getName()+"\"),\n\n");
+        html.append("    };\n");
         html.append("\n");
-        html.append("        AnalysisFragment f;\n");
-        html.append("        AnalysisOutcome o;\n");
-        html.append("        FeatureDefinition d;\n");
-        html.append("\n");
-        html.append("        f = new AnalysisFragment(\""+ reclassification.getFragment()+"\"\n");
-        html.append(        "                , \""+ reclassification.getHeadline()+"\", "+ parser+");\n");
-        html.append(        "        o = new " + classificationType+ "Extractor"+ languageCode+"().classify( f );\n");
-        html.append(        "\n");
-        html.append("        assertThat(\"Expecting one featureDefinition\", o.getDefinitions().size(), is(1));\n");
-        html.append("\n");
-        html.append("        d= o.getDefinitions().get( 0 ); assertTrue(d.isMatch());\n");
-        html.append("        assertThat(d.getType(), is(FeatureType."+ reclassification.getClassification().getType()+"));\n");
-        html.append("        assertThat(d.getTag(), is(\""+ reclassification.getTag()+"\"));\n\n");
 
         html.append("</pre>");
         return html.toString();
