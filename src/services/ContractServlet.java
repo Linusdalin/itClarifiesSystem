@@ -227,7 +227,7 @@ public class ContractServlet extends DocumentService{
 
            Contract contract = new Contract(new LookupByKey(key));
 
-           if(!modifiable(contract, resp))
+           if(!deletable(contract, resp))
                return;
 
            DocumentDeleteOutcome outcome = contract.recursivelyDeleteDocument();

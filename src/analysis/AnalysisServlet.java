@@ -149,10 +149,13 @@ public class AnalysisServlet extends DocumentService {
 
             } catch (BackOfficeException e) {
 
-                e.printStackTrace(System.out);
+                PukkaLogger.swallow( e );
 
                 document.setMessage("Failed to parse document: " + e.narration);
+                document.setStatus(ContractStatus.getFailed().getKey());
                 document.update();
+
+                invalidateDocumentCache(document, project);
 
                 returnError(e.narration, HttpServletResponse.SC_OK, resp);
                 return;
@@ -160,9 +163,11 @@ public class AnalysisServlet extends DocumentService {
 
             // Update the status of the document
 
-            document.setMessage("Completed parsing document.");
+            document.setMessage("Completed parsing. Analysing");
             document.setStatus(ContractStatus.getAnalysing().getKey());
             document.update();
+
+            invalidateDocumentCache(document, project);
 
             PukkaLogger.log(PukkaLogger.Level.ACTION, "*****************************\nPhase III: The analysis");
 
@@ -188,8 +193,15 @@ public class AnalysisServlet extends DocumentService {
 
             // Send OK here. An error code would trigger a retry
 
-            e.printStackTrace(System.out);
+            PukkaLogger.log( e );
             returnError(e.narration, HttpServletResponse.SC_OK, resp);
+
+        } catch (Exception e) {
+
+            // Send OK here. An error code would trigger a retry
+
+            PukkaLogger.log( e );
+            returnError("Internal Error analyzing document", HttpServletResponse.SC_OK, resp);
 
         }
 
@@ -305,7 +317,7 @@ public class AnalysisServlet extends DocumentService {
 
     /********************************************************************************************
      *
-     *          Re-analyse works on an eisting document and is only invoked from the back-office
+     *          Re-analyse works on an existing document and is only invoked from the back-office
      *
      *          The main purpose is to remove all attributes from previous analysis and redo it.
      *          A typical case is when the analysis is updated.
@@ -732,6 +744,10 @@ public class AnalysisServlet extends DocumentService {
 
         // First remove all imported annotations
 
+        /*
+
+            Removed this. It should be part of reupload, not reanalyze which is done on existing documents
+
         ContractAnnotationTable importedAnnotations = new ContractAnnotationTable(new LookupList()
                 .addFilter(new ReferenceFilter(ContractAnnotationTable.Columns.Version.name(), versionInstance.getKey()))
                 .addFilter(new ReferenceFilter(ContractAnnotationTable.Columns.Creator.name(), PortalUser.getExternalUser().getKey()))
@@ -741,6 +757,8 @@ public class AnalysisServlet extends DocumentService {
         PukkaLogger.log(PukkaLogger.Level.INFO, "**** Removed " + importedAnnotations.getCount() + " imported annotations");
 
         importedAnnotations.delete();
+
+         */
 
         // Also remove internally generated annotations
 
@@ -1325,7 +1343,7 @@ public class AnalysisServlet extends DocumentService {
 
             //Fail to detect Language
 
-            throw new BackOfficeException(BackOfficeException.General, "Could not detect language from the document." + e.document);
+            throw new BackOfficeException(BackOfficeException.General, "Could not detect language");
         }
 
 

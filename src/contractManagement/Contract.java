@@ -791,6 +791,7 @@ public class Contract extends DataObject implements DataObjectInterface{
 
                     style.append(" ( i: " + fragment.getIndentation());
                     style.append(" S: " + fragment.getStructureNo());
+                    style.append(" o: " + fragment.getOrdinal());
                     style.append(")");
 
 

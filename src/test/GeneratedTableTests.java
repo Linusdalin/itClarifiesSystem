@@ -139,7 +139,7 @@ public class GeneratedTableTests{
                 assertThat(contractManagement.ContractStatus.getUploaded(), is(contractManagement.ContractStatus.getUploaded()));
                 assertThat(contractManagement.ContractStatus.getAnalysing(), is(contractManagement.ContractStatus.getAnalysing()));
                 assertThat(contractManagement.ContractStatus.getAnalysed(), is(contractManagement.ContractStatus.getAnalysed()));
-                assertThat(contractManagement.ContractStatus.getReviewed(), is(contractManagement.ContractStatus.getReviewed()));
+                assertThat(contractManagement.ContractStatus.getFailed(), is(contractManagement.ContractStatus.getFailed()));
 
              }catch(BackOfficeException e){
      

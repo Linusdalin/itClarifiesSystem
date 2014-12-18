@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
  * Time: 15:42
  * To change this template use File | Settings | File Templates.
  */
-public class ServletTests {
+public class ServletTests extends PukkaTest{
 
     protected void isKey(String key){
 
@@ -105,12 +105,6 @@ public class ServletTests {
 
 
 
-
-    protected static <T> void assertVerbose(String explanation, T result, Matcher<T> matcher){
-
-        assertThat(explanation, result, matcher);
-        System.out.println(" - Test Pass: " + explanation);
-    }
 
 
 

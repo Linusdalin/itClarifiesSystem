@@ -44,8 +44,12 @@ public class SearchServlet extends ItClarifiesService {
      *
      *          Parameters:
      *
-     *          &project=<key>      mandatory project
-     *          &text=<text>      mandatory search string
+     *          &project=<key>          mandatory project
+     *          &text=<text>            mandatory search string
+     *          &instant=<key>          optional indicator on if this is instant search or final
+     *
+     *
+     *              //TODO: Instant search should return only textual hits in the fragments
      *
      *
      * @throws java.io.IOException
@@ -76,6 +80,7 @@ public class SearchServlet extends ItClarifiesService {
             if(!mandatoryObjectExists(project, resp))
                 return;
 
+            Boolean instant               = getOptionalBoolean("instant", req, false);  // Instant search or not
             String searchText             = getMandatoryString("text", req);
 
 

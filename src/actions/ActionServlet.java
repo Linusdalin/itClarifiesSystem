@@ -141,16 +141,13 @@ public class ActionServlet extends ItClarifiesService {
                 String name                  = getOptionalString("name", req, "");
                 action = new Action(new LookupByKey(_key));
                 fragment = action.getFragment();
-                version = fragment.getVersion();
+                version = action.getVersion();
                 DBKeyInterface _previousStatus = action.getStatusId();
 
-                Contract document = version.getDocument();
-                Project project = document.getProject();
+                Project project = action.getProject();
 
-                if(!mandatoryObjectExists(document, resp))
+                if(!mandatoryObjectExists(project, resp))
                     return;
-
-
 
                 if(name != null && !name.equals(""))
                     action.setName(name);
@@ -178,8 +175,11 @@ public class ActionServlet extends ItClarifiesService {
 
                     MailInterface mail = new ActionUpdateMail(project, action, creator);
 
-                    mail.sendTo(assignee.getName(), assignee.getEmail());
-                    mail.sendTo(creator.getName(), creator.getEmail());
+                    if(assignee.exists())
+                        mail.sendTo(assignee.getName(), assignee.getEmail());
+
+                    if(creator.exists())
+                        mail.sendTo(creator.getName(), creator.getEmail());
 
 
 
@@ -189,13 +189,20 @@ public class ActionServlet extends ItClarifiesService {
 
             // Update the action count in the fragment
 
-            fragment.setActionCount(getActionCount(fragment));
-            fragment.update();
+            if(fragment.exists()){
+
+                fragment.setActionCount(getActionCount(fragment));
+                fragment.update();
+            }
 
             //Clear the fragment cache
 
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Clearing cache for document after adding actions");
-            invalidateFragmentCache(version);
+            if(version.exists()){
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Clearing cache for document after adding actions");
+                invalidateFragmentCache(version);
+            }
+
 
 
             JSONObject json = createPostResponse(DataServletName, action);
@@ -210,7 +217,7 @@ public class ActionServlet extends ItClarifiesService {
         } catch ( Exception e) {
 
             e.printStackTrace(System.out);
-            returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+            returnError("Internal Error getting actions", HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
 
         }
 
@@ -335,7 +342,11 @@ public class ActionServlet extends ItClarifiesService {
                 return;
 
             ContractFragment fragment = action.getFragment();
-            ContractVersionInstance version = fragment.getVersion();
+            ContractVersionInstance version = action.getVersion();
+
+            if(!mandatoryObjectExists(version, resp))
+                return;
+
             Contract document = version.getDocument();
 
             if(!deletable(document, resp))

@@ -7,11 +7,9 @@ import contractManagement.ContractVersionInstance;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
 
-import java.io.IOException;
-
 import static com.google.appengine.api.taskqueue.TaskOptions.Builder.*;
 
-/**
+/*************************************************************************'
  *
  *      Wrapping the queue functionality
  *
@@ -38,7 +36,6 @@ public class AsynchAnalysis {
     public void analyseDocument(ContractVersionInstance version) throws BackOfficeException{
 
         analyseDocument(version, null);
-
 
     }
 
@@ -77,6 +74,5 @@ public class AsynchAnalysis {
 
         }
     }
-
 
 }

@@ -398,36 +398,50 @@ public class ItClarifiesService extends PukkaServlet {
         return true;
     }
 
+    /**********************************************************************************************
+     *
+     *          Check the access to a delete request on an object in the system and populate the
+     *          response with the appropriate error message if not.
+     *
+     *
+     * @param object      - object to check access to
+     * @param resp        - response to the request
+     * @return            - true if the request is ok, false to return error
+     * @throws IOException
+     */
+
+
+
     public boolean deletable(DataObjectInterface object, HttpServletResponse resp) throws IOException {
 
-            if(!object.exists()){
+        if(!object.exists()){
 
-               // A object was given that was not found. This is an error
+           // A object was given that was not found. This is an error
 
-                returnError( object.getTable().getTableName() + " not found", ErrorType.DATA, HttpServletResponse.SC_BAD_REQUEST, resp);
-                resp.flushBuffer();
-                return false;
-            }
+            returnError( object.getTable().getTableName() + " not found", ErrorType.DATA, HttpServletResponse.SC_BAD_REQUEST, resp);
+            resp.flushBuffer();
+            return false;
+        }
 
         try {
 
 
             if(object instanceof Contract && !sessionManagement.getRenameDeleteAccess((Contract) object)){
 
-               // A object was given that has no access
+                Contract document = (Contract)object;
 
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Illegal attempt to access Document " + ((Contract) object).getName());
-                returnError( object.getTable().getTableName() + " read only", ErrorType.PERMISSION, HttpServletResponse.SC_FORBIDDEN, resp);
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Illegal attempt to access Document " + document.getName());
+                returnError( "You do not have sufficient access right to delete the document " + document.getName() + " please contact the owner of the document.", ErrorType.PERMISSION, HttpServletResponse.SC_FORBIDDEN, resp);
                 resp.flushBuffer();
                 return false;
             }
 
             if(object instanceof Project && !sessionManagement.getUser().isSame(((Project) object).getCreator())){
 
-               // A object was given that has no access
+                Project project = (Project)object;
 
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Illegal attempt to access Project " + ((Project) object).getName());
-                returnError( object.getTable().getTableName() + " read only", ErrorType.PERMISSION, HttpServletResponse.SC_FORBIDDEN, resp);
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Illegal attempt to access Project " + project.getName());
+                returnError( "You do not have sufficient access right to delete the project " +project.getName() + " please contact the owner of the project.", ErrorType.PERMISSION, HttpServletResponse.SC_FORBIDDEN, resp);
                 resp.flushBuffer();
                 return false;
             }

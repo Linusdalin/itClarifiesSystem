@@ -264,11 +264,11 @@ public class FileUploadServlet extends DocumentService {
 
                         document = newVersion.getDocument();
 
-                        document.setMessage("Uploaded. Analyzing Document...");
+                        document.setMessage("Uploaded. Parsing Document...");
                         document.setStatus(ContractStatus.getUploaded().getKey());
                         document.update();
 
-                        System.out.println("Document: " + document.getKey().toString());
+                        //System.out.println("Document: " + document.getKey().toString());
 
 
                         // Start the asynchronous parsing and analysis

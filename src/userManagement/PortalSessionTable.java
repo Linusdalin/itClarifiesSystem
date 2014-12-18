@@ -68,7 +68,7 @@ public class PortalSessionTable extends DataTable implements DataTableInterface{
     }
     private static final String[][] DefaultValues = {
 
-          {"System", "SystemSessionToken", "127.0.0.1", "2020-05-01 00:00:00", "2014-05-01 00:00:00", "open", "system"},
+          {"itClarifies", "SystemSessionToken", "127.0.0.1", "2020-05-01 00:00:00", "2014-05-01 00:00:00", "open", "system"},
 
 
 

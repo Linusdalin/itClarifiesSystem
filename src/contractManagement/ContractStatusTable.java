@@ -65,9 +65,9 @@ public class ContractStatusTable extends DataTable implements DataTableInterface
     private static final String[][] DefaultValues = {
 
           {"Uploaded", "Uploaded", "system"},
-          {"Analysing", "analysis in progress", "system"},
+          {"Analysing", "Analysis in progress", "system"},
           {"Analysed", "Document analysed", "system"},
-          {"Reviewed", "Reviewed", "system"},
+          {"Failed", "Analysis Failed", "system"},
 
 
 

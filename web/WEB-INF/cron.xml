@@ -4,7 +4,7 @@
     <cron>
         <url>/HealthCheck</url>
         <description>Test the system every hour</description>
-        <schedule>every 1 hours</schedule>
+        <schedule>every 2 hours</schedule>
     </cron>
 
 

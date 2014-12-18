@@ -31,7 +31,7 @@ public class ContractStatus extends DataObject implements DataObjectInterface{
     private static ContractStatus Uploaded = null;  
     private static ContractStatus Analysing = null;  
     private static ContractStatus Analysed = null;  
-    private static ContractStatus Reviewed = null;  
+    private static ContractStatus Failed = null;  
 
 
     private static final DataTableInterface TABLE = (DataTableInterface) new ContractStatusTable();
@@ -145,14 +145,14 @@ public class ContractStatus extends DataObject implements DataObjectInterface{
        return ContractStatus.Analysed;
      }
 
-    public static ContractStatus getReviewed( ) throws BackOfficeException{
+    public static ContractStatus getFailed( ) throws BackOfficeException{
 
-       if(ContractStatus.Reviewed == null)
-          ContractStatus.Reviewed = new ContractStatus(new LookupItem().addFilter(new ColumnFilter("Name", "Reviewed")));
-       if(!ContractStatus.Reviewed.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Reviewed is missing (db update required?)");
+       if(ContractStatus.Failed == null)
+          ContractStatus.Failed = new ContractStatus(new LookupItem().addFilter(new ColumnFilter("Name", "Failed")));
+       if(!ContractStatus.Failed.exists())
+          throw new BackOfficeException(BackOfficeException.TableError, "Constant Failed is missing (db update required?)");
 
-       return ContractStatus.Reviewed;
+       return ContractStatus.Failed;
      }
 
 
@@ -163,7 +163,7 @@ public class ContractStatus extends DataObject implements DataObjectInterface{
         ContractStatus.Uploaded = null;
         ContractStatus.Analysing = null;
         ContractStatus.Analysed = null;
-        ContractStatus.Reviewed = null;
+        ContractStatus.Failed = null;
     }
 
     /* Code below this point will not be replaced when regenerating the file*/

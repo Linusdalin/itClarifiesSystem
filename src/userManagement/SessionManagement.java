@@ -175,7 +175,7 @@ public class SessionManagement {
         // Store the system user
 
         if(system == null)
-            system = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "System")));
+            system = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "itClarifies")));
 
         this.sessionToken = sessionToken;
 

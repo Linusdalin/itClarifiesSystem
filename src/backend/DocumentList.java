@@ -199,7 +199,7 @@ public class DocumentList extends GroupByList implements ListInterface{
 
                 case Callback_Action_Analyse:
 
-                    // This should also regenerate the view. This could be replaced with an AJAX call
+                    // This could be replaced with an AJAX call to avoid
 
                     new AnalysisServlet().reAnalyse(document.getHeadVersion());
 
@@ -207,9 +207,9 @@ public class DocumentList extends GroupByList implements ListInterface{
 
                 case Callback_Action_MoveToTop:
 
+                    // Moving an item to the top for reordering projects from the back office
 
                     moveToTop(document);
-
 
                     return "Moved " + document.getName() + " to the top ov the document list";
 
