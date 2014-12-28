@@ -219,7 +219,7 @@ public class ReclassificationList extends GroupByList implements ListInterface{
 
 
 
-        String classificationType = reclassification.getClassification().getType().replaceAll("#", "");
+        String classificationType = reclassification.getClassTag().replaceAll("#", "");
         classificationType = classificationType.substring(0, 1) + classificationType.substring(1).toLowerCase();
 
         html.append("<pre style=\"font:Courier;\">");
@@ -290,7 +290,7 @@ public class ReclassificationList extends GroupByList implements ListInterface{
         html.append("     */\n");
 
         html.append("    private static final DemoComment[] demoCommentList = {\n");
-        html.append(        "            new DemoComment(\""+reclassification.getClassification().getType()+"\", \""+fileName+"\", "+ reclassification.getFragmentNo()+", \""+
+        html.append(        "            new DemoComment(\""+reclassification.getClassTag()+"\", \""+fileName+"\", "+ reclassification.getFragmentNo()+", \""+
                 reclassification.getRiskLevel().getName()+"\", \""+ reclassification.getPattern()+"\", \""+reclassification.getComment()+"\", \""+ reclassification.getUser().getName()+"\"),\n\n");
         html.append("    };\n");
         html.append("\n");

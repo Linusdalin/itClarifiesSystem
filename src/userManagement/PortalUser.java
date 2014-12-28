@@ -42,13 +42,13 @@ public class PortalUser extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public PortalUser(String name, long userid, String email, String registration, DataObjectInterface organization, boolean active, boolean wsadmin) throws BackOfficeException{
+    public PortalUser(String name, long userid, String type, String email, String registration, DataObjectInterface organization, boolean active, boolean wsadmin) throws BackOfficeException{
 
-        this(name, userid, email, registration, organization.getKey(), active, wsadmin);
+        this(name, userid, type, email, registration, organization.getKey(), active, wsadmin);
     }
 
 
-    public PortalUser(String name, long userid, String email, String registration, DBKeyInterface organization, boolean active, boolean wsadmin) throws BackOfficeException{
+    public PortalUser(String name, long userid, String type, String email, String registration, DBKeyInterface organization, boolean active, boolean wsadmin) throws BackOfficeException{
 
         this();
         ColumnStructureInterface[] columns = getColumnFromTable();
@@ -58,11 +58,12 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
         data[0] = new StringData(name);
         data[1] = new IntData(userid);
-        data[2] = new StringData(email);
-        data[3] = new DateData(registration);
-        data[4] = new ReferenceData(organization, columns[4].getTableReference());
-        data[5] = new BoolData(active);
-        data[6] = new BoolData(wsadmin);
+        data[2] = new StringData(type);
+        data[3] = new StringData(email);
+        data[4] = new DateData(registration);
+        data[5] = new ReferenceData(organization, columns[5].getTableReference());
+        data[6] = new BoolData(active);
+        data[7] = new BoolData(wsadmin);
 
         exists = true;
 
@@ -126,15 +127,29 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
 
 
-    public String getEmail(){
+    public String getType(){
 
         StringData data = (StringData) this.data[2];
         return data.getStringValue();
     }
 
-    public void setEmail(String email){
+    public void setType(String type){
 
         StringData data = (StringData) this.data[2];
+        data.setStringValue(type);
+    }
+
+
+
+    public String getEmail(){
+
+        StringData data = (StringData) this.data[3];
+        return data.getStringValue();
+    }
+
+    public void setEmail(String email){
+
+        StringData data = (StringData) this.data[3];
         data.setStringValue(email);
     }
 
@@ -142,13 +157,13 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
     public DBTimeStamp getRegistration()throws BackOfficeException{
 
-        DateData data = (DateData) this.data[3];
+        DateData data = (DateData) this.data[4];
         return new DBTimeStamp(DBTimeStamp.ISO_DATE, data.value);
     }
 
     public void setRegistration(DBTimeStamp registration){
 
-        DateData data = (DateData) this.data[3];
+        DateData data = (DateData) this.data[4];
         data.value = registration.getISODate().toString();
     }
 
@@ -156,19 +171,19 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
     public DBKeyInterface getOrganizationId(){
 
-        ReferenceData data = (ReferenceData)this.data[4];
+        ReferenceData data = (ReferenceData)this.data[5];
         return data.value;
     }
 
     public Organization getOrganization(){
 
-        ReferenceData data = (ReferenceData)this.data[4];
+        ReferenceData data = (ReferenceData)this.data[5];
         return new Organization(new LookupByKey(data.value));
     }
 
     public void setOrganization(DBKeyInterface organization){
 
-        ReferenceData data = (ReferenceData)this.data[4];
+        ReferenceData data = (ReferenceData)this.data[5];
         data.value = organization;
     }
 
@@ -176,13 +191,13 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
     public boolean getActive(){
 
-        BoolData data = (BoolData) this.data[5];
+        BoolData data = (BoolData) this.data[6];
         return data.value;
     }
 
     public void setActive(boolean active){
 
-        BoolData data = (BoolData) this.data[5];
+        BoolData data = (BoolData) this.data[6];
         data.value = active;
     }
 
@@ -190,13 +205,13 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
     public boolean getWSAdmin(){
 
-        BoolData data = (BoolData) this.data[6];
+        BoolData data = (BoolData) this.data[7];
         return data.value;
     }
 
     public void setWSAdmin(boolean wsadmin){
 
-        BoolData data = (BoolData) this.data[6];
+        BoolData data = (BoolData) this.data[7];
         data.value = wsadmin;
     }
 
@@ -258,5 +273,6 @@ public class PortalUser extends DataObject implements DataObjectInterface{
     /*__endAutoGenerated*/
 
 
+    public enum Type { SYSTEM, EXTERNAL, EMPTY, REGISTERED, IMPLICIT}
 
 }

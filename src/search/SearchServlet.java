@@ -12,10 +12,12 @@ import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
 import services.Formatter;
 import services.ItClarifiesService;
+import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 /********************************************************
  *
@@ -83,13 +85,35 @@ public class SearchServlet extends ItClarifiesService {
             Boolean instant               = getOptionalBoolean("instant", req, false);  // Instant search or not
             String searchText             = getMandatoryString("text", req);
 
+            //TODO: Only for test: REMOVE later
+            if(searchText.startsWith("!")){
+
+                searchText = searchText.substring( 1 );
+                instant = true;
+            }
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Got search: " + searchText);
 
-            SearchManager filter = new SearchManager();
-            JSONObject json = filter.getMatchJson(searchText, project, sessionManagement);
+            // Now select the appropriate search manager and retrieve the results
 
-            sendJSONResponse(json, formatter, resp);
+            if(instant){
+
+                PortalUser user = sessionManagement.getUser();
+                SearchManager2 filter = new SearchManager2(project, user);
+                JSONArray resultJSON = filter.search(searchText);
+                JSONObject json = new JSONObject().put("fragments", resultJSON);
+
+                sendJSONResponse(json, formatter, resp);
+
+            }
+            else{
+
+                SearchManager filter = new SearchManager();
+                JSONObject json = filter.getMatchJson(searchText, project, sessionManagement);
+
+                sendJSONResponse(json, formatter, resp);
+
+            }
 
 
         } catch (BackOfficeException e) {

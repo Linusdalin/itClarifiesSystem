@@ -131,6 +131,50 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
                     ),
 
 
+                        new Section("Organizations and Projects", "login.jsp", "table.jsp", Icon.Dollartag,
+
+                                new SectionGroups(
+
+                                    new SectionGroup[]{
+
+                                            new SectionGroup("Customers",
+
+                                                 new DataTableInterface[] {
+
+                                                         new OrganizationTable( ),
+                                                         new OrganizationConfTable( ),
+                                                 }
+                                             ),
+
+                                            new SectionGroup("Projects",
+
+                                                 new DataTableInterface[] {
+
+                                                         new contractManagement.ContractTypeTable( ),
+                                                         new ProjectTable( ),
+
+                                                 }
+                                             ),
+
+                                    }
+                                ),
+
+                                new LinkElement[] {
+
+                                },
+                                new ListInterface[] {
+
+                                        new OrganizationList(this),
+                                        new ProjectList(this),
+
+                                },
+                                new PivotView[] {
+
+                                }
+
+                        ),
+
+
 
                             new Section("Users", "login.jsp", "table.jsp", Icon.Users,
 
@@ -138,14 +182,6 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
 
                                         new SectionGroup[]{
 
-                                                new SectionGroup("Customers",
-
-                                                     new DataTableInterface[] {
-
-                                                             new OrganizationTable( ),
-                                                             new OrganizationConfTable( ),
-                                                     }
-                                                 ),
                                                 new SectionGroup("Activity",
 
                                                      new DataTableInterface[] {
@@ -184,7 +220,6 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
                                     },
                                     new ListInterface[] {
 
-                                            new OrganizationList(this),
                                             new UserList(this),   // LIst of users
                                     },
                                     new PivotView[] {
@@ -283,15 +318,6 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
                                              }
                                          ),
 
-                                    new SectionGroup("Projects",
-
-                                         new DataTableInterface[] {
-
-                                                 new contractManagement.ContractTypeTable( ),
-                                                 new ProjectTable( ),
-
-                                         }
-                                     ),
 
                                 }
                             ),
@@ -309,7 +335,6 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
                         },
                         new ListInterface[] {
 
-                                new ProjectList(this),
                                 new DocumentList(this),
                                 new DefinitionList(this),
                                 new ActionList(this),
@@ -327,6 +352,11 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
                         }
 
                     ),
+
+
+
+
+
                 /*
                 new Section("Notifications", "login.jsp", "table.jsp", Icon.DEFAULT,
 

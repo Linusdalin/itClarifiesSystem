@@ -204,7 +204,7 @@ public class FragmentDetailServlet extends ItClarifiesService{
 
                             .put("id", classification.getKey().toString())
                             //.put("class", classification.getName())
-                            .put("class", classification.getClassificationId().toString())
+                            .put("class", classification.getClassTag())
                             .put("classifier", classification.getCreatorId().toString())
                             .put("time",       classification.getTime().getSQLTime().toString())
                             .put("pattern", classification.getPattern())

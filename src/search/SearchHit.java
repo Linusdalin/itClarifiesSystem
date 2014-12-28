@@ -112,7 +112,7 @@ public class SearchHit {
 
             for(FragmentClassification classification : classifications){
 
-                line.append(classification.getName() + " ");
+                line.append(classification.getClassTag() + " ");
             }
             line.append(", ");
 

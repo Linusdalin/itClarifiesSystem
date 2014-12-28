@@ -139,7 +139,7 @@ public class ClassificationList extends GroupByList implements ListInterface{
 
                     classification.delete();
 
-                    return ("Success: Classification "+ classification.getClassification().getName() +"for fragment "+ classification.getFragment().getName()+" was deleted");
+                    return ("Success: Classification "+ classification.getClassTag() +"for fragment "+ classification.getFragment().getName()+" was deleted");
 
                 default:
 

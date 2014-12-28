@@ -32,6 +32,8 @@ public class PortalUserServlet extends ItClarifiesService {
      *
      *              //TODO: This should include creating a user in the remote login service
      *
+     *              //TODO: User ID is dummy value
+     *
      *
      * @param req
      * @param resp
@@ -76,7 +78,9 @@ public class PortalUserServlet extends ItClarifiesService {
             // Create the user
             boolean isActive = true;
 
-            PortalUser newUser = new PortalUser(username, 4711, email, registrationDate.getISODate(), org, isActive, wsAdmin);
+
+
+            PortalUser newUser = new PortalUser(username, 4711, PortalUser.Type.EXTERNAL.name(), email, registrationDate.getISODate(), org, isActive, wsAdmin);
             newUser.store();
 
 

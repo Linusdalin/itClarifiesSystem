@@ -661,7 +661,7 @@ public class Contract extends DataObject implements DataObjectInterface{
 
                 for(FragmentClassification classification : classifications){
 
-                    comments.append(" Classification: \"" + classification.getName() + "\"(" + classification.getClassification().getName() + "/" + classification.getSignificance() + ")(\""+  classification.getPattern() + "\" " +
+                    comments.append(" Classification: \"" + classification.getClassTag() + "\"(" + classification.getSignificance() + ")(\""+  classification.getPattern() + "\" " +
                             classification.getPos() + "-" + (classification.getPos() + classification.getLength()) +  "\") by " + classification.getCreator().getName() + "@" + classification.getTime().getISODate() +
                             " comment: \"" + classification.getComment() + " keywords: \"" + classification.getKeywords() +"\"<br/>");
 

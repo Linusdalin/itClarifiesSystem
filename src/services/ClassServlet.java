@@ -27,7 +27,7 @@ public class ClassServlet extends DocumentService{
 
     /***********************************************************************************
      *
-     *      Adding a new classification class
+     *      Adding a new user defined classification class
      *
      *
      * @param req
@@ -111,78 +111,10 @@ public class ClassServlet extends DocumentService{
             return;
         }
 
+        // The method is moved to the classification servlet
 
+        new ClassificationServlet().doGet(req, resp);
 
-        try{
-            logRequest(req);
-
-            if(!validateSession(req, resp))
-                return;
-
-            if(blockedSmokey(sessionManagement, resp))
-                return;
-
-            setLoggerByParameters(req);
-
-
-            Formatter formatter = getFormatFromParameters(req);
-
-            JSONArray list = new JSONArray();
-
-            DBKeyInterface organization = sessionManagement.getUser().getOrganizationId();
-
-            FragmentClassTable organizationSpecificClasses = new FragmentClassTable(new LookupList()
-                    .addFilter(new ReferenceFilter(FragmentClassTable.Columns.Organization.name(), organization))
-                    .addSorting(new Sorting(FragmentClassTable.Columns.Name.name(), Ordering.FIRST)));
-
-            for(DataObjectInterface object : organizationSpecificClasses.getValues()){
-
-                FragmentClass fragmentClass = (FragmentClass)object;
-
-                JSONObject riskObject = new JSONObject()
-                        .put("id", fragmentClass.getKey().toString())
-                        .put("name", fragmentClass.getName())
-                        .put("desc", fragmentClass.getDescription())
-                        .put("type", "Organization");
-                list.put(riskObject);
-
-            }
-
-            // Now add all generic classes
-
-            FragmentClassTable genericClasses = new FragmentClassTable(new LookupList()
-                    .addFilter(new ReferenceFilter(FragmentClassTable.Columns.Organization.name(), Organization.getnone().getKey()))
-                    .addSorting(new Sorting(FragmentClassTable.Columns.Name.name(), Ordering.FIRST)));
-
-            for(DataObjectInterface object : genericClasses.getValues()){
-
-                FragmentClass fragmentClass = (FragmentClass)object;
-
-                JSONObject riskObject = new JSONObject()
-                        .put("id", fragmentClass.getKey().toString())
-                        .put("name", fragmentClass.getName())
-                        .put("desc", fragmentClass.getDescription())
-                        .put("type", "General");
-                list.put(riskObject);
-
-            }
-
-
-            JSONObject json = new JSONObject().put(DataServletName, list);
-            sendJSONResponse(json, formatter, resp);
-
-        }catch(BackOfficeException e){
-
-            returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            e.printStackTrace();
-
-
-        } catch ( Exception e) {
-
-            returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            e.printStackTrace();
-
-        }
 
      }
 

@@ -44,7 +44,7 @@ public class UserList extends GroupByList implements ListInterface{
     public static final String Name = "UserList";
     public static final String Title = "All Users";
     public static final String Description = "All Users in the system grouped by organization.";
-    public static final int GroupColumn = 5; // Group by Organization
+    public static final int GroupColumn = 6; // Group by Organization
 
     // ids for the callback actions
 
@@ -68,6 +68,8 @@ public class UserList extends GroupByList implements ListInterface{
             add(new ListTableColumn( 4, table ).withNameFromTableColumn());
             add(new ListTableColumn( 5, table ).withNameFromTableColumn());
             add(new ListTableColumn( 6, table ).withNameFromTableColumn());
+            add(new ListTableColumn( 7, table ).withNameFromTableColumn().withFormat(new DisplayFormat(DisplayFormat.SMALL)));
+            add(new ListTableColumn( 8, table ).withNameFromTableColumn().withFormat(new DisplayFormat(DisplayFormat.SMALL)));
 
         }};
 
@@ -272,7 +274,7 @@ public class UserList extends GroupByList implements ListInterface{
                         "user=" + name +
                         "&password=" + password +
                         "&organization="+ organization.getName() +
-                        "&session=SystemSessionToken");
+                        "&session="+ organization.getToken());
 
                 PukkaLogger.log(PukkaLogger.Level.INFO, "Got response from login server" + output);
 
@@ -288,7 +290,7 @@ public class UserList extends GroupByList implements ListInterface{
 
 
 
-                PortalUser newUser = new PortalUser(name, userId, email, timeStamp.getISODate(), organization.getKey(), true, wsAdmin);
+                PortalUser newUser = new PortalUser(name, userId, PortalUser.Type.REGISTERED.name(), email, timeStamp.getISODate(), organization.getKey(), true, wsAdmin);
                 newUser.store();
 
 

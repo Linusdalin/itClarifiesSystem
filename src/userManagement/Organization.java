@@ -40,13 +40,13 @@ public class Organization extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public Organization(String name, String date, String description, DataObjectInterface config) throws BackOfficeException{
+    public Organization(String name, String date, String description, String token, DataObjectInterface config) throws BackOfficeException{
 
-        this(name, date, description, config.getKey());
+        this(name, date, description, token, config.getKey());
     }
 
 
-    public Organization(String name, String date, String description, DBKeyInterface config) throws BackOfficeException{
+    public Organization(String name, String date, String description, String token, DBKeyInterface config) throws BackOfficeException{
 
         this();
         ColumnStructureInterface[] columns = getColumnFromTable();
@@ -57,7 +57,8 @@ public class Organization extends DataObject implements DataObjectInterface{
         data[0] = new StringData(name);
         data[1] = new DateData(date);
         data[2] = new TextData(description);
-        data[3] = new ReferenceData(config, columns[3].getTableReference());
+        data[3] = new StringData(token);
+        data[4] = new ReferenceData(config, columns[4].getTableReference());
 
         exists = true;
 
@@ -135,21 +136,35 @@ public class Organization extends DataObject implements DataObjectInterface{
 
 
 
+    public String getToken(){
+
+        StringData data = (StringData) this.data[3];
+        return data.getStringValue();
+    }
+
+    public void setToken(String token){
+
+        StringData data = (StringData) this.data[3];
+        data.setStringValue(token);
+    }
+
+
+
     public DBKeyInterface getConfigId(){
 
-        ReferenceData data = (ReferenceData)this.data[3];
+        ReferenceData data = (ReferenceData)this.data[4];
         return data.value;
     }
 
     public OrganizationConf getConfig(){
 
-        ReferenceData data = (ReferenceData)this.data[3];
+        ReferenceData data = (ReferenceData)this.data[4];
         return new OrganizationConf(new LookupByKey(data.value));
     }
 
     public void setConfig(DBKeyInterface config){
 
-        ReferenceData data = (ReferenceData)this.data[3];
+        ReferenceData data = (ReferenceData)this.data[4];
         data.value = config;
     }
 

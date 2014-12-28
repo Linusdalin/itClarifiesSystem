@@ -1,16 +1,15 @@
 package analysis;
 
-import analysis.AnalysisOutcome;
 import analysis2.NewAnalysisOutcome;
-import classifiers.Classification;
 import contractManagement.ContractFragment;
 
 /**
- * Created with IntelliJ IDEA.
- * User: Linus
- * Date: 2014-08-07
- * Time: 11:20
- * To change this template use File | Settings | File Templates.
+ *
+ *          Outcome Map is the value pair that connects an analysis outcome with the fragment.
+ *
+ *          It is used to be able to do a second pass over all the
+ *          fragments without redoing the initial analysis
+ *
  */
 public class OutcomeMap {
 

@@ -50,7 +50,7 @@ public class ProjectList extends GroupByList implements ListInterface{
     // General definitions for the example list
 
     public static final String Name = "ProjectList";
-    public static final String Title = "All Projects";
+    public static final String Title = "Projects per Organization";
     public static final String Description = "All projects in the system grouped by organization.";
     public static final int GroupColumn = 4; // Group by Organization
 

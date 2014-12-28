@@ -32,13 +32,12 @@ public class FragmentClassificationTable extends DataTable implements DataTableI
     public static final String TABLE = "FragmentClassification";
     private static final String DESCRIPTION = "Classifications";
 
-    public enum Columns {Fragment, Classification, Name, Comment, Keywords, Creator, Version, Project, Pattern, Pos, Length, Significance, RuleId, Time, }
+    public enum Columns {Fragment, ClassTag, Comment, Keywords, Creator, Version, Project, Pattern, Pos, Length, Significance, RuleId, Time, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
             new ReferenceColumn("Fragment", DataColumn.noFormatting, new TableReference("ContractFragment", "Name")),
-            new ReferenceColumn("Classification", DataColumn.noFormatting, new TableReference("FragmentClass", "Name")),
-            new StringColumn("Name", DataColumn.noFormatting),
+            new StringColumn("ClassTag", DataColumn.noFormatting),
             new TextColumn("Comment", DataColumn.noFormatting),
             new TextColumn("Keywords", DataColumn.noFormatting),
             new ReferenceColumn("Creator", DataColumn.noFormatting, new TableReference("PortalUser", "Name")),
@@ -56,7 +55,7 @@ public class FragmentClassificationTable extends DataTable implements DataTableI
     public FragmentClassificationTable(){
 
         init(DATA, associatedObject, TABLE, TITLE, DESCRIPTION, DefaultValues, TestValues);
-        nameColumn = 3;
+        nameColumn = 2;
         // Not set as external
         // Not a constant table
     }
@@ -82,7 +81,7 @@ public class FragmentClassificationTable extends DataTable implements DataTableI
     };
     private static final String[][] TestValues = {
 
-          {"first fragment", "Datum", "Datum", "keywords", "comment...", "demo", "Cannon v1.0", "Demo", "2014-07-01", "10", "10", "70", "0", "2014-07-10 00:00:00", "system"},
+          {"first fragment", "#Date", "keywords", "comment...", "demo", "Cannon v1.0", "Demo", "2014-07-01", "10", "10", "70", "0", "2014-07-10 00:00:00", "system"},
 
 
 

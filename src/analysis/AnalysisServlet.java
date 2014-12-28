@@ -28,6 +28,7 @@ import risk.RiskClassification;
 import risk.RiskClassificationTable;
 import search.Keyword;
 import search.KeywordTable;
+import search.SearchManager2;
 import services.DocumentService;
 import services.Formatter;
 import system.Analyser;
@@ -398,6 +399,7 @@ public class AnalysisServlet extends DocumentService {
 
         List<ContractFragment> fragments = documentVersion.getFragmentsForVersion();
         StringBuffer errorMessages = new StringBuffer();
+        PortalUser owner = document.getOwner();
 
         int risks = 0;
 
@@ -425,7 +427,7 @@ public class AnalysisServlet extends DocumentService {
 
                 NewAnalysisOutcome analysisOutcome = analyser.analyseFragment2(fragment.getText(), headline, contextText, aDocument, aProject);
 
-                risks += handleResult(analysisOutcome, fragment, project, analysisTime, aDocument);
+                risks += handleResult(analysisOutcome, fragment, owner, project, analysisTime, aDocument);
 
                 // Store it for the second pass. In that pass we dont want to redo the parsing and analysis
 
@@ -847,13 +849,14 @@ public class AnalysisServlet extends DocumentService {
      *
      * @param analysisResult - the feature definitions from the analysis
      * @param fragment - the data base fragment to update with classifications and references from analysis
+     * @param owner
      * @param project
      * @param analysisTime - time for the analysis
      *
      */
 
 
-    private int handleResult(NewAnalysisOutcome analysisResult, ContractFragment fragment, Project project, DBTimeStamp analysisTime, AbstractDocument aDocument) throws BackOfficeException{
+    private int handleResult(NewAnalysisOutcome analysisResult, ContractFragment fragment, PortalUser owner, Project project, DBTimeStamp analysisTime, AbstractDocument aDocument) throws BackOfficeException{
 
         boolean updated = false;
 
@@ -869,6 +872,8 @@ public class AnalysisServlet extends DocumentService {
 
         ContractRisk defaultRisk = ContractRisk.getUnknown();
         PortalUser system = PortalUser.getSystemUser();
+        SearchManager2 searchManager = new SearchManager2(project, owner);
+
 
         System.out.println("Found " + analysisResult.getClassifications().size() + " classifications in analysis");
 
@@ -917,11 +922,13 @@ public class AnalysisServlet extends DocumentService {
                             project.getKey());
                     definition.store();
 
+                    //     public FragmentClassification(DBKeyInterface fragment, String classtag, String comment, String keywords, DBKeyInterface creator, DBKeyInterface version, DBKeyInterface project, String pattern, long pos, long length, long significance, String ruleid, String time) throws BackOfficeException{
+
+
                     fragmentClassification = new FragmentClassification(
                             fragment.getKey(),
-                            FragmentClass.getDefinitionS().getKey(),
-                            classification.getType().getName(),
-                            classification.getTag(),
+                            FeatureType.DEFINITION.name(),
+                            "",
                             classification.getKeywords(),
                             system.getKey(),
                             fragment.getVersionId(),
@@ -935,7 +942,7 @@ public class AnalysisServlet extends DocumentService {
                     fragmentClassification.store();
                     classifications++;
 
-
+                    searchManager.updateIndexWithClassification(fragment, fragmentClassification);
 
                     updated = true;
 
@@ -984,8 +991,11 @@ public class AnalysisServlet extends DocumentService {
                             analysisTime.getSQLTime().toString()
                     );
 
+
                     riskAnnotation.store();
                     annotations++;
+
+                    searchManager.updateIndexWithRisk(fragment, risk);
 
 
                     updated = true;
@@ -1019,21 +1029,6 @@ public class AnalysisServlet extends DocumentService {
 
                 // Default action is to jut add the classification from the analysis
 
-                FragmentClass fragmentClass = getClassificationClass(classification.getType());
-
-                if(!fragmentClass.exists()){
-
-                    PukkaLogger.log(PukkaLogger.Level.INFO, "Classification " + classification.getType().getName() + " does not exist.");
-                    break;
-
-                }
-
-                if(fragmentClass.equals(FragmentClass.getUnknown())){
-
-                    PukkaLogger.log(PukkaLogger.Level.INFO, "Classification " + classification.getType().getName() + " is ignored");
-                    break;
-
-                }
 
                 if(classification.getRelevance() < RELEVANCE_THRESHOLD){
 
@@ -1041,15 +1036,14 @@ public class AnalysisServlet extends DocumentService {
                 }
                 else{
 
-                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Classifying fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
+                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Classifying fragment " + fragment.getName() + " with tag "+ classification.getType()+". Pattern(" + classification.getPattern().getText() + ")" + "Relevance: " + classification.getRelevance());
 
-                    System.out.println(classification.getType().getName() + " " + classification.getTag());
+                    //System.out.println(classification.getType().getName() + " " + classification.getTag());
 
                     fragmentClassification = new FragmentClassification(
                             fragment.getKey(),
-                            fragmentClass.getKey(),
                             classification.getType().getName(),
-                            classification.getTag(),
+                            "",
                             classification.getKeywords(),
                             system.getKey(),
                             fragment.getVersionId(),
@@ -1063,7 +1057,7 @@ public class AnalysisServlet extends DocumentService {
 
                     fragmentClassification.store();
 
-
+                    searchManager.updateIndexWithClassification(fragment, fragmentClassification);
 
 
                     // Only update the number of classifications if it is above the threshold
@@ -1247,28 +1241,6 @@ public class AnalysisServlet extends DocumentService {
         }
 
         return new ContractFragment();
-
-    }
-
-    /********************************************************************************
-     *
-     *
-     * @param type
-     * @return
-     * @throws BackOfficeException
-     */
-
-
-    private FragmentClass getClassificationClass(FeatureTypeInterface type) throws BackOfficeException {
-
-        FragmentClass fragmentClass = new FragmentClass(new LookupItem().addFilter(new ColumnFilter(FragmentClassTable.Columns.Type.name(), type.getName())));
-
-        if(fragmentClass.exists())
-            return fragmentClass;
-
-        PukkaLogger.log(PukkaLogger.Level.WARNING, "The classification " + type.getName() + " could not be found");
-
-        return FragmentClass.getUnknown();
 
     }
 

@@ -148,7 +148,7 @@ public class Exporter {
 
         for(FragmentClassification classification : classificationsForDocument){
 
-            list.add(new AbstractComment("Classification", classification.getPattern(), classification.getName(),
+            list.add(new AbstractComment("Classification", classification.getPattern(), classification.getClassTag(),
                     (int)classification.getFragment().getOrdinal(), (int)classification.getPos(), (int)classification.getLength()));
         }
 

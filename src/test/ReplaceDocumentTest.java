@@ -2,6 +2,7 @@ package test;
 
 import actions.Action;
 import actions.ActionStatus;
+import analysis.FeatureType;
 import backend.ItClarifies;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
@@ -144,14 +145,14 @@ public class ReplaceDocumentTest extends ServletTests{
             List<Action> actions= first.getActionsForFragment();
             assertThat(actions.size(), not(is(0)));
 
-            FragmentClass classification = classifications.get(0).getClassification();
+            String classification = classifications.get(0).getClassTag();
             ContractAnnotation    annotation     = annotations.get(0);
             Action                action         = actions.get(0);
             ContractRisk risk           = new ContractRisk(new LookupByKey(first.getRiskId()));
 
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Class: " + classification.getName() + " Risk: " + risk.getName() + " Annotation: " + annotation.getDescription());
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Class: " + classification + " Risk: " + risk.getName() + " Annotation: " + annotation.getDescription());
 
-            assertThat(classification.getName(), is("Definition"));
+            assertThat(classification, is("Definition"));
             assertThat(risk.getName(), is("Black"));
             assertThat(annotation.getDescription(), is("a comment"));
             assertThat(action.getDescription(), is("action description"));
@@ -185,16 +186,16 @@ public class ReplaceDocumentTest extends ServletTests{
             actions = first.getActionsForFragment();
             assertThat("Expect to find a transferred action", actions.size(), not(is(0)));
 
-            classification  = classifications.get(0).getClassification();
+            classification  = classifications.get(0).getClassTag();
             annotation      = annotations.get(0);
             action         = actions.get(0);
             risk            = new ContractRisk(new LookupByKey(first.getRiskId()));
 
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Class: " + classification.getName() + " Risk: " + risk.getName());
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Class: " + classification + " Risk: " + risk.getName());
 
             // The classification and risk should have been transposed to the new version of the document
 
-            assertThat(classification.getName(), is("Definition"));
+            assertThat(classification, is("Definition"));
             assertThat(risk.getName(), is("Black"));
             assertThat(annotation.getDescription(), is("a comment"));
             assertThat(action.getDescription(), is("action description"));
@@ -240,7 +241,7 @@ public class ReplaceDocumentTest extends ServletTests{
 
         new ContractAnnotation("", first, 1, "a comment", user, version, "", now.getISODate()).store();
 
-        new FragmentClassification(first, FragmentClass.getDefinition(),"name", "", "", user, version, project, "", 0, 0, 70, "no rule specified", now.getISODate()).store();
+        new FragmentClassification(first, FeatureType.DEFINITION.name(), "", "", user, version, project, "", 0, 0, 70, "no rule specified", now.getISODate()).store();
 
         new Action(0, "name", "action description", "pattern", first, version, first.getVersion().getDocument().getProject(),
                 adminUser, adminUser, (long)4711, ActionStatus.getInProgress(), new DBTimeStamp().getISODate(), new DBTimeStamp().getISODate(), new DBTimeStamp().getISODate()).store();

@@ -32,12 +32,13 @@ public class PortalUserTable extends DataTable implements DataTableInterface{
     public static final String TABLE = "PortalUser";
     private static final String DESCRIPTION = "All registered users.";
 
-    public enum Columns {Name, UserId, Email, Registration, Organization, Active, WSAdmin, }
+    public enum Columns {Name, UserId, Type, Email, Registration, Organization, Active, WSAdmin, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
             new StringColumn("Name", DataColumn.noFormatting),
             new IntColumn("UserId", DataColumn.noFormatting),
+            new StringColumn("Type", DataColumn.noFormatting),
             new StringColumn("Email", DataColumn.noFormatting),
             new DateColumn("Registration", DataColumn.noFormatting),
             new ReferenceColumn("Organization", DataColumn.noFormatting, new TableReference("Organization", "Name")),
@@ -69,25 +70,26 @@ public class PortalUserTable extends DataTable implements DataTableInterface{
     }
     private static final String[][] DefaultValues = {
 
-          {"itClarifies", "0", "", "2014-01-01", "itClarifies", "true", "true", "system"},
-          {"External", "0", "", "2014-01-01", "itClarifies", "true", "true", "system"},
-          {"<< Not set >>", "0", "", "2014-01-01", "itClarifies", "true", "true", "system"},
-          {"Super", "1", "", "2014-01-01", "itClarifies", "true", "true", "system"},
+          {"itClarifies", "0", "SYSTEM", "", "2014-01-01", "itClarifies", "true", "true", "system"},
+          {"External", "0", "EXTERNAL", "", "2014-01-01", "itClarifies", "true", "true", "system"},
+          {"<< Not set >>", "0", "EMPTY", "", "2014-01-01", "itClarifies", "true", "true", "system"},
+          {"Super", "1", "REGISTERED", "", "2014-01-01", "itClarifies", "true", "true", "system"},
 
 
 
     };
     private static final String[][] TestValues = {
 
-          {"itClarifies", "0", "", "2014-01-01", "demo.org", "true", "true", "system"},
-          {"External", "0", "", "2014-01-01", "demo.org", "true", "true", "system"},
-          {"demo", "2", "demo@dev.null", "2014-01-01", "demo.org", "true", "false", "system"},
-          {"admin", "3", "admin@dev.null", "2014-01-01", "demo.org", "true", "true", "system"},
-          {"linus", "4", "linus@dev.null", "2014-01-01", "demo.org", "true", "true", "system"},
-          {"ulf", "5", "ulf@dev.null", "2014-01-01", "demo.org", "true", "true", "system"},
-          {"tolga", "6", "ulf@dev.null", "2014-01-01", "demo.org", "true", "true", "system"},
-          {"henrik", "7", "ulf@dev.null", "2014-01-01", "demo.org", "true", "true", "system"},
-          {"eve", "8", "eve@dev.null", "2014-01-01", "evil.org", "true", "true", "system"},
+          {"itClarifies", "0", "SYSTEM", "", "2014-01-01", "demo.org", "true", "true", "system"},
+          {"External", "0", "EXTERNAL", "", "2014-01-01", "demo.org", "true", "true", "system"},
+          {"<< Not set >>", "0", "EMPTY", "", "2014-01-01", "demo.org", "true", "true", "system"},
+          {"demo", "2", "REGISTERED", "demo@dev.null", "2014-01-01", "demo.org", "true", "false", "system"},
+          {"admin", "3", "REGISTERED", "admin@dev.null", "2014-01-01", "demo.org", "true", "true", "system"},
+          {"linus", "4", "REGISTERED", "linus@dev.null", "2014-01-01", "demo.org", "true", "true", "system"},
+          {"ulf", "5", "REGISTERED", "ulf@dev.null", "2014-01-01", "demo.org", "true", "true", "system"},
+          {"tolga", "6", "REGISTERED", "ulf@dev.null", "2014-01-01", "demo.org", "true", "true", "system"},
+          {"henrik", "7", "REGISTERED", "ulf@dev.null", "2014-01-01", "demo.org", "true", "true", "system"},
+          {"eve", "8", "REGISTERED", "eve@dev.null", "2014-01-01", "evil.org", "true", "true", "system"},
 
 
 

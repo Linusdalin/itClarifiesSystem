@@ -38,13 +38,13 @@ public class Reclassification extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public Reclassification(String name, boolean ispositive, DataObjectInterface user, String fragment, String headline, long fragmentno, String pattern, String comment, DataObjectInterface classification, DataObjectInterface risklevel, DataObjectInterface document, String date, boolean closed) throws BackOfficeException{
+    public Reclassification(String name, boolean ispositive, DataObjectInterface user, String fragment, String headline, long fragmentno, String pattern, String comment, String classtag, DataObjectInterface risklevel, DataObjectInterface document, String date, boolean closed) throws BackOfficeException{
 
-        this(name, ispositive, user.getKey(), fragment, headline, fragmentno, pattern, comment, classification.getKey(), risklevel.getKey(), document.getKey(), date, closed);
+        this(name, ispositive, user.getKey(), fragment, headline, fragmentno, pattern, comment, classtag, risklevel.getKey(), document.getKey(), date, closed);
     }
 
 
-    public Reclassification(String name, boolean ispositive, DBKeyInterface user, String fragment, String headline, long fragmentno, String pattern, String comment, DBKeyInterface classification, DBKeyInterface risklevel, DBKeyInterface document, String date, boolean closed) throws BackOfficeException{
+    public Reclassification(String name, boolean ispositive, DBKeyInterface user, String fragment, String headline, long fragmentno, String pattern, String comment, String classtag, DBKeyInterface risklevel, DBKeyInterface document, String date, boolean closed) throws BackOfficeException{
 
         this();
         ColumnStructureInterface[] columns = getColumnFromTable();
@@ -60,7 +60,7 @@ public class Reclassification extends DataObject implements DataObjectInterface{
         data[5] = new IntData(fragmentno);
         data[6] = new TextData(pattern);
         data[7] = new TextData(comment);
-        data[8] = new ReferenceData(classification, columns[8].getTableReference());
+        data[8] = new StringData(classtag);
         data[9] = new ReferenceData(risklevel, columns[9].getTableReference());
         data[10] = new ReferenceData(document, columns[10].getTableReference());
         data[11] = new DateData(date);
@@ -218,22 +218,16 @@ public class Reclassification extends DataObject implements DataObjectInterface{
 
 
 
-    public DBKeyInterface getClassificationId(){
+    public String getClassTag(){
 
-        ReferenceData data = (ReferenceData)this.data[8];
-        return data.value;
+        StringData data = (StringData) this.data[8];
+        return data.getStringValue();
     }
 
-    public FragmentClass getClassification(){
+    public void setClassTag(String classtag){
 
-        ReferenceData data = (ReferenceData)this.data[8];
-        return new FragmentClass(new LookupByKey(data.value));
-    }
-
-    public void setClassification(DBKeyInterface classification){
-
-        ReferenceData data = (ReferenceData)this.data[8];
-        data.value = classification;
+        StringData data = (StringData) this.data[8];
+        data.setStringValue(classtag);
     }
 
 

@@ -103,6 +103,15 @@ public class PortalUserExternalServlet extends ItClarifiesService {
 
     }
 
+    /**************************************************************
+     *
+     *          Create one object
+     *
+     *
+     * @param user - user to create object from
+     * @return     - JSON data object
+     */
+
 
     private JSONObject createExternalUserInfoObject(PortalUser user){
 
@@ -110,10 +119,11 @@ public class PortalUserExternalServlet extends ItClarifiesService {
 
         JSONObject infoObject = new JSONObject()
              .put("id", user.getKey().toString())
-             .put("name", user.getName());
+             .put("name", user.getName())
+             .put("type", user.getType());
 
 
-        infoObject.put("internal", (user.getUserId() == 0 ? "true" : "false"));
+        //infoObject.put("internal", (user.getUserId() == 0 ? "true" : "false"));
 
         return infoObject;
 

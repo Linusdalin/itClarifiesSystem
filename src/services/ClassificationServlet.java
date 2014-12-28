@@ -1,11 +1,15 @@
 package services;
 
+import analysis.FeatureExtractorInterface;
 import analysis.Significance;
+import classifiers.ClassifierInterface;
 import com.google.appengine.api.datastore.Query;
 import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
 import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
+import language.English;
+import language.LanguageInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -61,7 +65,7 @@ public class ClassificationServlet extends DocumentService{
 
 
             DBKeyInterface key                = getMandatoryKey("fragment", req);
-            DBKeyInterface fragmentClassKey   = getMandatoryKey("class", req);
+            String className                  = getMandatoryString("class", req);
             String comment                    = getOptionalString("comment", req, "");
             String pattern                    = getOptionalString("pattern", req, "");
             String keyword                    = getOptionalString("keyword", req, "");
@@ -88,22 +92,19 @@ public class ClassificationServlet extends DocumentService{
             if(!modifiable(document, resp))
                 return;
 
-            FragmentClass fragmentClass = new FragmentClass(new LookupByKey(fragmentClassKey));
-            if(!mandatoryObjectExists(fragmentClass, resp))
-                return;
-
-
-             // Calculate the noon-submitted data
+             // Calculate the non-submitted data
 
             PortalUser classifier = sessionManagement.getUser();
             DBTimeStamp now = new DBTimeStamp();
+
+            String classTag = defaultLanguage.getClassificationTag(className);
+
 
             //Now update the fragment with a new classification
 
             FragmentClassification classification = new FragmentClassification(
                     fragment.getKey(),
-                    fragmentClassKey,
-                    fragmentClass.getType(),
+                    classTag,
                     comment,
                     keyword,
                     classifier.getKey(),
@@ -143,7 +144,7 @@ public class ClassificationServlet extends DocumentService{
                     fragment.getOrdinal(),
                     pattern,
                     comment,
-                    fragmentClass.getKey(),
+                    classTag,
                     fragment.getRiskId(),
                     document.getKey(),
                     now.getISODate(),
@@ -179,7 +180,10 @@ public class ClassificationServlet extends DocumentService{
 
     /*************************************************************************
      *
-     *              Get all classes for the organization
+     *              Get all classes. This includes:
+     *
+     *               - All defined classes in the Analysis system
+     *               - user defined classes for the organization
      *
      * @throws java.io.IOException
      */
@@ -210,7 +214,18 @@ public class ClassificationServlet extends DocumentService{
 
             JSONArray list = new JSONArray();
 
-            /*
+            ClassifierInterface[] classifiers = defaultLanguage.getSupportedClassifiers();
+
+            for (ClassifierInterface classifier : classifiers) {
+
+                JSONObject riskObject = new JSONObject()
+                            .put("id", classifier.getClassificationTag())
+                            .put("name", classifier.getClassificationName())
+                            .put("desc", classifier.getClassificationName())   //TODO: Description not implemented for standard classes
+                            .put("type", "General");
+                    list.put(riskObject);
+
+            }
 
             FragmentClassTable organizationSpecificClasses = new FragmentClassTable(new LookupList()
                     .addFilter(new ReferenceFilter(FragmentClassTable.Columns.Organization.name(), user.getOrganization().getKey())));
@@ -222,25 +237,8 @@ public class ClassificationServlet extends DocumentService{
                 JSONObject riskObject = new JSONObject()
                         .put("id", fragmentClass.getKey().toString())
                         .put("name", fragmentClass.getName())
+                        .put("desc", fragmentClass.getDescription())
                         .put("type", "Organization");
-                list.put(riskObject);
-
-            }
-
-            */
-
-            // Now add all generic classes
-
-            FragmentClassTable genericClasses = new FragmentClassTable(new LookupList());
-
-            for(DataObjectInterface object : genericClasses.getValues()){
-
-                FragmentClass fragmentClass = (FragmentClass)object;
-
-                JSONObject riskObject = new JSONObject()
-                        .put("id", fragmentClass.getKey().toString())
-                        .put("name", fragmentClass.getName())
-                        .put("type", "General");
                 list.put(riskObject);
 
             }
@@ -319,7 +317,7 @@ public class ClassificationServlet extends DocumentService{
                         fragment.getOrdinal(),
                         classification.getPattern(),
                         classification.getComment(),
-                        classification.getClassificationId(),
+                        classification.getClassTag(),
                         fragment.getRiskId(),
                         fragment.getVersion().getDocumentId(),
                         now.getISODate(),

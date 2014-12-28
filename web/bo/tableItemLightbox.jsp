@@ -134,7 +134,9 @@
                         out.print(Html.successBox("Entry deleted"));
                         out.print("<input type=\"button\" value=\"Close\" onClick=\"parent.window.location.reload(true)\">");
 
+                        //form = new TableEditForm(table, object, TableEditForm.FormType.UPDATE, location);
 
+                        return;
                     }
                     else{
 
@@ -142,10 +144,6 @@
                         out.print("<input type=\"button\" value=\"Close\" onClick=\"parent.window.location.reload(true)\">");
 
                     }
-
-
-                    out.print("<p>Item deleted</p>");
-                    return;
 
                 }catch(BackOfficeException e){
 

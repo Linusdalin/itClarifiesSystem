@@ -56,6 +56,7 @@ public class AdminServlet extends GenericAdminServlet {
 
         if(environment != Environment.LIVE){
 
+            resp.getWriter().println("<a href=\"clearSearchIndex\">Clear Search Index</a><br>");
             resp.getWriter().println("<a href=\"createDB?Action=CREATE\">Create Database</a><br>");
             resp.getWriter().println("<a href=\"createDB?Action=CONSTANTS\">Populate Constants</a>");
             resp.getWriter().println("<a href=\"createDB?Action=TESTDATA\">Constants and Test values</a><br>");

@@ -6,6 +6,8 @@ import dataRepresentation.DBTimeStamp;
 import databaseLayer.DBKeyInterface;
 import document.*;
 import document.SimpleStyle;
+import language.English;
+import language.LanguageInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONObject;
 import pukkaBO.condition.*;
@@ -13,6 +15,7 @@ import pukkaBO.exceptions.BackOfficeException;
 import risk.ContractRisk;
 import search.Keyword;
 import search.KeywordTable;
+import search.SearchManager2;
 import userManagement.PortalUser;
 
 import java.util.HashSet;
@@ -28,6 +31,12 @@ import java.util.Set;
 public class DocumentService extends ItClarifiesService{
 
     public static String MODEL_DIRECTORY = "models";
+
+    // Use english names of classifications as default
+    // When implementing language support, this should be taken from the user settings
+
+    protected static final LanguageInterface defaultLanguage = new English();
+
 
     /*********************************************************************************
      *
@@ -66,6 +75,9 @@ public class DocumentService extends ItClarifiesService{
 
         PukkaLogger.log(PukkaLogger.Level.ACTION, "*******************Phase II: Fragmenting Document");
         PukkaLogger.log(PukkaLogger.Level.INFO, "Found " + fragmenter.getFragments().size() + " abstract fragments from the parsing");
+
+        SearchManager2 searchManager = new SearchManager2(project, document.getOwner());
+
 
         for(AbstractFragment aFragment : fragments){
 
@@ -201,9 +213,6 @@ public class DocumentService extends ItClarifiesService{
 
                     );
 
-
-
-
                     fragmentsToStore.add(fragment);
                     System.out.println("  ***** Adding a fragment " + fragment.getName() + " with ordinal " + (fragmentNo - 1));
 
@@ -230,6 +239,9 @@ public class DocumentService extends ItClarifiesService{
         PukkaLogger.log(PukkaLogger.Level.INFO, "Storing " + fragmentsToStore.getCount() + " fragments for the analysis of the document " + document);
         fragmentsToStore.store(); // Save all
 
+        // Index all fragments in the search engine
+
+        searchManager.indexFragments(fragmentsToStore.getValues(), document);
 
         // Store the keywords
 

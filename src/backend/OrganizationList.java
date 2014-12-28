@@ -24,6 +24,7 @@ import pukkaBO.renderer.ListRendererJSStatic;
 import userManagement.Organization;
 import userManagement.OrganizationConf;
 import userManagement.OrganizationTable;
+import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -258,14 +259,27 @@ public class OrganizationList extends SimpleList implements ListInterface{
                 return("Error: Got error from login service " + errorMessage);
             }
 
+            String token = response.getString("token");
+
 
             // Create a new Organization config
 
             OrganizationConf newConfig = new OrganizationConf(name);
             newConfig.store();
 
-            Organization newOrganization = new Organization(name, timeStamp.getISODate(), description, newConfig.getKey());
+            Organization newOrganization = new Organization(name, timeStamp.getISODate(), description, token, newConfig.getKey());
             newOrganization.store();
+
+            // Create default users for the organization
+
+            PortalUser system = new PortalUser("itClarifies",   0, PortalUser.Type.SYSTEM.name(),   "no email", timeStamp.getISODate(), newOrganization.getKey(), true, false);
+            system.store();
+            PortalUser empty = new PortalUser("<< not set >>",  0, PortalUser.Type.EMPTY.name(),    "no email", timeStamp.getISODate(), newOrganization.getKey(), true, false);
+            empty.store();
+            PortalUser external = new PortalUser("External",    0, PortalUser.Type.EXTERNAL.name(), "no email", timeStamp.getISODate(), newOrganization.getKey(), true, false);
+            external.store();
+
+
 
             return ("Success:A new Organization \""+newOrganization.getName()+"\"with id " + newOrganization.getKey() + " was created");
 

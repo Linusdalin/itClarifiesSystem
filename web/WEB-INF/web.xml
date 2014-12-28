@@ -37,6 +37,15 @@
     </servlet-mapping>
 
 
+    <servlet>
+        <servlet-name>clearSearchIndex</servlet-name>
+        <servlet-class>api.ClearSearchServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>clearSearchIndex</servlet-name>
+        <url-pattern>/clearSearchIndex</url-pattern>
+    </servlet-mapping>
+
 
     <servlet>
         <servlet-name>createConstants</servlet-name>
