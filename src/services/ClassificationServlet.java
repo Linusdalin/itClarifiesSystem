@@ -105,6 +105,8 @@ public class ClassificationServlet extends DocumentService{
             FragmentClassification classification = new FragmentClassification(
                     fragment.getKey(),
                     classTag,
+                    0,              // requirement level not implemented
+                    0,              // applicable phase not implemented
                     comment,
                     keyword,
                     classifier.getKey(),
@@ -145,6 +147,8 @@ public class ClassificationServlet extends DocumentService{
                     pattern,
                     comment,
                     classTag,
+                    0,
+                    0,
                     fragment.getRiskId(),
                     document.getKey(),
                     now.getISODate(),
@@ -318,6 +322,7 @@ public class ClassificationServlet extends DocumentService{
                         classification.getPattern(),
                         classification.getComment(),
                         classification.getClassTag(),
+                        0, 0,
                         fragment.getRiskId(),
                         fragment.getVersion().getDocumentId(),
                         now.getISODate(),

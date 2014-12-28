@@ -32,7 +32,7 @@ public class ReclassificationTable extends DataTable implements DataTableInterfa
     public static final String TABLE = "Reclassification";
     private static final String DESCRIPTION = "Classifications that are manually corrected  for review and automatic analysis";
 
-    public enum Columns {Name, isPositive, User, Fragment, Headline, FragmentNo, Pattern, Comment, ClassTag, RiskLevel, Document, Date, Closed, }
+    public enum Columns {Name, isPositive, User, Fragment, Headline, FragmentNo, Pattern, Comment, ClassTag, RequirementLevel, ApplicablePhase, RiskLevel, Document, Date, Closed, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
@@ -45,6 +45,8 @@ public class ReclassificationTable extends DataTable implements DataTableInterfa
             new TextColumn("Pattern", DataColumn.noFormatting),
             new TextColumn("Comment", DataColumn.noFormatting),
             new StringColumn("ClassTag", DataColumn.noFormatting),
+            new IntColumn("RequirementLevel", DataColumn.noFormatting),
+            new IntColumn("ApplicablePhase", DataColumn.noFormatting),
             new ReferenceColumn("RiskLevel", DataColumn.noFormatting, new TableReference("ContractRisk", "Name")),
             new ReferenceColumn("Document", DataColumn.noFormatting, new TableReference("Contract", "Name")),
             new DateColumn("Date", DataColumn.noFormatting),

@@ -38,13 +38,13 @@ public class Reclassification extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public Reclassification(String name, boolean ispositive, DataObjectInterface user, String fragment, String headline, long fragmentno, String pattern, String comment, String classtag, DataObjectInterface risklevel, DataObjectInterface document, String date, boolean closed) throws BackOfficeException{
+    public Reclassification(String name, boolean ispositive, DataObjectInterface user, String fragment, String headline, long fragmentno, String pattern, String comment, String classtag, long requirementlevel, long applicablephase, DataObjectInterface risklevel, DataObjectInterface document, String date, boolean closed) throws BackOfficeException{
 
-        this(name, ispositive, user.getKey(), fragment, headline, fragmentno, pattern, comment, classtag, risklevel.getKey(), document.getKey(), date, closed);
+        this(name, ispositive, user.getKey(), fragment, headline, fragmentno, pattern, comment, classtag, requirementlevel, applicablephase, risklevel.getKey(), document.getKey(), date, closed);
     }
 
 
-    public Reclassification(String name, boolean ispositive, DBKeyInterface user, String fragment, String headline, long fragmentno, String pattern, String comment, String classtag, DBKeyInterface risklevel, DBKeyInterface document, String date, boolean closed) throws BackOfficeException{
+    public Reclassification(String name, boolean ispositive, DBKeyInterface user, String fragment, String headline, long fragmentno, String pattern, String comment, String classtag, long requirementlevel, long applicablephase, DBKeyInterface risklevel, DBKeyInterface document, String date, boolean closed) throws BackOfficeException{
 
         this();
         ColumnStructureInterface[] columns = getColumnFromTable();
@@ -61,10 +61,12 @@ public class Reclassification extends DataObject implements DataObjectInterface{
         data[6] = new TextData(pattern);
         data[7] = new TextData(comment);
         data[8] = new StringData(classtag);
-        data[9] = new ReferenceData(risklevel, columns[9].getTableReference());
-        data[10] = new ReferenceData(document, columns[10].getTableReference());
-        data[11] = new DateData(date);
-        data[12] = new BoolData(closed);
+        data[9] = new IntData(requirementlevel);
+        data[10] = new IntData(applicablephase);
+        data[11] = new ReferenceData(risklevel, columns[11].getTableReference());
+        data[12] = new ReferenceData(document, columns[12].getTableReference());
+        data[13] = new DateData(date);
+        data[14] = new BoolData(closed);
 
         exists = true;
 
@@ -232,21 +234,49 @@ public class Reclassification extends DataObject implements DataObjectInterface{
 
 
 
+    public long getRequirementLevel(){
+
+        IntData data = (IntData) this.data[9];
+        return data.value;
+    }
+
+    public void setRequirementLevel(long requirementlevel){
+
+        IntData data = (IntData) this.data[9];
+        data.value = requirementlevel;
+    }
+
+
+
+    public long getApplicablePhase(){
+
+        IntData data = (IntData) this.data[10];
+        return data.value;
+    }
+
+    public void setApplicablePhase(long applicablephase){
+
+        IntData data = (IntData) this.data[10];
+        data.value = applicablephase;
+    }
+
+
+
     public DBKeyInterface getRiskLevelId(){
 
-        ReferenceData data = (ReferenceData)this.data[9];
+        ReferenceData data = (ReferenceData)this.data[11];
         return data.value;
     }
 
     public ContractRisk getRiskLevel(){
 
-        ReferenceData data = (ReferenceData)this.data[9];
+        ReferenceData data = (ReferenceData)this.data[11];
         return new ContractRisk(new LookupByKey(data.value));
     }
 
     public void setRiskLevel(DBKeyInterface risklevel){
 
-        ReferenceData data = (ReferenceData)this.data[9];
+        ReferenceData data = (ReferenceData)this.data[11];
         data.value = risklevel;
     }
 
@@ -254,19 +284,19 @@ public class Reclassification extends DataObject implements DataObjectInterface{
 
     public DBKeyInterface getDocumentId(){
 
-        ReferenceData data = (ReferenceData)this.data[10];
+        ReferenceData data = (ReferenceData)this.data[12];
         return data.value;
     }
 
     public Contract getDocument(){
 
-        ReferenceData data = (ReferenceData)this.data[10];
+        ReferenceData data = (ReferenceData)this.data[12];
         return new Contract(new LookupByKey(data.value));
     }
 
     public void setDocument(DBKeyInterface document){
 
-        ReferenceData data = (ReferenceData)this.data[10];
+        ReferenceData data = (ReferenceData)this.data[12];
         data.value = document;
     }
 
@@ -274,13 +304,13 @@ public class Reclassification extends DataObject implements DataObjectInterface{
 
     public DBTimeStamp getDate()throws BackOfficeException{
 
-        DateData data = (DateData) this.data[11];
+        DateData data = (DateData) this.data[13];
         return new DBTimeStamp(DBTimeStamp.ISO_DATE, data.value);
     }
 
     public void setDate(DBTimeStamp date){
 
-        DateData data = (DateData) this.data[11];
+        DateData data = (DateData) this.data[13];
         data.value = date.getISODate().toString();
     }
 
@@ -288,13 +318,13 @@ public class Reclassification extends DataObject implements DataObjectInterface{
 
     public boolean getClosed(){
 
-        BoolData data = (BoolData) this.data[12];
+        BoolData data = (BoolData) this.data[14];
         return data.value;
     }
 
     public void setClosed(boolean closed){
 
-        BoolData data = (BoolData) this.data[12];
+        BoolData data = (BoolData) this.data[14];
         data.value = closed;
     }
 

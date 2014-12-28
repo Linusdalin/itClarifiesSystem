@@ -928,6 +928,8 @@ public class AnalysisServlet extends DocumentService {
                     fragmentClassification = new FragmentClassification(
                             fragment.getKey(),
                             FeatureType.DEFINITION.name(),
+                            0,              // requirement level not implemented
+                            0,              // applicable phase not implemented
                             "",
                             classification.getKeywords(),
                             system.getKey(),
@@ -1043,6 +1045,8 @@ public class AnalysisServlet extends DocumentService {
                     fragmentClassification = new FragmentClassification(
                             fragment.getKey(),
                             classification.getType().getName(),
+                            0,              // requirement level not implemented
+                            0,              // applicable phase not implemented
                             "",
                             classification.getKeywords(),
                             system.getKey(),

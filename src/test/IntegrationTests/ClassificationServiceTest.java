@@ -1,5 +1,6 @@
 package test.integrationTests;
 
+import analysis.FeatureType;
 import backend.ItClarifies;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
@@ -89,7 +90,7 @@ public class ClassificationServiceTest extends ServletTests {
         try {
 
             ContractFragment fragment = new ContractFragment(new LookupItem().addFilter(new ColumnFilter(ContractFragmentTable.Columns.Name.name(), "first fragment")));
-            FragmentClass classForFragment = FragmentClass.getDefinition();  // Just arbitrary class for test
+            String classForFragment = FeatureType.DEFINITION.name();  // Just arbitrary class for test
 
             long classificationCount = fragment.getClassificatonCount();
             PukkaLogger.log(PukkaLogger.Level.INFO, "There are " + classificationCount + " classifications");
@@ -98,7 +99,7 @@ public class ClassificationServiceTest extends ServletTests {
 
             when(request.getParameter("session")).thenReturn("DummyAdminToken");
             when(request.getParameter("fragment")).thenReturn(fragment.getKey().toString());
-            when(request.getParameter("class")).thenReturn(classForFragment.getKey().toString());
+            when(request.getParameter("class")).thenReturn(classForFragment);
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
             new ClassificationServlet().doPost(request, response);
@@ -251,40 +252,6 @@ public class ClassificationServiceTest extends ServletTests {
             String message = error.getString("message");
 
             assertThat(message, is("Parameter fragment is not a key (Not A fragment key)!"));
-
-        }catch(NullPointerException e){
-
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    @Test
-    public void testFailMissingFragment() throws Exception {
-
-        try{
-            MockWriter mockWriter = new MockWriter();
-            FragmentClass classForFragment = FragmentClass.getDefinition();  // Just arbitrary class for test
-
-
-            when(request.getParameter("session")).thenReturn("DummyAdminToken");
-            when(request.getParameter("fragment")).thenReturn(classForFragment.getKey().toString());
-            when(request.getParameter("class")).thenReturn(classForFragment.getKey().toString());
-            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
-
-            when(response.getWriter()).thenReturn(mockWriter.getWriter());
-
-            new ClassificationServlet().doPost(request, response);
-
-
-            String output = mockWriter.getOutput();
-            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
-
-            JSONObject json = new JSONObject(output);
-            JSONObject error = (JSONObject)json.getJSONArray("error").get(0);
-            String message = error.getString("message");
-
-            assertThat(message, is("ContractFragment not found"));
 
         }catch(NullPointerException e){
 
