@@ -85,15 +85,15 @@ public class SearchManager2 {
      *          Update a indexed fragment with the classification
      *
      *
-     * @param fragment
-     * @param fragmentClassification
+     * @param fragment                  - the fragment
+     * @param fragmentClassification    - the classification to put on the fragment
      *
      *          //TODO: a.k.a. classifications not implemented
      */
 
     public void updateIndexWithClassification(ContractFragment fragment, FragmentClassification fragmentClassification) {
 
-        tagFragment(fragment, fragmentClassification.getClassTag(), fragmentClassification.getPattern());
+        tagFragment(fragment, fragmentClassification.getClassTag(), fragmentClassification.getKeywords(), fragmentClassification.getPattern());
 
     }
 
@@ -104,24 +104,28 @@ public class SearchManager2 {
      *
      * @param fragment
      * @param risk
+     *
+     *
      */
 
 
     public void updateIndexWithRisk(ContractFragment fragment, RiskClassification risk) {
 
-        tagFragment(fragment, risk.getRisk().getName(), risk.getPattern());
+        tagFragment(fragment, risk.getRisk().getName(), risk.getComment(), risk.getPattern());
 
     }
 
 
-    private void tagFragment(ContractFragment fragment, String tag, String pattern){
+    private void tagFragment(ContractFragment fragment, String tag, String keywords, String pattern){
 
         // Get the index document from the index
 
         Document existingDocument = indexManager.getDocument(fragment.getKey().toString());
 
+        // Add both the tag and the keywords (including the parent and aka tags) to the keyword field
+
         KeywordFieldHandler keywordField = new KeywordFieldHandler(existingDocument.getOnlyField(IndexManager.KEYWORD_FIELD).getText());
-        keywordField.addTag(tag, pattern);
+        keywordField.addTag(tag + keywords, pattern);
 
         // Clone the existing document, update the keyword field with the classifications and finally resubmit it for indexing.
         // This will replace the existing index document (as it has the same key)

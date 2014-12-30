@@ -97,7 +97,7 @@ public class ClassificationServlet extends DocumentService{
             PortalUser classifier = sessionManagement.getUser();
             DBTimeStamp now = new DBTimeStamp();
 
-            String classTag = defaultLanguage.getClassificationTag(className);
+            String classTag = defaultLanguage.getClassificationForName(className);
 
 
             //Now update the fragment with a new classification

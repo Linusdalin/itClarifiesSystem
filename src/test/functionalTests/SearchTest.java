@@ -245,6 +245,61 @@ public class SearchTest extends ServletTests {
     }
 
 
+    @Test
+    public void GetPatternMultipleTags(){
+
+        String tag = "#one#two#three";
+        String pattern = "the pattern";
+
+        KeywordFieldHandler keywordFieldHandler = new KeywordFieldHandler();
+        keywordFieldHandler.addTag(tag, pattern);
+        assertVerbose("Got the pattern " + pattern + " back from tag #one",  keywordFieldHandler.getPatternForTag("#one"), is(pattern));
+        assertVerbose("Got the pattern " + pattern + " back from tag #three",  keywordFieldHandler.getPatternForTag("#three"), is(pattern));
+
+
+    }
+
+    @Test
+    public void GetPatternFromMultipleKeywords(){
+
+        String tag1 = "#one#two#three";
+        String pattern1 = "the pattern";
+
+        String tag2 = "#moja#mbili#tatu";
+        String pattern2 = "second pattern";
+
+        KeywordFieldHandler keywordFieldHandler = new KeywordFieldHandler();
+        keywordFieldHandler.addTag(tag1, pattern1);
+        keywordFieldHandler.addTag(tag2, pattern2);
+        assertVerbose("Got the pattern " + pattern1 + " back from tag #two",  keywordFieldHandler.getPatternForTag("#two"), is(pattern1));
+        assertVerbose("Got the pattern " + pattern2 + " back from tag #mbili",  keywordFieldHandler.getPatternForTag("#mbili"), is(pattern2));
+
+
+    }
+
+    /*********************************************************************
+     *
+     *      If the tag is not found, we expect to get the pattern back. This may
+     *      occure in the text and we want to use it as tag
+     *
+     *
+     */
+
+    @Test
+    public void TestNotFoundTag(){
+
+        String tag = "#tag";
+        String pattern = "the pattern";
+        String someOtherTag = "#somethingElse";
+
+
+        KeywordFieldHandler keywordFieldHandler = new KeywordFieldHandler();
+        keywordFieldHandler.addTag(tag, pattern);
+        assertVerbose("Got the tag " + someOtherTag + " back from not found",  keywordFieldHandler.getPatternForTag(someOtherTag), is(someOtherTag.substring( 1 ).toLowerCase()));
+
+    }
+
+
 
 }
 

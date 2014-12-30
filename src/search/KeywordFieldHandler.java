@@ -39,35 +39,27 @@ public class KeywordFieldHandler {
 
     public String getPatternForTag(String tag){
 
-        String[] tagsWithPatterns = keywordString.split("[#{}]");
+        PukkaLogger.log(PukkaLogger.Level.DEBUG, "In get Pattern: tag= \""+ tag +"\" looking at:" + keywordString);
 
-        PukkaLogger.log(PukkaLogger.Level.DEBUG, "In get Pattern: tag= \""+ tag +"\" tagsWithPatterns:" + Arrays.asList(tagsWithPatterns).toString());
+        int textPos = keywordString.indexOf(tag.toLowerCase());
 
-        int tagPos = find(tag, tagsWithPatterns);
-        if(tagPos >= 0){
-
-            return tagsWithPatterns[tagPos + 1];
-
-        }
-        else{
-
-            // If we cant find the tag, we add it as a potential pattern anyway
-
+        if(textPos < 0)
             return tag.substring(1).toLowerCase();
+
+        String rest = keywordString.substring( textPos );
+
+        int patternStart = rest.indexOf("{") + 1;
+        int patternEnd   = rest.indexOf("}");
+
+        if(patternStart < 0 || patternEnd < 0){
+
+            // The pattern indicators are missing. This is an implementation error
+            PukkaLogger.log(PukkaLogger.Level.FATAL, " Could not find pattern for tag " + tag + " in " + keywordString);
         }
 
+        String pattern = rest.substring(patternStart, patternEnd);
+        return pattern;
 
-    }
-
-    private int find(String word, String[] tagsWithPatterns) {
-
-        for(int i = 0; i < tagsWithPatterns.length; i++){
-
-            if(tagsWithPatterns[i].equalsIgnoreCase(word.substring(1)))
-                return i;
-
-        }
-        return -1;
     }
 
 

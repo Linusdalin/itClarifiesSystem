@@ -12,6 +12,7 @@ import dataRepresentation.DBTimeStamp;
 import databaseLayer.DBKeyInterface;
 import databaseLayer.DatabaseAbstractionFactory;
 import document.*;
+import featureTypes.FeatureTypeDefinition;
 import featureTypes.FeatureTypeInterface;
 import featureTypes.FeatureTypeTree;
 import fileHandling.BlobRepository;
@@ -516,7 +517,7 @@ public class AnalysisServlet extends DocumentService {
             for(Classification classification : outcome2.getClassifications()){
 
 
-                if(classification.getType().getName().equals(FeatureType.REFERENCE.name())){
+                if(classification.getType().getName().equals(FeatureTypeTree.Reference.getName())){
 
                     // This is a new reference target. The key (which comes from the AbstractStructureItem)
                     // is extracted as semantic extraction
@@ -927,7 +928,7 @@ public class AnalysisServlet extends DocumentService {
 
                     fragmentClassification = new FragmentClassification(
                             fragment.getKey(),
-                            FeatureType.DEFINITION.name(),
+                            FeatureTypeTree.Definition.getName(),
                             0,              // requirement level not implemented
                             0,              // applicable phase not implemented
                             "",
