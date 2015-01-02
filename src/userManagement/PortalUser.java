@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -38,7 +39,9 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
     public PortalUser(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
@@ -48,24 +51,29 @@ public class PortalUser extends DataObject implements DataObjectInterface{
     }
 
 
-    public PortalUser(String name, long userid, String type, String email, String registration, DBKeyInterface organization, boolean active, boolean wsadmin) throws BackOfficeException{
+    public PortalUser(String name, long userid, String type, String email, String registration, DBKeyInterface organization, boolean active, boolean wsadmin){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(name);
-        data[1] = new IntData(userid);
-        data[2] = new StringData(type);
-        data[3] = new StringData(email);
-        data[4] = new DateData(registration);
-        data[5] = new ReferenceData(organization, columns[5].getTableReference());
-        data[6] = new BoolData(active);
-        data[7] = new BoolData(wsadmin);
+           data[0] = new StringData(name);
+           data[1] = new IntData(userid);
+           data[2] = new StringData(type);
+           data[3] = new StringData(email);
+           data[4] = new DateData(registration);
+           data[5] = new ReferenceData(organization, columns[5].getTableReference());
+           data[6] = new BoolData(active);
+           data[7] = new BoolData(wsadmin);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }
@@ -225,7 +233,7 @@ public class PortalUser extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant SystemUser is missing (db update required?)");
 
        return PortalUser.SystemUser;
-     }
+    }
 
     public static PortalUser getExternalUser( ) throws BackOfficeException{
 
@@ -235,7 +243,7 @@ public class PortalUser extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant ExternalUser is missing (db update required?)");
 
        return PortalUser.ExternalUser;
-     }
+    }
 
     public static PortalUser getNoUser( ) throws BackOfficeException{
 
@@ -245,7 +253,7 @@ public class PortalUser extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant NoUser is missing (db update required?)");
 
        return PortalUser.NoUser;
-     }
+    }
 
     public static PortalUser getSuper( ) throws BackOfficeException{
 
@@ -255,7 +263,7 @@ public class PortalUser extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant Super is missing (db update required?)");
 
        return PortalUser.Super;
-     }
+    }
 
 
     public static void clearConstantCache(){

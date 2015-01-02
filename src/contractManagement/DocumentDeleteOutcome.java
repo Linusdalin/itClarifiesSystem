@@ -2,8 +2,10 @@ package contractManagement;
 
 /**
  *          This is the count of the recursive delete
+ *          It is used to pass the result back to the user or calling process
  *
  */
+
 public class DocumentDeleteOutcome {
 
 
@@ -15,8 +17,9 @@ public class DocumentDeleteOutcome {
     public int classifications = 0;
     public int riskFlags = 0;
     public int references = 0;
+    public int keywords = 0;
 
-    DocumentDeleteOutcome(int documents, int versions, int clauses, int fragments, int annotations, int classifications, int riskFlags, int references){
+    DocumentDeleteOutcome(int documents, int versions, int clauses, int fragments, int annotations, int classifications, int riskFlags, int references, int keywords){
 
         this.documents = documents;
         this.versions = versions;
@@ -26,6 +29,7 @@ public class DocumentDeleteOutcome {
         this.classifications = classifications;
         this.riskFlags = riskFlags;
         this.references = references;
+        this.keywords = keywords;
     }
 
     public DocumentDeleteOutcome() {
@@ -42,5 +46,6 @@ public class DocumentDeleteOutcome {
         classifications += more.classifications;
         riskFlags       += more.riskFlags;
         references      += more.references;
+        keywords        += more.keywords;
     }
 }

@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -34,7 +35,9 @@ public class RiskClassification extends DataObject implements DataObjectInterfac
 
     public RiskClassification(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
@@ -44,26 +47,31 @@ public class RiskClassification extends DataObject implements DataObjectInterfac
     }
 
 
-    public RiskClassification(DBKeyInterface fragment, DBKeyInterface risk, String comment, String keywords, DBKeyInterface creator, DBKeyInterface version, DBKeyInterface project, String pattern, long patternpos, String time) throws BackOfficeException{
+    public RiskClassification(DBKeyInterface fragment, DBKeyInterface risk, String comment, String keywords, DBKeyInterface creator, DBKeyInterface version, DBKeyInterface project, String pattern, long patternpos, String time){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new ReferenceData(fragment, columns[0].getTableReference());
-        data[1] = new ReferenceData(risk, columns[1].getTableReference());
-        data[2] = new TextData(comment);
-        data[3] = new TextData(keywords);
-        data[4] = new ReferenceData(creator, columns[4].getTableReference());
-        data[5] = new ReferenceData(version, columns[5].getTableReference());
-        data[6] = new ReferenceData(project, columns[6].getTableReference());
-        data[7] = new TextData(pattern);
-        data[8] = new IntData(patternpos);
-        data[9] = new DateData(time);
+           data[0] = new ReferenceData(fragment, columns[0].getTableReference());
+           data[1] = new ReferenceData(risk, columns[1].getTableReference());
+           data[2] = new TextData(comment);
+           data[3] = new TextData(keywords);
+           data[4] = new ReferenceData(creator, columns[4].getTableReference());
+           data[5] = new ReferenceData(version, columns[5].getTableReference());
+           data[6] = new ReferenceData(project, columns[6].getTableReference());
+           data[7] = new TextData(pattern);
+           data[8] = new IntData(patternpos);
+           data[9] = new DateData(time);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }

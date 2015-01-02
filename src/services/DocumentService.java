@@ -245,7 +245,7 @@ public class DocumentService extends ItClarifiesService{
 
         // Store the keywords
 
-        storeKeyWords(newKeywords, document, project);
+        storeKeyWords(newKeywords, versionInstance, document, project);
 
         // Handle comments. The comments are extracted by the parsing and stored with a fragment id,
         // so left to do is to find the corresponding fragment.
@@ -354,14 +354,26 @@ public class DocumentService extends ItClarifiesService{
 
     }
 
-    private void storeKeyWords(Set<String> newKeywords, Contract document, Project project) throws BackOfficeException {
+    /****************************************************************************************
+     *
+     *              Store the keywords from the analysis
+     *
+     *
+     * @param newKeywords
+     * @param version
+     * @param document
+     * @param project
+     * @throws BackOfficeException
+     */
+
+    private void storeKeyWords(Set<String> newKeywords, ContractVersionInstance version, Contract document, Project project) throws BackOfficeException {
 
         KeywordTable keywordTable = new KeywordTable();
         keywordTable.createEmpty();
 
         for(String k : newKeywords){
 
-            Keyword keyword = new Keyword(k, document,  project);
+            Keyword keyword = new Keyword(k, version, document,  project);
             keywordTable.add(keyword);
             PukkaLogger.log(PukkaLogger.Level.INFO, "Added a bold keyword " + keyword.getKeyword());
 

@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -34,7 +35,9 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
 
     public FragmentClass(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
@@ -44,21 +47,26 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
     }
 
 
-    public FragmentClass(String name, String type, String keywords, String description, DBKeyInterface organization) throws BackOfficeException{
+    public FragmentClass(String name, String type, String keywords, String description, DBKeyInterface organization){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(name);
-        data[1] = new StringData(type);
-        data[2] = new TextData(keywords);
-        data[3] = new TextData(description);
-        data[4] = new ReferenceData(organization, columns[4].getTableReference());
+           data[0] = new StringData(name);
+           data[1] = new StringData(type);
+           data[2] = new TextData(keywords);
+           data[3] = new TextData(description);
+           data[4] = new ReferenceData(organization, columns[4].getTableReference());
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }

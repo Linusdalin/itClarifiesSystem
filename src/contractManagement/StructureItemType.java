@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -38,22 +39,29 @@ public class StructureItemType extends DataObject implements DataObjectInterface
 
     public StructureItemType(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
-    public StructureItemType(String name, String description) throws BackOfficeException{
+    public StructureItemType(String name, String description){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(name);
-        data[1] = new TextData(description);
+           data[0] = new StringData(name);
+           data[1] = new TextData(description);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }
@@ -123,7 +131,7 @@ public class StructureItemType extends DataObject implements DataObjectInterface
           throw new BackOfficeException(BackOfficeException.TableError, "Constant Headline is missing (db update required?)");
 
        return StructureItemType.Headline;
-     }
+    }
 
     public static StructureItemType getList( ) throws BackOfficeException{
 
@@ -133,7 +141,7 @@ public class StructureItemType extends DataObject implements DataObjectInterface
           throw new BackOfficeException(BackOfficeException.TableError, "Constant List is missing (db update required?)");
 
        return StructureItemType.List;
-     }
+    }
 
     public static StructureItemType getListItem( ) throws BackOfficeException{
 
@@ -143,7 +151,7 @@ public class StructureItemType extends DataObject implements DataObjectInterface
           throw new BackOfficeException(BackOfficeException.TableError, "Constant ListItem is missing (db update required?)");
 
        return StructureItemType.ListItem;
-     }
+    }
 
     public static StructureItemType getFragmentGroup( ) throws BackOfficeException{
 
@@ -153,7 +161,7 @@ public class StructureItemType extends DataObject implements DataObjectInterface
           throw new BackOfficeException(BackOfficeException.TableError, "Constant FragmentGroup is missing (db update required?)");
 
        return StructureItemType.FragmentGroup;
-     }
+    }
 
 
     public static void clearConstantCache(){

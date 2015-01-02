@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -38,22 +39,29 @@ public class SessionStatus extends DataObject implements DataObjectInterface{
 
     public SessionStatus(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
-    public SessionStatus(String name, String description) throws BackOfficeException{
+    public SessionStatus(String name, String description){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(name);
-        data[1] = new TextData(description);
+           data[0] = new StringData(name);
+           data[1] = new TextData(description);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }
@@ -123,7 +131,7 @@ public class SessionStatus extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant open is missing (db update required?)");
 
        return SessionStatus.open;
-     }
+    }
 
     public static SessionStatus getclosed( ) throws BackOfficeException{
 
@@ -133,7 +141,7 @@ public class SessionStatus extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant closed is missing (db update required?)");
 
        return SessionStatus.closed;
-     }
+    }
 
     public static SessionStatus gettimeout( ) throws BackOfficeException{
 
@@ -143,7 +151,7 @@ public class SessionStatus extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant timeout is missing (db update required?)");
 
        return SessionStatus.timeout;
-     }
+    }
 
     public static SessionStatus getfailed( ) throws BackOfficeException{
 
@@ -153,7 +161,7 @@ public class SessionStatus extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant failed is missing (db update required?)");
 
        return SessionStatus.failed;
-     }
+    }
 
 
     public static void clearConstantCache(){

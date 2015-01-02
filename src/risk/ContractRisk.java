@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -41,23 +42,30 @@ public class ContractRisk extends DataObject implements DataObjectInterface{
 
     public ContractRisk(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
-    public ContractRisk(String name, long severity, String description) throws BackOfficeException{
+    public ContractRisk(String name, long severity, String description){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(name);
-        data[1] = new IntData(severity);
-        data[2] = new TextData(description);
+           data[0] = new StringData(name);
+           data[1] = new IntData(severity);
+           data[2] = new TextData(description);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }
@@ -141,7 +149,7 @@ public class ContractRisk extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant Black is missing (db update required?)");
 
        return ContractRisk.Black;
-     }
+    }
 
     public static ContractRisk getRed( ) throws BackOfficeException{
 
@@ -151,7 +159,7 @@ public class ContractRisk extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant Red is missing (db update required?)");
 
        return ContractRisk.Red;
-     }
+    }
 
     public static ContractRisk getAmber( ) throws BackOfficeException{
 
@@ -161,7 +169,7 @@ public class ContractRisk extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant Amber is missing (db update required?)");
 
        return ContractRisk.Amber;
-     }
+    }
 
     public static ContractRisk getUnknown( ) throws BackOfficeException{
 
@@ -171,7 +179,7 @@ public class ContractRisk extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant Unknown is missing (db update required?)");
 
        return ContractRisk.Unknown;
-     }
+    }
 
     public static ContractRisk getNone( ) throws BackOfficeException{
 
@@ -181,7 +189,7 @@ public class ContractRisk extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant None is missing (db update required?)");
 
        return ContractRisk.None;
-     }
+    }
 
     public static ContractRisk getNotSet( ) throws BackOfficeException{
 
@@ -191,7 +199,7 @@ public class ContractRisk extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant NotSet is missing (db update required?)");
 
        return ContractRisk.NotSet;
-     }
+    }
 
     public static ContractRisk getAdvantage( ) throws BackOfficeException{
 
@@ -201,7 +209,7 @@ public class ContractRisk extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant Advantage is missing (db update required?)");
 
        return ContractRisk.Advantage;
-     }
+    }
 
 
     public static void clearConstantCache(){

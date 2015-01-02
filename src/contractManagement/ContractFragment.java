@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -34,7 +35,9 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     public ContractFragment(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
@@ -44,32 +47,37 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
     }
 
 
-    public ContractFragment(String name, DBKeyInterface version, DBKeyInterface project, long structureno, long ordinal, String text, long indentation, String type, DBKeyInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, String display) throws BackOfficeException{
+    public ContractFragment(String name, DBKeyInterface version, DBKeyInterface project, long structureno, long ordinal, String text, long indentation, String type, DBKeyInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, String display){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(name);
-        data[1] = new ReferenceData(version, columns[1].getTableReference());
-        data[2] = new ReferenceData(project, columns[2].getTableReference());
-        data[3] = new IntData(structureno);
-        data[4] = new IntData(ordinal);
-        data[5] = new BlobData(text);
-        data[6] = new IntData(indentation);
-        data[7] = new StringData(type);
-        data[8] = new ReferenceData(risk, columns[8].getTableReference());
-        data[9] = new IntData(annotationcount);
-        data[10] = new IntData(referencecount);
-        data[11] = new IntData(classificatoncount);
-        data[12] = new IntData(actioncount);
-        data[13] = new IntData(xpos);
-        data[14] = new IntData(ypos);
-        data[15] = new StringData(display);
+           data[0] = new StringData(name);
+           data[1] = new ReferenceData(version, columns[1].getTableReference());
+           data[2] = new ReferenceData(project, columns[2].getTableReference());
+           data[3] = new IntData(structureno);
+           data[4] = new IntData(ordinal);
+           data[5] = new BlobData(text);
+           data[6] = new IntData(indentation);
+           data[7] = new StringData(type);
+           data[8] = new ReferenceData(risk, columns[8].getTableReference());
+           data[9] = new IntData(annotationcount);
+           data[10] = new IntData(referencecount);
+           data[11] = new IntData(classificatoncount);
+           data[12] = new IntData(actioncount);
+           data[13] = new IntData(xpos);
+           data[14] = new IntData(ypos);
+           data[15] = new StringData(display);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }

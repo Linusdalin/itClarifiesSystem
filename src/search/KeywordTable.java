@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -32,11 +33,12 @@ public class KeywordTable extends DataTable implements DataTableInterface{
     public static final String TABLE = "Keyword";
     private static final String DESCRIPTION = "Search completion keywords from the contract";
 
-    public enum Columns {Keyword, Document, Project, }
+    public enum Columns {Keyword, Version, Document, Project, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
             new StringColumn("Keyword", DataColumn.noFormatting),
+            new ReferenceColumn("Version", DataColumn.noFormatting, new TableReference("ContractVersionInstance", "Version")),
             new ReferenceColumn("Document", DataColumn.noFormatting, new TableReference("Contract", "Name")),
             new ReferenceColumn("Project", DataColumn.noFormatting, new TableReference("Project", "Name")),
     };
@@ -71,36 +73,36 @@ public class KeywordTable extends DataTable implements DataTableInterface{
     };
     private static final String[][] TestValues = {
 
-          {"GATC", "Google Analytics", "Demo", "system"},
-          {"Account", "Google Analytics", "Demo", "system"},
-          {"Hit", "Google Analytics", "Demo", "system"},
-          {"Customer", "Google Analytics", "Demo", "system"},
-          {"Customer Data", "Google Analytics", "Demo", "system"},
-          {"Documentation", "Google Analytics", "Demo", "system"},
-          {"billing account", "Google Analytics", "Demo", "system"},
-          {"Profiles", "Google Analytics", "Demo", "system"},
-          {"hit", "Google Analytics", "Demo", "system"},
-          {"hits aggregated", "Google Analytics", "Demo", "system"},
-          {"Confidential Information", "Google Analytics", "Demo", "system"},
-          {"information disclosed", "Google Analytics", "Demo", "system"},
-          {"confidential", "Google Analytics", "Demo", "system"},
-          {"disclosed orally", "Google Analytics", "Demo", "system"},
-          {"Processing Software Data", "Google Analytics", "Demo", "system"},
-          {"hit may", "Google Analytics", "Demo", "system"},
-          {"Google Analytics system", "Google Analytics", "Demo", "system"},
-          {"Google Analytics-supported protocols", "Google Analytics", "Demo", "system"},
-          {"Processing Software", "Google Analytics", "Demo", "system"},
-          {"Software", "Google Analytics", "Demo", "system"},
-          {"Profile", "Google Analytics", "Demo", "system"},
-          {"report", "Google Analytics", "Demo", "system"},
-          {"multiple profiles", "Google Analytics", "Demo", "system"},
-          {"property", "Google Analytics", "Demo", "system"},
-          {"property includes", "Google Analytics", "Demo", "system"},
-          {"privacy policy", "Google Analytics", "Demo", "system"},
-          {"servers", "Google Analytics", "Demo", "system"},
-          {"third party", "Google Analytics", "Demo", "system"},
-          {"visitor", "Google Analytics", "Demo", "system"},
-          {"include", "Google Analytics", "Demo", "system"},
+          {"GATC", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"Account", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"Hit", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"Customer", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"Customer Data", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"Documentation", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"billing account", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"Profiles", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"hit", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"hits aggregated", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"Confidential Information", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"information disclosed", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"confidential", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"disclosed orally", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"Processing Software Data", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"hit may", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"Google Analytics system", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"Google Analytics-supported protocols", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"Processing Software", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"Software", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"Profile", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"report", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"multiple profiles", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"property", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"property includes", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"privacy policy", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"servers", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"third party", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"visitor", "Google v1.0", "Google Analytics", "Demo", "system"},
+          {"include", "Google v1.0", "Google Analytics", "Demo", "system"},
 
 
 

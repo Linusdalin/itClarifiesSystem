@@ -2,6 +2,7 @@ package search;
 
 import contractManagement.*;
 import databaseLayer.DBKeyInterface;
+import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import pukkaBO.condition.*;
@@ -185,6 +186,7 @@ public class KeywordServlet extends ItClarifiesService {
             Formatter formatter = getFormatFromParameters(req);
 
             List<Keyword> keywordsForProject = project.getKeywordsForProject();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Compiling " + keywordsForProject.size() + " keywords for project " + project.getName());
 
             JSONObject jsonObject = new JSONObject();
             JSONArray keywordList = new JSONArray();

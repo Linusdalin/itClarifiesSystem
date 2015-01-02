@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -34,7 +35,9 @@ public class Reclassification extends DataObject implements DataObjectInterface{
 
     public Reclassification(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
@@ -44,31 +47,36 @@ public class Reclassification extends DataObject implements DataObjectInterface{
     }
 
 
-    public Reclassification(String name, boolean ispositive, DBKeyInterface user, String fragment, String headline, long fragmentno, String pattern, String comment, String classtag, long requirementlevel, long applicablephase, DBKeyInterface risklevel, DBKeyInterface document, String date, boolean closed) throws BackOfficeException{
+    public Reclassification(String name, boolean ispositive, DBKeyInterface user, String fragment, String headline, long fragmentno, String pattern, String comment, String classtag, long requirementlevel, long applicablephase, DBKeyInterface risklevel, DBKeyInterface document, String date, boolean closed){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(name);
-        data[1] = new BoolData(ispositive);
-        data[2] = new ReferenceData(user, columns[2].getTableReference());
-        data[3] = new BlobData(fragment);
-        data[4] = new BlobData(headline);
-        data[5] = new IntData(fragmentno);
-        data[6] = new TextData(pattern);
-        data[7] = new TextData(comment);
-        data[8] = new StringData(classtag);
-        data[9] = new IntData(requirementlevel);
-        data[10] = new IntData(applicablephase);
-        data[11] = new ReferenceData(risklevel, columns[11].getTableReference());
-        data[12] = new ReferenceData(document, columns[12].getTableReference());
-        data[13] = new DateData(date);
-        data[14] = new BoolData(closed);
+           data[0] = new StringData(name);
+           data[1] = new BoolData(ispositive);
+           data[2] = new ReferenceData(user, columns[2].getTableReference());
+           data[3] = new BlobData(fragment);
+           data[4] = new BlobData(headline);
+           data[5] = new IntData(fragmentno);
+           data[6] = new TextData(pattern);
+           data[7] = new TextData(comment);
+           data[8] = new StringData(classtag);
+           data[9] = new IntData(requirementlevel);
+           data[10] = new IntData(applicablephase);
+           data[11] = new ReferenceData(risklevel, columns[11].getTableReference());
+           data[12] = new ReferenceData(document, columns[12].getTableReference());
+           data[13] = new DateData(date);
+           data[14] = new BoolData(closed);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }

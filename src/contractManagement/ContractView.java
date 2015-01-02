@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -34,7 +35,9 @@ public class ContractView extends DataObject implements DataObjectInterface{
 
     public ContractView(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
@@ -44,20 +47,25 @@ public class ContractView extends DataObject implements DataObjectInterface{
     }
 
 
-    public ContractView(String name, DBKeyInterface contract, String search, String comment) throws BackOfficeException{
+    public ContractView(String name, DBKeyInterface contract, String search, String comment){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(name);
-        data[1] = new ReferenceData(contract, columns[1].getTableReference());
-        data[2] = new TextData(search);
-        data[3] = new TextData(comment);
+           data[0] = new StringData(name);
+           data[1] = new ReferenceData(contract, columns[1].getTableReference());
+           data[2] = new TextData(search);
+           data[3] = new TextData(comment);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }

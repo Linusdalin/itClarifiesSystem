@@ -170,7 +170,7 @@
 
                                 //TODO: Not implemented Read Only. Enforce ReadOnly access to tables by using "hasEdit"
 
-                                out.print(renderer.getTableContent(table, id, selection, false, true, true));
+                                out.print(renderer.getTableContent(table, id, selection, false, true, table.hasEdit()));
                                 out.print(renderer.getPagination(selection, tableParameter, pageId, pageSize, totalItems));
                             }else{
 

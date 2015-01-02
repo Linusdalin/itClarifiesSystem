@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -34,7 +35,9 @@ public class Contract extends DataObject implements DataObjectInterface{
 
     public Contract(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
@@ -44,28 +47,33 @@ public class Contract extends DataObject implements DataObjectInterface{
     }
 
 
-    public Contract(String name, String file, long ordinal, DBKeyInterface type, DBKeyInterface status, String message, String description, DBKeyInterface project, DBKeyInterface owner, String creation, String language, String access) throws BackOfficeException{
+    public Contract(String name, String file, long ordinal, DBKeyInterface type, DBKeyInterface status, String message, String description, DBKeyInterface project, DBKeyInterface owner, String creation, String language, String access){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(name);
-        data[1] = new StringData(file);
-        data[2] = new IntData(ordinal);
-        data[3] = new ReferenceData(type, columns[3].getTableReference());
-        data[4] = new ReferenceData(status, columns[4].getTableReference());
-        data[5] = new TextData(message);
-        data[6] = new TextData(description);
-        data[7] = new ReferenceData(project, columns[7].getTableReference());
-        data[8] = new ReferenceData(owner, columns[8].getTableReference());
-        data[9] = new DateData(creation);
-        data[10] = new StringData(language);
-        data[11] = new StringData(access);
+           data[0] = new StringData(name);
+           data[1] = new StringData(file);
+           data[2] = new IntData(ordinal);
+           data[3] = new ReferenceData(type, columns[3].getTableReference());
+           data[4] = new ReferenceData(status, columns[4].getTableReference());
+           data[5] = new TextData(message);
+           data[6] = new TextData(description);
+           data[7] = new ReferenceData(project, columns[7].getTableReference());
+           data[8] = new ReferenceData(owner, columns[8].getTableReference());
+           data[9] = new DateData(creation);
+           data[10] = new StringData(language);
+           data[11] = new StringData(access);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }
@@ -327,6 +335,7 @@ public class Contract extends DataObject implements DataObjectInterface{
         int noAnnotations = 0;
         int noReferences = 0;
         int noClassifications = 0;
+        int noKeywords = 0;
         int noFlags = 0;
 
        // Get all instances
@@ -339,7 +348,6 @@ public class Contract extends DataObject implements DataObjectInterface{
            ContractVersionInstance version = (ContractVersionInstance)v;
 
            // Get all fragments for this version and delete them
-
 
            ContractFragmentTable allFragments = new ContractFragmentTable(new LookupItem()
                    .addFilter(new ReferenceFilter(ContractFragmentTable.Columns.Version.name(), version.getKey())));
@@ -373,6 +381,15 @@ public class Contract extends DataObject implements DataObjectInterface{
 
            noClassifications += allClassifications.getCount();
            allClassifications.delete();
+
+           // Get all keywords for this version and delete them
+
+           KeywordTable allKeywords = new KeywordTable(new LookupItem()
+                   .addFilter(new ReferenceFilter(KeywordTable.Columns.Version.name(), version.getKey())));
+
+           noKeywords += allKeywords.getCount();
+           allKeywords.delete();
+
 
             // Get all structure items for this version and delete them
 
@@ -409,7 +426,7 @@ public class Contract extends DataObject implements DataObjectInterface{
 
         services.DocumentService.invalidateDocumentCache(this, this.getProject());
 
-        return new DocumentDeleteOutcome(1, noInstances, noClauses, noFragments, noAnnotations, noClassifications, noFlags, noReferences);
+        return new DocumentDeleteOutcome(1, noInstances, noClauses, noFragments, noAnnotations, noClassifications, noFlags, noReferences, noKeywords);
 
     }
 
@@ -435,24 +452,6 @@ public class Contract extends DataObject implements DataObjectInterface{
     public List<ContractVersionInstance> getVersionsForDocument() throws BackOfficeException{
 
         return getVersionsForDocument(new LookupList());
-    }
-
-    public List<Keyword> getKeywordsForDocument(ConditionInterface condition) throws BackOfficeException{
-
-        condition.addFilter(new ReferenceFilter(KeywordTable.Columns.Document.name(), getKey()));
-
-        List<DataObjectInterface> objects = new KeywordTable(condition).getValues();
-
-        List<Keyword> versions = (List<Keyword>)(List<?>) objects;
-
-        return versions;
-    }
-
-    // No condition retrieves all items
-
-    public List<Keyword> getKeywordsForDocument() throws BackOfficeException{
-
-        return getKeywordsForDocument(new LookupList());
     }
 
 

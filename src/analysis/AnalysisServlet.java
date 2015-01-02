@@ -9,6 +9,7 @@ import classifiers.Classification;
 import contractManagement.*;
 import crossReference.*;
 import dataRepresentation.DBTimeStamp;
+import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
 import databaseLayer.DatabaseAbstractionFactory;
 import document.*;
@@ -527,7 +528,7 @@ public class AnalysisServlet extends DocumentService {
                     PukkaLogger.log(PukkaLogger.Level.INFO, "Closing an open reference(2) " + reference.getName() + ". Found matching clause " + clauseId.toString() );
 
                     reference.setTo(clauseId);
-                    reference.setType(ReferenceType.getExplicit().getKey());
+                    reference.setType(ReferenceType.getExplicit());
                     reference.update();
 
                     break;
@@ -672,7 +673,7 @@ public class AnalysisServlet extends DocumentService {
 
         for(String word : keywords){
 
-            Keyword keyword = new Keyword(word, document, project);
+            Keyword keyword = new Keyword(word, versionInstance, document, project);
             table.add(keyword);
         }
 
@@ -682,7 +683,7 @@ public class AnalysisServlet extends DocumentService {
 
         for(ContractRisk risk : risks){
 
-            Keyword keyword = new Keyword("#" + risk.getName(), document, project);
+            Keyword keyword = new Keyword("#" + risk.getName(), versionInstance, document, project);
             table.add(keyword);
         }
 
@@ -701,7 +702,7 @@ public class AnalysisServlet extends DocumentService {
 
             for (String classificationTagKeyword : classificationTagKeywords) {
 
-                Keyword keyword = new Keyword(classificationTagKeyword, document, project);
+                Keyword keyword = new Keyword(classificationTagKeyword, versionInstance, document, project);
                 table.add(keyword);
             }
 
@@ -710,13 +711,13 @@ public class AnalysisServlet extends DocumentService {
         // TODO: Move these to create project
 
 
-        Keyword keyword = new Keyword("#Risk", document, project);
+        Keyword keyword = new Keyword("#Risk", versionInstance, document, project);
         table.add(keyword);
 
-        keyword = new Keyword("#Annotation", document, project);
+        keyword = new Keyword("#Annotation", versionInstance, document, project);
         table.add(keyword);
 
-        keyword = new Keyword("#Classification", document, project);
+        keyword = new Keyword("#Classification", versionInstance, document, project);
         table.add(keyword);
 
 
@@ -899,7 +900,7 @@ public class AnalysisServlet extends DocumentService {
                             fragment.getKey(),          // TODO: Points to itself, is this ok?
                             fragment.getVersionId(),
                             project.getKey(),
-                            type.getKey());
+                            type);
                     reference.store();
 
                     references++;
@@ -1021,7 +1022,7 @@ public class AnalysisServlet extends DocumentService {
                                 getDefinitionSource(classification, fragment, project),
                                 fragment.getVersionId(),
                                 project.getKey(),
-                                type.getKey());
+                                type);
                         reference.store();
 
                         references++;
@@ -1168,7 +1169,7 @@ public class AnalysisServlet extends DocumentService {
                                 definitionFragment.getKey(),     // Point to the definition
                                 fragment.getVersionId(),
                                 project.getKey(),
-                                type.getKey());
+                                type);
                         reference.store();
 
                         references++;

@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -40,23 +41,30 @@ public class ActionStatus extends DataObject implements DataObjectInterface{
 
     public ActionStatus(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
-    public ActionStatus(String name, long ordinal, String comment) throws BackOfficeException{
+    public ActionStatus(String name, long ordinal, String comment){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(name);
-        data[1] = new IntData(ordinal);
-        data[2] = new TextData(comment);
+           data[0] = new StringData(name);
+           data[1] = new IntData(ordinal);
+           data[2] = new TextData(comment);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }
@@ -140,7 +148,7 @@ public class ActionStatus extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant Open is missing (db update required?)");
 
        return ActionStatus.Open;
-     }
+    }
 
     public static ActionStatus getInProgress( ) throws BackOfficeException{
 
@@ -150,7 +158,7 @@ public class ActionStatus extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant InProgress is missing (db update required?)");
 
        return ActionStatus.InProgress;
-     }
+    }
 
     public static ActionStatus getCompleted( ) throws BackOfficeException{
 
@@ -160,7 +168,7 @@ public class ActionStatus extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant Completed is missing (db update required?)");
 
        return ActionStatus.Completed;
-     }
+    }
 
     public static ActionStatus getBlocked( ) throws BackOfficeException{
 
@@ -170,7 +178,7 @@ public class ActionStatus extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant Blocked is missing (db update required?)");
 
        return ActionStatus.Blocked;
-     }
+    }
 
     public static ActionStatus getCancelled( ) throws BackOfficeException{
 
@@ -180,7 +188,7 @@ public class ActionStatus extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant Cancelled is missing (db update required?)");
 
        return ActionStatus.Cancelled;
-     }
+    }
 
     public static ActionStatus getDone( ) throws BackOfficeException{
 
@@ -190,7 +198,7 @@ public class ActionStatus extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant Done is missing (db update required?)");
 
        return ActionStatus.Done;
-     }
+    }
 
 
     public static void clearConstantCache(){

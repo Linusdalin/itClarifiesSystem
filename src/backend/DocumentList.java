@@ -177,10 +177,14 @@ public class DocumentList extends GroupByList implements ListInterface{
                     DocumentDeleteOutcome outcome = document.recursivelyDeleteDocument();
 
                     return "Deleted document " + document.getName() + " with<br>\n" +
-                            " - " + outcome.versions + " versions<br>\n" +
-                            " - " + outcome.clauses + " clauses<br>\n" +
-                            " - " + outcome.fragments + " fragments and<br>\n" +
-                            " - " + outcome.annotations + " annotations\n";
+                            " - " + outcome.versions + " versions" +
+                            " - " + outcome.clauses + " clauses" +
+                            " - " + outcome.fragments + " fragments" +
+                            " - " + outcome.annotations + " annotations" +
+                            " - " + outcome.riskFlags + " risks" +
+                            " - " + outcome.references + " references" +
+                            " - " + outcome.keywords + " keywords and" +
+                            " - " + outcome.classifications + " classifications<br>\n";
 
                 case Callback_Action_View:
 

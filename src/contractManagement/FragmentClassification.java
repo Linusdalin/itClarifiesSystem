@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -34,7 +35,9 @@ public class FragmentClassification extends DataObject implements DataObjectInte
 
     public FragmentClassification(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
@@ -44,31 +47,36 @@ public class FragmentClassification extends DataObject implements DataObjectInte
     }
 
 
-    public FragmentClassification(DBKeyInterface fragment, String classtag, long requirementlevel, long applicablephase, String comment, String keywords, DBKeyInterface creator, DBKeyInterface version, DBKeyInterface project, String pattern, long pos, long length, long significance, String ruleid, String time) throws BackOfficeException{
+    public FragmentClassification(DBKeyInterface fragment, String classtag, long requirementlevel, long applicablephase, String comment, String keywords, DBKeyInterface creator, DBKeyInterface version, DBKeyInterface project, String pattern, long pos, long length, long significance, String ruleid, String time){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new ReferenceData(fragment, columns[0].getTableReference());
-        data[1] = new StringData(classtag);
-        data[2] = new IntData(requirementlevel);
-        data[3] = new IntData(applicablephase);
-        data[4] = new TextData(comment);
-        data[5] = new TextData(keywords);
-        data[6] = new ReferenceData(creator, columns[6].getTableReference());
-        data[7] = new ReferenceData(version, columns[7].getTableReference());
-        data[8] = new ReferenceData(project, columns[8].getTableReference());
-        data[9] = new TextData(pattern);
-        data[10] = new IntData(pos);
-        data[11] = new IntData(length);
-        data[12] = new IntData(significance);
-        data[13] = new TextData(ruleid);
-        data[14] = new TimeStampData(time);
+           data[0] = new ReferenceData(fragment, columns[0].getTableReference());
+           data[1] = new StringData(classtag);
+           data[2] = new IntData(requirementlevel);
+           data[3] = new IntData(applicablephase);
+           data[4] = new TextData(comment);
+           data[5] = new TextData(keywords);
+           data[6] = new ReferenceData(creator, columns[6].getTableReference());
+           data[7] = new ReferenceData(version, columns[7].getTableReference());
+           data[8] = new ReferenceData(project, columns[8].getTableReference());
+           data[9] = new TextData(pattern);
+           data[10] = new IntData(pos);
+           data[11] = new IntData(length);
+           data[12] = new IntData(significance);
+           data[13] = new TextData(ruleid);
+           data[14] = new TimeStampData(time);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }

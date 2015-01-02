@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -34,29 +35,37 @@ public class Keyword extends DataObject implements DataObjectInterface{
 
     public Keyword(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
-    public Keyword(String keyword, DataObjectInterface document, DataObjectInterface project) throws BackOfficeException{
+    public Keyword(String keyword, DataObjectInterface version, DataObjectInterface document, DataObjectInterface project) throws BackOfficeException{
 
-        this(keyword, document.getKey(), project.getKey());
+        this(keyword, version.getKey(), document.getKey(), project.getKey());
     }
 
 
-    public Keyword(String keyword, DBKeyInterface document, DBKeyInterface project) throws BackOfficeException{
+    public Keyword(String keyword, DBKeyInterface version, DBKeyInterface document, DBKeyInterface project){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(keyword);
-        data[1] = new ReferenceData(document, columns[1].getTableReference());
-        data[2] = new ReferenceData(project, columns[2].getTableReference());
+           data[0] = new StringData(keyword);
+           data[1] = new ReferenceData(version, columns[1].getTableReference());
+           data[2] = new ReferenceData(document, columns[2].getTableReference());
+           data[3] = new ReferenceData(project, columns[3].getTableReference());
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }
@@ -104,21 +113,41 @@ public class Keyword extends DataObject implements DataObjectInterface{
 
 
 
-    public DBKeyInterface getDocumentId(){
+    public DBKeyInterface getVersionId(){
 
         ReferenceData data = (ReferenceData)this.data[1];
         return data.value;
     }
 
-    public contractManagement.Contract getDocument(){
+    public ContractVersionInstance getVersion(){
 
         ReferenceData data = (ReferenceData)this.data[1];
-        return new contractManagement.Contract(new LookupByKey(data.value));
+        return new ContractVersionInstance(new LookupByKey(data.value));
+    }
+
+    public void setVersion(DBKeyInterface version){
+
+        ReferenceData data = (ReferenceData)this.data[1];
+        data.value = version;
+    }
+
+
+
+    public DBKeyInterface getDocumentId(){
+
+        ReferenceData data = (ReferenceData)this.data[2];
+        return data.value;
+    }
+
+    public Contract getDocument(){
+
+        ReferenceData data = (ReferenceData)this.data[2];
+        return new Contract(new LookupByKey(data.value));
     }
 
     public void setDocument(DBKeyInterface document){
 
-        ReferenceData data = (ReferenceData)this.data[1];
+        ReferenceData data = (ReferenceData)this.data[2];
         data.value = document;
     }
 
@@ -126,19 +155,19 @@ public class Keyword extends DataObject implements DataObjectInterface{
 
     public DBKeyInterface getProjectId(){
 
-        ReferenceData data = (ReferenceData)this.data[2];
+        ReferenceData data = (ReferenceData)this.data[3];
         return data.value;
     }
 
     public contractManagement.Project getProject(){
 
-        ReferenceData data = (ReferenceData)this.data[2];
+        ReferenceData data = (ReferenceData)this.data[3];
         return new contractManagement.Project(new LookupByKey(data.value));
     }
 
     public void setProject(DBKeyInterface project){
 
-        ReferenceData data = (ReferenceData)this.data[2];
+        ReferenceData data = (ReferenceData)this.data[3];
         data.value = project;
     }
 

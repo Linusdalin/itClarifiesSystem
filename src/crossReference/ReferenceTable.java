@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -41,7 +42,7 @@ public class ReferenceTable extends DataTable implements DataTableInterface{
             new ReferenceColumn("To", DataColumn.noFormatting, new TableReference("ContractFragment", "Name")),
             new ReferenceColumn("Version", DataColumn.noFormatting, new TableReference("ContractVersionInstance", "Version")),
             new ReferenceColumn("Project", DataColumn.noFormatting, new TableReference("Project", "Name")),
-            new ReferenceColumn("Type", DataColumn.noFormatting, new TableReference("ReferenceType", "Name")),
+            new ConstantColumn("Type", DataColumn.noFormatting, new TableReference("ReferenceType", "Name")),
     };
 
     private static final Reference associatedObject = new Reference();

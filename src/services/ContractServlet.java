@@ -237,9 +237,11 @@ public class ContractServlet extends DocumentService{
                     .put("instances", outcome.versions)
                     .put("clauses", outcome.clauses)
                     .put("fragments", outcome.fragments)
-                    .put("annotations", outcome.fragments)
-                    .put("flags", outcome.fragments)
-                    .put("classifications", outcome.fragments));
+                    .put("annotations", outcome.annotations)
+                    .put("flags", outcome.riskFlags)
+                    .put("classifications", outcome.classifications)
+                    .put("keywords", outcome.keywords)
+                    .put("references", outcome.references));
 
            invalidateDocumentCache(contract, contract.getProject());
 

@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -36,7 +37,9 @@ public class Organization extends DataObject implements DataObjectInterface{
 
     public Organization(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
@@ -46,21 +49,26 @@ public class Organization extends DataObject implements DataObjectInterface{
     }
 
 
-    public Organization(String name, String date, String description, String token, DBKeyInterface config) throws BackOfficeException{
+    public Organization(String name, String date, String description, String token, DBKeyInterface config){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(name);
-        data[1] = new DateData(date);
-        data[2] = new TextData(description);
-        data[3] = new StringData(token);
-        data[4] = new ReferenceData(config, columns[4].getTableReference());
+           data[0] = new StringData(name);
+           data[1] = new DateData(date);
+           data[2] = new TextData(description);
+           data[3] = new StringData(token);
+           data[4] = new ReferenceData(config, columns[4].getTableReference());
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }
@@ -178,7 +186,7 @@ public class Organization extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant none is missing (db update required?)");
 
        return Organization.none;
-     }
+    }
 
     public static Organization getitClarifies( ) throws BackOfficeException{
 
@@ -188,7 +196,7 @@ public class Organization extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant itClarifies is missing (db update required?)");
 
        return Organization.itClarifies;
-     }
+    }
 
 
     public static void clearConstantCache(){

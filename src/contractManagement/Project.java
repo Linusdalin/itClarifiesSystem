@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -34,7 +35,9 @@ public class Project extends DataObject implements DataObjectInterface{
 
     public Project(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
@@ -44,22 +47,27 @@ public class Project extends DataObject implements DataObjectInterface{
     }
 
 
-    public Project(String name, String description, DBKeyInterface creator, DBKeyInterface organization, String creationtime, String access) throws BackOfficeException{
+    public Project(String name, String description, DBKeyInterface creator, DBKeyInterface organization, String creationtime, String access){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(name);
-        data[1] = new TextData(description);
-        data[2] = new ReferenceData(creator, columns[2].getTableReference());
-        data[3] = new ReferenceData(organization, columns[3].getTableReference());
-        data[4] = new TimeStampData(creationtime);
-        data[5] = new StringData(access);
+           data[0] = new StringData(name);
+           data[1] = new TextData(description);
+           data[2] = new ReferenceData(creator, columns[2].getTableReference());
+           data[3] = new ReferenceData(organization, columns[3].getTableReference());
+           data[4] = new TimeStampData(creationtime);
+           data[5] = new StringData(access);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }

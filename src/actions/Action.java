@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -34,7 +35,9 @@ public class Action extends DataObject implements DataObjectInterface{
 
     public Action(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
@@ -44,30 +47,35 @@ public class Action extends DataObject implements DataObjectInterface{
     }
 
 
-    public Action(long id, String name, String description, String pattern, DBKeyInterface fragment, DBKeyInterface version, DBKeyInterface project, DBKeyInterface issuer, DBKeyInterface assignee, long priority, DBKeyInterface status, String created, String due, String completed) throws BackOfficeException{
+    public Action(long id, String name, String description, String pattern, DBKeyInterface fragment, DBKeyInterface version, DBKeyInterface project, DBKeyInterface issuer, DBKeyInterface assignee, long priority, DBKeyInterface status, String created, String due, String completed){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new IntData(id);
-        data[1] = new StringData(name);
-        data[2] = new TextData(description);
-        data[3] = new TextData(pattern);
-        data[4] = new ReferenceData(fragment, columns[4].getTableReference());
-        data[5] = new ReferenceData(version, columns[5].getTableReference());
-        data[6] = new ReferenceData(project, columns[6].getTableReference());
-        data[7] = new ReferenceData(issuer, columns[7].getTableReference());
-        data[8] = new ReferenceData(assignee, columns[8].getTableReference());
-        data[9] = new IntData(priority);
-        data[10] = new ReferenceData(status, columns[10].getTableReference());
-        data[11] = new DateData(created);
-        data[12] = new DateData(due);
-        data[13] = new DateData(completed);
+           data[0] = new IntData(id);
+           data[1] = new StringData(name);
+           data[2] = new TextData(description);
+           data[3] = new TextData(pattern);
+           data[4] = new ReferenceData(fragment, columns[4].getTableReference());
+           data[5] = new ReferenceData(version, columns[5].getTableReference());
+           data[6] = new ReferenceData(project, columns[6].getTableReference());
+           data[7] = new ReferenceData(issuer, columns[7].getTableReference());
+           data[8] = new ReferenceData(assignee, columns[8].getTableReference());
+           data[9] = new IntData(priority);
+           data[10] = new ReferenceData(status, columns[10].getTableReference());
+           data[11] = new DateData(created);
+           data[12] = new DateData(due);
+           data[13] = new DateData(completed);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }

@@ -2,12 +2,12 @@ package test;
 
 import actions.Action;
 import actions.ActionStatus;
-import analysis.FeatureType;
 import backend.ItClarifies;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
+import featureTypes.FeatureTypeTree;
 import fileHandling.BlobRepository;
 import language.LanguageCode;
 import log.PukkaLogger;
@@ -241,7 +241,7 @@ public class ReplaceDocumentTest extends ServletTests{
 
         new ContractAnnotation("", first, 1, "a comment", user, version, "", now.getISODate()).store();
 
-        new FragmentClassification(first, FeatureType.DEFINITION.name(), 0, 0, "", "", user, version, project, "", 0, 0, 70, "no rule specified", now.getISODate()).store();
+        new FragmentClassification(first, FeatureTypeTree.Definition.getName(), 0, 0, "", "", user, version, project, "", 0, 0, 70, "no rule specified", now.getISODate()).store();
 
         new Action(0, "name", "action description", "pattern", first, version, first.getVersion().getDocument().getProject(),
                 adminUser, adminUser, (long)4711, ActionStatus.getInProgress(), new DBTimeStamp().getISODate(), new DBTimeStamp().getISODate(), new DBTimeStamp().getISODate()).store();

@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -41,22 +42,29 @@ public class ContractFragmentType extends DataObject implements DataObjectInterf
 
     public ContractFragmentType(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
-    public ContractFragmentType(String name, String description) throws BackOfficeException{
+    public ContractFragmentType(String name, String description){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(name);
-        data[1] = new TextData(description);
+           data[0] = new StringData(name);
+           data[1] = new TextData(description);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }
@@ -126,7 +134,7 @@ public class ContractFragmentType extends DataObject implements DataObjectInterf
           throw new BackOfficeException(BackOfficeException.TableError, "Constant Text is missing (db update required?)");
 
        return ContractFragmentType.Text;
-     }
+    }
 
     public static ContractFragmentType getHeadline( ) throws BackOfficeException{
 
@@ -136,7 +144,7 @@ public class ContractFragmentType extends DataObject implements DataObjectInterf
           throw new BackOfficeException(BackOfficeException.TableError, "Constant Headline is missing (db update required?)");
 
        return ContractFragmentType.Headline;
-     }
+    }
 
     public static ContractFragmentType getSub( ) throws BackOfficeException{
 
@@ -146,7 +154,7 @@ public class ContractFragmentType extends DataObject implements DataObjectInterf
           throw new BackOfficeException(BackOfficeException.TableError, "Constant Sub is missing (db update required?)");
 
        return ContractFragmentType.Sub;
-     }
+    }
 
     public static ContractFragmentType getBList( ) throws BackOfficeException{
 
@@ -156,7 +164,7 @@ public class ContractFragmentType extends DataObject implements DataObjectInterf
           throw new BackOfficeException(BackOfficeException.TableError, "Constant BList is missing (db update required?)");
 
        return ContractFragmentType.BList;
-     }
+    }
 
     public static ContractFragmentType getIList( ) throws BackOfficeException{
 
@@ -166,7 +174,7 @@ public class ContractFragmentType extends DataObject implements DataObjectInterf
           throw new BackOfficeException(BackOfficeException.TableError, "Constant IList is missing (db update required?)");
 
        return ContractFragmentType.IList;
-     }
+    }
 
     public static ContractFragmentType getNList( ) throws BackOfficeException{
 
@@ -176,7 +184,7 @@ public class ContractFragmentType extends DataObject implements DataObjectInterf
           throw new BackOfficeException(BackOfficeException.TableError, "Constant NList is missing (db update required?)");
 
        return ContractFragmentType.NList;
-     }
+    }
 
     public static ContractFragmentType getDocTitle( ) throws BackOfficeException{
 
@@ -186,7 +194,7 @@ public class ContractFragmentType extends DataObject implements DataObjectInterf
           throw new BackOfficeException(BackOfficeException.TableError, "Constant DocTitle is missing (db update required?)");
 
        return ContractFragmentType.DocTitle;
-     }
+    }
 
 
     public static void clearConstantCache(){

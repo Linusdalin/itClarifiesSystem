@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -36,21 +37,28 @@ public class OrganizationConf extends DataObject implements DataObjectInterface{
 
     public OrganizationConf(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
-    public OrganizationConf(String name) throws BackOfficeException{
+    public OrganizationConf(String name){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(name);
+           data[0] = new StringData(name);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }
@@ -106,7 +114,7 @@ public class OrganizationConf extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant noOrg is missing (db update required?)");
 
        return OrganizationConf.noOrg;
-     }
+    }
 
     public static OrganizationConf getitClarifies( ) throws BackOfficeException{
 
@@ -116,7 +124,7 @@ public class OrganizationConf extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant itClarifies is missing (db update required?)");
 
        return OrganizationConf.itClarifies;
-     }
+    }
 
 
     public static void clearConstantCache(){

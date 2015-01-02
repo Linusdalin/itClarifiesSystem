@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -34,7 +35,9 @@ public class AccessGrant extends DataObject implements DataObjectInterface{
 
     public AccessGrant(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
@@ -44,22 +47,27 @@ public class AccessGrant extends DataObject implements DataObjectInterface{
     }
 
 
-    public AccessGrant(String name, DBKeyInterface document, DBKeyInterface accessright, DBKeyInterface visibility, DBKeyInterface issuer, String time) throws BackOfficeException{
+    public AccessGrant(String name, DBKeyInterface document, DBKeyInterface accessright, DBKeyInterface visibility, DBKeyInterface issuer, String time){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(name);
-        data[1] = new ReferenceData(document, columns[1].getTableReference());
-        data[2] = new ReferenceData(accessright, columns[2].getTableReference());
-        data[3] = new ReferenceData(visibility, columns[3].getTableReference());
-        data[4] = new ReferenceData(issuer, columns[4].getTableReference());
-        data[5] = new DateData(time);
+           data[0] = new StringData(name);
+           data[1] = new ReferenceData(document, columns[1].getTableReference());
+           data[2] = new ReferenceData(accessright, columns[2].getTableReference());
+           data[3] = new ReferenceData(visibility, columns[3].getTableReference());
+           data[4] = new ReferenceData(issuer, columns[4].getTableReference());
+           data[5] = new DateData(time);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }

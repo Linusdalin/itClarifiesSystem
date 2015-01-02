@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -34,7 +35,9 @@ public class StructureItem extends DataObject implements DataObjectInterface{
 
     public StructureItem(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
@@ -44,23 +47,28 @@ public class StructureItem extends DataObject implements DataObjectInterface{
     }
 
 
-    public StructureItem(String name, long topelement, DBKeyInterface version, DBKeyInterface project, long ordinal, String type, long indentation) throws BackOfficeException{
+    public StructureItem(String name, long topelement, DBKeyInterface version, DBKeyInterface project, long ordinal, String type, long indentation){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(name);
-        data[1] = new IntData(topelement);
-        data[2] = new ReferenceData(version, columns[2].getTableReference());
-        data[3] = new ReferenceData(project, columns[3].getTableReference());
-        data[4] = new IntData(ordinal);
-        data[5] = new StringData(type);
-        data[6] = new IntData(indentation);
+           data[0] = new StringData(name);
+           data[1] = new IntData(topelement);
+           data[2] = new ReferenceData(version, columns[2].getTableReference());
+           data[3] = new ReferenceData(project, columns[3].getTableReference());
+           data[4] = new IntData(ordinal);
+           data[5] = new StringData(type);
+           data[6] = new IntData(indentation);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }

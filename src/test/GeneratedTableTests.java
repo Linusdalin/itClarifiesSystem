@@ -1,5 +1,6 @@
 package test;
 
+import crossReference.ReferenceTypeTable;
 import dataRepresentation.DBTimeStamp;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
@@ -1429,9 +1430,11 @@ public class GeneratedTableTests{
      
              try{
      
-                 search.Keyword table1 = new search.Keyword("text 1", dummyKey, dummyKey);
+                 search.Keyword table1 = new search.Keyword("text 1", dummyKey, dummyKey, dummyKey);
 
                  assertThat(table1.getKeyword(), is("text 1"));
+                 assertThat(table1.getVersionId(), is(dummyKey));
+                 assertThat(table1.getVersion().exists(), is(false));
                  assertThat(table1.getDocumentId(), is(dummyKey));
                  assertThat(table1.getDocument().exists(), is(false));
                  assertThat(table1.getProjectId(), is(dummyKey));
@@ -1442,15 +1445,20 @@ public class GeneratedTableTests{
                  table2.load(new LookupByKey(table1.getKey()));
 
                  assertThat(table2.getKeyword(), is("text 1"));
+                 assertThat(table2.getVersionId(), is(dummyKey));
+                 assertThat(table2.getVersion().exists(), is(false));
                  assertThat(table2.getDocumentId(), is(dummyKey));
                  assertThat(table2.getDocument().exists(), is(false));
                  assertThat(table2.getProjectId(), is(dummyKey));
                  assertThat(table2.getProject().exists(), is(false));
 
                  table1.setKeyword("text 11");
+                 table1.setVersion( dummyKey);
                  table1.setDocument( dummyKey);
                  table1.setProject( dummyKey);
                  assertThat(table1.getKeyword(), is("text 11"));
+                 assertThat(table1.getVersionId(), is(dummyKey));
+                 assertThat(table1.getVersion().exists(), is(false));
                  assertThat(table1.getDocumentId(), is(dummyKey));
                  assertThat(table1.getDocument().exists(), is(false));
                  assertThat(table1.getProjectId(), is(dummyKey));
@@ -1524,7 +1532,7 @@ public class GeneratedTableTests{
      
              try{
      
-                 crossReference.Reference table1 = new crossReference.Reference("text 1", dummyKey, dummyKey, dummyKey, dummyKey, dummyKey);
+                 crossReference.Reference table1 = new crossReference.Reference("text 1", dummyKey, dummyKey, dummyKey, dummyKey, ReferenceTypeTable.Values.get(1));
 
                  assertThat(table1.getName(), is("text 1"));
                  assertThat(table1.getFromId(), is(dummyKey));
@@ -1535,8 +1543,7 @@ public class GeneratedTableTests{
                  assertThat(table1.getVersion().exists(), is(false));
                  assertThat(table1.getProjectId(), is(dummyKey));
                  assertThat(table1.getProject().exists(), is(false));
-                 assertThat(table1.getTypeId(), is(dummyKey));
-                 assertThat(table1.getType().exists(), is(false));
+                 assertThat(table1.getType().get__Id(), is(1));
 
                  table1.store();
                  crossReference.Reference table2 = new crossReference.Reference();
@@ -1551,15 +1558,14 @@ public class GeneratedTableTests{
                  assertThat(table2.getVersion().exists(), is(false));
                  assertThat(table2.getProjectId(), is(dummyKey));
                  assertThat(table2.getProject().exists(), is(false));
-                 assertThat(table2.getTypeId(), is(dummyKey));
-                 assertThat(table2.getType().exists(), is(false));
+                 assertThat(table2.getType().get__Id(), is(1));
 
                  table1.setName("text 11");
                  table1.setFrom( dummyKey);
                  table1.setTo( dummyKey);
                  table1.setVersion( dummyKey);
                  table1.setProject( dummyKey);
-                 table1.setType( dummyKey);
+                 table1.setType(ReferenceTypeTable.Values.get(1));
                  assertThat(table1.getName(), is("text 11"));
                  assertThat(table1.getFromId(), is(dummyKey));
                  assertThat(table1.getFrom().exists(), is(false));
@@ -1569,8 +1575,7 @@ public class GeneratedTableTests{
                  assertThat(table1.getVersion().exists(), is(false));
                  assertThat(table1.getProjectId(), is(dummyKey));
                  assertThat(table1.getProject().exists(), is(false));
-                 assertThat(table1.getTypeId(), is(dummyKey));
-                 assertThat(table1.getType().exists(), is(false));
+                 assertThat(table1.getType().get__Id(), is(1));
 
              }catch(BackOfficeException e){
      

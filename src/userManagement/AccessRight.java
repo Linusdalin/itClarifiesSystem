@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -38,22 +39,29 @@ public class AccessRight extends DataObject implements DataObjectInterface{
 
     public AccessRight(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
-    public AccessRight(String name, String description) throws BackOfficeException{
+    public AccessRight(String name, String description){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(name);
-        data[1] = new TextData(description);
+           data[0] = new StringData(name);
+           data[1] = new TextData(description);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }
@@ -123,7 +131,7 @@ public class AccessRight extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant no is missing (db update required?)");
 
        return AccessRight.no;
-     }
+    }
 
     public static AccessRight getro( ) throws BackOfficeException{
 
@@ -133,7 +141,7 @@ public class AccessRight extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant ro is missing (db update required?)");
 
        return AccessRight.ro;
-     }
+    }
 
     public static AccessRight getrc( ) throws BackOfficeException{
 
@@ -143,7 +151,7 @@ public class AccessRight extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant rc is missing (db update required?)");
 
        return AccessRight.rc;
-     }
+    }
 
     public static AccessRight getrwd( ) throws BackOfficeException{
 
@@ -153,7 +161,7 @@ public class AccessRight extends DataObject implements DataObjectInterface{
           throw new BackOfficeException(BackOfficeException.TableError, "Constant rwd is missing (db update required?)");
 
        return AccessRight.rwd;
-     }
+    }
 
 
     public static void clearConstantCache(){

@@ -166,7 +166,7 @@ public class ReferenceTest extends ServletTests {
                     firstFragmentInCannonDoc.getKey(),          //TODO: This is pointing back to self
                     cannon.getHeadVersion().getKey(),
                     project.getKey(),
-                    ReferenceType.getOpen().getKey());
+                    ReferenceType.getOpen());
             newOpen.store();
 
             Reference newExplicit = new Reference(
@@ -175,7 +175,7 @@ public class ReferenceTest extends ServletTests {
                     firstFragmentInCannonDoc.getKey(),          //TODO: This is pointing back to self
                     cannon.getHeadVersion().getKey(),
                     project.getKey(),
-                    ReferenceType.getExplicit().getKey());
+                    ReferenceType.getExplicit());
 
             newExplicit.store();
 

@@ -10,6 +10,7 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
@@ -34,7 +35,9 @@ public class Snapshot extends DataObject implements DataObjectInterface{
 
     public Snapshot(){
 
-        super();         if(table == null)
+        super();
+
+        if(table == null)
             table = TABLE;
     }
 
@@ -44,21 +47,26 @@ public class Snapshot extends DataObject implements DataObjectInterface{
     }
 
 
-    public Snapshot(String name, DBKeyInterface project, String description, DBKeyInterface creator, String timestamp) throws BackOfficeException{
+    public Snapshot(String name, DBKeyInterface project, String description, DBKeyInterface creator, String timestamp){
 
         this();
-        ColumnStructureInterface[] columns = getColumnFromTable();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
 
 
-        data = new ColumnDataInterface[columns.length];
+           data = new ColumnDataInterface[columns.length];
 
-        data[0] = new StringData(name);
-        data[1] = new ReferenceData(project, columns[1].getTableReference());
-        data[2] = new TextData(description);
-        data[3] = new ReferenceData(creator, columns[3].getTableReference());
-        data[4] = new TimeStampData(timestamp);
+           data[0] = new StringData(name);
+           data[1] = new ReferenceData(project, columns[1].getTableReference());
+           data[2] = new TextData(description);
+           data[3] = new ReferenceData(creator, columns[3].getTableReference());
+           data[4] = new TimeStampData(timestamp);
 
-        exists = true;
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
 
 
     }
