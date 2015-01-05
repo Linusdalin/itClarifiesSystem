@@ -1,11 +1,14 @@
 package api;
 
 import adminServices.GenericAdminServlet;
+import cache.ServiceCache;
 import classifiers.Classification;
 import com.google.appengine.api.appidentity.AppIdentityServiceFactory;
 import com.google.appengine.api.utils.SystemProperty;
 import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
+import language.English;
+import language.LanguageInterface;
 import maintenance.Smokey;
 import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupItem;
@@ -15,6 +18,7 @@ import risk.ContractRisk;
 import risk.ContractRiskTable;
 import risk.RiskClassification;
 import risk.RiskClassificationTable;
+import services.FragmentServlet;
 import userManagement.PortalUser;
 import userManagement.PortalUserTable;
 
@@ -29,16 +33,26 @@ import java.util.List;
  *              Generate Demo values
  *
  *              This servlet adds custom data to the demo project
+ *
+ *              // TODO: Add checks if this is already run
+ *              // TODO: Add heuristic check if the fragment is same/similar or has changed
+ *
  */
 
 public class DemogenerationServlet extends GenericAdminServlet {
 
     protected enum Environment {UNKNOWN, LOCAL, STAGE, LIVE}
 
+        // Use english names of classifications as default
+    // When implementing language support, this should be taken from the user settings
+
+    protected static final LanguageInterface defaultLanguage = new English();
+
+
 
     /****************************************************''
      *
-     *          This is the demo comments that should be added to the demos
+     *          This is the demo comments that should be added to the Swedish demo
      *
      *
      */
@@ -46,19 +60,21 @@ public class DemogenerationServlet extends GenericAdminServlet {
 
     private static final DemoComment[] demoCommentList = {
 
-            new DemoComment("#RISK",        "Test document.docx", 2, "Medium", "later chapter", "var är detta???", "itClarifies"),
+            // The demo comments are using the english names of the tags
 
-            new DemoComment("#RISK",        "Förfrågningsunderlag for Interaktiva utbildningar.docx",       369, "Potential",   "minst likvärdig kompetens", "Subjektivt och ensidikt", "itClarifies"),
-            new DemoComment("#RISK",        "Förfrågningsunderlag for Interaktiva utbildningar.docx",       452, "Not set", "fast pris", "Fast Pris", "itClarifies"),
-            new DemoComment("#UNSPECIFIC",  "Förfrågningsunderlag for Interaktiva utbildningar.docx",       387, "Not set",     "flera utbildningar samtidigt", "Oklar numrering", "itClarifies"),
-            new DemoComment("#UNSPECIFIC",  "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  234, "Not set",     "backup på all lagrad data", "Krav för restore saknas", "itClarifies"),
-            new DemoComment("#UNSPECIFIC",  "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  289, "Not set",     "ska informationen nedan lagras", "Ej avgränsad tid", "itClarifies"),
-            new DemoComment("#UNSPECIFIC",  "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  158, "Not set",     "utan tillkommande kostnad", "Uttrycket (etc.)", "itClarifies"),
-            new DemoComment("#UNSPECIFIC",  "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  265, "Potential",   "vid var tillfälle", "Odefinierat: tillfälle", "itClarifies"),
-            new DemoComment("#UNSPECIFIC",  "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  229, "Potential",   "kritisk karraktär", "Odefinierat: kritisk", "itClarifies"),
-            new DemoComment("#AMBIGUITY",   "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  229, "Not set",     "besvaras", "Tvetydigt: besvaras", "itClarifies"),
-            new DemoComment("#UNSPECIFIC",  "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  243, "Not set",     "kan härledas till Las Vegass server/it-miljö eller handhavande", "Odefinierat : Responsibility", "itClarifies"),
-            new DemoComment("#UNSPECIFIC",  "Bilaga 3A - Ramavtal Interaktiva utbildningar.docx",            41, "Not set",     "avser samtliga de resultat", "Ej avgränsad", "itClarifies"),
+            new DemoComment("#ACCEPTANCE_CRITERIA", 0, 0, "Test document.docx", 2, "Medium", "later chapter", "var är detta???", "itClarifies"),
+
+            new DemoComment("#RISK",        0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       369, "Potential",   "minst likvärdig kompetens", "Subjektivt och ensidigt", "itClarifies"),
+            new DemoComment("#RISK",        0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       452, "Not set", "fast pris", "Fast Pris", "itClarifies"),
+            new DemoComment("UNSPECIFIC",  0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       387, "Not set",     "flera utbildningar samtidigt", "Oklar numrering", "itClarifies"),
+            new DemoComment("UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  235, "Not set",     "backup på all lagrad data", "Krav för restore saknas", "itClarifies"),
+            new DemoComment("UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  289, "Not set",     "ska informationen nedan lagras", "Ej avgränsad tid", "itClarifies"),
+            new DemoComment("UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  158, "Not set",     "utan tillkommande kostnad", "Uttrycket (etc.)", "itClarifies"),
+            new DemoComment("UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  265, "Potential",   "vid var tillfälle", "Odefinierat: tillfälle", "itClarifies"),
+            new DemoComment("UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  229, "Potential",   "kritisk karaktär", "Odefinierat: kritisk", "itClarifies"),
+            new DemoComment("#AMBIGUITY",   0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  229, "Not set",     "besvaras", "Tvetydigt: besvaras", "itClarifies"),
+            new DemoComment("UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  243, "Not set",     "kan härledas till Las Vegass server/it-miljö eller handhavande", "Odefinierat : Responsibility", "itClarifies"),
+            new DemoComment("UNSPECIFIC",  0, 0, "Bilaga 3A - Ramavtal Interaktiva utbildningar.docx",            41, "Not set",     "avser samtliga de resultat", "Ej avgränsad", "itClarifies"),
 
 
 
@@ -101,6 +117,17 @@ public class DemogenerationServlet extends GenericAdminServlet {
 
     }
 
+    /*********************************************************************
+     *
+     *          Generate risks, annotations and classifications for all the risks
+     *
+     *
+     * @param comments
+     * @param analysisTime
+     * @return
+     */
+
+
     private String generateDemoComments(DemoComment[] comments, DBTimeStamp analysisTime) {
 
         StringBuffer feedback = new StringBuffer();
@@ -112,6 +139,8 @@ public class DemogenerationServlet extends GenericAdminServlet {
                 feedback.append(generateDemoComment(comment, analysisTime));
 
             }
+
+
         } catch (BackOfficeException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
@@ -119,6 +148,19 @@ public class DemogenerationServlet extends GenericAdminServlet {
         return feedback.toString();
 
     }
+
+    /**************************************************************************************
+     *
+     *
+     * @param comment
+     * @param analysisTime
+     * @return
+     * @throws BackOfficeException
+     *
+     *
+     *      TODO: There are a lot of lookup in this service that could be optimized getting once and for all
+     */
+
 
     private String generateDemoComment(DemoComment comment, DBTimeStamp analysisTime) throws BackOfficeException {
 
@@ -165,15 +207,7 @@ public class DemogenerationServlet extends GenericAdminServlet {
 
         }
 
-        FragmentClass fragmentClass = new FragmentClass(new LookupItem()
-                .addFilter(new ColumnFilter(FragmentClassTable.Columns.Type.name(), comment.classification)));
-
-        if(!fragmentClass.exists()){
-
-            feedback.append("<br/> - ! Class  " + comment.classification + " does not exist! </p>");
-            return feedback.toString();
-
-        }
+        String translatedClassification = defaultLanguage.getLocalizedClassification(comment.classification);
 
         int patternPos = fragment.getText().indexOf(comment.pattern);
 
@@ -184,10 +218,11 @@ public class DemogenerationServlet extends GenericAdminServlet {
 
         FragmentClassification classification = new FragmentClassification(
                 fragment.getKey(),
-                fragmentClass.getKey(),
-                "demo",
+                comment.classification,
+                comment.requirementLevel,
+                comment.applicablePhase,
                 comment.comment,
-                "",                 //keywords,
+                "#" + translatedClassification,
                 user.getKey(),
                 version.getKey(),
                 document.getProjectId(),
@@ -202,8 +237,8 @@ public class DemogenerationServlet extends GenericAdminServlet {
 
         if(comment.classification.equals("#RISK")){
 
-            ContractRisk risk = new ContractRisk(new LookupItem()
-                    .addFilter(new ColumnFilter(ContractRiskTable.Columns.Name.name(), comment.riskLevel)));
+            ContractRisk risk = new ContractRiskTable().getValueForName(comment.riskLevel);
+
             if(!risk.exists()){
 
                 feedback.append("<br/> - ! Risk level " + comment.riskLevel + " does not exist! </p>");
@@ -217,7 +252,7 @@ public class DemogenerationServlet extends GenericAdminServlet {
 
             RiskClassification riskClassification = new RiskClassification(
                     fragment.getKey(),
-                    risk.getKey(),
+                    risk,
                     "demo",
                     "#RISK",
                     user.getKey(),
@@ -236,7 +271,7 @@ public class DemogenerationServlet extends GenericAdminServlet {
             }
 
             System.out.println("RiskClassification: " + riskClassification.getKey().toString());
-            fragment.setRisk(risk.getKey());
+            fragment.setRisk(risk);
 
             feedback.append("<br/> - Adding risk \""+ risk.getName()+"\" to fragment no "+ comment.ordinal+" in document " + document.getName());
 
@@ -256,7 +291,7 @@ public class DemogenerationServlet extends GenericAdminServlet {
 
         classification.store();
         fragment.setClassificatonCount(fragment.getClassificatonCount() + 1);
-        feedback.append("<br/> - Adding classification \""+ fragmentClass.getName()+"\" to fragment no "+ comment.ordinal+" in document " + document.getName());
+        feedback.append("<br/> - Adding classification \""+ translatedClassification + "\" ("+ classification.getClassTag()+") to fragment no "+ comment.ordinal+" in document " + document.getName());
 
         annotation.store();
         fragment.setAnnotationCount(ordinal);
@@ -265,6 +300,11 @@ public class DemogenerationServlet extends GenericAdminServlet {
 
         fragment.update();
         feedback.append("</p>");
+
+        // Invalidate the cache. The document overview is changed.
+
+        invalidateFragmentCache(version);
+
 
         return feedback.toString();
     }
@@ -345,6 +385,8 @@ public class DemogenerationServlet extends GenericAdminServlet {
     private static class DemoComment {
 
         private final String classification;
+        private final int requirementLevel;
+        private final int applicablePhase;
         private final String document;
         private final int ordinal;
         private final String riskLevel;
@@ -352,9 +394,14 @@ public class DemogenerationServlet extends GenericAdminServlet {
         private final String comment;
         private final String user;
 
-        public DemoComment(String classification, String document, int ordinal, String riskLevel, String pattern, String comment, String user) {
+
+
+
+        public DemoComment(String classification, int requirementLevel, int applicablePhase, String document, int ordinal, String riskLevel, String pattern, String comment, String user) {
 
             this.classification = classification;
+            this.requirementLevel = requirementLevel;
+            this.applicablePhase = applicablePhase;
             this.document = document;
             this.ordinal = ordinal;
             this.riskLevel = riskLevel;
@@ -364,4 +411,31 @@ public class DemogenerationServlet extends GenericAdminServlet {
 
         }
     }
+
+
+    /*************************************************************************
+     *
+     *      Clearing  "fragment for document" cache
+     *
+     * @param version - the updated version of the contract
+     * @throws BackOfficeException
+     */
+
+    public static void invalidateFragmentCache(ContractVersionInstance version) throws BackOfficeException {
+
+        if(version == null)
+            throw new BackOfficeException(BackOfficeException.General, "Trying to invalidate cache for non-existing version instance");
+
+        if(version.getKey() == null)
+            throw new BackOfficeException(BackOfficeException.General, "Trying to invalidate cache for non stored version instance");
+
+
+
+        ServiceCache cache = new ServiceCache(FragmentServlet.DataServletName);
+        cache.clearKey(version.getKey().toString());          // Fragment is not qualified on user
+
+
+    }
+
+
 }

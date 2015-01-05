@@ -58,7 +58,7 @@
 
     <servlet>
         <servlet-name>demo</servlet-name>
-        <servlet-class>api.DemoGenerationServlet</servlet-class>
+        <servlet-class>api.DemogenerationServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>demo</servlet-name>

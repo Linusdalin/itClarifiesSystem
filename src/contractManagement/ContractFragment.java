@@ -537,7 +537,7 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
                 return item;
         }
 
-        throw new BackOfficeException(BackOfficeException.General, "Cant find structure item for fragment " + this.getName());
+        throw new BackOfficeException(BackOfficeException.General, "Cant find structure item ("+ this.getStructureNo()+") for fragment " + this.getName() + " in document " + this.getVersion().getDocument().getName() + " . There are " + headlines.size() + " structure items");
     }
 
     public List<ContractFragment> getChildren() {
