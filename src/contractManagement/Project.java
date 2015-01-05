@@ -364,7 +364,7 @@ public class Project extends DataObject implements DataObjectInterface{
         List<Contract> documentsForProject = getContractsForProject();
         List<Reference> openReferences = new java.util.ArrayList<Reference>();
 
-        ConditionInterface onlyOpen = new LookupList().addFilter(new ReferenceFilter(ReferenceTable.Columns.Type.name(), ReferenceType.getOpen().getKey()));
+        ConditionInterface onlyOpen = new LookupList().addFilter(new ColumnFilter(ReferenceTable.Columns.Type.name(), ReferenceType.getOpen().get__Id()));
         //ConditionInterface all = new LookupList();
 
         for(Contract document : documentsForProject){

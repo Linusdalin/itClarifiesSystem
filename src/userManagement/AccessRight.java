@@ -45,7 +45,7 @@ public class AccessRight extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public AccessRight(String name, String description){
+    public AccessRight(long id, String name, String description){
 
         this();
         try{
@@ -54,8 +54,9 @@ public class AccessRight extends DataObject implements DataObjectInterface{
 
            data = new ColumnDataInterface[columns.length];
 
-           data[0] = new StringData(name);
-           data[1] = new TextData(description);
+           data[0] = new IntData(id);
+           data[1] = new StringData(name);
+           data[2] = new TextData(description);
 
            exists = true;
         }catch(BackOfficeException e){
@@ -65,28 +66,6 @@ public class AccessRight extends DataObject implements DataObjectInterface{
 
 
     }
-    /*********************************************************************''
-     *
-     *          Load from database
-     *
-     * @param condition - the SQL condition for selecting ONE UNIQUE object
-     */
-
-    public AccessRight(ConditionInterface condition){
-
-        this();
-
-        try{
-            exists = load(condition);
-
-        }catch(BackOfficeException e){
-
-            System.out.println("Error loading object from database" + e.narration);
-            e.printStackTrace();
-        }
-
-    }
-
     public DataObjectInterface createNew(ColumnDataInterface[] data ) throws BackOfficeException {
 
         AccessRight o = new AccessRight();
@@ -95,15 +74,29 @@ public class AccessRight extends DataObject implements DataObjectInterface{
         return o;
     }
 
+    public long getId(){
+
+        IntData data = (IntData) this.data[0];
+        return data.value;
+    }
+
+    public void setId(long id){
+
+        IntData data = (IntData) this.data[0];
+        data.value = id;
+    }
+
+
+
     public String getName(){
 
-        StringData data = (StringData) this.data[0];
+        StringData data = (StringData) this.data[1];
         return data.getStringValue();
     }
 
     public void setName(String name){
 
-        StringData data = (StringData) this.data[0];
+        StringData data = (StringData) this.data[1];
         data.setStringValue(name);
     }
 
@@ -111,13 +104,13 @@ public class AccessRight extends DataObject implements DataObjectInterface{
 
     public String getDescription(){
 
-        TextData data = (TextData) this.data[1];
+        TextData data = (TextData) this.data[2];
         return data.getStringValue();
     }
 
     public void setDescription(String description){
 
-        TextData data = (TextData) this.data[1];
+        TextData data = (TextData) this.data[2];
         data.setStringValue(description);
     }
 
@@ -125,42 +118,22 @@ public class AccessRight extends DataObject implements DataObjectInterface{
 
     public static AccessRight getno( ) throws BackOfficeException{
 
-       if(AccessRight.no == null)
-          AccessRight.no = new AccessRight(new LookupItem().addFilter(new ColumnFilter("Name", "no")));
-       if(!AccessRight.no.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant no is missing (db update required?)");
-
-       return AccessRight.no;
+       return (AccessRight)AccessRightTable.Values.get(0);
     }
 
     public static AccessRight getro( ) throws BackOfficeException{
 
-       if(AccessRight.ro == null)
-          AccessRight.ro = new AccessRight(new LookupItem().addFilter(new ColumnFilter("Name", "ro")));
-       if(!AccessRight.ro.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant ro is missing (db update required?)");
-
-       return AccessRight.ro;
+       return (AccessRight)AccessRightTable.Values.get(1);
     }
 
     public static AccessRight getrc( ) throws BackOfficeException{
 
-       if(AccessRight.rc == null)
-          AccessRight.rc = new AccessRight(new LookupItem().addFilter(new ColumnFilter("Name", "rc")));
-       if(!AccessRight.rc.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant rc is missing (db update required?)");
-
-       return AccessRight.rc;
+       return (AccessRight)AccessRightTable.Values.get(2);
     }
 
     public static AccessRight getrwd( ) throws BackOfficeException{
 
-       if(AccessRight.rwd == null)
-          AccessRight.rwd = new AccessRight(new LookupItem().addFilter(new ColumnFilter("Name", "rwd")));
-       if(!AccessRight.rwd.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant rwd is missing (db update required?)");
-
-       return AccessRight.rwd;
+       return (AccessRight)AccessRightTable.Values.get(3);
     }
 
 
@@ -168,10 +141,6 @@ public class AccessRight extends DataObject implements DataObjectInterface{
 
         //  Clear all cache when the application is uploaded.
 
-        AccessRight.no = null;
-        AccessRight.ro = null;
-        AccessRight.rc = null;
-        AccessRight.rwd = null;
     }
 
     /* Code below this point will not be replaced when regenerating the file*/

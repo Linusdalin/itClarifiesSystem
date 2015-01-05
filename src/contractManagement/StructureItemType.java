@@ -45,7 +45,7 @@ public class StructureItemType extends DataObject implements DataObjectInterface
             table = TABLE;
     }
 
-    public StructureItemType(String name, String description){
+    public StructureItemType(long id, String name, String description){
 
         this();
         try{
@@ -54,8 +54,9 @@ public class StructureItemType extends DataObject implements DataObjectInterface
 
            data = new ColumnDataInterface[columns.length];
 
-           data[0] = new StringData(name);
-           data[1] = new TextData(description);
+           data[0] = new IntData(id);
+           data[1] = new StringData(name);
+           data[2] = new TextData(description);
 
            exists = true;
         }catch(BackOfficeException e){
@@ -65,28 +66,6 @@ public class StructureItemType extends DataObject implements DataObjectInterface
 
 
     }
-    /*********************************************************************''
-     *
-     *          Load from database
-     *
-     * @param condition - the SQL condition for selecting ONE UNIQUE object
-     */
-
-    public StructureItemType(ConditionInterface condition){
-
-        this();
-
-        try{
-            exists = load(condition);
-
-        }catch(BackOfficeException e){
-
-            System.out.println("Error loading object from database" + e.narration);
-            e.printStackTrace();
-        }
-
-    }
-
     public DataObjectInterface createNew(ColumnDataInterface[] data ) throws BackOfficeException {
 
         StructureItemType o = new StructureItemType();
@@ -95,15 +74,29 @@ public class StructureItemType extends DataObject implements DataObjectInterface
         return o;
     }
 
+    public long getId(){
+
+        IntData data = (IntData) this.data[0];
+        return data.value;
+    }
+
+    public void setId(long id){
+
+        IntData data = (IntData) this.data[0];
+        data.value = id;
+    }
+
+
+
     public String getName(){
 
-        StringData data = (StringData) this.data[0];
+        StringData data = (StringData) this.data[1];
         return data.getStringValue();
     }
 
     public void setName(String name){
 
-        StringData data = (StringData) this.data[0];
+        StringData data = (StringData) this.data[1];
         data.setStringValue(name);
     }
 
@@ -111,13 +104,13 @@ public class StructureItemType extends DataObject implements DataObjectInterface
 
     public String getDescription(){
 
-        TextData data = (TextData) this.data[1];
+        TextData data = (TextData) this.data[2];
         return data.getStringValue();
     }
 
     public void setDescription(String description){
 
-        TextData data = (TextData) this.data[1];
+        TextData data = (TextData) this.data[2];
         data.setStringValue(description);
     }
 
@@ -125,42 +118,22 @@ public class StructureItemType extends DataObject implements DataObjectInterface
 
     public static StructureItemType getHeadline( ) throws BackOfficeException{
 
-       if(StructureItemType.Headline == null)
-          StructureItemType.Headline = new StructureItemType(new LookupItem().addFilter(new ColumnFilter("Name", "Headline")));
-       if(!StructureItemType.Headline.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Headline is missing (db update required?)");
-
-       return StructureItemType.Headline;
+       return (StructureItemType)StructureItemTypeTable.Values.get(0);
     }
 
     public static StructureItemType getList( ) throws BackOfficeException{
 
-       if(StructureItemType.List == null)
-          StructureItemType.List = new StructureItemType(new LookupItem().addFilter(new ColumnFilter("Name", "List")));
-       if(!StructureItemType.List.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant List is missing (db update required?)");
-
-       return StructureItemType.List;
+       return (StructureItemType)StructureItemTypeTable.Values.get(1);
     }
 
     public static StructureItemType getListItem( ) throws BackOfficeException{
 
-       if(StructureItemType.ListItem == null)
-          StructureItemType.ListItem = new StructureItemType(new LookupItem().addFilter(new ColumnFilter("Name", "List Item")));
-       if(!StructureItemType.ListItem.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant ListItem is missing (db update required?)");
-
-       return StructureItemType.ListItem;
+       return (StructureItemType)StructureItemTypeTable.Values.get(2);
     }
 
     public static StructureItemType getFragmentGroup( ) throws BackOfficeException{
 
-       if(StructureItemType.FragmentGroup == null)
-          StructureItemType.FragmentGroup = new StructureItemType(new LookupItem().addFilter(new ColumnFilter("Name", "FragmentGroup")));
-       if(!StructureItemType.FragmentGroup.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant FragmentGroup is missing (db update required?)");
-
-       return StructureItemType.FragmentGroup;
+       return (StructureItemType)StructureItemTypeTable.Values.get(3);
     }
 
 
@@ -168,10 +141,6 @@ public class StructureItemType extends DataObject implements DataObjectInterface
 
         //  Clear all cache when the application is uploaded.
 
-        StructureItemType.Headline = null;
-        StructureItemType.List = null;
-        StructureItemType.ListItem = null;
-        StructureItemType.FragmentGroup = null;
     }
 
     /* Code below this point will not be replaced when regenerating the file*/

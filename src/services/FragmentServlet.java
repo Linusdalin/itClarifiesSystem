@@ -3,6 +3,7 @@ package services;
 import backend.ItClarifies;
 import cache.ServiceCache;
 import contractManagement.*;
+import crossReference.Reference;
 import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
 import document.CellInfo;
@@ -357,7 +358,9 @@ public class FragmentServlet extends ItClarifiesService{
 
             //PukkaLogger.log(PukkaLogger.Level.INFO, "Before db access2");
             StructureItem[] structureItems = version.getStructureItemsForVersionAsArray(new LookupList().addOrdering(ContractFragmentTable.Columns.Ordinal.name(), Ordering.FIRST));
-            //PukkaLogger.log(PukkaLogger.Level.INFO, "After db access2");
+
+
+            List<Reference> references = version.getReferencesForVersion();
 
             String contractName = encodeToJSON(document.getName());
 
@@ -374,20 +377,21 @@ public class FragmentServlet extends ItClarifiesService{
 
                 //PukkaLogger.log(PukkaLogger.Level.INFO, "Got fragment " + fragment.getText().substring(0, (fragment.getText().length() > 40 ? 40 : fragment.getText().length())) + "...");
 
+                System.out.println("Fragment risk: " + fragment.getRisk());
 
                 JSONObject fragmentJSON = new JSONObject()
                     .put("id",              fragment.getKey().toString())
                     .put("ordinal",         fragment.getOrdinal())
                     .put("text",            encodeToJSON(fragment.getText()))
-                    .put("document",        documentKey)
+                    .put("document", documentKey)
                     .put("project",         projectKey)
 
-                    .put("annotations",     fragment.getAnnotationCount())
+                    .put("annotations", fragment.getAnnotationCount())
                     .put("actions",         fragment.getActionCount())
                     .put("classifications", fragment.getClassificatonCount())
-                    .put("references",      fragment.getReferenceCount())
+                    .put("references", getReferencesForFragment(fragment, references))
                     .put("type",            fragment.getType())
-                    .put("risk",            fragment.getRiskId().toString())
+                    .put("risk",            "" + fragment.getRisk().getId())
                     .put("display",         getDisplayInfo(fragment))
                 ;
 
@@ -428,6 +432,35 @@ public class FragmentServlet extends ItClarifiesService{
             throw new BackOfficeException(BackOfficeException.General, "Error encoding to JSON " + e.getMessage());
         }
 
+    }
+
+    /************************************************************************************************'
+     *
+     *          Create a jsonArray for all references for the fragment
+     *
+     *
+     * @param fragment
+     * @param references
+     * @return
+     */
+
+    private JSONArray getReferencesForFragment(ContractFragment fragment, List<Reference> references) {
+
+        JSONArray refrenceJSON = new JSONArray();
+
+        for (Reference reference : references) {
+
+            if(reference.getFromId().equals(fragment.getKey()))
+                refrenceJSON.put(new JSONObject()
+                        .put("to", reference.getToId().toString())
+                        .put("pattern", reference.getPattern())
+                        .put("type", reference.getType().getName())
+
+                );
+        }
+
+
+        return refrenceJSON;
     }
 
     /**************************************************************************************

@@ -125,15 +125,6 @@ public class SearchManager {
         PortalUser user = session.getUser();
         DBKeyInterface organization = user.getOrganizationId();
 
-        Map<String, String> riskMap = new HashMap<String, String>();
-        ContractRiskTable riskTable = new ContractRiskTable(new LookupList());
-
-        for(DataObjectInterface object : riskTable.getValues()){
-
-            ContractRisk risk = (ContractRisk)object;
-            riskMap.put(risk.getKey().toString(), risk.getName() + " Risk");
-        }
-
         PukkaLogger.log(PukkaLogger.Level.DEBUG, "Get Matches 3");
 
         List<Contract> allDocuments = project.getContractsForProject();
@@ -316,8 +307,7 @@ public class SearchManager {
 
                 for(RiskClassification classification : risks){
 
-                    DBKeyInterface risk = classification.getRiskId();
-                    String riskName = riskMap.get(risk.toString());
+                    String riskName = classification.getRisk().getName();
 
                     String matchPatternForClassification = "#" + riskName + " " + classification.getComment() + " " + classification.getKeywords();
                     PukkaLogger.log(PukkaLogger.Level.INFO, "*** Trying to match classification: \"" + matchPatternForClassification + "\"");
@@ -368,7 +358,7 @@ public class SearchManager {
 
             // Avoid adding one self. This is already done while parsing the fragments
 
-            if(fragment.isSame(headlineFragment))
+            if(fragment.equals(headlineFragment))
                 return;
 
             List<String> emptyMatches = new ArrayList<String>();

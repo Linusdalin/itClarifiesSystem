@@ -39,7 +39,7 @@ public class AccessGrantTable extends DataTable implements DataTableInterface{
 
             new StringColumn("Name", DataColumn.noFormatting),
             new ReferenceColumn("Document", DataColumn.noFormatting, new TableReference("Contract", "Name")),
-            new ReferenceColumn("AccessRight", DataColumn.noFormatting, new TableReference("AccessRight", "Name")),
+            new ConstantColumn("AccessRight", DataColumn.noFormatting, new TableReference("AccessRight", "Name")),
             new ReferenceColumn("Visibility", DataColumn.noFormatting, new TableReference("Visibility", "Name")),
             new ReferenceColumn("Issuer", DataColumn.noFormatting, new TableReference("PortalUser", "Name")),
             new DateColumn("Time", DataColumn.noFormatting),

@@ -33,10 +33,11 @@ public class ReferenceTypeTable extends ConstantTable implements DataTableInterf
     public static final String TABLE = "ReferenceType";
     private static final String DESCRIPTION = "Type of reference";
 
-    public enum Columns {Name, Description, }
+    public enum Columns {Id, Name, Description, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
+            new IntColumn("Id", DataColumn.noFormatting),
             new StringColumn("Name", DataColumn.noFormatting),
             new TextColumn("Description", DataColumn.noFormatting),
     };
@@ -45,16 +46,16 @@ public class ReferenceTypeTable extends ConstantTable implements DataTableInterf
     public ReferenceTypeTable(){
 
         init(DATA, associatedObject, TABLE, TITLE, DESCRIPTION, Values);
-         /* No name column set for table. Using default ( 1 ) */
-     }
+        nameColumn = 2;
+    }
 
     public static final List<DataObjectInterface> Values = new ArrayList<DataObjectInterface>() {{
 
-          add(new ReferenceType("Unknown", "Unknown or unclassified reference"));
-          add(new ReferenceType("Explicit", "An explicit reference to another clause or document"));
-          add(new ReferenceType("Implicit", "An implicit or derived reference"));
-          add(new ReferenceType("Definition Usage", "A reference to a definition"));
-          add(new ReferenceType("Open", "A link to external or unknown destination"));
+          add(new ReferenceType(1, "Unknown", "Unknown or unclassified reference"));
+          add(new ReferenceType(2, "Explicit", "An explicit reference to another clause or document"));
+          add(new ReferenceType(3, "Implicit", "An implicit or derived reference"));
+          add(new ReferenceType(4, "Definition Usage", "A reference to a definition"));
+          add(new ReferenceType(5, "Open", "A link to external or unknown destination"));
 
 
 
@@ -62,7 +63,7 @@ public class ReferenceTypeTable extends ConstantTable implements DataTableInterf
 
     public ReferenceType getValue(int id){
         
-        return (ReferenceType)Values.get( id );
+        return (ReferenceType)super.getConstantValue( id );
     }
     /* Code below this point will not be replaced when regenerating the file*/
 

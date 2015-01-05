@@ -40,15 +40,15 @@ public class ContractTable extends DataTable implements DataTableInterface{
             new StringColumn("Name", DataColumn.noFormatting),
             new StringColumn("File", DataColumn.noFormatting),
             new IntColumn("Ordinal", DataColumn.noFormatting),
-            new ReferenceColumn("Type", DataColumn.noFormatting, new TableReference("ContractType", "Name")),
-            new ReferenceColumn("Status", DataColumn.noFormatting, new TableReference("ContractStatus", "Name")),
+            new ConstantColumn("Type", DataColumn.noFormatting, new TableReference("ContractType", "Name")),
+            new ConstantColumn("Status", DataColumn.noFormatting, new TableReference("ContractStatus", "Name")),
             new TextColumn("Message", DataColumn.noFormatting),
             new TextColumn("Description", DataColumn.noFormatting),
             new ReferenceColumn("Project", DataColumn.noFormatting, new TableReference("Project", "Name")),
             new ReferenceColumn("Owner", DataColumn.noFormatting, new TableReference("PortalUser", "Name")),
             new DateColumn("Creation", DataColumn.noFormatting),
             new StringColumn("Language", DataColumn.noFormatting),
-            new StringColumn("Access", DataColumn.noFormatting),
+            new IntColumn("Access", DataColumn.noFormatting),
     };
 
     private static final Contract associatedObject = new Contract();
@@ -81,8 +81,8 @@ public class ContractTable extends DataTable implements DataTableInterface{
     };
     private static final String[][] TestValues = {
 
-          {"Cannon", "Cannon.docx", "1", "Unknown", "Analysed", "Successfully analysed", "Printer support Contract", "Demo", "admin", "2014-06-01", "EN", "Not set", "system"},
-          {"Google Analytics", "GA.docx", "2", "Unknown", "Analysed", "Successfully uploaded", "EULA", "Demo", "admin", "2014-06-01", "EN", "Not set", "system"},
+          {"Cannon", "Cannon.docx", "1", "Unknown", "Analysed", "Successfully analysed", "Printer support Contract", "Demo", "admin", "2014-06-01", "EN", "0", "system"},
+          {"Google Analytics", "GA.docx", "2", "Unknown", "Analysed", "Successfully uploaded", "EULA", "Demo", "admin", "2014-06-01", "EN", "0", "system"},
 
 
 
@@ -175,7 +175,7 @@ public class ContractTable extends DataTable implements DataTableInterface{
             //    public Contract(String name, long ordinal, DBKeyInterface type, String description, DBKeyInterface project, DBKeyInterface owner, String creation) throws BackOfficeException{
 
 
-            Contract newDoc = new Contract(name, fileHandler.getFileName(), number, type, status, defaultMessage, desc, project, creator, creationTime.getISODate(), languageCode.code, "not set");
+            Contract newDoc = new Contract(name, fileHandler.getFileName(), number, type, status, defaultMessage, desc, project, creator, creationTime.getISODate(), languageCode.code, 1);
             newDoc.store();
 
             // Grant access

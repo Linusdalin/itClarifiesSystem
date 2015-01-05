@@ -168,7 +168,7 @@ public class FileUploadServlet extends DocumentService {
 
                         if(fi.getFieldName().equals("access")){
 
-                            accessRight = new AccessRight(new LookupItem().addFilter(new ColumnFilter(AccessRightTable.Columns.Name.name(), new String(fi.get()))));
+                            accessRight = new AccessRightTable().getValueByName(new String(fi.get()));
 
                             if(!mandatoryObjectExists(accessRight, resp))
                                 return;
@@ -220,7 +220,7 @@ public class FileUploadServlet extends DocumentService {
 
                         //TODO; This should be more relaxed. Within a team more than the owner must be able to contribute. Fix this with team access rights
 
-                        if(!portalUser.isSame(project.getCreator())){
+                        if(!portalUser.equals(project.getCreator())){
 
                             returnError("Not sufficient access to upload document. Please contact project owner", ErrorType.PERMISSION, HttpServletResponse.SC_FORBIDDEN, resp);
                             return;
@@ -265,7 +265,7 @@ public class FileUploadServlet extends DocumentService {
                         document = newVersion.getDocument();
 
                         document.setMessage("Uploaded. Parsing Document...");
-                        document.setStatus(ContractStatus.getUploaded().getKey());
+                        document.setStatus(ContractStatus.getUploaded());
                         document.update();
 
                         //System.out.println("Document: " + document.getKey().toString());

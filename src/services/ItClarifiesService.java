@@ -436,7 +436,7 @@ public class ItClarifiesService extends PukkaServlet {
                 return false;
             }
 
-            if(object instanceof Project && !sessionManagement.getUser().isSame(((Project) object).getCreator())){
+            if(object instanceof Project && !sessionManagement.getUser().equals(((Project) object).getCreator())){
 
                 Project project = (Project)object;
 

@@ -48,7 +48,7 @@ public class ReclassificationTable extends DataTable implements DataTableInterfa
             new StringColumn("ClassTag", DataColumn.noFormatting),
             new IntColumn("RequirementLevel", DataColumn.noFormatting),
             new IntColumn("ApplicablePhase", DataColumn.noFormatting),
-            new ReferenceColumn("RiskLevel", DataColumn.noFormatting, new TableReference("ContractRisk", "Name")),
+            new ConstantColumn("RiskLevel", DataColumn.noFormatting, new TableReference("ContractRisk", "Name")),
             new ReferenceColumn("Document", DataColumn.noFormatting, new TableReference("Contract", "Name")),
             new DateColumn("Date", DataColumn.noFormatting),
             new BoolColumn("Closed", DataColumn.noFormatting),

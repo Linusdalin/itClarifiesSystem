@@ -150,7 +150,7 @@ public class FragmentDetailServlet extends ItClarifiesService{
             PukkaLogger.log(PukkaLogger.Level.INFO, "Getting risk");
 
 
-            risk = fragment.getRiskId().toString();
+            risk = fragment.getRisk().getName();
             List<RiskClassification> allClassifications =  fragment.getRiskClassificationsForFragment(new LookupList().addOrdering(RiskClassificationTable.Columns.Time.name(), Ordering.LAST));
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Looping over "+ allClassifications.size()+" risk classifications");
@@ -163,7 +163,7 @@ public class FragmentDetailServlet extends ItClarifiesService{
                 time = latest.getTime().getSQLTime().toString();
                 comment = latest.getComment();
                 pattern = latest.getPattern();
-                severity = latest.getRisk().getSeverity();
+                severity = new Integer(latest.getRisk().getSeverity());
             }
 
         } catch (BackOfficeException e) {
@@ -335,7 +335,7 @@ public class FragmentDetailServlet extends ItClarifiesService{
                         .put("creationDate",    action.getCreated().getISODate())
                         .put("completionDate",  action.getCompleted().getISODate())
                         .put("assignee",        action.getAssigneeId().toString())
-                        .put("status",          action.getStatusId().toString());
+                        .put("status",          "" + action.getStatus().getId());
 
                 actions.put(annotationJSON);
 

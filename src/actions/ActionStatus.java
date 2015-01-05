@@ -47,7 +47,7 @@ public class ActionStatus extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public ActionStatus(String name, long ordinal, String comment){
+    public ActionStatus(long id, String name, String comment){
 
         this();
         try{
@@ -56,8 +56,8 @@ public class ActionStatus extends DataObject implements DataObjectInterface{
 
            data = new ColumnDataInterface[columns.length];
 
-           data[0] = new StringData(name);
-           data[1] = new IntData(ordinal);
+           data[0] = new IntData(id);
+           data[1] = new StringData(name);
            data[2] = new TextData(comment);
 
            exists = true;
@@ -68,28 +68,6 @@ public class ActionStatus extends DataObject implements DataObjectInterface{
 
 
     }
-    /*********************************************************************''
-     *
-     *          Load from database
-     *
-     * @param condition - the SQL condition for selecting ONE UNIQUE object
-     */
-
-    public ActionStatus(ConditionInterface condition){
-
-        this();
-
-        try{
-            exists = load(condition);
-
-        }catch(BackOfficeException e){
-
-            System.out.println("Error loading object from database" + e.narration);
-            e.printStackTrace();
-        }
-
-    }
-
     public DataObjectInterface createNew(ColumnDataInterface[] data ) throws BackOfficeException {
 
         ActionStatus o = new ActionStatus();
@@ -98,30 +76,30 @@ public class ActionStatus extends DataObject implements DataObjectInterface{
         return o;
     }
 
+    public long getId(){
+
+        IntData data = (IntData) this.data[0];
+        return data.value;
+    }
+
+    public void setId(long id){
+
+        IntData data = (IntData) this.data[0];
+        data.value = id;
+    }
+
+
+
     public String getName(){
 
-        StringData data = (StringData) this.data[0];
+        StringData data = (StringData) this.data[1];
         return data.getStringValue();
     }
 
     public void setName(String name){
 
-        StringData data = (StringData) this.data[0];
+        StringData data = (StringData) this.data[1];
         data.setStringValue(name);
-    }
-
-
-
-    public long getOrdinal(){
-
-        IntData data = (IntData) this.data[1];
-        return data.value;
-    }
-
-    public void setOrdinal(long ordinal){
-
-        IntData data = (IntData) this.data[1];
-        data.value = ordinal;
     }
 
 
@@ -142,62 +120,32 @@ public class ActionStatus extends DataObject implements DataObjectInterface{
 
     public static ActionStatus getOpen( ) throws BackOfficeException{
 
-       if(ActionStatus.Open == null)
-          ActionStatus.Open = new ActionStatus(new LookupItem().addFilter(new ColumnFilter("Name", "Open")));
-       if(!ActionStatus.Open.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Open is missing (db update required?)");
-
-       return ActionStatus.Open;
+       return (ActionStatus)ActionStatusTable.Values.get(0);
     }
 
     public static ActionStatus getInProgress( ) throws BackOfficeException{
 
-       if(ActionStatus.InProgress == null)
-          ActionStatus.InProgress = new ActionStatus(new LookupItem().addFilter(new ColumnFilter("Name", "In Progress")));
-       if(!ActionStatus.InProgress.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant InProgress is missing (db update required?)");
-
-       return ActionStatus.InProgress;
+       return (ActionStatus)ActionStatusTable.Values.get(1);
     }
 
     public static ActionStatus getCompleted( ) throws BackOfficeException{
 
-       if(ActionStatus.Completed == null)
-          ActionStatus.Completed = new ActionStatus(new LookupItem().addFilter(new ColumnFilter("Name", "Completed")));
-       if(!ActionStatus.Completed.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Completed is missing (db update required?)");
-
-       return ActionStatus.Completed;
+       return (ActionStatus)ActionStatusTable.Values.get(2);
     }
 
     public static ActionStatus getBlocked( ) throws BackOfficeException{
 
-       if(ActionStatus.Blocked == null)
-          ActionStatus.Blocked = new ActionStatus(new LookupItem().addFilter(new ColumnFilter("Name", "Blocked")));
-       if(!ActionStatus.Blocked.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Blocked is missing (db update required?)");
-
-       return ActionStatus.Blocked;
+       return (ActionStatus)ActionStatusTable.Values.get(3);
     }
 
     public static ActionStatus getCancelled( ) throws BackOfficeException{
 
-       if(ActionStatus.Cancelled == null)
-          ActionStatus.Cancelled = new ActionStatus(new LookupItem().addFilter(new ColumnFilter("Name", "Cancelled")));
-       if(!ActionStatus.Cancelled.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Cancelled is missing (db update required?)");
-
-       return ActionStatus.Cancelled;
+       return (ActionStatus)ActionStatusTable.Values.get(4);
     }
 
     public static ActionStatus getDone( ) throws BackOfficeException{
 
-       if(ActionStatus.Done == null)
-          ActionStatus.Done = new ActionStatus(new LookupItem().addFilter(new ColumnFilter("Name", "Done")));
-       if(!ActionStatus.Done.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Done is missing (db update required?)");
-
-       return ActionStatus.Done;
+       return (ActionStatus)ActionStatusTable.Values.get(5);
     }
 
 
@@ -205,12 +153,6 @@ public class ActionStatus extends DataObject implements DataObjectInterface{
 
         //  Clear all cache when the application is uploaded.
 
-        ActionStatus.Open = null;
-        ActionStatus.InProgress = null;
-        ActionStatus.Completed = null;
-        ActionStatus.Blocked = null;
-        ActionStatus.Cancelled = null;
-        ActionStatus.Done = null;
     }
 
     /* Code below this point will not be replaced when regenerating the file*/

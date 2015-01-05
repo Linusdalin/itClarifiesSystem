@@ -64,10 +64,10 @@
 
 
 
-    String riskDropdown = new ContractRiskTable().getDropDown().generate("risk", null, "", "", false);
-    String classDropdown = new FragmentClassTable().getDropDown().generate("class", null, "", "", false);
-    String statusDropdown = new ActionStatusTable().getDropDown().generate("status", null, "", "", false);
-    String userDropdown = new PortalUserTable().getDropDown().generate("assignee", null, "", "", false);
+    String riskDropdown = new ContractRiskTable().getDropDown(null).withName("risk").withUnselected("select").render();
+    String classDropdown = new FragmentClassTable().getDropDown(null).withName("class").withUnselected("select").render();
+    String statusDropdown = new ActionStatusTable().getDropDown(null).withName("status").withUnselected("select").render();
+    String userDropdown = new PortalUserTable().getDropDown(null).withName("assignee").withUnselected("select").render();
 
 %>
 

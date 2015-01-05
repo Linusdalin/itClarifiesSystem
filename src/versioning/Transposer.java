@@ -140,7 +140,7 @@ public class Transposer {
 
             if(targetFragment != null){
 
-                targetFragment.setRisk(fragment.getRisk().getKey());
+                targetFragment.setRisk(fragment.getRisk());
                 targetFragment.setAnnotationCount(annotationCount);
                 targetFragment.setActionCount(actionCount);
                 targetFragment.setClassificatonCount(classificationCount);

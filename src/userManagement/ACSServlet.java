@@ -67,7 +67,7 @@ public class ACSServlet extends DocumentService {
             if(!mandatoryObjectExists(visibility, resp))
                 return;
 
-            AccessRight access = new AccessRight(new LookupItem().addFilter(new ColumnFilter(AccessRightTable.Columns.Name.name(), _access)));
+            AccessRight access = new AccessRightTable().getValueByName(_access);
             if(!mandatoryObjectExists(access, resp))
                 return;
 
@@ -86,7 +86,7 @@ public class ACSServlet extends DocumentService {
 
             // Create the Access grant object
 
-            AccessGrant grantedAccess = new AccessGrant(name, document.getKey(), access.getKey(), visibility.getKey(), issuer.getKey(), now.toString());
+            AccessGrant grantedAccess = new AccessGrant(name, document.getKey(), access, visibility.getKey(), issuer.getKey(), now.toString());
             grantedAccess.store();
 
             // Changing the access right means we will have to invalidate the cache for both the document and the project

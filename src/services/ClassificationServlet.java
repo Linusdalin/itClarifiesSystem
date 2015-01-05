@@ -149,7 +149,7 @@ public class ClassificationServlet extends DocumentService{
                     classTag,
                     0,
                     0,
-                    fragment.getRiskId(),
+                    fragment.getRisk(),
                     document.getKey(),
                     now.getISODate(),
                     false);
@@ -323,7 +323,7 @@ public class ClassificationServlet extends DocumentService{
                         classification.getComment(),
                         classification.getClassTag(),
                         0, 0,
-                        fragment.getRiskId(),
+                        fragment.getRisk(),
                         fragment.getVersion().getDocumentId(),
                         now.getISODate(),
                         false);

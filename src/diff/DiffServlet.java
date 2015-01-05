@@ -89,7 +89,7 @@ public class DiffServlet extends ItClarifiesService {
             if(!mandatoryObjectExists(contract1, resp))
                 return;
 
-            if(!contract1.isSame(contract2))
+            if(!contract1.equals(contract2))
                 returnError("Diff can only be performed between two versions of the same document", HttpServletResponse.SC_BAD_REQUEST, resp);
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Performing diff between the versions " + active.getVersion() + " and " + reference.getVersion() + " of the document " + contract1.getName());

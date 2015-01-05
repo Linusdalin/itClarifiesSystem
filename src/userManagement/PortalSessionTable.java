@@ -42,7 +42,7 @@ public class PortalSessionTable extends DataTable implements DataTableInterface{
             new StringColumn("IP", DataColumn.noFormatting),
             new TimeStampColumn("Start", DataColumn.noFormatting),
             new TimeStampColumn("Latest", DataColumn.noFormatting),
-            new ReferenceColumn("Status", DataColumn.noFormatting, new TableReference("SessionStatus", "Name")),
+            new ConstantColumn("Status", DataColumn.noFormatting, new TableReference("SessionStatus", "Name")),
     };
 
     private static final PortalSession associatedObject = new PortalSession();

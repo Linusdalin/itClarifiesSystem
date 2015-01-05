@@ -202,7 +202,7 @@ public class DocumentService extends ItClarifiesService{
                             bodyText,
                             aFragment.getIndentation(),
                             aFragment.getStyle().type.name(),
-                            defaultRisk.getKey(),
+                            defaultRisk,
                             0,     // annotation
                             0,     // reference
                             0,     // classificaton

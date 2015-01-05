@@ -87,14 +87,14 @@ public class SessionManagement {
 
                 status = "unknown session"; //TODO: Log this.
 
-            }else if(session.getStatusId().equals(SessionStatus.gettimeout())){
+            }else if(session.getStatus().equals(SessionStatus.gettimeout())){
 
                 status = "implicit";
             }else{
 
                 // Close session
 
-                session.setStatus(SessionStatus.getclosed().getKey());
+                session.setStatus(SessionStatus.getclosed());
                 session.update();
 
             }
@@ -150,7 +150,7 @@ public class SessionManagement {
 
         // Check if the session is open and not expired
 
-       boolean isActive =(session.getStatusId().equals(SessionStatus.getopen().getKey()) && !expired(session));
+       boolean isActive =(session.getStatus().equals(SessionStatus.getopen()) && !expired(session));
 
         //PukkaLogger.log(PukkaLogger.Level.INFO, "Validate 4");
 
@@ -275,7 +275,7 @@ public class SessionManagement {
 
         AccessRight grantedAccess = getGrantedAccess(document);
 
-        return(!grantedAccess.isSame(AccessRight.getno()));
+        return(!grantedAccess.equals(AccessRight.getno()));
 
     }
 
@@ -284,7 +284,7 @@ public class SessionManagement {
 
         AccessRight grantedAccess = getGrantedAccess(document);
 
-        return(grantedAccess.isSame(AccessRight.getrc()) || grantedAccess.isSame(AccessRight.getrwd()));
+        return(grantedAccess.equals(AccessRight.getrc()) || grantedAccess.equals(AccessRight.getrwd()));
 
     }
 
@@ -292,7 +292,7 @@ public class SessionManagement {
 
         AccessRight grantedAccess = getGrantedAccess(document);
 
-        return(grantedAccess.isSame(AccessRight.getrwd()));
+        return(grantedAccess.equals(AccessRight.getrwd()));
 
     }
 
@@ -318,7 +318,7 @@ public class SessionManagement {
         PortalUser owner = document.getOwner();
         PortalUser user = getUser();
 
-        if(sessionUser.isSame(system)){
+        if(sessionUser.equals(system)){
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "System User getting access to document "+ document.getName() + "...");
             return AccessRight.getrwd();
@@ -327,7 +327,7 @@ public class SessionManagement {
 
         PukkaLogger.log(PukkaLogger.Level.DEBUG, "Getting access to document "+ document.getName()+" for user " + user.getName() + "...");
 
-        if(owner.isSame(user)){
+        if(owner.equals(user)){
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "owner - rwd access");
             return AccessRight.getrwd();

@@ -28,7 +28,7 @@ public class ChangePasswordForm extends Form implements FormInterface {
 
         try {
 
-            new OrganizationTable().getDropDown();
+            new OrganizationTable().getDropDown(null);
 
             List<FormFieldInterface> elements = new ArrayList<FormFieldInterface>();
 

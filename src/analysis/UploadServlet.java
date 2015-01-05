@@ -162,7 +162,7 @@ public class UploadServlet extends DocumentService {
 
                         if(fi.getFieldName().equals("access")){
 
-                            accessRight = new AccessRight(new LookupItem().addFilter(new ColumnFilter(AccessRightTable.Columns.Name.name(), new String(fi.get()))));
+                            accessRight = new AccessRightTable().getValueByName(new String(fi.get()));
 
                             if(!mandatoryObjectExists(accessRight, resp))
                                 return;
@@ -216,7 +216,7 @@ public class UploadServlet extends DocumentService {
 
                         // TODO: If the owner is allowed to upload
 
-                        if(!portalUser.isSame(project.getCreator())){
+                        if(!portalUser.equals(project.getCreator())){
 
                             returnError("Not sufficient access to upload document. Please contact project owner", ErrorType.PERMISSION, HttpServletResponse.SC_FORBIDDEN, resp);
                             return;

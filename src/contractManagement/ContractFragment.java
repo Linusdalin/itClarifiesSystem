@@ -43,11 +43,11 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     public ContractFragment(String name, DataObjectInterface version, DataObjectInterface project, long structureno, long ordinal, String text, long indentation, String type, DataObjectInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, String display) throws BackOfficeException{
 
-        this(name, version.getKey(), project.getKey(), structureno, ordinal, text, indentation, type, risk.getKey(), annotationcount, referencecount, classificatoncount, actioncount, xpos, ypos, display);
+        this(name, version.getKey(), project.getKey(), structureno, ordinal, text, indentation, type, risk, annotationcount, referencecount, classificatoncount, actioncount, xpos, ypos, display);
     }
 
 
-    public ContractFragment(String name, DBKeyInterface version, DBKeyInterface project, long structureno, long ordinal, String text, long indentation, String type, DBKeyInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, String display){
+    public ContractFragment(String name, DBKeyInterface version, DBKeyInterface project, long structureno, long ordinal, String text, long indentation, String type, DataObjectInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, String display){
 
         this();
         try{
@@ -64,7 +64,7 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
            data[5] = new BlobData(text);
            data[6] = new IntData(indentation);
            data[7] = new StringData(type);
-           data[8] = new ReferenceData(risk, columns[8].getTableReference());
+           data[8] = new ConstantData(risk.get__Id(), columns[8].getTableReference());
            data[9] = new IntData(annotationcount);
            data[10] = new IntData(referencecount);
            data[11] = new IntData(classificatoncount);
@@ -235,22 +235,17 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
 
 
-    public DBKeyInterface getRiskId(){
-
-        ReferenceData data = (ReferenceData)this.data[8];
-        return data.value;
-    }
-
     public ContractRisk getRisk(){
 
-        ReferenceData data = (ReferenceData)this.data[8];
-        return new ContractRisk(new LookupByKey(data.value));
+        ConstantData data = (ConstantData)this.data[8];
+        return (ContractRisk)(new ContractRiskTable().getConstantValue(data.value));
+
     }
 
-    public void setRisk(DBKeyInterface risk){
+    public void setRisk(DataObjectInterface risk){
 
-        ReferenceData data = (ReferenceData)this.data[8];
-        data.value = risk;
+        ConstantData data = (ConstantData)this.data[8];
+        data.value = risk.get__Id();
     }
 
 

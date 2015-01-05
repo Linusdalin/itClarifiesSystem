@@ -58,7 +58,7 @@ public class RiskFlagServlet extends DocumentService {
             Formatter formatter = getFormatFromParameters(req);
 
             DBKeyInterface key               = getMandatoryKey("fragment", req);
-            DBKeyInterface _risk              = getMandatoryKey("risk", req);
+            long _risk                      = getMandatorylong("risk", req);
 
             String comment                   = getOptionalString("comment", req, "");
             String pattern                   = getOptionalString("pattern", req, "");
@@ -80,7 +80,7 @@ public class RiskFlagServlet extends DocumentService {
             if(!mandatoryObjectExists(version, resp))
                 return;
 
-            ContractRisk risk = new ContractRisk(new LookupByKey(_risk));
+            ContractRisk risk = new ContractRiskTable().getValue((int)_risk);
             if(!mandatoryObjectExists(risk, resp))
                 return;
 
@@ -103,7 +103,7 @@ public class RiskFlagServlet extends DocumentService {
 
             RiskClassification classification = new RiskClassification(
                     fragment.getKey(),
-                    risk.getKey(),
+                    risk,
                     comment,
                     "#RISK",
                     classifier.getKey(),
@@ -116,7 +116,7 @@ public class RiskFlagServlet extends DocumentService {
 
             // Nuw update the fragment
 
-            fragment.setRisk(_risk);
+            fragment.setRisk(risk);
             fragment.update();
 
             invalidateFragmentCache(version);
@@ -171,16 +171,13 @@ public class RiskFlagServlet extends DocumentService {
 
             DBKeyInterface organization = sessionManagement.getUser().getOrganizationId();
 
-            ContractRiskTable risks = new ContractRiskTable(new LookupList()
-                .addSorting(new Sorting(ContractRiskTable.Columns.Severity.name(), Ordering.LAST)));
-
-            for(DataObjectInterface object : risks.getValues()){
+            for(DataObjectInterface object : new ContractRiskTable().getValues()){
 
                 ContractRisk risk = (ContractRisk)object;
 
                 JSONObject riskObject = new JSONObject()
-                        .put("id", risk.getKey().toString())
-                        .put("severity", risk.getSeverity())
+                        .put("id", ""+ risk.getId())
+                        .put("severity", new Integer(risk.getSeverity()))    //Stored as string
                         .put("name", risk.getName());
                 list.put(riskObject);
 

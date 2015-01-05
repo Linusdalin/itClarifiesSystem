@@ -66,10 +66,10 @@ public class ConvertToActionServlet extends ItClarifiesService {
 
             // These are optional parameters. Not part of the main convert use case
 
-            long priority                   = getOptionalLong("priority", req, -1);
-            DBKeyInterface _status          = getOptionalKey("status", req);
-            DBTimeStamp dueDate             = getOptionalDate("dueDate", req, new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00"));
-            DBTimeStamp completedDate       = getOptionalDate("completedDate", req, new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00"));
+            long priority               = getOptionalLong("priority", req, -1);
+            long _status                = getOptionalLong("status", req, -1);
+            DBTimeStamp dueDate         = getOptionalDate("dueDate", req, new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00"));
+            DBTimeStamp completedDate   = getOptionalDate("completedDate", req, new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00"));
 
             PortalUser creator = sessionManagement.getUser();
             Action action;
@@ -80,6 +80,14 @@ public class ConvertToActionServlet extends ItClarifiesService {
             String pattern = annotation.getPattern();
             ContractVersionInstance version = fragment.getVersion();
             DBKeyInterface _project = version.getDocument().getProjectId();
+
+            ActionStatus status = ActionStatus.getOpen();
+            if(_status != -1){
+
+                status = new ActionStatusTable().getValue((int)_status);
+            }
+
+
 
             //Create the new action
 
@@ -102,7 +110,7 @@ public class ConvertToActionServlet extends ItClarifiesService {
                     creator.getKey(),
                     _assignee,
                     priority,
-                    (_status == null ? ActionStatus.getOpen().getKey() : _status ),
+                    status,
                     creationDate.getISODate(),
                     dueDate.getISODate(),
                     completedDate.getISODate());

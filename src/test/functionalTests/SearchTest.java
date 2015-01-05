@@ -182,7 +182,7 @@ public class SearchTest extends ServletTests {
 
         ContractFragment fragment = new ContractFragment(new LookupItem().addFilter(new ColumnFilter(ContractFragmentTable.Columns.Name.name(), "first fragment")));
         Contract document = fragment.getVersion().getDocument();
-        document.setAccess("no");   // Setting hidden access for the document
+        document.setAccess( 0 );   // Setting hidden access for the document
 
         PortalUser documentOwner = document.getOwner();
         PortalUser otherUser  = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "demo")));

@@ -43,7 +43,7 @@ public class ContractType extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public ContractType(String name, String description){
+    public ContractType(long id, String name, String description){
 
         this();
         try{
@@ -52,8 +52,9 @@ public class ContractType extends DataObject implements DataObjectInterface{
 
            data = new ColumnDataInterface[columns.length];
 
-           data[0] = new StringData(name);
-           data[1] = new TextData(description);
+           data[0] = new IntData(id);
+           data[1] = new StringData(name);
+           data[2] = new TextData(description);
 
            exists = true;
         }catch(BackOfficeException e){
@@ -63,28 +64,6 @@ public class ContractType extends DataObject implements DataObjectInterface{
 
 
     }
-    /*********************************************************************''
-     *
-     *          Load from database
-     *
-     * @param condition - the SQL condition for selecting ONE UNIQUE object
-     */
-
-    public ContractType(ConditionInterface condition){
-
-        this();
-
-        try{
-            exists = load(condition);
-
-        }catch(BackOfficeException e){
-
-            System.out.println("Error loading object from database" + e.narration);
-            e.printStackTrace();
-        }
-
-    }
-
     public DataObjectInterface createNew(ColumnDataInterface[] data ) throws BackOfficeException {
 
         ContractType o = new ContractType();
@@ -93,15 +72,29 @@ public class ContractType extends DataObject implements DataObjectInterface{
         return o;
     }
 
+    public long getId(){
+
+        IntData data = (IntData) this.data[0];
+        return data.value;
+    }
+
+    public void setId(long id){
+
+        IntData data = (IntData) this.data[0];
+        data.value = id;
+    }
+
+
+
     public String getName(){
 
-        StringData data = (StringData) this.data[0];
+        StringData data = (StringData) this.data[1];
         return data.getStringValue();
     }
 
     public void setName(String name){
 
-        StringData data = (StringData) this.data[0];
+        StringData data = (StringData) this.data[1];
         data.setStringValue(name);
     }
 
@@ -109,13 +102,13 @@ public class ContractType extends DataObject implements DataObjectInterface{
 
     public String getDescription(){
 
-        TextData data = (TextData) this.data[1];
+        TextData data = (TextData) this.data[2];
         return data.getStringValue();
     }
 
     public void setDescription(String description){
 
-        TextData data = (TextData) this.data[1];
+        TextData data = (TextData) this.data[2];
         data.setStringValue(description);
     }
 
@@ -123,22 +116,12 @@ public class ContractType extends DataObject implements DataObjectInterface{
 
     public static ContractType getUnclassified( ) throws BackOfficeException{
 
-       if(ContractType.Unclassified == null)
-          ContractType.Unclassified = new ContractType(new LookupItem().addFilter(new ColumnFilter("Name", "Unclassified")));
-       if(!ContractType.Unclassified.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Unclassified is missing (db update required?)");
-
-       return ContractType.Unclassified;
+       return (ContractType)ContractTypeTable.Values.get(0);
     }
 
     public static ContractType getUnknown( ) throws BackOfficeException{
 
-       if(ContractType.Unknown == null)
-          ContractType.Unknown = new ContractType(new LookupItem().addFilter(new ColumnFilter("Name", "Unknown")));
-       if(!ContractType.Unknown.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Unknown is missing (db update required?)");
-
-       return ContractType.Unknown;
+       return (ContractType)ContractTypeTable.Values.get(1);
     }
 
 
@@ -146,8 +129,6 @@ public class ContractType extends DataObject implements DataObjectInterface{
 
         //  Clear all cache when the application is uploaded.
 
-        ContractType.Unclassified = null;
-        ContractType.Unknown = null;
     }
 
     /* Code below this point will not be replaced when regenerating the file*/

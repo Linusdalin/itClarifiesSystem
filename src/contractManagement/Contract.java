@@ -41,13 +41,13 @@ public class Contract extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public Contract(String name, String file, long ordinal, DataObjectInterface type, DataObjectInterface status, String message, String description, DataObjectInterface project, DataObjectInterface owner, String creation, String language, String access) throws BackOfficeException{
+    public Contract(String name, String file, long ordinal, DataObjectInterface type, DataObjectInterface status, String message, String description, DataObjectInterface project, DataObjectInterface owner, String creation, String language, long access) throws BackOfficeException{
 
-        this(name, file, ordinal, type.getKey(), status.getKey(), message, description, project.getKey(), owner.getKey(), creation, language, access);
+        this(name, file, ordinal, type, status, message, description, project.getKey(), owner.getKey(), creation, language, access);
     }
 
 
-    public Contract(String name, String file, long ordinal, DBKeyInterface type, DBKeyInterface status, String message, String description, DBKeyInterface project, DBKeyInterface owner, String creation, String language, String access){
+    public Contract(String name, String file, long ordinal, DataObjectInterface type, DataObjectInterface status, String message, String description, DBKeyInterface project, DBKeyInterface owner, String creation, String language, long access){
 
         this();
         try{
@@ -59,15 +59,15 @@ public class Contract extends DataObject implements DataObjectInterface{
            data[0] = new StringData(name);
            data[1] = new StringData(file);
            data[2] = new IntData(ordinal);
-           data[3] = new ReferenceData(type, columns[3].getTableReference());
-           data[4] = new ReferenceData(status, columns[4].getTableReference());
+           data[3] = new ConstantData(type.get__Id(), columns[3].getTableReference());
+           data[4] = new ConstantData(status.get__Id(), columns[4].getTableReference());
            data[5] = new TextData(message);
            data[6] = new TextData(description);
            data[7] = new ReferenceData(project, columns[7].getTableReference());
            data[8] = new ReferenceData(owner, columns[8].getTableReference());
            data[9] = new DateData(creation);
            data[10] = new StringData(language);
-           data[11] = new StringData(access);
+           data[11] = new IntData(access);
 
            exists = true;
         }catch(BackOfficeException e){
@@ -149,42 +149,32 @@ public class Contract extends DataObject implements DataObjectInterface{
 
 
 
-    public DBKeyInterface getTypeId(){
-
-        ReferenceData data = (ReferenceData)this.data[3];
-        return data.value;
-    }
-
     public ContractType getType(){
 
-        ReferenceData data = (ReferenceData)this.data[3];
-        return new ContractType(new LookupByKey(data.value));
+        ConstantData data = (ConstantData)this.data[3];
+        return (ContractType)(new ContractTypeTable().getConstantValue(data.value));
+
     }
 
-    public void setType(DBKeyInterface type){
+    public void setType(DataObjectInterface type){
 
-        ReferenceData data = (ReferenceData)this.data[3];
-        data.value = type;
+        ConstantData data = (ConstantData)this.data[3];
+        data.value = type.get__Id();
     }
 
 
-
-    public DBKeyInterface getStatusId(){
-
-        ReferenceData data = (ReferenceData)this.data[4];
-        return data.value;
-    }
 
     public ContractStatus getStatus(){
 
-        ReferenceData data = (ReferenceData)this.data[4];
-        return new ContractStatus(new LookupByKey(data.value));
+        ConstantData data = (ConstantData)this.data[4];
+        return (ContractStatus)(new ContractStatusTable().getConstantValue(data.value));
+
     }
 
-    public void setStatus(DBKeyInterface status){
+    public void setStatus(DataObjectInterface status){
 
-        ReferenceData data = (ReferenceData)this.data[4];
-        data.value = status;
+        ConstantData data = (ConstantData)this.data[4];
+        data.value = status.get__Id();
     }
 
 
@@ -285,16 +275,16 @@ public class Contract extends DataObject implements DataObjectInterface{
 
 
 
-    public String getAccess(){
+    public long getAccess(){
 
-        StringData data = (StringData) this.data[11];
-        return data.getStringValue();
+        IntData data = (IntData) this.data[11];
+        return data.value;
     }
 
-    public void setAccess(String access){
+    public void setAccess(long access){
 
-        StringData data = (StringData) this.data[11];
-        data.setStringValue(access);
+        IntData data = (IntData) this.data[11];
+        data.value = access;
     }
 
 
@@ -679,7 +669,7 @@ public class Contract extends DataObject implements DataObjectInterface{
 
                 for(Reference reference : references){
 
-                    if(reference.getType().isSame(ReferenceType.getOpen()))
+                    if(reference.getType().equals(ReferenceType.getOpen()))
                         comments.append(" Open Reference " + reference.getName() +" <br/>");
                     else{
 
@@ -715,7 +705,7 @@ public class Contract extends DataObject implements DataObjectInterface{
                 // Add risk
                 try{
 
-                    if(!fragment.getRisk().isSame(ContractRisk.getNotSet())){
+                    if(!fragment.getRisk().equals(ContractRisk.getNotSet())){
 
                         RiskClassification classification = fragment.getLastRiskClassificationForFragment(RiskClassificationTable.Columns.Time.name());
 

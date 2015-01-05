@@ -48,7 +48,7 @@ public class ContractRisk extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public ContractRisk(String name, long severity, String description){
+    public ContractRisk(long id, String name, String severity, String description){
 
         this();
         try{
@@ -57,9 +57,10 @@ public class ContractRisk extends DataObject implements DataObjectInterface{
 
            data = new ColumnDataInterface[columns.length];
 
-           data[0] = new StringData(name);
-           data[1] = new IntData(severity);
-           data[2] = new TextData(description);
+           data[0] = new IntData(id);
+           data[1] = new StringData(name);
+           data[2] = new StringData(severity);
+           data[3] = new TextData(description);
 
            exists = true;
         }catch(BackOfficeException e){
@@ -69,28 +70,6 @@ public class ContractRisk extends DataObject implements DataObjectInterface{
 
 
     }
-    /*********************************************************************''
-     *
-     *          Load from database
-     *
-     * @param condition - the SQL condition for selecting ONE UNIQUE object
-     */
-
-    public ContractRisk(ConditionInterface condition){
-
-        this();
-
-        try{
-            exists = load(condition);
-
-        }catch(BackOfficeException e){
-
-            System.out.println("Error loading object from database" + e.narration);
-            e.printStackTrace();
-        }
-
-    }
-
     public DataObjectInterface createNew(ColumnDataInterface[] data ) throws BackOfficeException {
 
         ContractRisk o = new ContractRisk();
@@ -99,43 +78,57 @@ public class ContractRisk extends DataObject implements DataObjectInterface{
         return o;
     }
 
+    public long getId(){
+
+        IntData data = (IntData) this.data[0];
+        return data.value;
+    }
+
+    public void setId(long id){
+
+        IntData data = (IntData) this.data[0];
+        data.value = id;
+    }
+
+
+
     public String getName(){
 
-        StringData data = (StringData) this.data[0];
+        StringData data = (StringData) this.data[1];
         return data.getStringValue();
     }
 
     public void setName(String name){
 
-        StringData data = (StringData) this.data[0];
+        StringData data = (StringData) this.data[1];
         data.setStringValue(name);
     }
 
 
 
-    public long getSeverity(){
+    public String getSeverity(){
 
-        IntData data = (IntData) this.data[1];
-        return data.value;
+        StringData data = (StringData) this.data[2];
+        return data.getStringValue();
     }
 
-    public void setSeverity(long severity){
+    public void setSeverity(String severity){
 
-        IntData data = (IntData) this.data[1];
-        data.value = severity;
+        StringData data = (StringData) this.data[2];
+        data.setStringValue(severity);
     }
 
 
 
     public String getDescription(){
 
-        TextData data = (TextData) this.data[2];
+        TextData data = (TextData) this.data[3];
         return data.getStringValue();
     }
 
     public void setDescription(String description){
 
-        TextData data = (TextData) this.data[2];
+        TextData data = (TextData) this.data[3];
         data.setStringValue(description);
     }
 
@@ -143,72 +136,37 @@ public class ContractRisk extends DataObject implements DataObjectInterface{
 
     public static ContractRisk getBlack( ) throws BackOfficeException{
 
-       if(ContractRisk.Black == null)
-          ContractRisk.Black = new ContractRisk(new LookupItem().addFilter(new ColumnFilter("Name", "Blocker")));
-       if(!ContractRisk.Black.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Black is missing (db update required?)");
-
-       return ContractRisk.Black;
+       return (ContractRisk)ContractRiskTable.Values.get(0);
     }
 
     public static ContractRisk getRed( ) throws BackOfficeException{
 
-       if(ContractRisk.Red == null)
-          ContractRisk.Red = new ContractRisk(new LookupItem().addFilter(new ColumnFilter("Name", "High")));
-       if(!ContractRisk.Red.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Red is missing (db update required?)");
-
-       return ContractRisk.Red;
+       return (ContractRisk)ContractRiskTable.Values.get(1);
     }
 
     public static ContractRisk getAmber( ) throws BackOfficeException{
 
-       if(ContractRisk.Amber == null)
-          ContractRisk.Amber = new ContractRisk(new LookupItem().addFilter(new ColumnFilter("Name", "Medium")));
-       if(!ContractRisk.Amber.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Amber is missing (db update required?)");
-
-       return ContractRisk.Amber;
+       return (ContractRisk)ContractRiskTable.Values.get(2);
     }
 
     public static ContractRisk getUnknown( ) throws BackOfficeException{
 
-       if(ContractRisk.Unknown == null)
-          ContractRisk.Unknown = new ContractRisk(new LookupItem().addFilter(new ColumnFilter("Name", "Potential")));
-       if(!ContractRisk.Unknown.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Unknown is missing (db update required?)");
-
-       return ContractRisk.Unknown;
+       return (ContractRisk)ContractRiskTable.Values.get(3);
     }
 
     public static ContractRisk getNone( ) throws BackOfficeException{
 
-       if(ContractRisk.None == null)
-          ContractRisk.None = new ContractRisk(new LookupItem().addFilter(new ColumnFilter("Name", "No Risk")));
-       if(!ContractRisk.None.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant None is missing (db update required?)");
-
-       return ContractRisk.None;
+       return (ContractRisk)ContractRiskTable.Values.get(4);
     }
 
     public static ContractRisk getNotSet( ) throws BackOfficeException{
 
-       if(ContractRisk.NotSet == null)
-          ContractRisk.NotSet = new ContractRisk(new LookupItem().addFilter(new ColumnFilter("Name", "Not set")));
-       if(!ContractRisk.NotSet.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant NotSet is missing (db update required?)");
-
-       return ContractRisk.NotSet;
+       return (ContractRisk)ContractRiskTable.Values.get(5);
     }
 
     public static ContractRisk getAdvantage( ) throws BackOfficeException{
 
-       if(ContractRisk.Advantage == null)
-          ContractRisk.Advantage = new ContractRisk(new LookupItem().addFilter(new ColumnFilter("Name", "Advantage")));
-       if(!ContractRisk.Advantage.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Advantage is missing (db update required?)");
-
-       return ContractRisk.Advantage;
+       return (ContractRisk)ContractRiskTable.Values.get(6);
     }
 
 
@@ -216,13 +174,6 @@ public class ContractRisk extends DataObject implements DataObjectInterface{
 
         //  Clear all cache when the application is uploaded.
 
-        ContractRisk.Black = null;
-        ContractRisk.Red = null;
-        ContractRisk.Amber = null;
-        ContractRisk.Unknown = null;
-        ContractRisk.None = null;
-        ContractRisk.NotSet = null;
-        ContractRisk.Advantage = null;
     }
 
     /* Code below this point will not be replaced when regenerating the file*/

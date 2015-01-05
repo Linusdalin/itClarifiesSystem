@@ -139,8 +139,7 @@ public class ActionList extends GroupByList implements ListInterface{
 
                     // Set to completed
 
-                    ActionStatus completed = ActionStatus.getCompleted();
-                    theAction.setStatus(completed.getKey());
+                    theAction.setStatus(ActionStatus.getCompleted());
                     theAction.update();
 
                     return ("Success: Action is set to completed");

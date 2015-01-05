@@ -43,11 +43,11 @@ public class RiskClassification extends DataObject implements DataObjectInterfac
 
     public RiskClassification(DataObjectInterface fragment, DataObjectInterface risk, String comment, String keywords, DataObjectInterface creator, DataObjectInterface version, DataObjectInterface project, String pattern, long patternpos, String time) throws BackOfficeException{
 
-        this(fragment.getKey(), risk.getKey(), comment, keywords, creator.getKey(), version.getKey(), project.getKey(), pattern, patternpos, time);
+        this(fragment.getKey(), risk, comment, keywords, creator.getKey(), version.getKey(), project.getKey(), pattern, patternpos, time);
     }
 
 
-    public RiskClassification(DBKeyInterface fragment, DBKeyInterface risk, String comment, String keywords, DBKeyInterface creator, DBKeyInterface version, DBKeyInterface project, String pattern, long patternpos, String time){
+    public RiskClassification(DBKeyInterface fragment, DataObjectInterface risk, String comment, String keywords, DBKeyInterface creator, DBKeyInterface version, DBKeyInterface project, String pattern, long patternpos, String time){
 
         this();
         try{
@@ -57,7 +57,7 @@ public class RiskClassification extends DataObject implements DataObjectInterfac
            data = new ColumnDataInterface[columns.length];
 
            data[0] = new ReferenceData(fragment, columns[0].getTableReference());
-           data[1] = new ReferenceData(risk, columns[1].getTableReference());
+           data[1] = new ConstantData(risk.get__Id(), columns[1].getTableReference());
            data[2] = new TextData(comment);
            data[3] = new TextData(keywords);
            data[4] = new ReferenceData(creator, columns[4].getTableReference());
@@ -125,22 +125,17 @@ public class RiskClassification extends DataObject implements DataObjectInterfac
 
 
 
-    public DBKeyInterface getRiskId(){
-
-        ReferenceData data = (ReferenceData)this.data[1];
-        return data.value;
-    }
-
     public ContractRisk getRisk(){
 
-        ReferenceData data = (ReferenceData)this.data[1];
-        return new ContractRisk(new LookupByKey(data.value));
+        ConstantData data = (ConstantData)this.data[1];
+        return (ContractRisk)(new ContractRiskTable().getConstantValue(data.value));
+
     }
 
-    public void setRisk(DBKeyInterface risk){
+    public void setRisk(DataObjectInterface risk){
 
-        ReferenceData data = (ReferenceData)this.data[1];
-        data.value = risk;
+        ConstantData data = (ConstantData)this.data[1];
+        data.value = risk.get__Id();
     }
 
 

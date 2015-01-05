@@ -45,7 +45,7 @@ public class ContractFragmentTable extends DataTable implements DataTableInterfa
             new BlobColumn("Text", DataColumn.noFormatting),
             new IntColumn("Indentation", DataColumn.noFormatting),
             new StringColumn("Type", DataColumn.noFormatting),
-            new ReferenceColumn("Risk", DataColumn.noFormatting, new TableReference("ContractRisk", "Name")),
+            new ConstantColumn("Risk", DataColumn.noFormatting, new TableReference("ContractRisk", "Name")),
             new IntColumn("AnnotationCount", DataColumn.noFormatting),
             new IntColumn("ReferenceCount", DataColumn.noFormatting),
             new IntColumn("ClassificatonCount", DataColumn.noFormatting),

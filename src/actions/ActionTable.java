@@ -47,7 +47,7 @@ public class ActionTable extends DataTable implements DataTableInterface{
             new ReferenceColumn("Issuer", DataColumn.noFormatting, new TableReference("PortalUser", "Name")),
             new ReferenceColumn("Assignee", DataColumn.noFormatting, new TableReference("PortalUser", "Name")),
             new IntColumn("Priority", DataColumn.noFormatting),
-            new ReferenceColumn("Status", DataColumn.noFormatting, new TableReference("ActionStatus", "Name")),
+            new ConstantColumn("Status", DataColumn.noFormatting, new TableReference("ActionStatus", "Name")),
             new DateColumn("Created", DataColumn.noFormatting),
             new DateColumn("Due", DataColumn.noFormatting),
             new DateColumn("Completed", DataColumn.noFormatting),

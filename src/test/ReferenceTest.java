@@ -111,7 +111,7 @@ public class ReferenceTest extends ServletTests {
                 ContractStatus status = ContractStatus.getAnalysing();
                 PortalUser user = PortalUser.getSystemUser();
                 DBTimeStamp creationTime = new DBTimeStamp();
-                Contract newDocument = new Contract("pricelist", "Test Document.docx", 3, documentType, status,  "no message", "test document", project, user, creationTime.toString(), "EN", "not set");
+                Contract newDocument = new Contract("pricelist", "Test Document.docx", 3, documentType, status,  "no message", "test document", project, user, creationTime.toString(), "EN", 1);
                 newDocument.store();
 
                 // Create a new version for the document
@@ -137,7 +137,7 @@ public class ReferenceTest extends ServletTests {
 
                 Reference newReference = referencesForFragment.get(referencesCount);  // Gat the latest
 
-                assertTrue(newReference.getTo().isSame(aFirstFragment));
+                assertTrue(newReference.getTo().equals(aFirstFragment));
 
 
         }catch(Exception e){
@@ -166,7 +166,8 @@ public class ReferenceTest extends ServletTests {
                     firstFragmentInCannonDoc.getKey(),          //TODO: This is pointing back to self
                     cannon.getHeadVersion().getKey(),
                     project.getKey(),
-                    ReferenceType.getOpen());
+                    ReferenceType.getOpen(),
+                    "pattern");
             newOpen.store();
 
             Reference newExplicit = new Reference(
@@ -175,7 +176,8 @@ public class ReferenceTest extends ServletTests {
                     firstFragmentInCannonDoc.getKey(),          //TODO: This is pointing back to self
                     cannon.getHeadVersion().getKey(),
                     project.getKey(),
-                    ReferenceType.getExplicit());
+                    ReferenceType.getExplicit(),
+                    "pattern");
 
             newExplicit.store();
 

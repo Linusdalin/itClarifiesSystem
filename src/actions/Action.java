@@ -43,11 +43,11 @@ public class Action extends DataObject implements DataObjectInterface{
 
     public Action(long id, String name, String description, String pattern, DataObjectInterface fragment, DataObjectInterface version, DataObjectInterface project, DataObjectInterface issuer, DataObjectInterface assignee, long priority, DataObjectInterface status, String created, String due, String completed) throws BackOfficeException{
 
-        this(id, name, description, pattern, fragment.getKey(), version.getKey(), project.getKey(), issuer.getKey(), assignee.getKey(), priority, status.getKey(), created, due, completed);
+        this(id, name, description, pattern, fragment.getKey(), version.getKey(), project.getKey(), issuer.getKey(), assignee.getKey(), priority, status, created, due, completed);
     }
 
 
-    public Action(long id, String name, String description, String pattern, DBKeyInterface fragment, DBKeyInterface version, DBKeyInterface project, DBKeyInterface issuer, DBKeyInterface assignee, long priority, DBKeyInterface status, String created, String due, String completed){
+    public Action(long id, String name, String description, String pattern, DBKeyInterface fragment, DBKeyInterface version, DBKeyInterface project, DBKeyInterface issuer, DBKeyInterface assignee, long priority, DataObjectInterface status, String created, String due, String completed){
 
         this();
         try{
@@ -66,7 +66,7 @@ public class Action extends DataObject implements DataObjectInterface{
            data[7] = new ReferenceData(issuer, columns[7].getTableReference());
            data[8] = new ReferenceData(assignee, columns[8].getTableReference());
            data[9] = new IntData(priority);
-           data[10] = new ReferenceData(status, columns[10].getTableReference());
+           data[10] = new ConstantData(status.get__Id(), columns[10].getTableReference());
            data[11] = new DateData(created);
            data[12] = new DateData(due);
            data[13] = new DateData(completed);
@@ -279,22 +279,17 @@ public class Action extends DataObject implements DataObjectInterface{
 
 
 
-    public DBKeyInterface getStatusId(){
-
-        ReferenceData data = (ReferenceData)this.data[10];
-        return data.value;
-    }
-
     public ActionStatus getStatus(){
 
-        ReferenceData data = (ReferenceData)this.data[10];
-        return new ActionStatus(new LookupByKey(data.value));
+        ConstantData data = (ConstantData)this.data[10];
+        return (ActionStatus)(new ActionStatusTable().getConstantValue(data.value));
+
     }
 
-    public void setStatus(DBKeyInterface status){
+    public void setStatus(DataObjectInterface status){
 
-        ReferenceData data = (ReferenceData)this.data[10];
-        data.value = status;
+        ConstantData data = (ConstantData)this.data[10];
+        data.value = status.get__Id();
     }
 
 

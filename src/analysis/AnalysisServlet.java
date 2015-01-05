@@ -155,7 +155,7 @@ public class AnalysisServlet extends DocumentService {
                 PukkaLogger.swallow( e );
 
                 document.setMessage("Failed to parse document: " + e.narration);
-                document.setStatus(ContractStatus.getFailed().getKey());
+                document.setStatus(ContractStatus.getFailed());
                 document.update();
 
                 invalidateDocumentCache(document, project);
@@ -167,7 +167,7 @@ public class AnalysisServlet extends DocumentService {
             // Update the status of the document
 
             document.setMessage("Completed parsing. Analysing");
-            document.setStatus(ContractStatus.getAnalysing().getKey());
+            document.setStatus(ContractStatus.getAnalysing());
             document.update();
 
             invalidateDocumentCache(document, project);
@@ -184,7 +184,7 @@ public class AnalysisServlet extends DocumentService {
             // Update the status of the document
 
             document.setMessage("Completed analyzing document.");
-            document.setStatus(ContractStatus.getAnalysed().getKey());
+            document.setStatus(ContractStatus.getAnalysed());
             document.update();
 
 
@@ -246,7 +246,7 @@ public class AnalysisServlet extends DocumentService {
         AbstractDocument aDocument = newVersion.createAbstractDocumentVersion(aProject);
         LanguageCode documentLanguage = new LanguageCode(document.getLanguage());
 
-        document.setStatus(ContractStatus.getAnalysing().getKey());  // Setting the status for the document
+        document.setStatus(ContractStatus.getAnalysing());  // Setting the status for the document
         document.update();
 
         aProject.addDocument(aDocument);
@@ -343,7 +343,7 @@ public class AnalysisServlet extends DocumentService {
         AbstractDocument aDocument = documentVersion.createAbstractDocumentVersion(aProject);
         LanguageCode documentLanguage = new LanguageCode(document.getLanguage());
 
-        document.setStatus(ContractStatus.getAnalysing().getKey());  // Setting the status for the document
+        document.setStatus(ContractStatus.getAnalysing());  // Setting the status for the document
         document.update();
 
 
@@ -475,7 +475,7 @@ public class AnalysisServlet extends DocumentService {
                      system.getKey(),
                      PortalUser.getNoUser().getKey(),
                      -1,
-                     ActionStatus.getOpen().getKey(),
+                     ActionStatus.getOpen(),
                      analysisTime.getISODate(),
                      new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00").getISODate(),
                      new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00").getISODate());
@@ -484,7 +484,7 @@ public class AnalysisServlet extends DocumentService {
 
         }
 
-        document.setStatus(ContractStatus.getAnalysed().getKey());  // Setting the status for the document
+        document.setStatus(ContractStatus.getAnalysed());  // Setting the status for the document
         document.update();
 
     }
@@ -586,7 +586,7 @@ public class AnalysisServlet extends DocumentService {
 
 
             //For all other documents we look for references to the title and document name
-            if(!contract.isSame(currentDocument)){
+            if(!contract.equals(currentDocument)){
 
                 ContractVersionInstance latestVersion = contract.getHeadVersion();
                 List<ContractFragment> fragmentsForDocument = latestVersion.getFragmentsForVersion();
@@ -605,10 +605,10 @@ public class AnalysisServlet extends DocumentService {
 
                         for(Reference reference : existingReferences){
 
-                            if(reference.getTo().isSame(firstFragment))
+                            if(reference.getTo().equals(firstFragment))
                                 foundExistingReference = true;
 
-                            if(reference.getType().isSame(ReferenceType.getOpen()) && reference.getName().toLowerCase().contains(name))
+                            if(reference.getType().equals(ReferenceType.getOpen()) && reference.getName().toLowerCase().contains(name))
                                 foundExistingReference = true;
 
                         }
@@ -618,7 +618,7 @@ public class AnalysisServlet extends DocumentService {
                             // Create a new reference and store it in the fragment
                             // It will point to the first clause in the document
 
-                            Reference reference = new Reference(name, fragment, firstFragment,  versionInstance, project, type);
+                            Reference reference = new Reference(name, fragment, firstFragment,  versionInstance, project, type, name);
                             reference.store();
                         }
 
@@ -900,7 +900,8 @@ public class AnalysisServlet extends DocumentService {
                             fragment.getKey(),          // TODO: Points to itself, is this ok?
                             fragment.getVersionId(),
                             project.getKey(),
-                            type);
+                            type,
+                            classification.getExtraction().getSemanticExtraction());
                     reference.store();
 
                     references++;
@@ -968,7 +969,7 @@ public class AnalysisServlet extends DocumentService {
 
                     RiskClassification risk = new RiskClassification(
                             fragment.getKey(),
-                            defaultRisk.getKey(),
+                            defaultRisk,
                             riskDescription,
                             "#RISK",
                             system.getKey(),
@@ -980,7 +981,7 @@ public class AnalysisServlet extends DocumentService {
                     );
                     risk.store();
                     risks++;
-                    fragment.setRisk(defaultRisk.getKey());  // Set it in the fragment too
+                    fragment.setRisk(defaultRisk);  // Set it in the fragment too
 
                     // Creating a risk description. This should really be part of displaying the risk, but the
 
@@ -1022,7 +1023,8 @@ public class AnalysisServlet extends DocumentService {
                                 getDefinitionSource(classification, fragment, project),
                                 fragment.getVersionId(),
                                 project.getKey(),
-                                type);
+                                type,
+                                classification.getExtraction().getSemanticExtraction());
                         reference.store();
 
                         references++;
@@ -1169,7 +1171,8 @@ public class AnalysisServlet extends DocumentService {
                                 definitionFragment.getKey(),     // Point to the definition
                                 fragment.getVersionId(),
                                 project.getKey(),
-                                type);
+                                type,
+                                classification.getPattern().getText());
                         reference.store();
 
                         references++;

@@ -45,7 +45,7 @@ public class ContractStatus extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public ContractStatus(String name, String description){
+    public ContractStatus(long id, String name, String description){
 
         this();
         try{
@@ -54,8 +54,9 @@ public class ContractStatus extends DataObject implements DataObjectInterface{
 
            data = new ColumnDataInterface[columns.length];
 
-           data[0] = new StringData(name);
-           data[1] = new TextData(description);
+           data[0] = new IntData(id);
+           data[1] = new StringData(name);
+           data[2] = new TextData(description);
 
            exists = true;
         }catch(BackOfficeException e){
@@ -65,28 +66,6 @@ public class ContractStatus extends DataObject implements DataObjectInterface{
 
 
     }
-    /*********************************************************************''
-     *
-     *          Load from database
-     *
-     * @param condition - the SQL condition for selecting ONE UNIQUE object
-     */
-
-    public ContractStatus(ConditionInterface condition){
-
-        this();
-
-        try{
-            exists = load(condition);
-
-        }catch(BackOfficeException e){
-
-            System.out.println("Error loading object from database" + e.narration);
-            e.printStackTrace();
-        }
-
-    }
-
     public DataObjectInterface createNew(ColumnDataInterface[] data ) throws BackOfficeException {
 
         ContractStatus o = new ContractStatus();
@@ -95,15 +74,29 @@ public class ContractStatus extends DataObject implements DataObjectInterface{
         return o;
     }
 
+    public long getId(){
+
+        IntData data = (IntData) this.data[0];
+        return data.value;
+    }
+
+    public void setId(long id){
+
+        IntData data = (IntData) this.data[0];
+        data.value = id;
+    }
+
+
+
     public String getName(){
 
-        StringData data = (StringData) this.data[0];
+        StringData data = (StringData) this.data[1];
         return data.getStringValue();
     }
 
     public void setName(String name){
 
-        StringData data = (StringData) this.data[0];
+        StringData data = (StringData) this.data[1];
         data.setStringValue(name);
     }
 
@@ -111,13 +104,13 @@ public class ContractStatus extends DataObject implements DataObjectInterface{
 
     public String getDescription(){
 
-        TextData data = (TextData) this.data[1];
+        TextData data = (TextData) this.data[2];
         return data.getStringValue();
     }
 
     public void setDescription(String description){
 
-        TextData data = (TextData) this.data[1];
+        TextData data = (TextData) this.data[2];
         data.setStringValue(description);
     }
 
@@ -125,42 +118,22 @@ public class ContractStatus extends DataObject implements DataObjectInterface{
 
     public static ContractStatus getUploaded( ) throws BackOfficeException{
 
-       if(ContractStatus.Uploaded == null)
-          ContractStatus.Uploaded = new ContractStatus(new LookupItem().addFilter(new ColumnFilter("Name", "Uploaded")));
-       if(!ContractStatus.Uploaded.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Uploaded is missing (db update required?)");
-
-       return ContractStatus.Uploaded;
+       return (ContractStatus)ContractStatusTable.Values.get(0);
     }
 
     public static ContractStatus getAnalysing( ) throws BackOfficeException{
 
-       if(ContractStatus.Analysing == null)
-          ContractStatus.Analysing = new ContractStatus(new LookupItem().addFilter(new ColumnFilter("Name", "Analysing")));
-       if(!ContractStatus.Analysing.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Analysing is missing (db update required?)");
-
-       return ContractStatus.Analysing;
+       return (ContractStatus)ContractStatusTable.Values.get(1);
     }
 
     public static ContractStatus getAnalysed( ) throws BackOfficeException{
 
-       if(ContractStatus.Analysed == null)
-          ContractStatus.Analysed = new ContractStatus(new LookupItem().addFilter(new ColumnFilter("Name", "Analysed")));
-       if(!ContractStatus.Analysed.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Analysed is missing (db update required?)");
-
-       return ContractStatus.Analysed;
+       return (ContractStatus)ContractStatusTable.Values.get(2);
     }
 
     public static ContractStatus getFailed( ) throws BackOfficeException{
 
-       if(ContractStatus.Failed == null)
-          ContractStatus.Failed = new ContractStatus(new LookupItem().addFilter(new ColumnFilter("Name", "Failed")));
-       if(!ContractStatus.Failed.exists())
-          throw new BackOfficeException(BackOfficeException.TableError, "Constant Failed is missing (db update required?)");
-
-       return ContractStatus.Failed;
+       return (ContractStatus)ContractStatusTable.Values.get(3);
     }
 
 
@@ -168,10 +141,6 @@ public class ContractStatus extends DataObject implements DataObjectInterface{
 
         //  Clear all cache when the application is uploaded.
 
-        ContractStatus.Uploaded = null;
-        ContractStatus.Analysing = null;
-        ContractStatus.Analysed = null;
-        ContractStatus.Failed = null;
     }
 
     /* Code below this point will not be replaced when regenerating the file*/

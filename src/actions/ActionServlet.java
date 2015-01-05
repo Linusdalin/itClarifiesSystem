@@ -63,7 +63,7 @@ public class ActionServlet extends ItClarifiesService {
             String pattern                  = getOptionalString("pattern", req, "");
             DBKeyInterface _assignee        = getOptionalKey("assignee", req);
             long priority                   = getOptionalLong("priority", req, -1);
-            DBKeyInterface _status          = getOptionalKey("status", req);
+            long _status                    = getOptionalLong("status", req, -1);
             DBTimeStamp dueDate             = getOptionalDate("dueDate", req, new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00"));
             DBTimeStamp completedDate       = getOptionalDate("completedDate", req, new DBTimeStamp(DBTimeStamp.NO_DATE, "1900-00-00"));
 
@@ -96,6 +96,15 @@ public class ActionServlet extends ItClarifiesService {
                 version = fragment.getVersion();
                 Contract document = version.getDocument();
 
+                if(_status == -1){
+
+                    returnError("Mandatory status missing", HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+                    return;
+
+                }
+
+                ActionStatus status = new ActionStatusTable().getValue((int)_status);
+
                 if(!mandatoryObjectExists(document, resp))
                     return;
 
@@ -119,7 +128,7 @@ public class ActionServlet extends ItClarifiesService {
                         creator.getKey(),
                         _assignee,
                         priority,
-                        (_status == null ? ActionStatus.getOpen().getKey() : _status ),
+                        status,
                         creationDate.getISODate(),
                         dueDate.getISODate(),
                         completedDate.getISODate());
@@ -142,7 +151,8 @@ public class ActionServlet extends ItClarifiesService {
                 action = new Action(new LookupByKey(_key));
                 fragment = action.getFragment();
                 version = action.getVersion();
-                DBKeyInterface _previousStatus = action.getStatusId();
+                ActionStatus status = new ActionStatusTable().getValue((int)_status);
+                ActionStatus previousStatus = action.getStatus();
 
                 Project project = action.getProject();
 
@@ -157,8 +167,8 @@ public class ActionServlet extends ItClarifiesService {
                     action.setAssignee(_assignee);
                 if(priority != -1)
                     action.setPriority(priority);
-                if(_status != null)
-                    action.setStatus(_status);
+                if(_status != -1)
+                    action.setStatus(status);
                 if(!dueDate.isEmpty())
                     action.setDue(dueDate);
                 if(!completedDate.isEmpty())
@@ -169,7 +179,7 @@ public class ActionServlet extends ItClarifiesService {
                 action.update();
                 PukkaLogger.log(PukkaLogger.Level.INFO, "Action updated by user " + creator.getName());
 
-                if(_status != null && !_status.equals(_previousStatus)){
+                if(_status != -1 && !status.equals(previousStatus)){
 
                     // Status has changed. Send an email to the owner and original creator
 
@@ -276,7 +286,7 @@ public class ActionServlet extends ItClarifiesService {
                         .put("text", action.getDescription())
                         .put("creator", action.getIssuerId().toString())
                         .put("assignee", action.getAssigneeId().toString())
-                        .put("status",          action.getStatusId().toString())
+                        .put("status",          action.getStatus().getId())
                         .put("priority",        action.getPriority() )
                         .put("creationDate",    action.getCreated().getISODate())
                         .put("dueDate",         action.getDue().getISODate())

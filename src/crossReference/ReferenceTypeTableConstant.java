@@ -36,11 +36,11 @@ public class ReferenceTypeTableConstant extends ConstantTable implements DataTab
 
     private static final List<DataObjectInterface> Values2 = new ArrayList<DataObjectInterface>(){{
 
-            add(new ReferenceType("Unknown", "Unknown or unclassified reference"));
-            add(new ReferenceType("Explicit", "An explicit reference to another clause or document"));
-            add(new ReferenceType("Implicit", "An implicit or derived reference"));
-            add(new ReferenceType("Definition Usage", "A reference to a definition"));
-            add(new ReferenceType("Open", "A link to external or unknown destination"));
+            add(new ReferenceType(1, "Unknown", "Unknown or unclassified reference"));
+            add(new ReferenceType(2, "Explicit", "An explicit reference to another clause or document"));
+            add(new ReferenceType(3, "Implicit", "An implicit or derived reference"));
+            add(new ReferenceType(4, "Definition Usage", "A reference to a definition"));
+            add(new ReferenceType(5, "Open", "A link to external or unknown destination"));
 
     }};
 

@@ -38,7 +38,7 @@ public class RiskClassificationTable extends DataTable implements DataTableInter
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
             new ReferenceColumn("Fragment", DataColumn.noFormatting, new TableReference("ContractFragment", "Name")),
-            new ReferenceColumn("Risk", DataColumn.noFormatting, new TableReference("ContractRisk", "Name")),
+            new ConstantColumn("Risk", DataColumn.noFormatting, new TableReference("ContractRisk", "Name")),
             new TextColumn("Comment", DataColumn.noFormatting),
             new TextColumn("Keywords", DataColumn.noFormatting),
             new ReferenceColumn("Creator", DataColumn.noFormatting, new TableReference("PortalUser", "Name")),

@@ -146,9 +146,9 @@ public class ReplaceDocumentTest extends ServletTests{
             assertThat(actions.size(), not(is(0)));
 
             String classification = classifications.get(0).getClassTag();
-            ContractAnnotation    annotation     = annotations.get(0);
-            Action                action         = actions.get(0);
-            ContractRisk risk           = new ContractRisk(new LookupByKey(first.getRiskId()));
+            ContractAnnotation      annotation     = annotations.get(0);
+            Action                  action         = actions.get(0);
+            ContractRisk            risk            = first.getRisk();
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Class: " + classification + " Risk: " + risk.getName() + " Annotation: " + annotation.getDescription());
 
@@ -189,7 +189,7 @@ public class ReplaceDocumentTest extends ServletTests{
             classification  = classifications.get(0).getClassTag();
             annotation      = annotations.get(0);
             action         = actions.get(0);
-            risk            = new ContractRisk(new LookupByKey(first.getRiskId()));
+            risk            = first.getRisk();
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Class: " + classification + " Risk: " + risk.getName());
 
@@ -235,7 +235,7 @@ public class ReplaceDocumentTest extends ServletTests{
                 .addFilter(new ReferenceFilter(ContractFragmentTable.Columns.Version.name(), version.getKey()))
                 .addFilter(new ColumnFilter(ContractFragmentTable.Columns.Ordinal.name(), 1)));
 
-        first.setRisk(ContractRisk.getBlack().getKey());
+        first.setRisk(ContractRisk.getBlack());
         first.setAnnotationCount(1);
         first.update();
 
@@ -260,9 +260,9 @@ public class ReplaceDocumentTest extends ServletTests{
 
 
         new ContractFragment("F1", version.getKey(), project.getKey(), c.getNumber(), 1, "The First fragment",
-                0, "Text", ContractRisk.getUnknown().getKey(), annotationcount, referencecount, classificationCount, actionCount, 0, 0, "{ }").store();
+                0, "Text", ContractRisk.getUnknown(), annotationcount, referencecount, classificationCount, actionCount, 0, 0, "{ }").store();
         new ContractFragment("F2", version.getKey(), project.getKey(), c.getNumber(), 2, "Some other fragment",
-                0, "Text", ContractRisk.getUnknown().getKey(), annotationcount, referencecount, classificationCount, actionCount, 0, 0, "{ }").store();
+                0, "Text", ContractRisk.getUnknown(), annotationcount, referencecount, classificationCount, actionCount, 0, 0, "{ }").store();
     }
 
 

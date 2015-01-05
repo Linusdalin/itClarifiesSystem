@@ -165,7 +165,7 @@ public class SearchManager2 {
     private int getVisibilityForDocument(Contract document) {
 
 
-        if(document.getAccess().equals("no")){
+        if(document.getAccess() == 0){
 
             PukkaLogger.log(PukkaLogger.Level.DEBUG, "Got access level " + document.getAccess() + " for document " + document.getName() + " setting PRIVATE access for fragment");
             return IndexManager.PRIVATE;

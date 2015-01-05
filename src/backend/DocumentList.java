@@ -271,7 +271,7 @@ public class DocumentList extends GroupByList implements ListInterface{
         int ordinal = 1;
         for(Contract documentInList : allDocumentsInProject){
 
-            if(documentInList.isSame(thisDocument))
+            if(documentInList.equals(thisDocument))
                 documentInList.setOrdinal(0);
             else
                 documentInList.setOrdinal(ordinal++);

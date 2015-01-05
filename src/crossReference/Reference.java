@@ -41,13 +41,13 @@ public class Reference extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public Reference(String name, DataObjectInterface from, DataObjectInterface to, DataObjectInterface version, DataObjectInterface project, DataObjectInterface type) throws BackOfficeException{
+    public Reference(String name, DataObjectInterface from, DataObjectInterface to, DataObjectInterface version, DataObjectInterface project, DataObjectInterface type, String pattern) throws BackOfficeException{
 
-        this(name, from.getKey(), to.getKey(), version.getKey(), project.getKey(), type);
+        this(name, from.getKey(), to.getKey(), version.getKey(), project.getKey(), type, pattern);
     }
 
 
-    public Reference(String name, DBKeyInterface from, DBKeyInterface to, DBKeyInterface version, DBKeyInterface project, DataObjectInterface type){
+    public Reference(String name, DBKeyInterface from, DBKeyInterface to, DBKeyInterface version, DBKeyInterface project, DataObjectInterface type, String pattern){
 
         this();
         try{
@@ -62,6 +62,7 @@ public class Reference extends DataObject implements DataObjectInterface{
            data[3] = new ReferenceData(version, columns[3].getTableReference());
            data[4] = new ReferenceData(project, columns[4].getTableReference());
            data[5] = new ConstantData(type.get__Id(), columns[5].getTableReference());
+           data[6] = new TextData(pattern);
 
            exists = true;
         }catch(BackOfficeException e){
@@ -198,7 +199,7 @@ public class Reference extends DataObject implements DataObjectInterface{
     public ReferenceType getType(){
 
         ConstantData data = (ConstantData)this.data[5];
-        return ((ReferenceTypeTable)table).getValue(data.value);
+        return (ReferenceType)(new ReferenceTypeTable().getConstantValue(data.value));
 
     }
 
@@ -206,6 +207,20 @@ public class Reference extends DataObject implements DataObjectInterface{
 
         ConstantData data = (ConstantData)this.data[5];
         data.value = type.get__Id();
+    }
+
+
+
+    public String getPattern(){
+
+        TextData data = (TextData) this.data[6];
+        return data.getStringValue();
+    }
+
+    public void setPattern(String pattern){
+
+        TextData data = (TextData) this.data[6];
+        data.setStringValue(pattern);
     }
 
 

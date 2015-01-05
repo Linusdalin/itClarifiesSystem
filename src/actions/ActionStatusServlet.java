@@ -84,17 +84,16 @@ public class ActionStatusServlet extends DocumentService {
 
             JSONArray list = new JSONArray();
 
-            ActionStatusTable allStatuses = new ActionStatusTable(new LookupList()
-                    .addSorting(new Sorting(ActionStatusTable.Columns.Ordinal.name(), Ordering.FIRST)));
+            ActionStatusTable allStatuses = new ActionStatusTable();
 
             for(DataObjectInterface object : allStatuses.getValues()){
 
                 ActionStatus status = (ActionStatus)object;
 
                 JSONObject statusObject = new JSONObject()
-                        .put("id", status.getKey().toString())
+                        .put("id", "" +status.getId())
                         .put("name", status.getName())
-                        .put("ordinal", status.getOrdinal());
+                        .put("ordinal", status.getId());
                 list.put(statusObject);
 
             }

@@ -154,6 +154,7 @@ public class ReferenceServlet extends ItClarifiesService{
      *              //TODO:     The destination is looked up multiple times for each reference. We could store it in the database
      */
 
+
     private JSONArray getInReferencesForDocument(ContractVersionInstance version, List<Reference> references) {
 
         JSONArray referenceList = new JSONArray();
@@ -161,7 +162,7 @@ public class ReferenceServlet extends ItClarifiesService{
 
             ContractVersionInstance toDocument = reference.getTo().getVersion();
 
-            if(toDocument.isSame(version)){
+            if(toDocument.equals(version)){
 
                 referenceList.put(new JSONObject()
                     .put("id", toDocument.getDocumentId().toString()));

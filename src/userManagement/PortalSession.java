@@ -44,11 +44,11 @@ public class PortalSession extends DataObject implements DataObjectInterface{
 
     public PortalSession(DataObjectInterface user, String token, String ip, String start, String latest, DataObjectInterface status) throws BackOfficeException{
 
-        this(user.getKey(), token, ip, start, latest, status.getKey());
+        this(user.getKey(), token, ip, start, latest, status);
     }
 
 
-    public PortalSession(DBKeyInterface user, String token, String ip, String start, String latest, DBKeyInterface status){
+    public PortalSession(DBKeyInterface user, String token, String ip, String start, String latest, DataObjectInterface status){
 
         this();
         try{
@@ -62,7 +62,7 @@ public class PortalSession extends DataObject implements DataObjectInterface{
            data[2] = new StringData(ip);
            data[3] = new TimeStampData(start);
            data[4] = new TimeStampData(latest);
-           data[5] = new ReferenceData(status, columns[5].getTableReference());
+           data[5] = new ConstantData(status.get__Id(), columns[5].getTableReference());
 
            exists = true;
         }catch(BackOfficeException e){
@@ -178,22 +178,17 @@ public class PortalSession extends DataObject implements DataObjectInterface{
 
 
 
-    public DBKeyInterface getStatusId(){
-
-        ReferenceData data = (ReferenceData)this.data[5];
-        return data.value;
-    }
-
     public SessionStatus getStatus(){
 
-        ReferenceData data = (ReferenceData)this.data[5];
-        return new SessionStatus(new LookupByKey(data.value));
+        ConstantData data = (ConstantData)this.data[5];
+        return (SessionStatus)(new SessionStatusTable().getConstantValue(data.value));
+
     }
 
-    public void setStatus(DBKeyInterface status){
+    public void setStatus(DataObjectInterface status){
 
-        ReferenceData data = (ReferenceData)this.data[5];
-        data.value = status;
+        ConstantData data = (ConstantData)this.data[5];
+        data.value = status.get__Id();
     }
 
 

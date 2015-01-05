@@ -141,7 +141,7 @@ public class RiskList extends GroupByList implements ListInterface{
                     // Setting the risk to "Not Set"
 
                     ContractRisk risk = ContractRisk.getNotSet();
-                    classification.setRisk(risk.getKey());
+                    classification.setRisk(risk);
                     classification.update();
 
                     return ("Success: Risk for fragment " + classification.getFragment().getName() + " was reverted to Not Set!");

@@ -43,11 +43,11 @@ public class AccessGrant extends DataObject implements DataObjectInterface{
 
     public AccessGrant(String name, DataObjectInterface document, DataObjectInterface accessright, DataObjectInterface visibility, DataObjectInterface issuer, String time) throws BackOfficeException{
 
-        this(name, document.getKey(), accessright.getKey(), visibility.getKey(), issuer.getKey(), time);
+        this(name, document.getKey(), accessright, visibility.getKey(), issuer.getKey(), time);
     }
 
 
-    public AccessGrant(String name, DBKeyInterface document, DBKeyInterface accessright, DBKeyInterface visibility, DBKeyInterface issuer, String time){
+    public AccessGrant(String name, DBKeyInterface document, DataObjectInterface accessright, DBKeyInterface visibility, DBKeyInterface issuer, String time){
 
         this();
         try{
@@ -58,7 +58,7 @@ public class AccessGrant extends DataObject implements DataObjectInterface{
 
            data[0] = new StringData(name);
            data[1] = new ReferenceData(document, columns[1].getTableReference());
-           data[2] = new ReferenceData(accessright, columns[2].getTableReference());
+           data[2] = new ConstantData(accessright.get__Id(), columns[2].getTableReference());
            data[3] = new ReferenceData(visibility, columns[3].getTableReference());
            data[4] = new ReferenceData(issuer, columns[4].getTableReference());
            data[5] = new DateData(time);
@@ -135,22 +135,17 @@ public class AccessGrant extends DataObject implements DataObjectInterface{
 
 
 
-    public DBKeyInterface getAccessRightId(){
-
-        ReferenceData data = (ReferenceData)this.data[2];
-        return data.value;
-    }
-
     public AccessRight getAccessRight(){
 
-        ReferenceData data = (ReferenceData)this.data[2];
-        return new AccessRight(new LookupByKey(data.value));
+        ConstantData data = (ConstantData)this.data[2];
+        return (AccessRight)(new AccessRightTable().getConstantValue(data.value));
+
     }
 
-    public void setAccessRight(DBKeyInterface accessright){
+    public void setAccessRight(DataObjectInterface accessright){
 
-        ReferenceData data = (ReferenceData)this.data[2];
-        data.value = accessright;
+        ConstantData data = (ConstantData)this.data[2];
+        data.value = accessright.get__Id();
     }
 
 
