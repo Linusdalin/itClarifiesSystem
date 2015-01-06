@@ -37,7 +37,7 @@ public class StructureItemTypeTable extends ConstantTable implements DataTableIn
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
-            new IntColumn("Id", DataColumn.noFormatting),
+            new IntColumn("Id", DataColumn.narrowColumn),
             new StringColumn("Name", DataColumn.noFormatting),
             new TextColumn("Description", DataColumn.noFormatting),
     };

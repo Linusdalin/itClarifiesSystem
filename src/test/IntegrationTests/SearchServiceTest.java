@@ -187,7 +187,7 @@ public class SearchServiceTest extends ServletTests {
             MockWriter mockWriter = new MockWriter();
 
             when(request.getParameter("session")).thenReturn("DummyAdminToken");
-            when(request.getParameter("text")).thenReturn("Datum");
+            when(request.getParameter("text")).thenReturn("#Date");
             when(request.getParameter("project")).thenReturn(project.getKey().toString());
             when(request.getRemoteAddr()).thenReturn("127.0.0.1");
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
@@ -199,7 +199,7 @@ public class SearchServiceTest extends ServletTests {
             PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
 
             JSONArray hits = new JSONObject(output).getJSONArray("fragments");
-            assertThat(hits.length(), is(1));
+            assertVerbose("Asserting 2 fragments back ( text and headline): ", hits.length(), is( 2 ));
 
             // Now check the structure of the hits in the response
             JSONObject firstHit = (JSONObject)hits.get(0);
@@ -217,37 +217,6 @@ public class SearchServiceTest extends ServletTests {
             assertThat(patternList.length(), not(is(0)));
 
 
-            mockWriter = new MockWriter();
-
-            when(request.getParameter("session")).thenReturn("DummyAdminToken");
-            when(request.getParameter("text")).thenReturn("#Datum");
-            when(request.getParameter("project")).thenReturn(project.getKey().toString());
-            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
-            when(response.getWriter()).thenReturn(mockWriter.getWriter());
-
-            new SearchServlet().doGet(request, response);
-
-
-            output = mockWriter.getOutput();
-            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
-
-            hits = new JSONObject(output).getJSONArray("fragments");
-            assertThat(hits.length(), is(1));
-
-            // Now check the structure of the hits in the response
-            firstHit = (JSONObject)hits.get(0);
-
-            fragmentKey      = firstHit.getString("fragment");
-            documentKey      = firstHit.getString("document");
-            isKey(documentKey);
-            ordinal             = firstHit.getInt("ordinal");
-            patternList   = firstHit.getJSONArray("patternlist");
-
-
-            isKey(fragmentKey);
-            isKey(documentKey);
-            assertThat(ordinal, not(is(0)));
-            assertThat(patternList.length(), not(is(0)));
 
 
         }catch(Exception e){
@@ -291,7 +260,7 @@ public class SearchServiceTest extends ServletTests {
             PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
 
             JSONArray hits = new JSONObject(output).getJSONArray("fragments");
-            assertThat(hits.length(), is(2));   // A fragment and the headline
+            assertThat(hits.length(), is( 1 ));
 
             // Now do the same search again, but with a user that cant see the document
 

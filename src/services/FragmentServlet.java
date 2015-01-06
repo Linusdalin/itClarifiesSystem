@@ -61,7 +61,7 @@ public class FragmentServlet extends ItClarifiesService{
      * @param resp -
      * @throws IOException
      *
-     *       NOTE: Updating a fragment takes the fragment as a parameter, so there is no need
+     *       NOTE: Updating a fragment takes the fragment as a parameter
      */
 
 
@@ -170,7 +170,7 @@ public class FragmentServlet extends ItClarifiesService{
 
 
             if(update)
-                fragment.store();
+                fragment.update();
 
             // Clear cache for the fragment service for this document
 

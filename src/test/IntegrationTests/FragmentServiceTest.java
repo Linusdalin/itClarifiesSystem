@@ -41,7 +41,7 @@ public class FragmentServiceTest extends ServletTests {
     private static LocalServiceTestHelper helper;
     private static HttpServletRequest request;
     private static HttpServletResponse response;
-
+    private static BackOfficeInterface bo;
 
     @AfterClass
     public static void tearDown() {
@@ -59,6 +59,11 @@ public class FragmentServiceTest extends ServletTests {
 
 
         try {
+
+            bo = new ItClarifies();
+            bo.createDb();
+            bo.populateValues(true);
+
 
             PukkaLogger.setLogLevel(PukkaLogger.Level.DEBUG);
 
@@ -87,11 +92,6 @@ public class FragmentServiceTest extends ServletTests {
 
         try{
 
-            BackOfficeInterface bo;
-
-            bo = new ItClarifies();
-            bo.createDb();
-            bo.populateValues(true);
 
             Contract document = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Cannon")));
 
@@ -121,12 +121,11 @@ public class FragmentServiceTest extends ServletTests {
 
             isKey(fragment1.getString("id"));
             assertThat(fragment1.getInt("ordinal"), is( 1));
-            assertThat(fragment1.getString("type"), is("Text"));
+            assertThat(fragment1.getString("type"), is("TEXT"));
 
             isKey(fragment2.getString("id"));
             assertThat(fragment2.getInt("ordinal"), is( 2));
-            assertThat(fragment1.getString("type"), is("Text"));
-
+            assertThat(fragment1.getString("type"), is("TEXT"));
 
 
         }catch(NullPointerException e){
@@ -136,6 +135,52 @@ public class FragmentServiceTest extends ServletTests {
         }
     }
 
+
+    @Test
+    public void testUpdateFragment() throws Exception {
+
+        try{
+
+            ContractFragment fragment = new ContractFragment(new LookupItem().addFilter(new ColumnFilter(ContractFragmentTable.Columns.Name.name(), "first fragment")));
+
+            Contract document = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Cannon")));
+            String type = "a dummy type";
+
+            request = mock(HttpServletRequest.class);
+            response = mock(HttpServletResponse.class);
+
+            MockWriter mockWriter = new MockWriter();
+
+            when(request.getParameter("session")).thenReturn("DummyAdminToken");
+            when(request.getParameter("fragment")).thenReturn(fragment.getKey().toString());
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+            when(request.getParameter("type")).thenReturn(type);
+            when(response.getWriter()).thenReturn(mockWriter.getWriter());
+
+            new FragmentServlet().doPost(request, response);
+
+
+            String output = mockWriter.getOutput();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
+
+            JSONObject json = new JSONObject(output);
+            String fragmentKey = json.getString("Fragment");
+
+            isKey(fragmentKey);
+            assertVerbose("Updated the correct fragment", fragmentKey, is(fragment.getKey().toString()));
+
+            ContractFragment readBackFragment = new ContractFragment(new LookupItem().addFilter(new ColumnFilter(ContractFragmentTable.Columns.Name.name(), "first fragment")));
+
+            assertVerbose("The type field is updated", readBackFragment.getType(), is(type));
+            assertVerbose("Other fields are not updated", readBackFragment.getIndentation(), is(fragment.getIndentation()));
+
+
+        }catch(NullPointerException e){
+
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
 
 
 

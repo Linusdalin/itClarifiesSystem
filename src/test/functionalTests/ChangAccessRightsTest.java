@@ -98,7 +98,7 @@ public class ChangAccessRightsTest extends ServletTests {
 
             try{
 
-                Contract restrictedDocument = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Cannon")));
+                Contract restrictedDocument = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Google Analytics")));
                 Project project = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), "Demo")));
 
                 // First just check. We can only get one document
@@ -128,7 +128,7 @@ public class ChangAccessRightsTest extends ServletTests {
                 when(request.getParameter("session")).thenReturn("DummyAdminToken");
                 when(request.getParameter("document")).thenReturn(restrictedDocument.getKey().toString());
                 when(request.getParameter("visibility")).thenReturn("Organization");
-                when(request.getParameter("access")).thenReturn("rcd");
+                when(request.getParameter("access")).thenReturn("rwd");
                 when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
                 new ACSServlet().doPost(request, response);
@@ -138,6 +138,7 @@ public class ChangAccessRightsTest extends ServletTests {
                 PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
 
                 json = new JSONObject(output);
+                System.out.println("Got reply:" + json.toString());
 
                 // After changing the access rights we assume we can find two documents
 

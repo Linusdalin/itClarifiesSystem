@@ -37,9 +37,9 @@ public class SessionStatusTable extends ConstantTable implements DataTableInterf
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
-            new IntColumn("Id", DataColumn.noFormatting),
+            new IntColumn("Id", DataColumn.narrowColumn),
             new StringColumn("Name", DataColumn.noFormatting),
-            new TextColumn("Description", DataColumn.noFormatting),
+            new TextColumn("Description", DataColumn.wideColumn),
     };
 
     private static final SessionStatus associatedObject = new SessionStatus();

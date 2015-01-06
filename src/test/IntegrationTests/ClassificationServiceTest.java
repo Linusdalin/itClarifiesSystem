@@ -1,6 +1,5 @@
 package test.integrationTests;
 
-import analysis.FeatureType;
 import backend.ItClarifies;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
@@ -8,6 +7,7 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import contractManagement.*;
 import databaseLayer.AppEngine.AppEngineKey;
 import databaseLayer.DBKeyInterface;
+import featureTypes.FeatureTypeTree;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -90,7 +90,7 @@ public class ClassificationServiceTest extends ServletTests {
         try {
 
             ContractFragment fragment = new ContractFragment(new LookupItem().addFilter(new ColumnFilter(ContractFragmentTable.Columns.Name.name(), "first fragment")));
-            String classForFragment = FeatureType.DEFINITION.name();  // Just arbitrary class for test
+            String classForFragment = FeatureTypeTree.Definition.getName();  // Just arbitrary class for test
 
             long classificationCount = fragment.getClassificatonCount();
             PukkaLogger.log(PukkaLogger.Level.INFO, "There are " + classificationCount + " classifications");
@@ -100,6 +100,7 @@ public class ClassificationServiceTest extends ServletTests {
             when(request.getParameter("session")).thenReturn("DummyAdminToken");
             when(request.getParameter("fragment")).thenReturn(fragment.getKey().toString());
             when(request.getParameter("class")).thenReturn(classForFragment);
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
             new ClassificationServlet().doPost(request, response);
@@ -134,6 +135,7 @@ public class ClassificationServiceTest extends ServletTests {
 
             when(request.getParameter("session")).thenReturn("DummyAdminToken");
             when(request.getParameter("key")).thenReturn(classificationKey.toString());
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
             new ClassificationServlet().doDelete(request, response);

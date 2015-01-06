@@ -37,9 +37,9 @@ public class ActionStatusTable extends ConstantTable implements DataTableInterfa
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
-            new IntColumn("Id", DataColumn.noFormatting),
+            new IntColumn("Id", DataColumn.narrowColumn),
             new StringColumn("Name", DataColumn.noFormatting),
-            new TextColumn("Comment", DataColumn.noFormatting),
+            new TextColumn("Comment", DataColumn.wideColumn),
     };
 
     private static final ActionStatus associatedObject = new ActionStatus();

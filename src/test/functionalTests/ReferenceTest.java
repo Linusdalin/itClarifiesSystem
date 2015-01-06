@@ -1,4 +1,4 @@
-package test;
+package test.functionalTests;
 
 import analysis.AnalysisServlet;
 import backend.ItClarifies;
@@ -16,6 +16,7 @@ import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupItem;
 import risk.ContractRisk;
+import test.ServletTests;
 import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
@@ -133,7 +134,7 @@ public class ReferenceTest extends ServletTests {
                 new AnalysisServlet().reanalyseProjectForReferences(project, version);
 
                 referencesForFragment = firstFragmentInCannonDoc.getReferencesForFragment();
-                assertThat("One more reference (over the "+ referencesCount+" before) is expected from the analysis", referencesForFragment.size(), is( referencesCount + 1));
+                assertVerbose("One more reference (over the " + referencesCount + " before) is expected from the analysis", referencesForFragment.size(), is(referencesCount + 1));
 
                 Reference newReference = referencesForFragment.get(referencesCount);  // Gat the latest
 

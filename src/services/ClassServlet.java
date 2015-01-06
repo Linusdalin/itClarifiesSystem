@@ -112,8 +112,9 @@ public class ClassServlet extends DocumentService{
         }
 
         // The method is moved to the classification servlet
+        // But we keep the servlet name for the reply
 
-        new ClassificationServlet().doGet(req, resp);
+        new ClassificationServlet().getClasses(req, resp, DataServletName);
 
 
      }
@@ -126,7 +127,6 @@ public class ClassServlet extends DocumentService{
      *
      *          Delete is not supported.
      *
-     *          //TODO: Not implemented
      *
      * @param req
      * @param resp

@@ -101,7 +101,7 @@ public class RiskServiceTest extends ServletTests {
             when(request.getParameter("fragment")).thenReturn(fragment.getKey().toString());
             when(request.getParameter("comment")).thenReturn("some comment");
             when(request.getParameter("pattern")).thenReturn("some pattern");
-            when(request.getParameter("risk")).thenReturn(newRisk.getKey().toString());
+            when(request.getParameter("risk")).thenReturn("" + newRisk.get__Id());
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
             new RiskFlagServlet().doPost(request, response);
@@ -118,12 +118,12 @@ public class RiskServiceTest extends ServletTests {
 
 
             ContractFragment readBack = new ContractFragment(new LookupByKey(fragment.getKey()));
-            assertThat(readBack.getRisk().isSame(newRisk), is(true));
+            assertThat(readBack.getRisk().equals(newRisk), is(true));
 
             RiskClassification newClassification = readBack.getRiskClassificationsForFragment(new LookupList().addOrdering(RiskClassificationTable.Columns.Time.name(), Ordering.LAST)).get( 0 );
 
             assertTrue(newClassification.exists());
-            assertTrue(newClassification.getFragment().isSame(fragment));
+            assertTrue(newClassification.getFragment().equals(fragment));
             assertThat(newClassification.getComment(), is("some comment"));
             assertThat(newClassification.getPattern(), is("some pattern"));
 

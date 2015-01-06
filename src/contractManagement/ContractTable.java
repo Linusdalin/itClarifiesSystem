@@ -81,8 +81,8 @@ public class ContractTable extends DataTable implements DataTableInterface{
     };
     private static final String[][] TestValues = {
 
-          {"Cannon", "Cannon.docx", "1", "Unknown", "Analysed", "Successfully analysed", "Printer support Contract", "Demo", "admin", "2014-06-01", "EN", "0", "system"},
-          {"Google Analytics", "GA.docx", "2", "Unknown", "Analysed", "Successfully uploaded", "EULA", "Demo", "admin", "2014-06-01", "EN", "0", "system"},
+          {"Cannon", "Cannon.docx", "1", "Unknown", "Analysed", "Successfully analysed", "Printer support Contract", "Demo", "admin", "2014-06-01", "EN", "1", "system"},
+          {"Google Analytics", "GA.docx", "2", "Unknown", "Analysed", "Successfully uploaded", "EULA", "Demo", "admin", "2014-06-01", "EN", "1", "system"},
 
 
 

@@ -38,11 +38,11 @@ public class PortalSessionTable extends DataTable implements DataTableInterface{
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
             new ReferenceColumn("User", DataColumn.noFormatting, new TableReference("PortalUser", "Name")),
-            new StringColumn("Token", DataColumn.noFormatting),
+            new StringColumn("Token", DataColumn.wideColumn),
             new StringColumn("IP", DataColumn.noFormatting),
-            new TimeStampColumn("Start", DataColumn.noFormatting),
-            new TimeStampColumn("Latest", DataColumn.noFormatting),
-            new ConstantColumn("Status", DataColumn.noFormatting, new TableReference("SessionStatus", "Name")),
+            new TimeStampColumn("Start", DataColumn.narrowColumn),
+            new TimeStampColumn("Latest", DataColumn.narrowColumn),
+            new ConstantColumn("Status", DataColumn.narrowColumn, new TableReference("SessionStatus", "Name")),
     };
 
     private static final PortalSession associatedObject = new PortalSession();

@@ -200,9 +200,15 @@ public class ClassificationServlet extends DocumentService{
             return;
         }
 
-        try{
+        logRequest(req);
 
-            logRequest(req);
+        getClasses(req, resp, DataServletName);
+    }
+
+    public void getClasses(HttpServletRequest req, HttpServletResponse resp, String dataServletName) throws IOException {
+
+
+        try{
 
             if(!validateSession(req, resp))
                 return;
@@ -249,7 +255,7 @@ public class ClassificationServlet extends DocumentService{
 
 
 
-            JSONObject json = new JSONObject().put(DataServletName, list);
+            JSONObject json = new JSONObject().put(dataServletName, list);
             sendJSONResponse(json, formatter, resp);
 
         }catch(BackOfficeException e){

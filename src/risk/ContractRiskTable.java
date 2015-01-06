@@ -37,10 +37,10 @@ public class ContractRiskTable extends ConstantTable implements DataTableInterfa
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
-            new IntColumn("Id", DataColumn.noFormatting),
+            new IntColumn("Id", DataColumn.narrowColumn),
             new StringColumn("Name", DataColumn.noFormatting),
             new StringColumn("Severity", DataColumn.noFormatting),
-            new TextColumn("Description", DataColumn.noFormatting),
+            new TextColumn("Description", DataColumn.wideColumn),
     };
 
     private static final ContractRisk associatedObject = new ContractRisk();

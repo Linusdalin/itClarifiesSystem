@@ -241,7 +241,7 @@ public class DiffServiceTest extends ServletTests {
             ContractVersionInstance head =  document.getHeadVersion();
             ContractVersionInstance frozen = document.getVersionForSnapshot(defaultFreeze);
 
-            assertTrue(head.isSame(frozen));
+            assertTrue(head.equals(frozen));
 
             MockWriter writer = new MockWriter();
 
@@ -314,7 +314,7 @@ public class DiffServiceTest extends ServletTests {
 
             assertThat(firstInHead.getText(), is(firstSnapshot.getText()));
             assertThat(firstInHead.getType(), is(firstSnapshot.getType()));
-            assertFalse(head.isSame(frozen));
+            assertFalse(head.equals(frozen));
 
             // The annotation should have been copied
 

@@ -84,7 +84,7 @@ public class AccessRightsTest extends ServletTests {
     /*******************************************************************
      *
      *
-     *          demo user will only be able to access one of the documents
+     *          demo user will only be able to access one of the documents as the visibility
      *
      * @throws Exception
      */
@@ -119,7 +119,7 @@ public class AccessRightsTest extends ServletTests {
 
                 JSONObject doc1 = (JSONObject)documents.get( 0 );
 
-                assertThat(doc1.getString("name"), is("Google Analytics"));
+                assertThat(doc1.getString("name"), is("Cannon"));
                 isKey(doc1.getString("id"));
 
 
@@ -138,7 +138,7 @@ public class AccessRightsTest extends ServletTests {
 
         try{
 
-            Contract document = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Cannon")));
+            Contract document = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Google Analytics")));
 
             request = mock(HttpServletRequest.class);
             response = mock(HttpServletResponse.class);
@@ -188,8 +188,8 @@ public class AccessRightsTest extends ServletTests {
 
         try{
 
-            Contract document = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Cannon")));
-            ContractFragment fragment = new ContractFragment(new LookupItem().addFilter(new ColumnFilter(ContractFragmentTable.Columns.Name.name(), "first fragment")));
+            Contract document = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Google Analytics")));
+            ContractFragment fragment = new ContractFragment(new LookupItem().addFilter(new ColumnFilter(ContractFragmentTable.Columns.Name.name(), "top1")));
 
 
 
@@ -372,7 +372,7 @@ public class AccessRightsTest extends ServletTests {
 
             JSONObject error = (JSONObject)errors.get( 0 );
 
-            assertThat(error.getString("message"), is( "Contract read only" ));
+            assertVerbose(" Got the correct error message back", error.getString("message"), is( "You do not have sufficient access right to delete the document Cannon please contact the owner of the document." ));
 
 
         }catch(NullPointerException e){
@@ -422,7 +422,8 @@ public class AccessRightsTest extends ServletTests {
 
             JSONObject error = (JSONObject)errors.get( 0 );
 
-            assertThat(error.getString("message"), is( "Project read only" ));
+            assertVerbose("Got the correct error message back", error.getString("message"), is( "You do not have sufficient access right to delete the project Demo please contact the owner of the project." ));
+            assertVerbose("Got the correct type", error.getString("type"), is( "PERMISSION" ));
 
 
         }catch(NullPointerException e){
@@ -561,8 +562,8 @@ public class AccessRightsTest extends ServletTests {
 
             JSONObject error = (JSONObject)errors.get( 0 );
 
-            assertThat(error.getString("message"), is( "Project read only" ));
-            assertThat(error.getString("type"), is( "PERMISSION" ));
+            assertVerbose("Got the correct error message back", error.getString("message"), is( "You do not have sufficient access right to delete the project Demo please contact the owner of the project." ));
+            assertVerbose("Got the correct type", error.getString("type"), is( "PERMISSION" ));
 
 
         }catch(NullPointerException e){

@@ -37,9 +37,9 @@ public class AccessRightTable extends ConstantTable implements DataTableInterfac
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
-            new IntColumn("Id", DataColumn.noFormatting),
+            new IntColumn("Id", DataColumn.narrowColumn),
             new StringColumn("Name", DataColumn.noFormatting),
-            new TextColumn("Description", DataColumn.noFormatting),
+            new TextColumn("Description", DataColumn.wideColumn),
     };
 
     private static final AccessRight associatedObject = new AccessRight();
@@ -62,7 +62,7 @@ public class AccessRightTable extends ConstantTable implements DataTableInterfac
 
     public AccessRight getValue(int id){
         
-        return (AccessRight)super.getConstantValue( id );
+        return (AccessRight)super.getConstantValue(id);
     }
     /* Code below this point will not be replaced when regenerating the file*/
 
@@ -77,7 +77,7 @@ public class AccessRightTable extends ConstantTable implements DataTableInterfac
                 return item;
         }
 
-        return null;
+        return new AccessRight();
 
     }
 

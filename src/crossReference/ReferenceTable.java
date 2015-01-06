@@ -42,7 +42,7 @@ public class ReferenceTable extends DataTable implements DataTableInterface{
             new ReferenceColumn("To", DataColumn.noFormatting, new TableReference("ContractFragment", "Name")),
             new ReferenceColumn("Version", DataColumn.noFormatting, new TableReference("ContractVersionInstance", "Version")),
             new ReferenceColumn("Project", DataColumn.noFormatting, new TableReference("Project", "Name")),
-            new ConstantColumn("Type", DataColumn.noFormatting, new TableReference("ReferenceType", "Name")),
+            new ConstantColumn("Type", DataColumn.narrowColumn, new TableReference("ReferenceType", "Name")),
             new TextColumn("Pattern", DataColumn.noFormatting),
     };
 

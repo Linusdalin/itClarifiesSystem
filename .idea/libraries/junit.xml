@@ -4,6 +4,7 @@
       <root url="jar://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-java-sdk-1.9.10/lib/testing/appengine-testing.jar!/" />
       <root url="jar://$USER_HOME$/IdeaProjects/Artifacts/Libs/junit-4.10.jar!/" />
       <root url="jar://$USER_HOME$/IdeaProjects/Artifacts/Libs/mockito/mockito-all-1.9.5.jar!/" />
+      <root url="jar://$USER_HOME$/IdeaProjects/Artifacts/Libs/appengine-java-sdk-1.9.10/lib/impl/appengine-api-stubs.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

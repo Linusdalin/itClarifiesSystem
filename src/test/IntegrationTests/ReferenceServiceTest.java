@@ -3,22 +3,27 @@ package test.integrationTests;
 import backend.ItClarifies;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
-import contractManagement.*;
+import contractManagement.Project;
+import contractManagement.ProjectTable;
 import databaseLayer.DBKeyInterface;
 import databaseLayer.DatabaseAbstractionFactory;
 import log.PukkaLogger;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import pukkaBO.backOffice.BackOfficeInterface;
+import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupByKey;
+import pukkaBO.condition.LookupItem;
 import pukkaBO.condition.LookupList;
 import services.ItClarifiesService;
 import services.ProjectServlet;
+import services.ReferenceServlet;
 import test.MockWriter;
 import test.ServletTests;
-
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,12 +44,14 @@ import static org.mockito.Mockito.when;
  */
 
 
-public class ProjectServiceTest extends ServletTests {
+public class ReferenceServiceTest extends ServletTests {
 
 
     private static LocalServiceTestHelper helper;
     private static HttpServletRequest request;
     private static HttpServletResponse response;
+
+    private static BackOfficeInterface bo;
 
 
     @AfterClass
@@ -63,6 +70,12 @@ public class ProjectServiceTest extends ServletTests {
 
 
         try {
+
+
+            bo = new ItClarifies();
+            bo.createDb();
+            bo.populateValues(true);
+
 
             request = mock(HttpServletRequest.class);
             response = mock(HttpServletResponse.class);
@@ -85,73 +98,33 @@ public class ProjectServiceTest extends ServletTests {
 
 
     @Test
-    public void testCreateAndUpdate() throws Exception {
+    public void testGet() throws Exception {
 
         try{
 
-            BackOfficeInterface bo;
+            Project project = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), "Demo")));
+            assertTrue(project.exists());
 
-            bo = new ItClarifies();
-            bo.createDb();
-            bo.populateValues(true);
 
             MockWriter mockWriter = new MockWriter();
 
             when(request.getParameter("session")).thenReturn("DummyAdminToken");
-            when(request.getParameter("name")).thenReturn("Linus Prject");
-            when(request.getParameter("description")).thenReturn("A description");
+            when(request.getParameter("project")).thenReturn(project.getKey().toString());
             when(request.getRemoteAddr()).thenReturn("127.0.0.1");
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
-            new ProjectServlet().doPost(request, response);
+            new ReferenceServlet().doGet(request, response);
 
 
             String output = mockWriter.getOutput();
             PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
-
-            // Get the key
-
             JSONObject json = new JSONObject(output);
-            DBKeyInterface key = new DatabaseAbstractionFactory().createKey(json.getString("Project"));
+            JSONArray references = json.getJSONArray("references");
 
-            Project project = new Project(new LookupByKey(key));
-
-            assertTrue(project.exists());
-            assertThat(project.getName(), is("Linus Prject"));
-            assertThat(project.getDescription(), is("A description"));
-
-            // Now try to update
-
-            mockWriter = new MockWriter();
-
-            when(request.getParameter("session")).thenReturn("DummyAdminToken");
-            when(request.getParameter("key")).thenReturn(key.toString());
-            when(request.getParameter("name")).thenReturn("Linus Project");
-            when(request.getParameter("description")).thenReturn("The correct description");
-            when(response.getWriter()).thenReturn(mockWriter.getWriter());
-
-            new ProjectServlet().doPost(request, response);
-
-
-            output = mockWriter.getOutput();
-            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
+            assertVerbose("Got outlinks in one document", StringUtils.countMatches(output, "\"outLinks\":[{\"id\""), is( 1 ));
+            assertVerbose("Got inlinks in one document", StringUtils.countMatches(output, "\"inLinks\":[{\"id\""), is( 1 ));
 
             // Get the key
-
-            json = new JSONObject(output);
-            DBKeyInterface newKey = new DatabaseAbstractionFactory().createKey(json.getString("Project"));
-
-            // The update should return a key to the same object
-
-            assertThat(newKey.toString(), is(key.toString()));
-
-            Project rereadProject = new Project(new LookupByKey(key));
-
-            assertTrue(rereadProject.exists());
-            assertThat(rereadProject.getName(), is("Linus Project"));
-            assertThat(rereadProject.getDescription(), is("The correct description"));
-
-
 
 
 

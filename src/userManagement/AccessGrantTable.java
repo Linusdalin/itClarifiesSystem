@@ -76,7 +76,7 @@ public class AccessGrantTable extends DataTable implements DataTableInterface{
     private static final String[][] TestValues = {
 
           {"cannon doc access", "Cannon", "ro", "Organization", "admin", "2014-06-01", "system"},
-          {"google doc access", "Google Analytics", "ro", "Organization", "admin", "2014-06-01", "system"},
+          {"google doc access", "Google Analytics", "ro", "Private", "admin", "2014-06-01", "system"},
 
 
 

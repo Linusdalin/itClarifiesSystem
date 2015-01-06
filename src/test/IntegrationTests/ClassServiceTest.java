@@ -1,11 +1,14 @@
 package test.integrationTests;
 
 import backend.ItClarifies;
+import classifiers.ClassifierInterface;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import contractManagement.FragmentClass;
 import contractManagement.FragmentClass;
 import contractManagement.FragmentClassTable;
+import language.English;
+import language.LanguageInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -17,6 +20,7 @@ import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupItem;
 import services.ClassServlet;
 import services.ClassificationServlet;
+import system.Analyser;
 import test.MockWriter;
 import test.ServletTests;
 
@@ -81,6 +85,16 @@ public class ClassServiceTest extends ServletTests {
 
     }
 
+    /**********************************************************************************
+     *
+     *          Adding a new class should return this class together with the machine classes.
+     *
+     *          It should be visible in the service only for users of the correct organization
+     *
+     *
+     *
+     * @throws Exception
+     */
 
 
     @Test
@@ -89,8 +103,11 @@ public class ClassServiceTest extends ServletTests {
 
         try {
 
-            int classificationCount = new FragmentClassTable().getCount();
-            PukkaLogger.log(PukkaLogger.Level.INFO, "There are " + classificationCount + " classifications");
+            int classCount = new FragmentClassTable().getCount();
+            LanguageInterface defaultLanguage = new English();
+
+            int machineClassifiers = defaultLanguage.getSupportedClassifiers().length;
+            PukkaLogger.log(PukkaLogger.Level.INFO, "There are " + classCount + " user defined classes and " + machineClassifiers + " machine classifiers");
             MockWriter mockWriter;
             String output;
 
@@ -116,10 +133,10 @@ public class ClassServiceTest extends ServletTests {
 
             FragmentClass contractFragmentClass = new FragmentClass(new LookupItem().addFilter(new ColumnFilter(FragmentClassTable.Columns.Name.name(), "new class")));
 
-            assertThat("New class created", contractFragmentClass.exists(), is(true));
+            assertVerbose("New class created", contractFragmentClass.exists(), is(true));
 
 
-            // Now check the visibility
+            // Now check the visibility for the creator
             mockWriter = new MockWriter();
 
             when(request.getParameter("session")).thenReturn("DummyAdminToken");
@@ -134,11 +151,27 @@ public class ClassServiceTest extends ServletTests {
             JSONObject json = new JSONObject(output);
             JSONArray allClasses = json.getJSONArray("Class");
 
-            assertThat("Assuming that we now get one class more", allClasses.length(), is(classificationCount + 1));
+            assertVerbose("Assuming that we get all machine classes and one more class in the service", allClasses.length(), is(classCount + 1 + machineClassifiers));
+
+            // It should also be visible for others in the same organization
+            mockWriter = new MockWriter();
+
+            when(request.getParameter("session")).thenReturn("DummySessionToken");
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+            when(response.getWriter()).thenReturn(mockWriter.getWriter());
+
+            new ClassServlet().doGet(request, response);
+
+            output = mockWriter.getOutput();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
+
+            json = new JSONObject(output);
+            allClasses = json.getJSONArray("Class");
+
+            assertVerbose("Assuming that we get all machine classes and one more class in the service", allClasses.length(), is(classCount + 1 + machineClassifiers));
 
 
-
-            // Verify that it shows correctly in the service
+            // Verify that it DOESN'T show in the service for someone from another organization
 
             mockWriter = new MockWriter();
 
@@ -154,7 +187,7 @@ public class ClassServiceTest extends ServletTests {
             json = new JSONObject(output);
 
             allClasses = json.getJSONArray("Classification");
-            assertThat("Asusming that eve only sees the original classes", allClasses.length(), is(classificationCount));
+            assertThat("Asusming that eve only sees the original classes", allClasses.length(), is(classCount + machineClassifiers));
 
 
         } catch (Exception e) {
