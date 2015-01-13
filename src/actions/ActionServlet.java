@@ -98,9 +98,11 @@ public class ActionServlet extends ItClarifiesService {
 
                 if(_status == -1){
 
-                    returnError("Mandatory status missing", HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-                    return;
+                    // No status set for a new action. We set the default status action "Open"
 
+                    _status = ActionStatus.getOpen().get__Id();
+
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "Setting default status for fragment.");
                 }
 
                 ActionStatus status = new ActionStatusTable().getValue((int)_status);

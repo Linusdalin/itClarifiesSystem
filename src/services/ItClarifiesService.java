@@ -211,7 +211,7 @@ public class ItClarifiesService extends PukkaServlet {
      *
      */
 
-    protected boolean validateSession(HttpServletRequest req, HttpServletResponse resp) throws BackOfficeException, IOException {
+    public boolean validateSession(HttpServletRequest req, HttpServletResponse resp) throws BackOfficeException, IOException {
 
         return validateSession(req, resp, HttpServletResponse.SC_FORBIDDEN);
 

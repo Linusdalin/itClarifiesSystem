@@ -44,7 +44,7 @@ public class CreateDBServletOLD extends HttpServlet {
 
             if(action == null){
 
-                resp.sendRedirect("admin.jsp?message=Error Nob action given.");
+                resp.sendRedirect("admin?message=Error Nob action given.");
                 return;
             }
 
@@ -54,7 +54,7 @@ public class CreateDBServletOLD extends HttpServlet {
 
                 bo.createDb();
 
-                resp.sendRedirect("admin.jsp?message=Database Created");
+                resp.sendRedirect("admin?message=Database Created");
 
             }
 
@@ -66,7 +66,7 @@ public class CreateDBServletOLD extends HttpServlet {
                 bo.populateSpecificValues();
 
 
-                resp.sendRedirect("admin.jsp?message=Constants Created");       //TODO: This should pass a message on the actual changes in the database
+                resp.sendRedirect("admin?message=Constants Created");       //TODO: This should pass a message on the actual changes in the database
 
             }
 
@@ -78,7 +78,7 @@ public class CreateDBServletOLD extends HttpServlet {
                 bo.populateSpecificValues();
 
 
-                resp.sendRedirect("admin.jsp?message=Test values");       //TODO: This should pass a message on the actual changes in the database
+                resp.sendRedirect("admin?message=Test values");       //TODO: This should pass a message on the actual changes in the database
 
             }
 

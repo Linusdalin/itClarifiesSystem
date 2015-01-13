@@ -1,12 +1,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<%@ page import="pukkaBO.exceptions.BackOfficeException" %>
 <%@ page import="contractManagement.*" %>
 <%@ page import="pukkaBO.condition.*" %>
 <%@ page import="databaseLayer.DBKeyInterface" %>
 <%@ page import="databaseLayer.DatabaseAbstractionFactory" %>
-<%@ page import="dataRepresentation.DropDownTableReference" %>
-<%@ page import="dataRepresentation.DataObjectInterface" %>
-<%@ page import="log.PukkaLogger" %>
 <html>
 
 
@@ -59,61 +55,6 @@
     <fieldset>
 
 
-        <%
-
-            DropDownTableReference dropDown = new ContractFragmentTypeTable().getDropDown();
-
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Found " + allFragments.getValues().size() + " fragments in document " + contract.getName());
-
-            for(DataObjectInterface object : allFragments.getValues()){
-
-                ContractFragment fragment = (ContractFragment)object;
-        %>
-
-        <FORM METHOD=POST action="<% out.print(host); %>/Fragment" name="fragmentForm"  accept-charset="UTF-8">
-
-                <div style="float:left; width:25%">
-
-                    <% out.print(dropDown.generate("type", null, null, "", false)); %>
-                    <input type="text" id="indentation" name="indentation" value="<% out.print(fragment.getIndentation());%>">
-                    </div>
-
-                <div style="float:left; width:40%">
-                    <textarea rows="3" cols="50" name="text">
-                        <% out.print(fragment.getText());%>
-                    </textarea>
-                </div>
-
-                <div style="float:left; width:20%">
-
-                    <input type="text" id="annotations" name="annotations" value="<% out.print(fragment.getAnnotationCount());%>">
-                    <input type="hidden" id="session" name="session" value="<%out.print(token);%>">
-                    <input type="hidden" id="fragment" name="fragment" value="<%out.print(fragment.getKey().toString());%>">
-
-                    <input type="submit" value="Update" class="btn primary" id="submit_fragment" />
-                </div>
-        </FORM>
-
-        <div style="float:left; width:5%">
-
-        <FORM METHOD=DELETE action="<% out.print(host); %>/Fragment" name="fragmentForm">
-            <input type="hidden" id="session2" name="session" value="<%out.print(token);%>">
-            <input type="hidden" id="fragment2" name="key" value="<%out.print(fragment.getKey().toString());%>">
-            <input type="hidden" name="_method" value="DELETE" />
-
-            <input type="submit" value="Delete" class="btn primary" id="delete_fragment" />
-        </FORM>
-
-
-            </div>
-
-                <div style="clear:both">&nbsp;</div>
-
-
-        <%
-
-            }
-        %>
 
     </fieldset>
 

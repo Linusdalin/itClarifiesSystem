@@ -235,10 +235,10 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
 
 
-    public ContractRisk getRisk(){
+    public risk.ContractRisk getRisk(){
 
         ConstantData data = (ConstantData)this.data[8];
-        return (ContractRisk)(new ContractRiskTable().getConstantValue(data.value));
+        return (risk.ContractRisk)(new risk.ContractRiskTable().getConstantValue(data.value));
 
     }
 

@@ -11,6 +11,7 @@ import net.sf.json.JSONObject;
 import pukkaBO.condition.*;
 
 import pukkaBO.exceptions.BackOfficeException;
+import risk.ContractRisk;
 import risk.RiskClassification;
 import risk.RiskClassificationTable;
 
@@ -138,7 +139,7 @@ public class FragmentDetailServlet extends ItClarifiesService{
 
     private JSONObject getRisk(ContractFragment fragment) {
 
-        String risk = "";
+        int riskId = 60;        // Default
         String classifier = "";
         String time = "";
         String comment = "";
@@ -150,7 +151,7 @@ public class FragmentDetailServlet extends ItClarifiesService{
             PukkaLogger.log(PukkaLogger.Level.INFO, "Getting risk");
 
 
-            risk = fragment.getRisk().getName();
+            riskId = fragment.getRisk().get__Id();
             List<RiskClassification> allClassifications =  fragment.getRiskClassificationsForFragment(new LookupList().addOrdering(RiskClassificationTable.Columns.Time.name(), Ordering.LAST));
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Looping over "+ allClassifications.size()+" risk classifications");
@@ -173,7 +174,7 @@ public class FragmentDetailServlet extends ItClarifiesService{
         }
 
         return new JSONObject()
-                .put("class", risk)
+                .put("class", "" + riskId)
                 .put("severity", severity)
                 .put("classifier", classifier)
                 .put("time", time)

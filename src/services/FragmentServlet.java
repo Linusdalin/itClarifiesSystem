@@ -377,7 +377,7 @@ public class FragmentServlet extends ItClarifiesService{
 
                 //PukkaLogger.log(PukkaLogger.Level.INFO, "Got fragment " + fragment.getText().substring(0, (fragment.getText().length() > 40 ? 40 : fragment.getText().length())) + "...");
 
-                System.out.println("Fragment risk: " + fragment.getRisk());
+                //System.out.println("Fragment risk: " + fragment.getRisk());
 
                 JSONObject fragmentJSON = new JSONObject()
                     .put("id",              fragment.getKey().toString())

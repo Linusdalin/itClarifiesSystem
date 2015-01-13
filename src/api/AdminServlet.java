@@ -176,6 +176,10 @@ public class AdminServlet extends GenericAdminServlet {
 
             }
 
+            if(ID.equals("itclarifiesapi2") || ID.equals("itclarifiesapi3")){
+
+                return Environment.LIVE;
+            }
 
         }
 

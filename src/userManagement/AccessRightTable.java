@@ -62,7 +62,7 @@ public class AccessRightTable extends ConstantTable implements DataTableInterfac
 
     public AccessRight getValue(int id){
         
-        return (AccessRight)super.getConstantValue(id);
+        return (AccessRight)super.getConstantValue( id );
     }
     /* Code below this point will not be replaced when regenerating the file*/
 

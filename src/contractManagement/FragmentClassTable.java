@@ -68,6 +68,11 @@ public class FragmentClassTable extends DataTable implements DataTableInterface{
     }
     private static final String[][] DefaultValues = {
 
+          {"pre-signing", "#PRE_SIGNING", "", "Contracting pre signing", "no org", "system"},
+          {"fulfillment", "#FULFILLMENT", "", "Post signing fulfillment", "no org", "system"},
+          {"Must", "#MUST", "", "Must requirement", "no org", "system"},
+          {"Should", "#SHOULD", "", "Should requirement", "no org", "system"},
+          {"Optional", "#OPTIONAL", "", "Optional requirement", "no org", "system"},
 
 
 

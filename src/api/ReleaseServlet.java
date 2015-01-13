@@ -71,7 +71,7 @@ public class ReleaseServlet extends GenericAdminServlet {
 
 
 
-        resp.sendRedirect("admin.jsp?message=" + message);
+        resp.sendRedirect("admin?message=" + message);
 
     }
 

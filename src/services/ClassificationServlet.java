@@ -237,6 +237,29 @@ public class ClassificationServlet extends DocumentService{
 
             }
 
+            // Get generic classifications stored in the database. First generic
+
+
+            FragmentClassTable genericClasses = new FragmentClassTable(new LookupList()
+                    .addFilter(new ReferenceFilter(FragmentClassTable.Columns.Organization.name(), Organization.getnone().getKey())));
+
+            for(DataObjectInterface object : genericClasses.getValues()){
+
+                FragmentClass fragmentClass = (FragmentClass)object;
+
+                JSONObject riskObject = new JSONObject()
+                        .put("id", fragmentClass.getKey().toString())
+                        .put("name", fragmentClass.getName())
+                        .put("desc", fragmentClass.getDescription())
+                        .put("type", "General");
+                list.put(riskObject);
+
+            }
+
+
+
+            // Then add classes defined for the organization
+
             FragmentClassTable organizationSpecificClasses = new FragmentClassTable(new LookupList()
                     .addFilter(new ReferenceFilter(FragmentClassTable.Columns.Organization.name(), user.getOrganization().getKey())));
 

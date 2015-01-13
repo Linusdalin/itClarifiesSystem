@@ -60,10 +60,9 @@
     }
 
 
+    String riskDropdown = new ContractRiskTable().getDropDown(null).withName("risk").withUnselected("select").render();
+    String classDropdown = new FragmentClassTable().getDropDown(null).withName("class").withUnselected("select").render();
 
-
-    String riskDropdown = new ContractRiskTable().getDropDown().generate("risk", null, "", "", false);
-    String classDropdown = new FragmentClassTable().getDropDown().generate("class", null, "", "", false);
 
 %>
 

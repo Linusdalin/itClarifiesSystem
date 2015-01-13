@@ -270,10 +270,10 @@ public class Reclassification extends DataObject implements DataObjectInterface{
 
 
 
-    public ContractRisk getRiskLevel(){
+    public risk.ContractRisk getRiskLevel(){
 
         ConstantData data = (ConstantData)this.data[11];
-        return (ContractRisk)(new ContractRiskTable().getConstantValue(data.value));
+        return (risk.ContractRisk)(new risk.ContractRiskTable().getConstantValue(data.value));
 
     }
 

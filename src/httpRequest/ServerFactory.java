@@ -23,7 +23,7 @@ public class ServerFactory {
 
 
         if(SystemProperty.environment.value() == SystemProperty.Environment.Value.Production){
-            if(applicationID.equals("itclarifiesapi"))
+            if(applicationID.startsWith("itclarifiesapi") && !applicationID.contains("stage"))
                 return "https://itclarifieslogin.appspot.com";
             else
                 return "https://itclarifiesloginstage.appspot.com";

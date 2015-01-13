@@ -4,6 +4,7 @@ import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
 import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
+import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import pukkaBO.condition.*;
@@ -84,7 +85,7 @@ public class RiskFlagServlet extends DocumentService {
             if(!mandatoryObjectExists(risk, resp))
                 return;
 
-             // Calculate the noon-submitted data
+             // Calculate the non-submitted data
 
             PortalUser classifier = sessionManagement.getUser();
             DBTimeStamp now = new DBTimeStamp();
@@ -94,6 +95,7 @@ public class RiskFlagServlet extends DocumentService {
                 // If the pattern position is not given, fallback to finding the first occurrence
 
                 patternPos = fragment.getText().indexOf(pattern);
+                PukkaLogger.log(PukkaLogger.Level.INFO, "No pattern position give. Using the first occurrence");
 
             }
 
@@ -114,7 +116,9 @@ public class RiskFlagServlet extends DocumentService {
                     now.getISODate());
             classification.store();
 
-            // Nuw update the fragment
+            // Now update the fragment
+
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Updating risk for fragment "+ fragment.getName()+" to " + risk.getName() );
 
             fragment.setRisk(risk);
             fragment.update();

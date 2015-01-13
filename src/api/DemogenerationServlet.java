@@ -64,17 +64,36 @@ public class DemogenerationServlet extends GenericAdminServlet {
 
             new DemoComment("#ACCEPTANCE_CRITERIA", 0, 0, "Test document.docx", 2, "Medium", "later chapter", "var är detta???", "itClarifies"),
 
+            // Swedish demo
+
             new DemoComment("#RISK",        0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       369, "Potential",   "minst likvärdig kompetens", "Subjektivt och ensidigt", "itClarifies"),
             new DemoComment("#RISK",        0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       452, "Not set", "fast pris", "Fast Pris", "itClarifies"),
-            new DemoComment("UNSPECIFIC",  0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       387, "Not set",     "flera utbildningar samtidigt", "Oklar numrering", "itClarifies"),
-            new DemoComment("UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  235, "Not set",     "backup på all lagrad data", "Krav för restore saknas", "itClarifies"),
-            new DemoComment("UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  289, "Not set",     "ska informationen nedan lagras", "Ej avgränsad tid", "itClarifies"),
-            new DemoComment("UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  158, "Not set",     "utan tillkommande kostnad", "Uttrycket (etc.)", "itClarifies"),
-            new DemoComment("UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  265, "Potential",   "vid var tillfälle", "Odefinierat: tillfälle", "itClarifies"),
-            new DemoComment("UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  229, "Potential",   "kritisk karaktär", "Odefinierat: kritisk", "itClarifies"),
-            new DemoComment("#AMBIGUITY",   0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  229, "Not set",     "besvaras", "Tvetydigt: besvaras", "itClarifies"),
-            new DemoComment("UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  243, "Not set",     "kan härledas till Las Vegass server/it-miljö eller handhavande", "Odefinierat : Responsibility", "itClarifies"),
-            new DemoComment("UNSPECIFIC",  0, 0, "Bilaga 3A - Ramavtal Interaktiva utbildningar.docx",            41, "Not set",     "avser samtliga de resultat", "Ej avgränsad", "itClarifies"),
+            new DemoComment("#UNSPECIFIC",  0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       387, "Not set",     "flera utbildningar samtidigt", "Oklar numrering", "itClarifies"),
+
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",        65, "Not set", "", "", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",        73, "Not set", "", "", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",        79, "Not set", "", "", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",        96, "Not set", "", "", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       112, "Not set", "", "", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       113, "Not set", "", "", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       136, "Not set", "", "", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       137, "Not set", "", "", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       138, "Not set", "", "", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       148, "Not set", "", "", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       167, "Not set", "", "", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       177, "Not set", "", "", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       183, "Not set", "", "", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       220, "Not set", "", "", "itClarifies"),
+
+
+            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  235, "Not set",     "backup på all lagrad data", "Krav för restore saknas", "itClarifies"),
+            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  289, "Not set",     "ska informationen nedan lagras", "Ej avgränsad tid", "itClarifies"),
+            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  158, "Not set",     "utan tillkommande kostnad", "Uttrycket (etc.)", "itClarifies"),
+            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  265, "Potential",   "vid var tillfälle", "Odefinierat: tillfälle", "itClarifies"),
+            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  229, "Potential",   "kritisk karaktär", "Odefinierat: kritisk", "itClarifies"),
+            //new DemoComment("#AMBIGUITY",   0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  229, "Not set",     "besvaras", "Tvetydigt: besvaras", "itClarifies"),
+            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  243, "Not set",     "kan härledas till Las Vegass server/it-miljö eller handhavande", "Odefinierat : Responsibility", "itClarifies"),
+            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 3A - Ramavtal Interaktiva utbildningar.docx",            41, "Not set",     "avser samtliga de resultat", "Ej avgränsad", "itClarifies"),
 
 
 
@@ -211,6 +230,7 @@ public class DemogenerationServlet extends GenericAdminServlet {
 
         int patternPos = fragment.getText().indexOf(comment.pattern);
 
+        // Get all existing classifications for the
 
 
         // Now create annotation, classification and risk

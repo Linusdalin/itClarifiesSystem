@@ -29,6 +29,11 @@ import pukkaBO.acs.*;
 
 public class FragmentClass extends DataObject implements DataObjectInterface{
 
+    private static FragmentClass Phase1 = null;  
+    private static FragmentClass Phase2 = null;  
+    private static FragmentClass Req1 = null;  
+    private static FragmentClass Req2 = null;  
+    private static FragmentClass Req3 = null;  
 
 
     private static final DataTableInterface TABLE = (DataTableInterface) new FragmentClassTable();
@@ -176,11 +181,66 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
 
 
 
+    public static FragmentClass getPhase1( ) throws BackOfficeException{
+
+       if(FragmentClass.Phase1 == null)
+          FragmentClass.Phase1 = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "pre-signing")));
+       if(!FragmentClass.Phase1.exists())
+          throw new BackOfficeException(BackOfficeException.TableError, "Constant Phase1 is missing (db update required?)");
+
+       return FragmentClass.Phase1;
+    }
+
+    public static FragmentClass getPhase2( ) throws BackOfficeException{
+
+       if(FragmentClass.Phase2 == null)
+          FragmentClass.Phase2 = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "fulfillment")));
+       if(!FragmentClass.Phase2.exists())
+          throw new BackOfficeException(BackOfficeException.TableError, "Constant Phase2 is missing (db update required?)");
+
+       return FragmentClass.Phase2;
+    }
+
+    public static FragmentClass getReq1( ) throws BackOfficeException{
+
+       if(FragmentClass.Req1 == null)
+          FragmentClass.Req1 = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "Must")));
+       if(!FragmentClass.Req1.exists())
+          throw new BackOfficeException(BackOfficeException.TableError, "Constant Req1 is missing (db update required?)");
+
+       return FragmentClass.Req1;
+    }
+
+    public static FragmentClass getReq2( ) throws BackOfficeException{
+
+       if(FragmentClass.Req2 == null)
+          FragmentClass.Req2 = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "Should")));
+       if(!FragmentClass.Req2.exists())
+          throw new BackOfficeException(BackOfficeException.TableError, "Constant Req2 is missing (db update required?)");
+
+       return FragmentClass.Req2;
+    }
+
+    public static FragmentClass getReq3( ) throws BackOfficeException{
+
+       if(FragmentClass.Req3 == null)
+          FragmentClass.Req3 = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "Optional")));
+       if(!FragmentClass.Req3.exists())
+          throw new BackOfficeException(BackOfficeException.TableError, "Constant Req3 is missing (db update required?)");
+
+       return FragmentClass.Req3;
+    }
+
 
     public static void clearConstantCache(){
 
         //  Clear all cache when the application is uploaded.
 
+        FragmentClass.Phase1 = null;
+        FragmentClass.Phase2 = null;
+        FragmentClass.Req1 = null;
+        FragmentClass.Req2 = null;
+        FragmentClass.Req3 = null;
     }
 
     /* Code below this point will not be replaced when regenerating the file*/
