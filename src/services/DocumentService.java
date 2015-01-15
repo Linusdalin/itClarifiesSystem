@@ -315,7 +315,12 @@ public class DocumentService extends ItClarifiesService{
         if(aFragment.getStyle().numbering == SimpleStyle.Numbering.NONE)
             return body;
 
-        boolean restartCount = (aFragment.getStyle().numbering == SimpleStyle.Numbering.RESTART);
+        boolean restartCount = aFragment.getStyle().restartNumbering;
+
+        if(restartCount){
+
+            System.out.println(" *** Numbering is set to restart for fragment" + aFragment.getBody());
+        }
 
         String numberPrefix = autoNumberer.getNewNumber((int)aFragment.getIndentation(), restartCount);
 

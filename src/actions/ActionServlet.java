@@ -288,7 +288,7 @@ public class ActionServlet extends ItClarifiesService {
                         .put("text", action.getDescription())
                         .put("creator", action.getIssuerId().toString())
                         .put("assignee", action.getAssigneeId().toString())
-                        .put("status",          action.getStatus().getId())
+                        .put("status",          "" + action.getStatus().getId())
                         .put("priority",        action.getPriority() )
                         .put("creationDate",    action.getCreated().getISODate())
                         .put("dueDate",         action.getDue().getISODate())

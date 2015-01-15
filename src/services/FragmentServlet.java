@@ -302,7 +302,7 @@ public class FragmentServlet extends ItClarifiesService{
 
                json = new JSONObject()
                        .put(DataServletName, getFragmentsForDocumentVersion(document, activeVersion, sessionManagement, formatter));
-               cache.store(activeVersion.getKey().toString(), json.toString());
+               cache.store(activeVersion.getKey().toString(), json.toString(), "Document " + document.getName());
            }
 
            sendJSONResponse(json, formatter, resp);

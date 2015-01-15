@@ -98,11 +98,13 @@ public class ContractServlet extends DocumentService{
            else
                condition = new LookupByKey(key);
 
+           Project project = null;
+
            if(_project != null){
 
                // Add the project as a condition
 
-               Project project = new Project(new LookupByKey(_project));
+               project = new Project(new LookupByKey(_project));
 
                if(!mandatoryObjectExists(project, resp))
                    return;
@@ -168,7 +170,7 @@ public class ContractServlet extends DocumentService{
 
                jsonObject = new JSONObject().put(DataServletName, documentList);
 
-               cache.store(cacheKey, jsonObject.toString());
+               cache.store(cacheKey, jsonObject.toString(), "Project:" + project);
 
            }else{
 

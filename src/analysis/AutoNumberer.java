@@ -15,6 +15,7 @@ public class AutoNumberer {
 
     int current[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     private int currentIndentation = 1;
+    private static final int maxLevel = 4;      // Max levels of indentation levels to number
 
     public static final boolean CONTINUE = false;
     public static final boolean RESTART = true;
@@ -50,9 +51,15 @@ public class AutoNumberer {
     public String getNewNumber(int indentation, boolean restart) {
 
         if(indentation == 0){
-            PukkaLogger.log(PukkaLogger.Level.INFO, "indentation = 0, no headline number");
+            PukkaLogger.log(PukkaLogger.Level.DEBUG, "indentation = 0, no headline number");
             return "";
         }
+
+        if(indentation > maxLevel){
+            PukkaLogger.log(PukkaLogger.Level.DEBUG, "indentation over max level, no headline number");
+            return "";
+        }
+
 
         if(restart){
 

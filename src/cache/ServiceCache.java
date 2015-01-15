@@ -82,16 +82,30 @@ public class ServiceCache {
      *
      * @param key - the request key
      * @param value - json value from the database
+     * @param comment - string comment for tracing errors
      * @throws BackOfficeException
      *
      *      NOTE: This uses the service qualifier from the constructor
      */
 
-    public void store(String key, String value) throws BackOfficeException{
+    public void store(String key, String value, String comment) throws BackOfficeException{
 
-        String cacheKey = createKey(serviceQualifier, key);
-        cache.put(cacheKey, value);
-        PukkaLogger.log(PukkaLogger.Level.INFO, "Store value for key (" + cacheKey + ") in cache. (keys: " + cache.size() + ")");
+
+        try{
+
+            String cacheKey = createKey(serviceQualifier, key);
+
+            cache.put(cacheKey, value);
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Store value for key (" + cacheKey + ") in cache. (keys: " + cache.size() + ")");
+
+        }catch(Exception e){
+
+            // Failed to store in cache. Log this as Fatal error for knowledge, but continue
+
+            PukkaLogger.log(e, " Error in " + comment);
+
+        }
+
 
     }
 
