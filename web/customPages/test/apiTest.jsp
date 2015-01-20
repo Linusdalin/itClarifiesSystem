@@ -7,6 +7,10 @@
 <%@ page import="actions.ActionStatusTable" %>
 <%@ page import="userManagement.PortalUserTable" %>
 <%@ page import="risk.ContractRiskTable" %>
+<%@ page import="classifiers.ClassifierInterface" %>
+<%@ page import="language.English" %>
+<%@ page import="pukkaBO.dropdown.DropDownTableReference" %>
+<%@ page import="pukkaBO.form.DropDownList" %>
 <html>
 
 
@@ -68,6 +72,7 @@
     String classDropdown = new FragmentClassTable().getDropDown(null).withName("class").withUnselected("select").render();
     String statusDropdown = new ActionStatusTable().getDropDown(null).withName("status").withUnselected("select").render();
     String userDropdown = new PortalUserTable().getDropDown(null).withName("assignee").withUnselected("select").render();
+
 
 %>
 
@@ -959,7 +964,8 @@
                 <input type="text" id="CommentC" name="comment" size="50"></p>
             <p>	<label for="PatternC">Pattern</label>
                 <input type="text" id="PatternC" name="pattern" size="50"></p>
-            <p> <label for="class">Class</label> <% out.print(classDropdown);%></p>
+            <p> <label for="class">Class</label>
+                <input type="text" id="class" name="class" size="50"></p>
 
             <input type="hidden" name="html" value="on">
             <% out.print(getTokenParameter(useRealToken, "postAnnotation"));%>

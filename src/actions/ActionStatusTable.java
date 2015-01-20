@@ -52,11 +52,11 @@ public class ActionStatusTable extends ConstantTable implements DataTableInterfa
     public static final List<DataObjectInterface> Values = new ArrayList<DataObjectInterface>() {{
 
           add(new ActionStatus(10, "Open", "Action created but not assigned"));
-          add(new ActionStatus(30, "In Progress", "Action started"));
-          add(new ActionStatus(60, "Completed", "Work completed"));
+          add(new ActionStatus(20, "In Progress", "Action started"));
+          add(new ActionStatus(30, "Completed", "Work completed"));
           add(new ActionStatus(40, "Blocked", "Waiting for external factors"));
           add(new ActionStatus(60, "Cancelled", "No action needed"));
-          add(new ActionStatus(70, "Done", "Completed and approved"));
+          add(new ActionStatus(70, "Accepted", "Completed and approved"));
 
 
 

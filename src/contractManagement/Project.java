@@ -243,7 +243,7 @@ public class Project extends DataObject implements DataObjectInterface{
 
     }
 
-    public List<Contract> getContractsForProject(ConditionInterface condition) throws BackOfficeException{
+    public List<Contract> getContractsForProject(ConditionInterface condition){
 
         condition.addFilter(new ReferenceFilter(ContractTable.Columns.Project.name(), getKey()));
 
@@ -255,14 +255,14 @@ public class Project extends DataObject implements DataObjectInterface{
 
     }
 
-    public List<Contract> getContractsForProject() throws BackOfficeException{
+    public List<Contract> getContractsForProject(){
 
         return getContractsForProject(new LookupList());
     }
 
 
 
-    public List<Action> getActionsForProject(ConditionInterface condition) throws BackOfficeException{
+    public List<Action> getActionsForProject(ConditionInterface condition){
 
         condition.addFilter(new ReferenceFilter(ActionTable.Columns.Project.name(), getKey()));
 
@@ -274,7 +274,7 @@ public class Project extends DataObject implements DataObjectInterface{
 
     }
 
-    public List<Action> getActionsForProject() throws BackOfficeException{
+    public List<Action> getActionsForProject(){
 
         return getActionsForProject(new LookupList());
     }
@@ -283,7 +283,7 @@ public class Project extends DataObject implements DataObjectInterface{
 
     //TODO: Should be automatic
 
-    public List<Snapshot> getSnapshotsForProject(ConditionInterface condition) throws BackOfficeException{
+    public List<Snapshot> getSnapshotsForProject(ConditionInterface condition){
 
         condition.addFilter(new ReferenceFilter(SnapshotTable.Columns.Project.name(), getKey()));
 
@@ -296,7 +296,7 @@ public class Project extends DataObject implements DataObjectInterface{
 
     // No condition retrieves all items
 
-    public List<Snapshot> getSnapshotsForProject() throws BackOfficeException{
+    public List<Snapshot> getSnapshotsForProject(){
 
         return getSnapshotsForProject(new LookupList());
     }
@@ -323,7 +323,7 @@ public class Project extends DataObject implements DataObjectInterface{
 
 
 
-    public List<Reference> getReferencesForProject(ConditionInterface condition) throws BackOfficeException{
+    public List<Reference> getReferencesForProject(ConditionInterface condition){
 
         condition.addFilter(new ReferenceFilter(ReferenceTable.Columns.Project.name(), getKey()));
 
@@ -336,7 +336,7 @@ public class Project extends DataObject implements DataObjectInterface{
 
     // No condition retrieves all items
 
-    public List<Reference> getReferencesForProject() throws BackOfficeException{
+    public List<Reference> getReferencesForProject(){
 
         return getReferencesForProject(new LookupList());
     }

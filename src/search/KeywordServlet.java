@@ -1,5 +1,6 @@
 package search;
 
+import classifiers.ClassifierInterface;
 import contractManagement.*;
 import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
@@ -190,6 +191,14 @@ public class KeywordServlet extends ItClarifiesService {
 
             JSONObject jsonObject = new JSONObject();
             JSONArray keywordList = new JSONArray();
+
+
+            for (ClassifierInterface classifierInterface : defaultLanguage.getSupportedClassifiers()) {
+
+                keywordList.put(new JSONObject()
+                        .put("keyword",  "#" + classifierInterface.getClassificationName())
+                        .put("document", ""));
+            }
 
 
             for(Keyword keyword : keywordsForProject){

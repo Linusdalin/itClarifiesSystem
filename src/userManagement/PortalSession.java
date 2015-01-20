@@ -193,7 +193,7 @@ public class PortalSession extends DataObject implements DataObjectInterface{
 
 
 
-    public static PortalSession getlongLifeSystem( ) throws BackOfficeException{
+    public static PortalSession getlongLifeSystem( )  throws BackOfficeException{
 
        if(PortalSession.longLifeSystem == null)
           PortalSession.longLifeSystem = new PortalSession(new LookupItem().addFilter(new ColumnFilter("Token", "SystemSessionToken")));

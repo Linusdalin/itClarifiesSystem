@@ -4,6 +4,8 @@ import cache.ServiceCache;
 import contractManagement.*;
 import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
+import language.English;
+import language.LanguageInterface;
 import log.PukkaLogger;
 import maintenance.Smokey;
 import net.sf.json.JSONArray;
@@ -29,6 +31,13 @@ public class ItClarifiesService extends PukkaServlet {
 
     protected SessionManagement sessionManagement = new SessionManagement();
     public static String MODEL_DIRECTORY = "models";
+
+    // Use english names of classifications as default
+    // When implementing language support, this should be taken from the user settings
+
+    protected static final LanguageInterface defaultLanguage = new English();
+
+
 
     /********************************************************************************
      *
@@ -102,7 +111,7 @@ public class ItClarifiesService extends PukkaServlet {
 
         // This is a sneak variant of tabs, just adding a span for the text.
 
-        data = data.replaceAll("^(.*)\t", "<span style=\"display: inline-block; width: 120px;\">$1</span>");
+        data = data.replaceAll("^(.*)\t", "<span style=\"display: inline-block; width: 160px;\">$1</span>");
         data = data.replaceAll("\t", "&nbsp; &nbsp; ");
 
         return data;

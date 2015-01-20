@@ -116,22 +116,22 @@ public class ContractStatus extends DataObject implements DataObjectInterface{
 
 
 
-    public static ContractStatus getUploaded( ) throws BackOfficeException{
+    public static ContractStatus getUploaded( )  {
 
        return (ContractStatus)ContractStatusTable.Values.get(0);
     }
 
-    public static ContractStatus getAnalysing( ) throws BackOfficeException{
+    public static ContractStatus getAnalysing( )  {
 
        return (ContractStatus)ContractStatusTable.Values.get(1);
     }
 
-    public static ContractStatus getAnalysed( ) throws BackOfficeException{
+    public static ContractStatus getAnalysed( )  {
 
        return (ContractStatus)ContractStatusTable.Values.get(2);
     }
 
-    public static ContractStatus getFailed( ) throws BackOfficeException{
+    public static ContractStatus getFailed( )  {
 
        return (ContractStatus)ContractStatusTable.Values.get(3);
     }

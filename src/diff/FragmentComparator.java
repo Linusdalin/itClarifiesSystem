@@ -100,9 +100,9 @@ public class FragmentComparator {
 
         int distance = getDistance(activeFragment, referenceFragment);
         int distancePerAvgChar = (100 * distance) / ((referenceFragment.length() + activeFragment.length()) / 2);
-        PukkaLogger.log(PukkaLogger.Level.INFO, "Got distance " + distance + " between " + activeFragment + " and " + referenceFragment);
+        PukkaLogger.log(PukkaLogger.Level.DEBUG, "Got distance " + distance + " between " + activeFragment + " and " + referenceFragment);
 
-        PukkaLogger.log(PukkaLogger.Level.INFO, " - Distance per avg char =  " + distancePerAvgChar);
+        PukkaLogger.log(PukkaLogger.Level.DEBUG, " - Distance per avg char =  " + distancePerAvgChar);
 
         return distancePerAvgChar < DISTANCE_THRESHOLD;
     }

@@ -17,6 +17,7 @@ import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupItem;
 import risk.ContractRisk;
 import test.ServletTests;
+import userManagement.AccessRight;
 import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
@@ -112,7 +113,7 @@ public class ReferenceTest extends ServletTests {
                 ContractStatus status = ContractStatus.getAnalysing();
                 PortalUser user = PortalUser.getSystemUser();
                 DBTimeStamp creationTime = new DBTimeStamp();
-                Contract newDocument = new Contract("pricelist", "Test Document.docx", 3, documentType, status,  "no message", "test document", project, user, creationTime.toString(), "EN", 1);
+                Contract newDocument = new Contract("pricelist", "Test Document.docx", 3, documentType, status,  "no message", "test document", project, user, creationTime.toString(), "EN", AccessRight.getrwd());
                 newDocument.store();
 
                 // Create a new version for the document

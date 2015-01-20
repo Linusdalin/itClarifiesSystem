@@ -117,27 +117,27 @@ public class ReferenceType extends DataObject implements DataObjectInterface{
 
 
 
-    public static ReferenceType getUnknown( ) throws BackOfficeException{
+    public static ReferenceType getUnknown( )  {
 
        return (ReferenceType)ReferenceTypeTable.Values.get(0);
     }
 
-    public static ReferenceType getExplicit( ) throws BackOfficeException{
+    public static ReferenceType getExplicit( )  {
 
        return (ReferenceType)ReferenceTypeTable.Values.get(1);
     }
 
-    public static ReferenceType getImplicit( ) throws BackOfficeException{
+    public static ReferenceType getImplicit( )  {
 
        return (ReferenceType)ReferenceTypeTable.Values.get(2);
     }
 
-    public static ReferenceType getDefinitionUsage( ) throws BackOfficeException{
+    public static ReferenceType getDefinitionUsage( )  {
 
        return (ReferenceType)ReferenceTypeTable.Values.get(3);
     }
 
-    public static ReferenceType getOpen( ) throws BackOfficeException{
+    public static ReferenceType getOpen( )  {
 
        return (ReferenceType)ReferenceTypeTable.Values.get(4);
     }

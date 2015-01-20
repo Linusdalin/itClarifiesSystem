@@ -13,6 +13,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import pukkaBO.exceptions.BackOfficeException;
 import risk.RiskClassification;
+import userManagement.AccessRight;
 import userManagement.PortalUser;
 
 import java.util.Arrays;
@@ -165,7 +166,7 @@ public class SearchManager2 {
     private int getVisibilityForDocument(Contract document) {
 
 
-        if(document.getAccess() == 0){
+        if(document.getAccess().equals(AccessRight.getno())){
 
             PukkaLogger.log(PukkaLogger.Level.DEBUG, "Got access level " + document.getAccess() + " for document " + document.getName() + " setting PRIVATE access for fragment");
             return IndexManager.PRIVATE;

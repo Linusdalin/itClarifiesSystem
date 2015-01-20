@@ -118,32 +118,32 @@ public class ActionStatus extends DataObject implements DataObjectInterface{
 
 
 
-    public static ActionStatus getOpen( ) throws BackOfficeException{
+    public static ActionStatus getOpen( )  {
 
        return (ActionStatus)ActionStatusTable.Values.get(0);
     }
 
-    public static ActionStatus getInProgress( ) throws BackOfficeException{
+    public static ActionStatus getInProgress( )  {
 
        return (ActionStatus)ActionStatusTable.Values.get(1);
     }
 
-    public static ActionStatus getCompleted( ) throws BackOfficeException{
+    public static ActionStatus getCompleted( )  {
 
        return (ActionStatus)ActionStatusTable.Values.get(2);
     }
 
-    public static ActionStatus getBlocked( ) throws BackOfficeException{
+    public static ActionStatus getBlocked( )  {
 
        return (ActionStatus)ActionStatusTable.Values.get(3);
     }
 
-    public static ActionStatus getCancelled( ) throws BackOfficeException{
+    public static ActionStatus getCancelled( )  {
 
        return (ActionStatus)ActionStatusTable.Values.get(4);
     }
 
-    public static ActionStatus getDone( ) throws BackOfficeException{
+    public static ActionStatus getDone( )  {
 
        return (ActionStatus)ActionStatusTable.Values.get(5);
     }

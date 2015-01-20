@@ -41,13 +41,13 @@ public class Contract extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public Contract(String name, String file, long ordinal, DataObjectInterface type, DataObjectInterface status, String message, String description, DataObjectInterface project, DataObjectInterface owner, String creation, String language, long access) throws BackOfficeException{
+    public Contract(String name, String file, long ordinal, DataObjectInterface type, DataObjectInterface status, String message, String description, DataObjectInterface project, DataObjectInterface owner, String creation, String language, DataObjectInterface access) throws BackOfficeException{
 
         this(name, file, ordinal, type, status, message, description, project.getKey(), owner.getKey(), creation, language, access);
     }
 
 
-    public Contract(String name, String file, long ordinal, DataObjectInterface type, DataObjectInterface status, String message, String description, DBKeyInterface project, DBKeyInterface owner, String creation, String language, long access){
+    public Contract(String name, String file, long ordinal, DataObjectInterface type, DataObjectInterface status, String message, String description, DBKeyInterface project, DBKeyInterface owner, String creation, String language, DataObjectInterface access){
 
         this();
         try{
@@ -67,7 +67,7 @@ public class Contract extends DataObject implements DataObjectInterface{
            data[8] = new ReferenceData(owner, columns[8].getTableReference());
            data[9] = new DateData(creation);
            data[10] = new StringData(language);
-           data[11] = new IntData(access);
+           data[11] = new ConstantData(access.get__Id(), columns[11].getTableReference());
 
            exists = true;
         }catch(BackOfficeException e){
@@ -275,16 +275,17 @@ public class Contract extends DataObject implements DataObjectInterface{
 
 
 
-    public long getAccess(){
+    public userManagement.AccessRight getAccess(){
 
-        IntData data = (IntData) this.data[11];
-        return data.value;
+        ConstantData data = (ConstantData)this.data[11];
+        return (userManagement.AccessRight)(new userManagement.AccessRightTable().getConstantValue(data.value));
+
     }
 
-    public void setAccess(long access){
+    public void setAccess(DataObjectInterface access){
 
-        IntData data = (IntData) this.data[11];
-        data.value = access;
+        ConstantData data = (ConstantData)this.data[11];
+        data.value = access.get__Id();
     }
 
 

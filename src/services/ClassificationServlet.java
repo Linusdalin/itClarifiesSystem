@@ -25,6 +25,7 @@ import userManagement.PortalUser;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 /********************************************************
  *
@@ -97,8 +98,16 @@ public class ClassificationServlet extends DocumentService{
             PortalUser classifier = sessionManagement.getUser();
             DBTimeStamp now = new DBTimeStamp();
 
-            String classTag = defaultLanguage.getClassificationForName(className);
+            Organization organization = classifier.getOrganization();
 
+
+            String classTag = getTag(className, organization, defaultLanguage);
+
+            if(classTag == null){
+
+                returnError("The classification tag " + className + " does not exist.", ErrorType.DATA, HttpServletResponse.SC_BAD_REQUEST, resp);
+                return;
+            }
 
             //Now update the fragment with a new classification
 
@@ -180,6 +189,49 @@ public class ClassificationServlet extends DocumentService{
 
      }
 
+    /***************************************************************************
+     *
+     *          looking up the tag from both the classification tree and custom tags in the database
+     *
+     *
+     *
+     * @param className
+     * @param organization
+     * @param userLanguage
+     * @return
+     */
+
+    private String getTag(String className, Organization organization, LanguageInterface userLanguage) {
+
+        String classTag = userLanguage.getClassificationForName(className);
+
+        ClassifierInterface[] classifiers = userLanguage.getSupportedClassifiers();
+
+        for (ClassifierInterface classifier : classifiers) {
+
+            if(classifier.getClassificationTag().equals(className))
+                return className;
+        }
+
+
+            // Look in the database for custom tags
+
+        List<FragmentClass> customClasses = organization.getCustomTagsForOrganization();
+        try {
+            customClasses.addAll(Organization.getnone().getCustomTagsForOrganization());
+        } catch (BackOfficeException e) {
+
+            PukkaLogger.log(PukkaLogger.Level.WARNING, "Ignoring global classifications");
+        }
+
+        for (FragmentClass customClass : customClasses) {
+
+            if(customClass.getKey().toString().equals(className))
+                return customClass.getType();
+        }
+
+        return null;
+    }
 
 
     /*************************************************************************
@@ -239,13 +291,13 @@ public class ClassificationServlet extends DocumentService{
 
             // Get generic classifications stored in the database. First generic
 
+            List<FragmentClass> customClasses = user.getOrganization().getCustomTagsForOrganization();
+            List<FragmentClass> genericClasses = Organization.getnone().getCustomTagsForOrganization();
 
-            FragmentClassTable genericClasses = new FragmentClassTable(new LookupList()
-                    .addFilter(new ReferenceFilter(FragmentClassTable.Columns.Organization.name(), Organization.getnone().getKey())));
+            customClasses.addAll(genericClasses);
 
-            for(DataObjectInterface object : genericClasses.getValues()){
 
-                FragmentClass fragmentClass = (FragmentClass)object;
+            for(FragmentClass fragmentClass : customClasses){
 
                 JSONObject riskObject = new JSONObject()
                         .put("id", fragmentClass.getKey().toString())
@@ -255,27 +307,6 @@ public class ClassificationServlet extends DocumentService{
                 list.put(riskObject);
 
             }
-
-
-
-            // Then add classes defined for the organization
-
-            FragmentClassTable organizationSpecificClasses = new FragmentClassTable(new LookupList()
-                    .addFilter(new ReferenceFilter(FragmentClassTable.Columns.Organization.name(), user.getOrganization().getKey())));
-
-            for(DataObjectInterface object : organizationSpecificClasses.getValues()){
-
-                FragmentClass fragmentClass = (FragmentClass)object;
-
-                JSONObject riskObject = new JSONObject()
-                        .put("id", fragmentClass.getKey().toString())
-                        .put("name", fragmentClass.getName())
-                        .put("desc", fragmentClass.getDescription())
-                        .put("type", "Organization");
-                list.put(riskObject);
-
-            }
-
 
 
             JSONObject json = new JSONObject().put(dataServletName, list);

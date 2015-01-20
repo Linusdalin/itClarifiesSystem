@@ -87,7 +87,7 @@ public class ContractDetailServlet extends DocumentService{
 
            Contract contract = new Contract(new LookupByKey(key));
 
-           AccessGrant grant = sessionManagement.getGrantForDocument(contract);
+           //AccessGrant grant = sessionManagement.getGrantForDocument(contract);
 
            if(!mandatoryObjectExists(contract, resp))
                return;
@@ -97,8 +97,8 @@ public class ContractDetailServlet extends DocumentService{
                 .put("name", encodeToJSON(contract.getName()))
                 .put("description", encodeToJSON(contract.getDescription()))
                 .put("project", contract.getProjectId().toString())
-                .put("visibility", grant.getVisibility().getName())
-                .put("access", grant.getAccessRight().getName())
+                .put("visibility", "org")                                           //Deprecated
+                .put("access", contract.getAccess().getName())
                 .put("owner", contract.getOwnerId().toString())
                 .put("version", contract.getHeadVersion().getVersion())
                 .put("history", "[]")

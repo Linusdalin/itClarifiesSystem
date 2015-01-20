@@ -114,12 +114,12 @@ public class ContractType extends DataObject implements DataObjectInterface{
 
 
 
-    public static ContractType getUnclassified( ) throws BackOfficeException{
+    public static ContractType getUnclassified( )  {
 
        return (ContractType)ContractTypeTable.Values.get(0);
     }
 
-    public static ContractType getUnknown( ) throws BackOfficeException{
+    public static ContractType getUnknown( )  {
 
        return (ContractType)ContractTypeTable.Values.get(1);
     }

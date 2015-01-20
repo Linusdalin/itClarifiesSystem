@@ -48,7 +48,7 @@ public class ContractTable extends DataTable implements DataTableInterface{
             new ReferenceColumn("Owner", DataColumn.noFormatting, new TableReference("PortalUser", "Name")),
             new DateColumn("Creation", DataColumn.noFormatting),
             new StringColumn("Language", DataColumn.noFormatting),
-            new IntColumn("Access", DataColumn.noFormatting),
+            new ConstantColumn("Access", DataColumn.noFormatting, new TableReference("AccessRight", "Name")),
     };
 
     private static final Contract associatedObject = new Contract();
@@ -81,8 +81,8 @@ public class ContractTable extends DataTable implements DataTableInterface{
     };
     private static final String[][] TestValues = {
 
-          {"Cannon", "Cannon.docx", "1", "Unknown", "Analysed", "Successfully analysed", "Printer support Contract", "Demo", "admin", "2014-06-01", "EN", "1", "system"},
-          {"Google Analytics", "GA.docx", "2", "Unknown", "Analysed", "Successfully uploaded", "EULA", "Demo", "admin", "2014-06-01", "EN", "1", "system"},
+          {"Cannon", "Cannon.docx", "1", "Unknown", "Analysed", "Successfully analysed", "Printer support Contract", "Demo", "admin", "2014-06-01", "EN", "rwd", "system"},
+          {"Google Analytics", "GA.docx", "2", "Unknown", "Analysed", "Successfully uploaded", "EULA", "Demo", "admin", "2014-06-01", "EN", "no", "system"},
 
 
 
@@ -175,13 +175,13 @@ public class ContractTable extends DataTable implements DataTableInterface{
             //    public Contract(String name, long ordinal, DBKeyInterface type, String description, DBKeyInterface project, DBKeyInterface owner, String creation) throws BackOfficeException{
 
 
-            Contract newDoc = new Contract(name, fileHandler.getFileName(), number, type, status, defaultMessage, desc, project, creator, creationTime.getISODate(), languageCode.code, 1);
+            Contract newDoc = new Contract(name, fileHandler.getFileName(), number, type, status, defaultMessage, desc, project, creator, creationTime.getISODate(), languageCode.code, accessRight);
             newDoc.store();
 
             // Grant access
 
-            userManagement.AccessGrant grant = new userManagement.AccessGrant("new doc Access", newDoc, accessRight, visibility, creator, creationTime.getSQLTime().toString());
-            grant.store();
+            //userManagement.AccessGrant grant = new userManagement.AccessGrant("new doc Access", newDoc, accessRight, visibility, creator, creationTime.getSQLTime().toString());
+            //grant.store();
 
             PukkaLogger.log(PukkaLogger.Level.MAJOR_EVENT, "User "+ creator.getName()+" creating a new document " + newDoc.getName() + " in project " + project.getName());
 

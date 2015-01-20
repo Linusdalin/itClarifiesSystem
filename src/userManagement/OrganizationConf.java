@@ -106,7 +106,7 @@ public class OrganizationConf extends DataObject implements DataObjectInterface{
 
 
 
-    public static OrganizationConf getnoOrg( ) throws BackOfficeException{
+    public static OrganizationConf getnoOrg( )  throws BackOfficeException{
 
        if(OrganizationConf.noOrg == null)
           OrganizationConf.noOrg = new OrganizationConf(new LookupItem().addFilter(new ColumnFilter("Name", "Config for no org")));
@@ -116,7 +116,7 @@ public class OrganizationConf extends DataObject implements DataObjectInterface{
        return OrganizationConf.noOrg;
     }
 
-    public static OrganizationConf getitClarifies( ) throws BackOfficeException{
+    public static OrganizationConf getitClarifies( )  throws BackOfficeException{
 
        if(OrganizationConf.itClarifies == null)
           OrganizationConf.itClarifies = new OrganizationConf(new LookupItem().addFilter(new ColumnFilter("Name", "Config for itClarifies")));

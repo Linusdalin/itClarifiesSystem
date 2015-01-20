@@ -116,22 +116,22 @@ public class AccessRight extends DataObject implements DataObjectInterface{
 
 
 
-    public static AccessRight getno( ) throws BackOfficeException{
+    public static AccessRight getno( )  {
 
        return (AccessRight)AccessRightTable.Values.get(0);
     }
 
-    public static AccessRight getro( ) throws BackOfficeException{
+    public static AccessRight getro( )  {
 
        return (AccessRight)AccessRightTable.Values.get(1);
     }
 
-    public static AccessRight getrc( ) throws BackOfficeException{
+    public static AccessRight getrc( )  {
 
        return (AccessRight)AccessRightTable.Values.get(2);
     }
 
-    public static AccessRight getrwd( ) throws BackOfficeException{
+    public static AccessRight getrwd( )  {
 
        return (AccessRight)AccessRightTable.Values.get(3);
     }

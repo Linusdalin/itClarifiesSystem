@@ -126,7 +126,7 @@ public class ContractFragmentType extends DataObject implements DataObjectInterf
 
 
 
-    public static ContractFragmentType getText( ) throws BackOfficeException{
+    public static ContractFragmentType getText( )  throws BackOfficeException{
 
        if(ContractFragmentType.Text == null)
           ContractFragmentType.Text = new ContractFragmentType(new LookupItem().addFilter(new ColumnFilter("Name", "Text")));
@@ -136,7 +136,7 @@ public class ContractFragmentType extends DataObject implements DataObjectInterf
        return ContractFragmentType.Text;
     }
 
-    public static ContractFragmentType getHeadline( ) throws BackOfficeException{
+    public static ContractFragmentType getHeadline( )  throws BackOfficeException{
 
        if(ContractFragmentType.Headline == null)
           ContractFragmentType.Headline = new ContractFragmentType(new LookupItem().addFilter(new ColumnFilter("Name", "Headline")));
@@ -146,7 +146,7 @@ public class ContractFragmentType extends DataObject implements DataObjectInterf
        return ContractFragmentType.Headline;
     }
 
-    public static ContractFragmentType getSub( ) throws BackOfficeException{
+    public static ContractFragmentType getSub( )  throws BackOfficeException{
 
        if(ContractFragmentType.Sub == null)
           ContractFragmentType.Sub = new ContractFragmentType(new LookupItem().addFilter(new ColumnFilter("Name", "Subsection")));
@@ -156,7 +156,7 @@ public class ContractFragmentType extends DataObject implements DataObjectInterf
        return ContractFragmentType.Sub;
     }
 
-    public static ContractFragmentType getBList( ) throws BackOfficeException{
+    public static ContractFragmentType getBList( )  throws BackOfficeException{
 
        if(ContractFragmentType.BList == null)
           ContractFragmentType.BList = new ContractFragmentType(new LookupItem().addFilter(new ColumnFilter("Name", "List Item")));
@@ -166,7 +166,7 @@ public class ContractFragmentType extends DataObject implements DataObjectInterf
        return ContractFragmentType.BList;
     }
 
-    public static ContractFragmentType getIList( ) throws BackOfficeException{
+    public static ContractFragmentType getIList( )  throws BackOfficeException{
 
        if(ContractFragmentType.IList == null)
           ContractFragmentType.IList = new ContractFragmentType(new LookupItem().addFilter(new ColumnFilter("Name", "Count Item")));
@@ -176,7 +176,7 @@ public class ContractFragmentType extends DataObject implements DataObjectInterf
        return ContractFragmentType.IList;
     }
 
-    public static ContractFragmentType getNList( ) throws BackOfficeException{
+    public static ContractFragmentType getNList( )  throws BackOfficeException{
 
        if(ContractFragmentType.NList == null)
           ContractFragmentType.NList = new ContractFragmentType(new LookupItem().addFilter(new ColumnFilter("Name", "Number List")));
@@ -186,7 +186,7 @@ public class ContractFragmentType extends DataObject implements DataObjectInterf
        return ContractFragmentType.NList;
     }
 
-    public static ContractFragmentType getDocTitle( ) throws BackOfficeException{
+    public static ContractFragmentType getDocTitle( )  throws BackOfficeException{
 
        if(ContractFragmentType.DocTitle == null)
           ContractFragmentType.DocTitle = new ContractFragmentType(new LookupItem().addFilter(new ColumnFilter("Name", "DocTitle")));

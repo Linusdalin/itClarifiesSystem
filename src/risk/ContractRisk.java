@@ -134,37 +134,37 @@ public class ContractRisk extends DataObject implements DataObjectInterface{
 
 
 
-    public static ContractRisk getBlack( ) throws BackOfficeException{
+    public static ContractRisk getBlack( )  {
 
        return (ContractRisk)ContractRiskTable.Values.get(0);
     }
 
-    public static ContractRisk getRed( ) throws BackOfficeException{
+    public static ContractRisk getRed( )  {
 
        return (ContractRisk)ContractRiskTable.Values.get(1);
     }
 
-    public static ContractRisk getAmber( ) throws BackOfficeException{
+    public static ContractRisk getAmber( )  {
 
        return (ContractRisk)ContractRiskTable.Values.get(2);
     }
 
-    public static ContractRisk getUnknown( ) throws BackOfficeException{
+    public static ContractRisk getUnknown( )  {
 
        return (ContractRisk)ContractRiskTable.Values.get(3);
     }
 
-    public static ContractRisk getNone( ) throws BackOfficeException{
+    public static ContractRisk getNone( )  {
 
        return (ContractRisk)ContractRiskTable.Values.get(4);
     }
 
-    public static ContractRisk getNotSet( ) throws BackOfficeException{
+    public static ContractRisk getNotSet( )  {
 
        return (ContractRisk)ContractRiskTable.Values.get(5);
     }
 
-    public static ContractRisk getAdvantage( ) throws BackOfficeException{
+    public static ContractRisk getAdvantage( )  {
 
        return (ContractRisk)ContractRiskTable.Values.get(6);
     }

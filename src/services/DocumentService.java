@@ -32,11 +32,6 @@ public class DocumentService extends ItClarifiesService{
 
     public static String MODEL_DIRECTORY = "models";
 
-    // Use english names of classifications as default
-    // When implementing language support, this should be taken from the user settings
-
-    protected static final LanguageInterface defaultLanguage = new English();
-
 
     /*********************************************************************************
      *
@@ -231,8 +226,6 @@ public class DocumentService extends ItClarifiesService{
             // Store all new keywords from the fragment
             if(aFragment.getKeywords() != null)
                 newKeywords.addAll(aFragment.getKeywords());
-
-            // If we just created a new structure element, update the structure count number
 
         }
 

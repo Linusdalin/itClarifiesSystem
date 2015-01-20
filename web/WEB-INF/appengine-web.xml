@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
   <application>itclarifiesapistage</application>
-   <version>1-10-2</version>
+   <version>1-10-3</version>
   <threadsafe>true</threadsafe>
 
     <system-properties>
@@ -31,6 +31,7 @@
                     1-10-0:         New in memory constants, fragment reference, fixed and added tests
                     1-10-1:         Analysis improvement en, fix risk setting bug, new admin pwd, multiple live servers
                     1-10-2:         action key as string, fixes to numbering & restart
+                    1-10-3:         Demo classification generation fixes, minor parsing fixes, document access lookup change
       -->
 
 </appengine-web-app>

@@ -147,7 +147,7 @@ public class Group extends DataObject implements DataObjectInterface{
 
 
 
-    public static Group getUser( ) throws BackOfficeException{
+    public static Group getUser( )  throws BackOfficeException{
 
        if(Group.User == null)
           Group.User = new Group(new LookupItem().addFilter(new ColumnFilter("Name", "User")));

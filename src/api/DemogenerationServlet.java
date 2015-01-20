@@ -7,12 +7,12 @@ import com.google.appengine.api.appidentity.AppIdentityServiceFactory;
 import com.google.appengine.api.utils.SystemProperty;
 import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
+import diff.FragmentComparator;
 import language.English;
 import language.LanguageInterface;
+import log.PukkaLogger;
 import maintenance.Smokey;
-import pukkaBO.condition.ColumnFilter;
-import pukkaBO.condition.LookupItem;
-import pukkaBO.condition.ReferenceFilter;
+import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
 import risk.ContractRisk;
 import risk.ContractRiskTable;
@@ -58,43 +58,98 @@ public class DemogenerationServlet extends GenericAdminServlet {
      */
 
 
-    private static final DemoComment[] demoCommentList = {
+    private static final DemoComment[] testFileDemoCommens = {
 
             // The demo comments are using the english names of the tags
 
-            new DemoComment("#ACCEPTANCE_CRITERIA", 0, 0, "Test document.docx", 2, "Medium", "later chapter", "var är detta???", "itClarifies"),
+            new DemoComment("#ACCEPTANCE_CRITERIA", 0, 0, "Test document.docx", 2, "", "Medium", "later chapter", "var är detta???", "itClarifies"),
+
+    };
+
+    private static final DemoComment[] swedishDemoCommens = {
 
             // Swedish demo
 
-            new DemoComment("#RISK",        0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       369, "Potential",   "minst likvärdig kompetens", "Subjektivt och ensidigt", "itClarifies"),
-            new DemoComment("#RISK",        0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       452, "Not set", "fast pris", "Fast Pris", "itClarifies"),
-            new DemoComment("#UNSPECIFIC",  0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       387, "Not set",     "flera utbildningar samtidigt", "Oklar numrering", "itClarifies"),
+            new DemoComment("#RISK",        0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx", 351,
+                    "Vid byte av person ska ersättaren ha minst likvärdig kompetens och godkännas av Las Vegas",
+                    "Potential",   "minst likvärdig kompetens", "Subjektivt och ensidigt", "itClarifies"),
+            new DemoComment("#RISK",        0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       434,
+                    "Tjänster som efterfrågas i denna upphandling ska kunna avropas som pris per timma, per dag, per vecka, per månad eller som fast pris. Vilken prissättning som är bäst lämpad för det specifika uppdraget beslutas av uppdragsgivaren vid varje uppdrag. När pris begärs på annat än enbart timmar ska timpriset framgå.",
+                    "Potential", "fast pris", "Fast Pris", "itClarifies"),
+            new DemoComment("#UNSPECIFIC",  0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       369,
+                    "Anbudsgivaren ska ha kapacitet att producera flera utbildningar samtidigt.",
+                    "Potential",     "flera utbildningar samtidigt", "Oklar numrering", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",        63,
+                    "Förfrågningsunderlaget - svarsformulär för anbud",
+                    "Not set", "", "#contracting", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",        71,
+                    "Frågor rörande förfrågningsunderlaget",
+                    "Not set", "", "#contracting", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",        76,
+                    "Uppgifter om anbudsgivaren ",
+                    "Not set", "", "#contracting", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",        90,
+                    "Presentation av anbud",
+                    "Not set", "", "#contracting", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",        92,
+                    "Anbudets omfattning",
+                    "Not set", "", "#contracting", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       105,
+                    "Anbudets språk",
+                    "Not set", "", "#contracting", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       107,
+                    "Undertecknat anbud",
+                    "Not set", "", "#contracting", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       132,
+                    "Sista anbudsdag och sena anbud",
+                    "Not set", "", "#contracting", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       135,
+                    "Anbudets och tilldelningsbeslutets rättsliga betydelse",
+                    "Not set", "", "#contracting", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       138,
+                    "",
+                    "Not set", "", "#contracting", "itClarifies"),
 
-            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",        65, "Not set", "", "#contracting", "itClarifies"),
-            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",        73, "Not set", "", "#contracting", "itClarifies"),
-            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",        79, "Not set", "", "#contracting", "itClarifies"),
-            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",        96, "Not set", "", "#contracting", "itClarifies"),
-            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       112, "Not set", "", "#contracting", "itClarifies"),
-            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       113, "Not set", "", "#contracting", "itClarifies"),
-            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       136, "Not set", "", "#contracting", "itClarifies"),
-            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       137, "Not set", "", "#contracting", "itClarifies"),
-            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       138, "Not set", "", "#contracting", "itClarifies"),
-            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       148, "Not set", "", "#contracting", "itClarifies"),
-            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       167, "Not set", "", "#contracting", "itClarifies"),
-            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       177, "Not set", "", "#contracting", "itClarifies"),
-            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       183, "Not set", "", "#contracting", "itClarifies"),
-            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       220, "Not set", "", "#contracting", "itClarifies"),
+
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       143,
+                    "Kostnader associerade med anbudet", "Not set", "", "#contracting", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       160,
+                    "Avbrytande av upphandling", "Not set", "", "#contracting", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       178,
+                    "En bekräftelse att leverantören förfogar över underleverantör som krävs för att uppfylla de krav som gäller för det åtagande som upphandlingen omfattar och att Las Vegas vid begäran kan få intyg på detta.", "Not set", "", "#contracting", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       179,
+                    "Uteslutande från deltagande i upphandlingen", "Not set", "", "#contracting", "itClarifies"),
+            new DemoComment("#PRE_SIGNING", 0, 0, "Förfrågningsunderlag for Interaktiva utbildningar.docx",       215,
+                    "Referensuppdrag, anbudsgivande företag", "Not set", "", "#contracting", "itClarifies"),
+
+            // Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx
+
+            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  108,
+                    "Mindre fel i utbildningen, såsom stavfel, buggar, etc ska ändras av leverantören utan tillkommande kostnad.",
+                    "Potential",     "utan tillkommande kostnad", "Uttrycket (etc.)", "itClarifies"),
+            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  178,
+                    "Supportärenden av teknisk och kritisk karaktär ska besvaras inom 24 timmar på vardagar. För helgdagar ska ärenden besvaras närmast följande vardag. Under 15 juni - 15 augusti kan andra svarstider överenskommas. ",
+                    "Potential",   "kritisk karaktär", "Odefinierat: kritisk", "itClarifies"),
+
+            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  184,
+                    "För det fall att utbildningen hostas av leverantören ska leverantören ha rutiner avseende backup på all lagrad data",
+                    "Potential",     "backup på all lagrad data", "Krav för restore saknas", "itClarifies"),
+            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  238,
+                    "För att kunna uppfylla Las Vegass behov av statistik och uppföljning ska informationen nedan lagras och tillhandahållas. Om leverantören ansvarar för hosting av utbildningen så ska informationen nedan kunna hämtas in genom den webbtjänst som tillhandahåller information om deltagarnas resultat. Om utbildningen levereras i SCORM-format ska utbildningen struktureras så att motsvarande information går att ta fram.",
+                    "Potential",     "ska informationen nedan lagras", "Ej avgränsad tid", "itClarifies"),
+
+            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  214,
+                    "Vid brist i kapacitetskraven, har Las Vegas rätt till ett vite vid var tillfälle om tio (10) procent av månadsavgiften för hostingen av den aktuella utbildningen. ",
+                    "Potential",   "vid var tillfälle", "Odefinierat: tillfälle", "itClarifies"),
+            //new DemoComment("#AMBIGUITY",   0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  229, "", "Not set",     "besvaras", "Tvetydigt: besvaras", "itClarifies"),
+            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  192,
+                    "Leverantören garanterar att av Leverantören hostad interaktiv ansvarsutbildning har en tillgänglighet mätt per kalendermånad på minst 99 % under tiden måndag-söndag kl 06.00-24.00 (\"Avtalad Tillgänglighet\"). Dock gäller inte Avtalad Tillgänglighet om nertid kan härledas till Las Vegass server/it-miljö eller handhavande, d v s faktorer som Leverantören inte har kontroll över, eller om Las Vegas och Leverantören kommit överens om planerad nertid.",
+                    "Potential",     "kan härledas till Las Vegass server/it-miljö eller handhavande", "Odefinierat : Responsibility", "itClarifies"),
 
 
-            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  184, "Potential",   "kritisk karaktär", "Odefinierat: kritisk", "itClarifies"),
-            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  190, "Not set",     "backup på all lagrad data", "Krav för restore saknas", "itClarifies"),
-            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  244, "Not set",     "ska informationen nedan lagras", "Ej avgränsad tid", "itClarifies"),
+            //TODO: Find this in the document
 
-            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  113, "Not set",     "utan tillkommande kostnad", "Uttrycket (etc.)", "itClarifies"),
-            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  220, "Potential",   "vid var tillfälle", "Odefinierat: tillfälle", "itClarifies"),
-            //new DemoComment("#AMBIGUITY",   0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  229, "Not set",     "besvaras", "Tvetydigt: besvaras", "itClarifies"),
-            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 1 - Kravspecifikation webbutbildning,2014-04-28.docx",  243, "Not set",     "kan härledas till Las Vegass server/it-miljö eller handhavande", "Odefinierat : Responsibility", "itClarifies"),
-            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 3A - Ramavtal Interaktiva utbildningar.docx",            41, "Not set",     "avser samtliga de resultat", "Ej avgränsad", "itClarifies"),
+            new DemoComment("#UNSPECIFIC",  0, 0, "Bilaga 3A - Ramavtal Interaktiva utbildningar.docx",            41, "", "Not set",     "avser samtliga de resultat", "Ej avgränsad", "itClarifies"),
 
 
 
@@ -125,7 +180,7 @@ public class DemogenerationServlet extends GenericAdminServlet {
 
         DBTimeStamp analysisTime = new DBTimeStamp();
 
-        resp.getWriter().println(generateDemoComments(demoCommentList, analysisTime));
+        resp.getWriter().println(generateDemoComments(swedishDemoCommens, analysisTime));
 
 
         resp.getWriter().println("</body>");
@@ -214,18 +269,19 @@ public class DemogenerationServlet extends GenericAdminServlet {
 
         }
 
+
         ContractVersionInstance version = document.getHeadVersion();
 
 
-        ContractFragment fragment = new ContractFragment(new LookupItem()
-                .addFilter(new ColumnFilter(ContractFragmentTable.Columns.Ordinal.name(), comment.ordinal))
-                .addFilter(new ReferenceFilter(ContractFragmentTable.Columns.Version.name(), version.getKey())));
+        ContractFragment fragment = locateFragment(comment, version);
+
         if(!fragment.exists()){
 
             feedback.append("<br/> - ! Fragment id " + comment.ordinal + " does not exist! </p>");
             return feedback.toString();
 
         }
+
 
         String translatedClassification = defaultLanguage.getLocalizedClassification(comment.classification);
 
@@ -294,7 +350,7 @@ public class DemogenerationServlet extends GenericAdminServlet {
             System.out.println("RiskClassification: " + riskClassification.getKey().toString());
             fragment.setRisk(risk);
 
-            feedback.append("<br/> - Adding risk \""+ risk.getName()+"\" to fragment no "+ comment.ordinal+" in document " + document.getName());
+            feedback.append("<br/> - Adding risk \""+ risk.getName()+"\" to fragment no "+ fragment.getOrdinal()+" in document " + document.getName());
 
         }
         int ordinal = (int)fragment.getAnnotationCount() + 1;
@@ -312,12 +368,20 @@ public class DemogenerationServlet extends GenericAdminServlet {
 
         classification.store();
         fragment.setClassificatonCount(fragment.getClassificatonCount() + 1);
-        feedback.append("<br/> - Adding classification \""+ translatedClassification + "\" ("+ classification.getClassTag()+") to fragment no "+ comment.ordinal+" in document " + document.getName());
+        feedback.append("<br/> - Adding classification \""+ translatedClassification + "\" ("+ classification.getClassTag()+") to fragment no "+ fragment.getOrdinal()+" in document " + document.getName());
 
         annotation.store();
         fragment.setAnnotationCount(ordinal);
-        feedback.append("<br/> - Adding annotation \""+ comment.comment + "\" to fragment no "+ comment.ordinal+" in document " + document.getName());
+        feedback.append("<br/> - Adding annotation \""+ comment.comment + "\" to fragment no "+ fragment.getOrdinal()+" in document " + document.getName());
 
+        if(fragment.getOrdinal() != comment.ordinal){
+
+            // Fragment is found elsewhere. Prompt the user with a warning
+
+            feedback.append("<br/><b> - !NOTE: The comments are added to fragment " + fragment.getOrdinal() + " but it was listed at fragment " + comment.ordinal + ". Consider revising the stored data.</b>");
+
+
+        }
 
         fragment.update();
         feedback.append("</p>");
@@ -329,6 +393,110 @@ public class DemogenerationServlet extends GenericAdminServlet {
 
         return feedback.toString();
     }
+
+    /********************************************************************************
+     *
+     *          Locate fragment will find the closest matching fragment between the ordinal
+     *          number in the comment and the fragments in the list
+     *
+     *
+     * @param comment
+     * @param version
+     * @return
+     *
+     *          It will look 20 steps up and down in the list
+     */
+
+    private ContractFragment locateFragment(DemoComment comment, ContractVersionInstance version)  {
+
+        try{
+
+            FragmentComparator comparator = new FragmentComparator();
+            List<ContractFragment> fragmentsForDocument = version.getFragmentsForVersion(new LookupList().addOrdering(ContractFragmentTable.Columns.Ordinal.name(), Ordering.FIRST));
+            ContractFragment fragment  = fragmentsForDocument.get(comment.ordinal);
+            int totalFragments = fragmentsForDocument.size();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Looking for fragment " + comment.fragment + " to comment.");
+            PukkaLogger.log(PukkaLogger.Level.INFO, "*** Start looking at " + comment.ordinal);
+
+            // First check the fragment pointed out by the ordinal value
+
+            if(comparator.isSame(comment.fragment, fragment.getText())){
+
+                return fragment;
+            }
+
+            for(int offset = 1; offset <= 20; offset++){
+
+
+                if(comment.ordinal + offset < totalFragments){
+
+                    fragment = fragmentsForDocument.get(comment.ordinal + offset);
+
+                    //System.out.println("  -> Looking at fragment (" + fragment.getOrdinal() + ")" + fragment.getName());
+
+                    if(comparator.isSame(comment.fragment, fragment.getText())){
+
+                        // Found. Log and return
+                        PukkaLogger.log(PukkaLogger.Level.INFO, "Matching fragment " + fragment.getName() + " at " + (comment.ordinal + offset) + "(" + offset + " off)");
+                        return fragment;
+                    }
+                }
+
+                if(comment.ordinal - offset >= 0){
+
+                    fragment = fragmentsForDocument.get(comment.ordinal - offset);
+
+                    //System.out.println(" --> Looking at fragment (" + fragment.getOrdinal() + ")" + fragment.getName());
+
+                    if(comparator.isSame(comment.fragment, fragment.getText())){
+
+                        // Found. Log and return
+                        PukkaLogger.log(PukkaLogger.Level.INFO, "Matching fragment " + fragment.getName() + " at " + (comment.ordinal - offset) + "(" + -offset + " off)");
+                        return fragment;
+                    }
+
+                }
+
+            }
+
+            PukkaLogger.log(PukkaLogger.Level.WARNING, "Could not find fragment " + comment.fragment + " at " + comment.ordinal + "( +/- 20)");
+
+            //TOD: Remove this. Only for reenginering
+            return fragmentsForDocument.get(comment.ordinal);
+
+
+        }catch(BackOfficeException e){
+
+            PukkaLogger.log(e);
+        }
+
+        return new ContractFragment();
+
+
+    }
+
+
+    private ContractFragment locateFragmentOld(DemoComment comment, ContractVersionInstance version)  {
+
+        try{
+
+            List<ContractFragment> fragmentsForDocument = version.getFragmentsForVersion();
+
+            ContractFragment fragment = new ContractFragment(new LookupItem()
+                    .addFilter(new ColumnFilter(ContractFragmentTable.Columns.Ordinal.name(), comment.ordinal))
+                    .addFilter(new ReferenceFilter(ContractFragmentTable.Columns.Version.name(), version.getKey())));
+
+            return fragment;
+
+        }catch(BackOfficeException e){
+
+            PukkaLogger.log(e);
+            return new ContractFragment();
+        }
+
+
+    }
+
 
 
     /***********************************************************************
@@ -410,6 +578,7 @@ public class DemogenerationServlet extends GenericAdminServlet {
         private final int applicablePhase;
         private final String document;
         private final int ordinal;
+        private String fragment;
         private final String riskLevel;
         private final String pattern;
         private final String comment;
@@ -418,13 +587,14 @@ public class DemogenerationServlet extends GenericAdminServlet {
 
 
 
-        public DemoComment(String classification, int requirementLevel, int applicablePhase, String document, int ordinal, String riskLevel, String pattern, String comment, String user) {
+        public DemoComment(String classification, int requirementLevel, int applicablePhase, String document, int ordinal, String fragment, String riskLevel, String pattern, String comment, String user) {
 
             this.classification = classification;
             this.requirementLevel = requirementLevel;
             this.applicablePhase = applicablePhase;
             this.document = document;
             this.ordinal = ordinal;
+            this.fragment = fragment;
             this.riskLevel = riskLevel;
             this.pattern = pattern;
             this.comment = comment;

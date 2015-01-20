@@ -116,22 +116,22 @@ public class StructureItemType extends DataObject implements DataObjectInterface
 
 
 
-    public static StructureItemType getHeadline( ) throws BackOfficeException{
+    public static StructureItemType getHeadline( )  {
 
        return (StructureItemType)StructureItemTypeTable.Values.get(0);
     }
 
-    public static StructureItemType getList( ) throws BackOfficeException{
+    public static StructureItemType getList( )  {
 
        return (StructureItemType)StructureItemTypeTable.Values.get(1);
     }
 
-    public static StructureItemType getListItem( ) throws BackOfficeException{
+    public static StructureItemType getListItem( )  {
 
        return (StructureItemType)StructureItemTypeTable.Values.get(2);
     }
 
-    public static StructureItemType getFragmentGroup( ) throws BackOfficeException{
+    public static StructureItemType getFragmentGroup( )  {
 
        return (StructureItemType)StructureItemTypeTable.Values.get(3);
     }

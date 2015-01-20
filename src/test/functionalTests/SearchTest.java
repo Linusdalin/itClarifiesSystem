@@ -20,6 +20,7 @@ import search.IndexManager;
 import search.KeywordFieldHandler;
 import search.SearchManager2;
 import test.ServletTests;
+import userManagement.AccessRight;
 import userManagement.PortalUser;
 import userManagement.PortalUserTable;
 
@@ -182,7 +183,7 @@ public class SearchTest extends ServletTests {
 
         ContractFragment fragment = new ContractFragment(new LookupItem().addFilter(new ColumnFilter(ContractFragmentTable.Columns.Name.name(), "first fragment")));
         Contract document = fragment.getVersion().getDocument();
-        document.setAccess( 0 );   // Setting hidden access for the document
+        document.setAccess(AccessRight.getno() );   // Setting hidden access for the document
 
         PortalUser documentOwner = document.getOwner();
         PortalUser otherUser  = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "demo")));

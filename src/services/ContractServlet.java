@@ -13,6 +13,7 @@ import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
 import userManagement.AccessGrant;
 import userManagement.AccessRight;
+import userManagement.Organization;
 import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
@@ -133,17 +134,20 @@ public class ContractServlet extends DocumentService{
 
                ContractTable all = new ContractTable(condition);
                JSONArray documentList = new JSONArray();
+               Organization organization = user.getOrganization();
 
                for(DataObjectInterface object : all.getValues()){
 
                    Contract contract = (Contract)object;
 
-                   AccessGrant grant = sessionManagement.getGrantForDocument(contract);
-                   AccessRight right = grant.getAccessRight();
-                   String accessName = "ro";
+                   AccessRight access = sessionManagement.getAccess(contract);
 
-                   if(right.exists())
-                       accessName = right.getName();
+                   //AccessGrant grant = sessionManagement.getGrantForDocument(contract);
+                   //AccessRight right = grant.getAccessRight();
+                   //String accessName = "ro";
+
+                   //if(right.exists())
+                   //    accessName = right.getName();
 
                    if(sessionManagement.getReadAccess(contract)){
 
@@ -155,8 +159,8 @@ public class ContractServlet extends DocumentService{
                             .put("message", contract.getMessage())
                             .put("owner", contract.getOwnerId().toString())
                             .put("creation", contract.getCreation().getSQLTime().toString())
-                            .put("visibility", grant.getVisibility().getName())
-                            .put("access", accessName);
+                            .put("visibility", "org")
+                            .put("access", access.getName());
 
                        documentList.put(document);
                        PukkaLogger.log(PukkaLogger.Level.INFO, "Adding " + contract.getName() + " to document list.");

@@ -225,7 +225,7 @@ public class PortalUser extends DataObject implements DataObjectInterface{
 
 
 
-    public static PortalUser getSystemUser( ) throws BackOfficeException{
+    public static PortalUser getSystemUser( )  throws BackOfficeException{
 
        if(PortalUser.SystemUser == null)
           PortalUser.SystemUser = new PortalUser(new LookupItem().addFilter(new ColumnFilter("Name", "itClarifies")));
@@ -235,7 +235,7 @@ public class PortalUser extends DataObject implements DataObjectInterface{
        return PortalUser.SystemUser;
     }
 
-    public static PortalUser getExternalUser( ) throws BackOfficeException{
+    public static PortalUser getExternalUser( )  throws BackOfficeException{
 
        if(PortalUser.ExternalUser == null)
           PortalUser.ExternalUser = new PortalUser(new LookupItem().addFilter(new ColumnFilter("Name", "External")));
@@ -245,7 +245,7 @@ public class PortalUser extends DataObject implements DataObjectInterface{
        return PortalUser.ExternalUser;
     }
 
-    public static PortalUser getNoUser( ) throws BackOfficeException{
+    public static PortalUser getNoUser( )  throws BackOfficeException{
 
        if(PortalUser.NoUser == null)
           PortalUser.NoUser = new PortalUser(new LookupItem().addFilter(new ColumnFilter("Name", "<< Not set >>")));
@@ -255,7 +255,7 @@ public class PortalUser extends DataObject implements DataObjectInterface{
        return PortalUser.NoUser;
     }
 
-    public static PortalUser getSuper( ) throws BackOfficeException{
+    public static PortalUser getSuper( )  throws BackOfficeException{
 
        if(PortalUser.Super == null)
           PortalUser.Super = new PortalUser(new LookupItem().addFilter(new ColumnFilter("Name", "Super")));

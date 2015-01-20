@@ -181,7 +181,7 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
 
 
 
-    public static FragmentClass getPhase1( ) throws BackOfficeException{
+    public static FragmentClass getPhase1( )  throws BackOfficeException{
 
        if(FragmentClass.Phase1 == null)
           FragmentClass.Phase1 = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "pre-signing")));
@@ -191,7 +191,7 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
        return FragmentClass.Phase1;
     }
 
-    public static FragmentClass getPhase2( ) throws BackOfficeException{
+    public static FragmentClass getPhase2( )  throws BackOfficeException{
 
        if(FragmentClass.Phase2 == null)
           FragmentClass.Phase2 = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "fulfillment")));
@@ -201,7 +201,7 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
        return FragmentClass.Phase2;
     }
 
-    public static FragmentClass getReq1( ) throws BackOfficeException{
+    public static FragmentClass getReq1( )  throws BackOfficeException{
 
        if(FragmentClass.Req1 == null)
           FragmentClass.Req1 = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "Must")));
@@ -211,7 +211,7 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
        return FragmentClass.Req1;
     }
 
-    public static FragmentClass getReq2( ) throws BackOfficeException{
+    public static FragmentClass getReq2( )  throws BackOfficeException{
 
        if(FragmentClass.Req2 == null)
           FragmentClass.Req2 = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "Should")));
@@ -221,7 +221,7 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
        return FragmentClass.Req2;
     }
 
-    public static FragmentClass getReq3( ) throws BackOfficeException{
+    public static FragmentClass getReq3( )  throws BackOfficeException{
 
        if(FragmentClass.Req3 == null)
           FragmentClass.Req3 = new FragmentClass(new LookupItem().addFilter(new ColumnFilter("Name", "Optional")));

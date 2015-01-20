@@ -113,18 +113,23 @@ jQuery(document).ready(function(){
 	}, function(){
 		jQuery(this).removeClass('titlehover');
 	});
-	
+
+    // This is changed by Linus to add store
+
 	//show/hide widget content when widget title is clicked
 	jQuery('.widgetbox .title').click(function(){
 		if(!jQuery(this).parent().hasClass('uncollapsible')) {									   
 			if(jQuery(this).next().is(':visible')) {
 				jQuery(this).next().slideUp('fast');
 				jQuery(this).addClass('widgettoggle');
+                storeClose(jQuery(this).attr("name"));
 			} else {
 				jQuery(this).next().slideDown('fast');
 				jQuery(this).removeClass('widgettoggle');
+                storeOpen(jQuery(this).attr("name"));
 			}
 		}
+
 	});
 	
 	//wrap menu to em when click will return to true
@@ -373,6 +378,61 @@ jQuery(document).ready(function(){
 	jQuery( "#keyword" ).autocomplete({
 		source: availableTags
 	});
-		
+
+
+    function getCookie(Name) {
+
+        var search = Name + "=";
+        var returnvalue = "";
+
+        if (document.cookie.length > 0) {
+
+            offset = document.cookie.indexOf(search);
+
+            // if cookie exists
+
+            if (offset != -1) {
+                offset += search.length;
+
+                // set index of beginning of value
+
+                end = document.cookie.indexOf(";", offset);
+
+                // set index of end of cookie value
+
+                if (end == -1) end = document.cookie.length;
+                returnvalue=unescape(document.cookie.substring(offset, end))
+                }
+        }
+        return returnvalue;
+    }
+
+    /*************************************************************
+     *
+     *      Linus added functionality for storing open/close for accordions
+     *
+     * @param name
+     * @param what
+     */
+
+
+    function setCookie(name, what){
+
+        document.cookie=name +"="+ what;
+    }
+
+
+    function storeOpen(name){
+
+        setCookie(name, "open");
+        //alert("set cookie " + name + " to Open!");
+    }
+
+    function storeClose(name){
+
+        setCookie(name, "closed");
+        //alert("set cookie " + name + " to Closed!");
+    }
+
 	
 });

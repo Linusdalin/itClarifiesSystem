@@ -421,7 +421,7 @@ public class GeneratedTableTests{
      
              try{
      
-                 contractManagement.Contract table1 = new contractManagement.Contract("text 1", "text 2", 3, new contractManagement.ContractTypeTable().getDummyConstantValue( ), new contractManagement.ContractStatusTable().getDummyConstantValue( ), "text 6", "text 7", dummyKey, dummyKey, "2012-01-10", "text 11", 12);
+                 contractManagement.Contract table1 = new contractManagement.Contract("text 1", "text 2", 3, new contractManagement.ContractTypeTable().getDummyConstantValue( ), new contractManagement.ContractStatusTable().getDummyConstantValue( ), "text 6", "text 7", dummyKey, dummyKey, "2012-01-10", "text 11", new userManagement.AccessRightTable().getDummyConstantValue( ));
 
                  assertThat(table1.getName(), is("text 1"));
                  assertThat(table1.getFile(), is("text 2"));
@@ -436,7 +436,7 @@ public class GeneratedTableTests{
                  assertThat(table1.getOwner().exists(), is(false));
                  assertThat(table1.getCreation().getISODate(), is("2012-01-10"));
                  assertThat(table1.getLanguage(), is("text 11"));
-                 assertThat(table1.getAccess(), is((long)12));
+                 assertThat(table1.getAccess(), is(new userManagement.AccessRightTable().getDummyConstantValue( )));
 
                  table1.store();
                  contractManagement.Contract table2 = new contractManagement.Contract();
@@ -455,7 +455,7 @@ public class GeneratedTableTests{
                  assertThat(table2.getOwner().exists(), is(false));
                  assertThat(table2.getCreation().getISODate(), is("2012-01-10"));
                  assertThat(table2.getLanguage(), is("text 11"));
-                 assertThat(table2.getAccess(), is((long)12));
+                 assertThat(table2.getAccess(), is(new userManagement.AccessRightTable().getDummyConstantValue( )));
 
                  table1.setName("text 11");
                  table1.setFile("text 12");
@@ -468,7 +468,7 @@ public class GeneratedTableTests{
                  table1.setOwner( dummyKey);
                  table1.setCreation(new DBTimeStamp(DBTimeStamp.ISO_DATE, "2012-01-20"));
                  table1.setLanguage("text 21");
-                 table1.setAccess(22);
+                 table1.setAccess(new userManagement.AccessRightTable().getDummyConstantValue( ));
                  assertThat(table1.getName(), is("text 11"));
                  assertThat(table1.getFile(), is("text 12"));
                  assertThat(table1.getOrdinal(), is((long)13));
@@ -482,7 +482,7 @@ public class GeneratedTableTests{
                  assertThat(table1.getOwner().exists(), is(false));
                  assertThat(table1.getCreation().getISODate(), is("2012-01-20"));
                  assertThat(table1.getLanguage(), is("text 21"));
-                 assertThat(table1.getAccess(), is((long)22));
+                 assertThat(table1.getAccess(), is(new userManagement.AccessRightTable().getDummyConstantValue( )));
 
              }catch(BackOfficeException e){
      

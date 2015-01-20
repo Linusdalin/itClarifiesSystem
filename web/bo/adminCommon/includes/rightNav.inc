@@ -137,7 +137,7 @@
 
                 out.print("      <div class=\"widgetbox\">\n" +
                         "                \t<div class=\"title\"><h2 class=\"calendar\"><span>"+group.getName()+"</span></h2></div>\n" +
-                        "                    <div class=\"widgetcontent padding10\">\n" +
+                        "                    <div class=\"widgetcontent padding10\" style=\"display: none;\">\n" +
                         "\t\t\t\t\t<div id=\"tabs-1\">                    \n" +
                         "                        <ul class=\"listthumb\">\n");
 

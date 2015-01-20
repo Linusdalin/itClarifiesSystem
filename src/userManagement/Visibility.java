@@ -121,7 +121,7 @@ public class Visibility extends DataObject implements DataObjectInterface{
 
 
 
-    public static Visibility getPrivate( ) throws BackOfficeException{
+    public static Visibility getPrivate( )  throws BackOfficeException{
 
        if(Visibility.Private == null)
           Visibility.Private = new Visibility(new LookupItem().addFilter(new ColumnFilter("Name", "Private")));
@@ -131,7 +131,7 @@ public class Visibility extends DataObject implements DataObjectInterface{
        return Visibility.Private;
     }
 
-    public static Visibility getOrg( ) throws BackOfficeException{
+    public static Visibility getOrg( )  throws BackOfficeException{
 
        if(Visibility.Org == null)
           Visibility.Org = new Visibility(new LookupItem().addFilter(new ColumnFilter("Name", "Organization")));

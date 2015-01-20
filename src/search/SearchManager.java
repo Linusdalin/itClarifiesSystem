@@ -354,20 +354,25 @@ public class SearchManager {
         try {
 
             StructureItem headline = fragment.getStructureItem(clausesForVersion);
-            ContractFragment headlineFragment = headline.getFragmentForStructureItem(fragmentsForVersion);
 
-            // Avoid adding one self. This is already done while parsing the fragments
+            if(headline != null){
 
-            if(fragment.equals(headlineFragment))
-                return;
+                ContractFragment headlineFragment = headline.getFragmentForStructureItem(fragmentsForVersion);
 
-            List<String> emptyMatches = new ArrayList<String>();
+                // Avoid adding one self. This is already done while parsing the fragments
 
+                if(fragment.equals(headlineFragment))
+                    return;
 
-            results.add(new SearchHit(headlineFragment, document, emptyMatches));
+                List<String> emptyMatches = new ArrayList<String>();
+
+                results.add(new SearchHit(headlineFragment, document, emptyMatches));
+
+            }
+
 
         } catch (BackOfficeException e) {
-            e.logError("Error getting fragment for clause");
+            PukkaLogger.log(e, "Error getting fragment for clause");
         }
 
     }

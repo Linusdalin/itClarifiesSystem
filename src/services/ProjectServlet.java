@@ -201,6 +201,8 @@ public class ProjectServlet extends ItClarifiesService{
            JSONObject json = new JSONObject()
                    .put(DataServletName, projectList);
 
+           PukkaLogger.log(PukkaLogger.Level.INFO, "Sent " + projectList.length() + " projects for user " +user.getName() + " (organization " + user.getOrganizationId() + ")" );
+
            sendJSONResponse(json, formatter, resp);
 
 
