@@ -2,6 +2,7 @@ package versioning;
 
 import actions.Action;
 import cache.ServiceCache;
+import classification.FragmentClassification;
 import contractManagement.*;
 import diff.DiffStructure;
 import diff.FragmentComparator;

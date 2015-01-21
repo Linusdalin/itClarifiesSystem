@@ -1,5 +1,6 @@
 package fileHandling;
 
+import classification.FragmentClassification;
 import contractManagement.*;
 import document.AbstractComment;
 import log.PukkaLogger;

@@ -11,6 +11,7 @@
 <%@ page import="language.English" %>
 <%@ page import="pukkaBO.dropdown.DropDownTableReference" %>
 <%@ page import="pukkaBO.form.DropDownList" %>
+<%@ page import="classification.FragmentClassTable" %>
 <html>
 
 

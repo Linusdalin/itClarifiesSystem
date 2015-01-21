@@ -800,7 +800,7 @@ public class ItClarifiesService extends PukkaServlet {
         try{
 
             annotationCount = fragment.getAnnotationsForFragment().size();
-            System.out.println("***** Got " + annotationCount + " annotations for fragment " + fragment.getName());
+            PukkaLogger.log(PukkaLogger.Level.DEBUG, "Got " + annotationCount + " annotations for fragment " + fragment.getName());
 
 
         }catch (BackOfficeException e){

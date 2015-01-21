@@ -76,18 +76,13 @@ public class ACSServlet extends DocumentService {
             if(!deletable(document, resp))
                 return;
 
-             // Calculate the noon-submitted data
-
-            PortalUser issuer = sessionManagement.getUser();
-            DBTimeStamp now = new DBTimeStamp();
-            String name = "Access from " + now.getISODate();
             Project project = document.getProject();
 
 
-            // Create the Access grant object
+            //Updat the project access
 
-            AccessGrant grantedAccess = new AccessGrant(name, document.getKey(), access, visibility.getKey(), issuer.getKey(), now.toString());
-            grantedAccess.store();
+            document.setAccess(access);
+            document.update();
 
             // Changing the access right means we will have to invalidate the cache for both the document and the project
             invalidateDocumentCache(document, project);

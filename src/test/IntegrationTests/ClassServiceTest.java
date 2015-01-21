@@ -1,12 +1,10 @@
 package test.integrationTests;
 
 import backend.ItClarifies;
-import classifiers.ClassifierInterface;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
-import contractManagement.FragmentClass;
-import contractManagement.FragmentClass;
-import contractManagement.FragmentClassTable;
+import classification.FragmentClass;
+import classification.FragmentClassTable;
 import language.English;
 import language.LanguageInterface;
 import log.PukkaLogger;
@@ -18,9 +16,8 @@ import org.junit.Test;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupItem;
-import services.ClassServlet;
-import services.ClassificationServlet;
-import system.Analyser;
+import classification.ClassServlet;
+import classification.ClassificationServlet;
 import test.MockWriter;
 import test.ServletTests;
 

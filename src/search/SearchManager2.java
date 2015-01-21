@@ -3,7 +3,7 @@ package search;
 import com.google.appengine.api.search.*;
 import contractManagement.Contract;
 import contractManagement.ContractFragment;
-import contractManagement.FragmentClassification;
+import classification.FragmentClassification;
 import contractManagement.Project;
 import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;

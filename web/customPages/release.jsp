@@ -5,6 +5,7 @@
 <%@ page import="pukkaBO.condition.ColumnFilter" %>
 <%@ page import="contractManagement.*" %>
 <%@ page import="risk.ContractRiskTable" %>
+<%@ page import="classification.FragmentClassTable" %>
 <html>
 
 

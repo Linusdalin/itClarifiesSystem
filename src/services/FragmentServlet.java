@@ -224,7 +224,7 @@ public class FragmentServlet extends ItClarifiesService{
            if(!validateSession(req, resp))
                return;
 
-           PukkaLogger.log(PukkaLogger.Level.INFO, "Validated session");
+           PukkaLogger.log(PukkaLogger.Level.DEBUG, "Validated session");
 
            if(blockedSmokey(sessionManagement, resp))
                return;
@@ -395,33 +395,9 @@ public class FragmentServlet extends ItClarifiesService{
                     .put("display",         getDisplayInfo(fragment))
                 ;
 
-                // Check if this is a continuation of a table row. If that is the case we don't add it as a fragment but merge it into the
-                // one fragment json object for the entire row. When we see there is a new row we put anything stored in the rowObject
-
-                /*
-
-                boolean newRow = isNewRow(fragment);
-
-
-                if(newRow && rowObject != null){
-
-                    fragmentList.put(rowObject);
-                    rowObject = null;
-
-                }
-
-                rowObject = merge(rowObject, fragmentJSON);
-                 */
-
                 fragmentList.put(fragmentJSON);
 
             }
-
-            //PukkaLogger.log(PukkaLogger.Level.INFO, "After json loop");
-
-            //fragmentList.put(rowObject);
-
-            System.out.println("Fragment JSON: " + rowObject);
 
             PukkaLogger.log(PukkaLogger.Level.DEBUG, "Created fragment json");
             return fragmentList;

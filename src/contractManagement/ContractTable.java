@@ -2,6 +2,7 @@ package contractManagement;
 
 import risk.*;
 import contractManagement.*;
+import classification.*;
 import userManagement.*;
 import versioning.*;
 import actions.*;
@@ -81,8 +82,8 @@ public class ContractTable extends DataTable implements DataTableInterface{
     };
     private static final String[][] TestValues = {
 
-          {"Cannon", "Cannon.docx", "1", "Unknown", "Analysed", "Successfully analysed", "Printer support Contract", "Demo", "admin", "2014-06-01", "EN", "rwd", "system"},
-          {"Google Analytics", "GA.docx", "2", "Unknown", "Analysed", "Successfully uploaded", "EULA", "Demo", "admin", "2014-06-01", "EN", "no", "system"},
+          {"Cannon", "Cannon.docx", "1", "Unknown", "Analysed", "Successfully analysed", "Printer support Contract", "Demo", "admin", "2014-06-01", "EN", "no", "system"},
+          {"Google Analytics", "GA.docx", "2", "Unknown", "Analysed", "Successfully uploaded", "EULA", "Demo", "admin", "2014-06-01", "EN", "rwd", "system"},
 
 
 

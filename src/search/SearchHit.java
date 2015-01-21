@@ -1,6 +1,6 @@
 package search;
 
-import com.google.gson.JsonObject;
+import classification.FragmentClassification;
 import contractManagement.*;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -21,7 +21,7 @@ public class SearchHit {
     private final List<String>      matchPatterns;
     private ContractAnnotation      annotation = null;
     private String                  risk = null;
-    private FragmentClassification  classification = null;
+    private FragmentClassification classification = null;
 
     public SearchHit(ContractFragment fragment, Contract document, List<String> matchPatterns){
 

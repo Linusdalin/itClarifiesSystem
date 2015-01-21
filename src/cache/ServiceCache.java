@@ -189,7 +189,7 @@ public class ServiceCache {
         String cacheObjectKey = createKey(serviceName, key);
 
         if( cache.remove(cacheObjectKey) != null)
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Clear value for key (" + cacheObjectKey + ") in cache. (keys: " + cache.size() + ")");
+            PukkaLogger.log(PukkaLogger.Level.DEBUG, "Clear value for key (" + cacheObjectKey + ") in cache. (keys: " + cache.size() + ")");
 
 
     }

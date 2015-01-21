@@ -16,9 +16,6 @@ import pukkaBO.formsPredefined.TableEditForm;
 import pukkaBO.list.*;
 import pukkaBO.renderer.GroupListRenderer;
 import pukkaBO.renderer.ListRendererInterface;
-import userManagement.OrganizationTable;
-import userManagement.PortalUser;
-import userManagement.PortalUserTable;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -168,7 +165,7 @@ public class ProjectList extends GroupByList implements ListInterface{
                     // This is a view type, so the return value will be the content of an html page.
                     // Returning null here would be an error
 
-                    return "This is a detailed view on a separate page with  " + project.getName().toLowerCase() + "id: " + project.getKey().toString();
+                    return getDetailedView(project, backOffice, request);
             }
 
         }catch(BackOfficeException e){
@@ -178,6 +175,12 @@ public class ProjectList extends GroupByList implements ListInterface{
 
         return "Error:No action performed...";
 
+    }
+
+    private String getDetailedView(Project project, BackOfficeInterface backOffice, HttpServletRequest request) {
+
+        ProjectDetailPage page = new ProjectDetailPage(project);
+        return page.render(0, null, backOffice, request);
     }
 
 

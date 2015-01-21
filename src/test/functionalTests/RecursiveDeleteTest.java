@@ -1,6 +1,8 @@
 package test.functionalTests;
 
 import backend.ItClarifies;
+import classification.FragmentClassification;
+import classification.FragmentClassificationTable;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import contractManagement.*;

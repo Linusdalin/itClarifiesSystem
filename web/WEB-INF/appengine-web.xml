@@ -31,7 +31,7 @@
                     1-10-0:         New in memory constants, fragment reference, fixed and added tests
                     1-10-1:         Analysis improvement en, fix risk setting bug, new admin pwd, multiple live servers
                     1-10-2:         action key as string, fixes to numbering & restart
-                    1-10-3:         Demo classification generation fixes, minor parsing fixes, document access lookup change
+                    1-10-3:         Demo classification generation fixes, minor parsing fixes, document access lookup change, logging improvement
       -->
 
 </appengine-web-app>

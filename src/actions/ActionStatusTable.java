@@ -2,6 +2,7 @@ package actions;
 
 import risk.*;
 import contractManagement.*;
+import classification.*;
 import userManagement.*;
 import versioning.*;
 import actions.*;

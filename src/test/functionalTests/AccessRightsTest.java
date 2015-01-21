@@ -119,7 +119,7 @@ public class AccessRightsTest extends ServletTests {
 
                 JSONObject doc1 = (JSONObject)documents.get( 0 );
 
-                assertThat(doc1.getString("name"), is("Cannon"));
+                assertThat(doc1.getString("name"), is("Google Analytics"));
                 isKey(doc1.getString("id"));
 
 
@@ -138,7 +138,7 @@ public class AccessRightsTest extends ServletTests {
 
         try{
 
-            Contract document = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Google Analytics")));
+            Contract document = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Cannon")));
 
             request = mock(HttpServletRequest.class);
             response = mock(HttpServletResponse.class);
@@ -188,8 +188,8 @@ public class AccessRightsTest extends ServletTests {
 
         try{
 
-            Contract document = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Google Analytics")));
-            ContractFragment fragment = new ContractFragment(new LookupItem().addFilter(new ColumnFilter(ContractFragmentTable.Columns.Name.name(), "top1")));
+            Contract document = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Cannon")));
+            ContractFragment fragment = new ContractFragment(new LookupItem().addFilter(new ColumnFilter(ContractFragmentTable.Columns.Name.name(), "first fragment")));
 
 
 
@@ -230,7 +230,7 @@ public class AccessRightsTest extends ServletTests {
 
     /****************************************************************************'
      *
-     *          The demo user does not have access to the Cannon document
+     *          The demo user does not have access to the Google document
      *          Accessing a fragment in the document should fail
      *
      * @throws Exception
@@ -346,7 +346,6 @@ public class AccessRightsTest extends ServletTests {
 
         try{
 
-            Contract document = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Cannon")));
             ContractFragment fragment = new ContractFragment(new LookupItem().addFilter(new ColumnFilter(ContractFragmentTable.Columns.Name.name(), "first fragment")));
             ContractAnnotation annotation = new ContractAnnotation(new LookupItem().addFilter(new ReferenceFilter(ContractAnnotationTable.Columns.Fragment.name(), fragment.getKey())));
             request = mock(HttpServletRequest.class);

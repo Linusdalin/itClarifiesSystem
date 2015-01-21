@@ -141,7 +141,7 @@ public class ObjectCheckTest extends ServletTests {
 
             // First create a new document for the project "Demo"
 
-            Contract google = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Google Analytics")));
+            Contract google = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Cannon")));
 
             ItClarifiesService service = new ItClarifiesService();
 
@@ -154,8 +154,7 @@ public class ObjectCheckTest extends ServletTests {
 
             service.validateSession(request, response);
 
-            assertVerbose("Demo user shall not see the Google Document", service.mandatoryObjectExists(google, response), is(false));
-            System.out.println("Buffer: " + response.getBufferSize());
+            assertVerbose("Demo user shall not see the Cannon Document", service.mandatoryObjectExists(google, response), is(false));
 
 
     }catch(Exception e){

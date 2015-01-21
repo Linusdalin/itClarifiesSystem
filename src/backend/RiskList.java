@@ -1,7 +1,5 @@
 package backend;
 
-import contractManagement.FragmentClassification;
-import contractManagement.FragmentClassificationTable;
 import dataRepresentation.DataObjectInterface;
 import dataRepresentation.DataTableInterface;
 import dataRepresentation.DisplayFormat;

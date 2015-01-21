@@ -51,7 +51,7 @@ public class GeneratedTableTests{
      
              try{
      
-                 contractManagement.FragmentClass table1 = new contractManagement.FragmentClass("text 1", "text 2", "text 3", "text 4", dummyKey);
+                 classification.FragmentClass table1 = new classification.FragmentClass("text 1", "text 2", "text 3", "text 4", dummyKey);
 
                  assertThat(table1.getName(), is("text 1"));
                  assertThat(table1.getType(), is("text 2"));
@@ -61,7 +61,7 @@ public class GeneratedTableTests{
                  assertThat(table1.getOrganization().exists(), is(false));
 
                  table1.store();
-                 contractManagement.FragmentClass table2 = new contractManagement.FragmentClass();
+                 classification.FragmentClass table2 = new classification.FragmentClass();
                  table2.load(new LookupByKey(table1.getKey()));
 
                  assertThat(table2.getName(), is("text 1"));
@@ -94,11 +94,11 @@ public class GeneratedTableTests{
                  assertTrue(false);
              }
              try{
-                assertThat(contractManagement.FragmentClass.getPhase1(), is(contractManagement.FragmentClass.getPhase1()));
-                assertThat(contractManagement.FragmentClass.getPhase2(), is(contractManagement.FragmentClass.getPhase2()));
-                assertThat(contractManagement.FragmentClass.getReq1(), is(contractManagement.FragmentClass.getReq1()));
-                assertThat(contractManagement.FragmentClass.getReq2(), is(contractManagement.FragmentClass.getReq2()));
-                assertThat(contractManagement.FragmentClass.getReq3(), is(contractManagement.FragmentClass.getReq3()));
+                assertThat(classification.FragmentClass.getPhase1(), is(classification.FragmentClass.getPhase1()));
+                assertThat(classification.FragmentClass.getPhase2(), is(classification.FragmentClass.getPhase2()));
+                assertThat(classification.FragmentClass.getReq1(), is(classification.FragmentClass.getReq1()));
+                assertThat(classification.FragmentClass.getReq2(), is(classification.FragmentClass.getReq2()));
+                assertThat(classification.FragmentClass.getReq3(), is(classification.FragmentClass.getReq3()));
 
              }catch(BackOfficeException e){
      
@@ -1288,7 +1288,7 @@ public class GeneratedTableTests{
      
              try{
      
-                 contractManagement.FragmentClassification table1 = new contractManagement.FragmentClassification(dummyKey, "text 2", 3, 4, "text 5", "text 6", dummyKey, dummyKey, dummyKey, "text 10", 11, 12, 13, "text 14", "2012-01-15 00:00:00.0");
+                 classification.FragmentClassification table1 = new classification.FragmentClassification(dummyKey, "text 2", 3, 4, "text 5", "text 6", dummyKey, dummyKey, dummyKey, "text 10", 11, 12, 13, "text 14", "2012-01-15 00:00:00.0");
 
                  assertThat(table1.getFragmentId(), is(dummyKey));
                  assertThat(table1.getFragment().exists(), is(false));
@@ -1311,7 +1311,7 @@ public class GeneratedTableTests{
                  assertThat(table1.getTime().getSQLTime().toString(), is("2012-01-15 00:00:00.0"));
 
                  table1.store();
-                 contractManagement.FragmentClassification table2 = new contractManagement.FragmentClassification();
+                 classification.FragmentClassification table2 = new classification.FragmentClassification();
                  table2.load(new LookupByKey(table1.getKey()));
 
                  assertThat(table2.getFragmentId(), is(dummyKey));
@@ -1464,7 +1464,7 @@ public class GeneratedTableTests{
      
              try{
      
-                 contractManagement.Reclassification table1 = new contractManagement.Reclassification("text 1", false, dummyKey, "text 4", "text 5", 6, "text 7", "text 8", "text 9", 10, 11, new risk.ContractRiskTable().getDummyConstantValue( ), dummyKey, "2012-01-14", true);
+                 classification.Reclassification table1 = new classification.Reclassification("text 1", false, dummyKey, "text 4", "text 5", 6, "text 7", "text 8", "text 9", 10, 11, new risk.ContractRiskTable().getDummyConstantValue( ), dummyKey, "2012-01-14", true);
 
                  assertThat(table1.getName(), is("text 1"));
                  assertThat(table1.getisPositive(), is(false));
@@ -1485,7 +1485,7 @@ public class GeneratedTableTests{
                  assertThat(table1.getClosed(), is(true));
 
                  table1.store();
-                 contractManagement.Reclassification table2 = new contractManagement.Reclassification();
+                 classification.Reclassification table2 = new classification.Reclassification();
                  table2.load(new LookupByKey(table1.getKey()));
 
                  assertThat(table2.getName(), is("text 1"));

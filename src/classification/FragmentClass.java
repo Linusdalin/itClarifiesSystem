@@ -1,7 +1,8 @@
-package contractManagement;
+package classification;
 
 import risk.*;
 import contractManagement.*;
+import classification.*;
 import userManagement.*;
 import versioning.*;
 import actions.*;

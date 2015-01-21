@@ -98,7 +98,7 @@ public class ChangAccessRightsTest extends ServletTests {
 
             try{
 
-                Contract restrictedDocument = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Google Analytics")));
+                Contract restrictedDocument = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Cannon")));
                 Project project = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), "Demo")));
 
                 // First just check. We can only get one document
@@ -119,7 +119,7 @@ public class ChangAccessRightsTest extends ServletTests {
                 JSONObject json = new JSONObject(output);
                 JSONArray documents = json.getJSONArray("Document");
 
-                assertThat(documents.length(), is(1));
+                assertVerbose("We can only access one document", documents.length(), is(1));
 
                 // Now change the access right. (Admin user can do that)
 
@@ -140,7 +140,7 @@ public class ChangAccessRightsTest extends ServletTests {
                 json = new JSONObject(output);
                 System.out.println("Got reply:" + json.toString());
 
-                // After changing the access rights we assume we can find two documents
+                // After changing the access rights the demo user can see both documents
 
                 mockWriter = new MockWriter();
 

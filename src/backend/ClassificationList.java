@@ -1,9 +1,7 @@
 package backend;
 
-import contractManagement.FragmentClassification;
-import contractManagement.FragmentClassificationTable;
-import crossReference.Definition;
-import crossReference.DefinitionTable;
+import classification.FragmentClassification;
+import classification.FragmentClassificationTable;
 import dataRepresentation.DataObjectInterface;
 import dataRepresentation.DataTableInterface;
 import dataRepresentation.DisplayFormat;

@@ -2,6 +2,7 @@ package services;
 
 import actions.Action;
 import analysis.Significance;
+import classification.FragmentClassification;
 import contractManagement.*;
 import crossReference.Reference;
 import databaseLayer.DBKeyInterface;
@@ -11,7 +12,6 @@ import net.sf.json.JSONObject;
 import pukkaBO.condition.*;
 
 import pukkaBO.exceptions.BackOfficeException;
-import risk.ContractRisk;
 import risk.RiskClassification;
 import risk.RiskClassificationTable;
 
@@ -148,13 +148,10 @@ public class FragmentDetailServlet extends ItClarifiesService{
 
         try {
 
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Getting risk");
-
-
             riskId = fragment.getRisk().get__Id();
             List<RiskClassification> allClassifications =  fragment.getRiskClassificationsForFragment(new LookupList().addOrdering(RiskClassificationTable.Columns.Time.name(), Ordering.LAST));
 
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Looping over "+ allClassifications.size()+" risk classifications");
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Found "+ allClassifications.size()+" risk classifications");
 
             if(allClassifications.size() > 0){
 
@@ -168,8 +165,8 @@ public class FragmentDetailServlet extends ItClarifiesService{
             }
 
         } catch (BackOfficeException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            //TODO: Log this
+
+            PukkaLogger.log( e );
 
         }
 
@@ -185,14 +182,13 @@ public class FragmentDetailServlet extends ItClarifiesService{
 
     private JSONArray getClassifications(ContractFragment fragment) {
 
-        PukkaLogger.log(PukkaLogger.Level.DEBUG, "Getting classifications");
         JSONArray classifications = new JSONArray();
 
         try{
 
             List<FragmentClassification> classificationList = fragment.getClassificationsForFragment();
 
-            PukkaLogger.log(PukkaLogger.Level.DEBUG, "Looping over "+ classificationList.size()+" classifications");
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Found over "+ classificationList.size()+" classifications");
 
             for(FragmentClassification classification : classificationList){
 
@@ -239,14 +235,12 @@ public class FragmentDetailServlet extends ItClarifiesService{
 
     private JSONArray getReferences(ContractFragment fragment) {
 
-        PukkaLogger.log(PukkaLogger.Level.INFO, "Getting references");
-
         JSONArray references = new JSONArray();
         try{
 
             List<Reference> referenceList = fragment.getReferencesForFragment();
 
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Looping over "+ referenceList.size()+" references");
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Found "+ referenceList.size()+" references");
 
 
             for(Reference reference : referenceList){
@@ -279,15 +273,13 @@ public class FragmentDetailServlet extends ItClarifiesService{
 
     public JSONArray getAnnotations(ContractFragment fragment) {
 
-        PukkaLogger.log(PukkaLogger.Level.INFO, "Getting Annotations");
-
         JSONArray annotations = new JSONArray();
 
         try{
 
             List<ContractAnnotation> annotationList = fragment.getAnnotationsForFragment(new LookupItem().addOrdering(ContractAnnotationTable.Columns.Ordinal.name(), Ordering.FIRST));
 
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Looping over "+ annotationList.size()+" annotations");
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Found "+ annotationList.size()+" annotations");
 
 
             for(ContractAnnotation annotation : annotationList){
@@ -316,16 +308,13 @@ public class FragmentDetailServlet extends ItClarifiesService{
 
     public JSONArray getActions(ContractFragment fragment) {
 
-        PukkaLogger.log(PukkaLogger.Level.INFO, "Getting Actions");
-
         JSONArray actions = new JSONArray();
 
         try{
 
             List<Action> actionList = fragment.getActionsForFragment();
 
-            PukkaLogger.log(PukkaLogger.Level.DEBUG, "Looping over "+ actionList.size()+" actions");
-
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Found "+ actionList.size()+" actions");
 
             for(Action action: actionList){
 

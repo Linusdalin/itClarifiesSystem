@@ -1,7 +1,8 @@
-package contractManagement;
+package classification;
 
 import risk.*;
 import contractManagement.*;
+import classification.*;
 import userManagement.*;
 import versioning.*;
 import actions.*;
@@ -84,7 +85,7 @@ public class FragmentClassificationTable extends DataTable implements DataTableI
     };
     private static final String[][] TestValues = {
 
-          {"first fragment", "#Date", "0", "0", "comment", "keywords", "demo", "Cannon v1.0", "Demo", "2014-07-01", "10", "10", "70", "0", "2014-07-10 00:00:00", "system"},
+          {"first fragment", "#DATE", "0", "0", "comment", "keywords", "demo", "Cannon v1.0", "Demo", "2014-07-01", "10", "10", "70", "0", "2014-07-10 00:00:00", "system"},
 
 
 

@@ -2,6 +2,7 @@ package crossReference;
 
 import risk.*;
 import contractManagement.*;
+import classification.*;
 import userManagement.*;
 import versioning.*;
 import actions.*;

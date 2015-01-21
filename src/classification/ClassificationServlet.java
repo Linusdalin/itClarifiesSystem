@@ -1,14 +1,15 @@
-package services;
+package classification;
 
-import analysis.FeatureExtractorInterface;
 import analysis.Significance;
+import classification.FragmentClass;
+import classification.FragmentClassification;
+import classification.FragmentClassificationTable;
+import classification.Reclassification;
 import classifiers.ClassifierInterface;
 import com.google.appengine.api.datastore.Query;
 import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
-import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
-import language.English;
 import language.LanguageInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
@@ -17,8 +18,9 @@ import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupByKey;
 import pukkaBO.condition.LookupList;
 
-import pukkaBO.condition.ReferenceFilter;
 import pukkaBO.exceptions.BackOfficeException;
+import services.DocumentService;
+import services.Formatter;
 import userManagement.Organization;
 import userManagement.PortalUser;
 
@@ -33,7 +35,7 @@ import java.util.List;
  *
  */
 
-public class ClassificationServlet extends DocumentService{
+public class ClassificationServlet extends DocumentService {
 
     public static final String DataServletName = "Classification";
 

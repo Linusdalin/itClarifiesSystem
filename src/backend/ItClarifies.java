@@ -2,6 +2,9 @@ package backend;
 
 import actions.ActionStatusTable;
 import actions.ActionTable;
+import classification.FragmentClassTable;
+import classification.FragmentClassificationTable;
+import classification.ReclassificationTable;
 import contractManagement.*;
 import crossReference.DefinitionTable;
 import crossReference.ReferenceTable;
@@ -120,6 +123,7 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
 
                             new LinkElement[] {
 
+
                             },
                             new ListInterface[] {
 
@@ -160,6 +164,8 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
                                 ),
 
                                 new LinkElement[] {
+
+                                    new LinkElement("Dashboard",            new DashboardPage()),
 
                                 },
                                 new ListInterface[] {
@@ -425,8 +431,8 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
 
                 //new ReviewPage(),
 
-
                 new DashboardPage(),
+
                 //new TestLightbox(),
                 //new TestPage(),        // Test bar chart
                 //new SchedulerPage(),

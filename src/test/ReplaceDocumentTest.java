@@ -3,6 +3,7 @@ package test;
 import actions.Action;
 import actions.ActionStatus;
 import backend.ItClarifies;
+import classification.FragmentClassification;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import contractManagement.*;

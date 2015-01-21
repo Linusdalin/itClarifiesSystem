@@ -14,26 +14,19 @@ import pukkaBO.password.PasswordManager;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- *
- * Created with IntelliJ IDEA.
- * User: Linus
- * Date: 2014-05-26
- * Time: 16:19
- * To change this template use File | Settings | File Templates.
+/****************************************************************************
  *
  *
- *      //TODO: findExisting and create new uses similar validation of user/pwd. Refactor this into one
+ *          Session handling functionality
+ *
  *
  */
 
 public class SessionManagement {
 
-    private static final int SESSION_TIME = 180;
-    private PortalUser sessionUser = null;
+    private static final int SESSION_TIME = 180;    // Default session time
+    private PortalUser sessionUser = null;          // The user
     private static PortalUser system = null;
-    private String sessionToken = null;
-
     private static IPAccessList internalIPAccess = null;
 
     public SessionManagement(){
@@ -73,34 +66,46 @@ public class SessionManagement {
     }
 
 
-    //private Map<String, String > orgAccess = new HashMap<String, String>();
+    /*******************************************************************************
+     *
+     *          Close the session
+     *          (used for logout)
+     *
+     *
+     * @param sessionToken - the token
+     * @return             - status message
+     * @throws BackOfficeException
+     */
 
     public String close(String sessionToken) throws BackOfficeException {
 
-            // Lookup the session
+            // Lookup the last session for the user
 
             PortalSession session = new PortalSession(new LookupItem()
-                    .addFilter(new ColumnFilter(PortalSessionTable.Columns.Token.name(), sessionToken)));
+                    .addFilter(new ColumnFilter(PortalSessionTable.Columns.Token.name(), sessionToken))
+                    .addSorting(new Sorting(PortalSessionTable.Columns.Latest.name(), Ordering.LAST)));
 
-            String status = "closed";
 
             if(!session.exists()){
 
-                status = "unknown session"; //TODO: Log this.
+                PukkaLogger.log(PukkaLogger.Level.WARNING, "Trying to access non existing session with token " + sessionToken );
+                return "unknown session";
 
             }else if(session.getStatus().equals(SessionStatus.gettimeout())){
 
-                status = "implicit";
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Session implicitly closed through timeout" + sessionToken );
+                return "implicit";
             }else{
 
                 // Close session
 
                 session.setStatus(SessionStatus.getclosed());
                 session.update();
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Session closed" + sessionToken );
 
             }
 
-            return status;
+            return "closed";
     }
 
 
@@ -112,11 +117,9 @@ public class SessionManagement {
      *
      *
      * @param sessionToken - token from the web service call
-     * @param ipAddress
+     * @param ipAddress    - the ip address from the request
      * @return - true if the session is active
      *
-     *
-     *      // TODO: Add more error codes
      */
 
 
@@ -124,13 +127,9 @@ public class SessionManagement {
 
         // Lookup the session
 
-       //PukkaLogger.log(PukkaLogger.Level.INFO, "Validate 1");
-
        PortalSession session = new PortalSession(new LookupItem()
                     .addFilter(new ColumnFilter(PortalSessionTable.Columns.Token.name(), sessionToken))
-                    .addSorting(new Sorting(PortalSessionTable.Columns.Start.name(), Ordering.LAST)));
-
-       //PukkaLogger.log(PukkaLogger.Level.INFO, "Validate 2");
+                    .addSorting(new Sorting(PortalSessionTable.Columns.Latest.name(), Ordering.LAST)));
 
        if(!session.exists()){
 
@@ -138,7 +137,6 @@ public class SessionManagement {
             return false;
        }
 
-        //PukkaLogger.log(PukkaLogger.Level.INFO, "Validate 3");
 
         if(!internal(ipAddress) && !session.getIP().equals(ipAddress)){
 
@@ -148,19 +146,16 @@ public class SessionManagement {
         }
 
 
-
         // Check if the session is open and not expired
 
        boolean isActive =(session.getStatus().equals(SessionStatus.getopen()) && !expired(session));
-
-        //PukkaLogger.log(PukkaLogger.Level.INFO, "Validate 4");
 
        if(isActive){
 
            sessionUser = session.getUser();
            session.setLatest(new DBTimeStamp());
            session.update();
-           PukkaLogger.log(PukkaLogger.Level.INFO, "Request user is " + sessionUser.getName() + "( "+ sessionUser.getKey()+" )");
+           PukkaLogger.log(PukkaLogger.Level.INFO, "Validated user " + sessionUser.getName() + "( "+ sessionUser.getKey()+" ) in request");
 
        }
         else{
@@ -173,16 +168,10 @@ public class SessionManagement {
 
        }
 
-        //PukkaLogger.log(PukkaLogger.Level.INFO, "Validate 5");
-
         // Store the system user
 
         if(system == null)
             system = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "itClarifies")));
-
-        this.sessionToken = sessionToken;
-
-        //PukkaLogger.log(PukkaLogger.Level.INFO, "Validate 6");
 
         return isActive;
 
@@ -191,56 +180,13 @@ public class SessionManagement {
 
     private boolean internal(String ip) {
 
-
-
-        boolean isInternal = internalIPAccess.check(ip);
-        //System.out.println("Check internal: " + isInternal + " for ip: " + ip);
-        //System.out.println("List of internal: " + internalIPAccess.toString());
-        return isInternal;
-
+        return internalIPAccess.check(ip);
     }
 
-    /*
-
-    private String lookupGrant(Contract document) throws BackOfficeException {
-
-
-        try{
-
-            AccessGrant grant = new AccessGrant(new LookupItem()
-                .addFilter(new ReferenceFilter(AccessGrantTable.Columns.Document.name(), document.getKey()))
-                .addFilter(new ReferenceFilter(AccessGrantTable.Columns.Visibility.name(), Visibility.getOrg().getKey())));
-
-
-
-            if(grant.exists()){
-
-                String access = grant.getAccessRight().getName();
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Got grant " + access + " for document " + document.getKey());
-
-                orgAccess.put(document.getKey().toString(), access);
-
-                return access;
-            }
-            else{
-
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Found no access for document " + document.getName());
-            }
-
-      }catch(Exception e){
-
-            PukkaLogger.log( e );
-      }
-
-        return "no";
-
-    }
-
-    */
 
     /*******************************************************************
      *
-     *      An expired session is when latest + 60 min is before now.
+     *      An expired session is when latest + sessionTime min is before now.
      *
      * @param session - the session
      * @return - true if the session is expired
@@ -302,88 +248,6 @@ public class SessionManagement {
     }
 
 
-    /********************************************************************************************************
-     *
-     *          Lookup the granted access to a document
-     *
-     *
-     * @param document - the document access is put upon
-     * @return - AccessRight to the document for the session user
-     *
-     *
-     *          Special cases:  If I am the owner I have rwd access
-     *                          If I am not in the same organization as the owner, I will have no access
-     *
-     *      TODO: The system user access is too LAX here. Should be generated by the backoffice
-     *
-
-
-    public AccessRight getGrantedAccess(Contract document) throws BackOfficeException{
-
-        PortalUser owner = document.getOwner();
-        PortalUser user = getUser();
-
-        if(sessionUser.equals(system)){
-
-            PukkaLogger.log(PukkaLogger.Level.INFO, "System User getting access to document "+ document.getName() + "...");
-            return AccessRight.getrwd();
-        }
-
-
-        PukkaLogger.log(PukkaLogger.Level.DEBUG, "Getting access to document "+ document.getName()+" for user " + user.getName() + "...");
-
-        if(owner.equals(user)){
-
-            PukkaLogger.log(PukkaLogger.Level.INFO, "owner - rwd access");
-            return AccessRight.getrwd();
-
-        }
-        if(!user.getOrganizationId().equals(owner.getOrganizationId())){
-
-            PukkaLogger.log(PukkaLogger.Level.INFO, "not the same org. No access");
-            return AccessRight.getno();
-        }
-
-        String grant = orgAccess.get(document.getKey().toString());
-
-        if(grant == null){
-
-            grant = lookupGrant(document);
-        }
-
-        if(grant.equals("no"))
-            return AccessRight.getno();
-        if(grant.equals("ro"))
-            return AccessRight.getro();
-        if(grant.equals("rwd"))
-            return AccessRight.getrwd();
-        if(grant.equals("rc"))
-            return AccessRight.getrc();
-
-        PukkaLogger.log(PukkaLogger.Level.ERROR, "Could not get access right to document " + document.getName());
-        return AccessRight.getno();
-
-    }
-
-
-    public AccessGrant getGrantForDocument(Contract document) throws BackOfficeException{
-
-        AccessGrantTable allGrants = new AccessGrantTable(new LookupList(new Sorting(AccessGrantTable.Columns.Time.name(), Ordering.LAST))
-                .addFilter(new ReferenceFilter(AccessGrantTable.Columns.Document.name(), document.getKey())));
-
-        if(allGrants.getValues().size() == 0)
-            return new AccessGrant();
-
-        return (AccessGrant)allGrants.getValues().get(0);
-    }
-
-
-    public String getToken() {
-
-        return sessionToken;
-    }
-
-     */
 
     /*****************************************************************************************
      *

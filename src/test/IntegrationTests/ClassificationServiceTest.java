@@ -1,6 +1,7 @@
 package test.integrationTests;
 
 import backend.ItClarifies;
+import classification.ReclassificationTable;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
@@ -9,14 +10,13 @@ import databaseLayer.AppEngine.AppEngineKey;
 import databaseLayer.DBKeyInterface;
 import featureTypes.FeatureTypeTree;
 import log.PukkaLogger;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.*;
-import services.ClassificationServlet;
+import classification.ClassificationServlet;
 import test.MockWriter;
 import test.ServletTests;
 

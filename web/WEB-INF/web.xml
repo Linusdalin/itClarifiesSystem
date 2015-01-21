@@ -265,7 +265,7 @@
 
     <servlet>
          <servlet-name>Classification</servlet-name>
-         <servlet-class>services.ClassificationServlet</servlet-class>
+         <servlet-class>classification.ClassificationServlet</servlet-class>
      </servlet>
      <servlet-mapping>
          <servlet-name>Classification</servlet-name>
@@ -275,11 +275,20 @@
 
     <servlet>
          <servlet-name>Class</servlet-name>
-         <servlet-class>services.ClassServlet</servlet-class>
+         <servlet-class>classification.ClassServlet</servlet-class>
      </servlet>
      <servlet-mapping>
          <servlet-name>Class</servlet-name>
          <url-pattern>/Class</url-pattern>
+     </servlet-mapping>
+
+    <servlet>
+         <servlet-name>ClassificationOverview</servlet-name>
+         <servlet-class>classification.ClassificationOverviewServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>ClassificationOverview</servlet-name>
+         <url-pattern>/ClassificationOverview</url-pattern>
      </servlet-mapping>
 
 
@@ -320,15 +329,6 @@
      <servlet-mapping>
          <servlet-name>FragmentType</servlet-name>
          <url-pattern>/FragmentType</url-pattern>
-     </servlet-mapping>
-
-    <servlet>
-         <servlet-name>Ping</servlet-name>
-         <servlet-class>services.PingServlet</servlet-class>
-     </servlet>
-     <servlet-mapping>
-         <servlet-name>Ping</servlet-name>
-         <url-pattern>/Ping</url-pattern>
      </servlet-mapping>
 
 

@@ -1,13 +1,13 @@
-package services;
+package classification;
 
-import contractManagement.*;
-import dataRepresentation.DataObjectInterface;
+import classification.FragmentClass;
+import classification.FragmentClassTable;
 import databaseLayer.DBKeyInterface;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
-import userManagement.Organization;
+import services.DocumentService;
+import services.Formatter;
 import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,7 +20,7 @@ import java.io.IOException;
  *
  */
 
-public class ClassServlet extends DocumentService{
+public class ClassServlet extends DocumentService {
 
     public static final String DataServletName = "Class";
 

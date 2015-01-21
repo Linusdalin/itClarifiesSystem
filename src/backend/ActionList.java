@@ -3,8 +3,6 @@ package backend;
 import actions.Action;
 import actions.ActionStatus;
 import actions.ActionTable;
-import contractManagement.FragmentClassification;
-import contractManagement.FragmentClassificationTable;
 import dataRepresentation.DataObjectInterface;
 import dataRepresentation.DataTableInterface;
 import dataRepresentation.DisplayFormat;

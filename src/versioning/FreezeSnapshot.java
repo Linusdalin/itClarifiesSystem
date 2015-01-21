@@ -1,5 +1,6 @@
 package versioning;
 
+import classification.FragmentClassification;
 import contractManagement.*;
 import crossReference.Definition;
 import crossReference.Reference;

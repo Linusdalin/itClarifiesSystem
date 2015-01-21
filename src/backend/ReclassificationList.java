@@ -1,12 +1,12 @@
 package backend;
 
-import classifiers.Classification;
+import classification.Reclassification;
+import classification.ReclassificationTable;
 import contractManagement.*;
 import dataRepresentation.DataObjectInterface;
 import dataRepresentation.DataTableInterface;
 import dataRepresentation.DisplayFormat;
 import databaseLayer.DBKeyInterface;
-import language.Swedish;
 import log.PukkaLogger;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.backOffice.Icon;
@@ -17,7 +17,6 @@ import pukkaBO.renderer.GroupListRenderer;
 import pukkaBO.renderer.ListRendererInterface;
 import pukkaBO.style.Html;
 import userManagement.Organization;
-import userManagement.OrganizationTable;
 import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
