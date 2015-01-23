@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 /********************************************************
  *
@@ -71,7 +72,7 @@ public class SearchSelectionServlet extends ItClarifiesService{
             PukkaLogger.log(PukkaLogger.Level.INFO, "Got search: " + searchText);
 
             SearchManager filter = new SearchManager();
-            List<SearchHit> hits = filter.getAllMatches (searchText, project, sessionManagement);
+            Set<SearchHit> hits = filter.getAllMatches (searchText, project, sessionManagement);
 
             String csvFile = getCSVForSelection(hits);
 
@@ -88,7 +89,7 @@ public class SearchSelectionServlet extends ItClarifiesService{
 
     }
 
-    private String getCSVForSelection(List<SearchHit> hits) {
+    private String getCSVForSelection(Set<SearchHit> hits) {
 
         StringBuffer csv = new StringBuffer();
 

@@ -470,6 +470,7 @@ public class AnalysisServlet extends DocumentService {
                      "",
                      fragment.getKey(),
                      fragment.getVersionId(),
+                     fragment.getKey(),             //Target not set
                      project.getKey(),
                      system.getKey(),
                      PortalUser.getNoUser().getKey(),
@@ -1298,6 +1299,7 @@ public class AnalysisServlet extends DocumentService {
             PukkaLogger.log(PukkaLogger.Level.ACTION, "*******************Phase I: Parsing document");
             docXManager = new DocumentManager(document.getFile(), stream);
 
+
         }catch (AnalysisException e){
 
             // We failed to parse the document. We will return an error and have to delete the version.
@@ -1317,6 +1319,7 @@ public class AnalysisServlet extends DocumentService {
 
             LanguageCode languageCode = Analyser.detectLanguage(document.getFile(), docXManager.getBody());
             document.setLanguage(languageCode.code);
+            document.setName(docXManager.getDocumentTitle());
             document.update();
 
         }catch(AnalysisException e){

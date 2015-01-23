@@ -16,6 +16,7 @@ import org.junit.Test;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupItem;
+import pukkaBO.exceptions.BackOfficeException;
 import search.IndexManager;
 import search.KeywordFieldHandler;
 import search.SearchManager2;
@@ -32,6 +33,8 @@ import static org.junit.Assert.assertTrue;
  *
  *          Testing the service with mocked request and response messages
  *
+ *
+ *          //TODO: add test for deleting document and version in a project
  */
 
 
@@ -94,6 +97,7 @@ public class SearchTest extends ServletTests {
             String text = "The rain in Spain";
             String project = "projectA";
             String document = "documentX";
+            String version = "version x.1";
             String keyWord = "#TAG1, #TAG2";
             String owner = "UserX";
 
@@ -103,7 +107,7 @@ public class SearchTest extends ServletTests {
 
             // Create and store document
 
-            Document doc = indexManager.createDocument(text, key, document, owner, 0, keyWord, IndexManager.PUBLIC, 1);
+            Document doc = indexManager.createDocument(text, key, version, document, owner, 0, keyWord, IndexManager.PUBLIC, 1);
             indexManager.indexDocument(doc);
 
 
@@ -154,19 +158,27 @@ public class SearchTest extends ServletTests {
     @Test
     public void SearchManagerTest(){
 
-        ContractFragment fragment = new ContractFragment(new LookupItem().addFilter(new ColumnFilter(ContractFragmentTable.Columns.Name.name(), "first fragment")));
-        Contract document = fragment.getVersion().getDocument();
-        PortalUser user  = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "demo")));
-        Project project = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), "Demo")));
+        try{
 
-        SearchManager2 searchManager = new SearchManager2(project, user);
+            ContractFragment fragment = new ContractFragment(new LookupItem().addFilter(new ColumnFilter(ContractFragmentTable.Columns.Name.name(), "first fragment")));
+            Contract document = fragment.getVersion().getDocument();
+            ContractVersionInstance head = document.getHeadVersion();
+            PortalUser user  = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "demo")));
+            Project project = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), "Demo")));
 
-        searchManager.indexFragment(fragment, document);
+            SearchManager2 searchManager = new SearchManager2(project, user);
 
-        JSONArray results = searchManager.search("2014-07-01");
-        assertVerbose("Found the one and only fragment", results.length(), is( 1 ));
-        //JSONObject theHit = results.getJSONObject(0);
-        //assertVerbose("Got the correct fragment key back",        theHit.getString("fragment"), is( fragment.getKey().toString() ));
+            searchManager.indexFragment(fragment, head, document);
+
+            JSONArray results = searchManager.search("2014-07-01");
+            assertVerbose("Found the one and only fragment", results.length(), is( 1 ));
+            //JSONObject theHit = results.getJSONObject(0);
+            //assertVerbose("Got the correct fragment key back",        theHit.getString("fragment"), is( fragment.getKey().toString() ));
+
+        }catch(BackOfficeException e){
+
+            assertTrue(false);
+        }
 
     }
 
@@ -181,36 +193,45 @@ public class SearchTest extends ServletTests {
     @Test
     public void PrivacyTest(){
 
-        ContractFragment fragment = new ContractFragment(new LookupItem().addFilter(new ColumnFilter(ContractFragmentTable.Columns.Name.name(), "first fragment")));
-        Contract document = fragment.getVersion().getDocument();
-        document.setAccess(AccessRight.getno() );   // Setting hidden access for the document
+        try{
 
-        PortalUser documentOwner = document.getOwner();
-        PortalUser otherUser  = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "demo")));
+            ContractFragment fragment = new ContractFragment(new LookupItem().addFilter(new ColumnFilter(ContractFragmentTable.Columns.Name.name(), "first fragment")));
+            Contract document = fragment.getVersion().getDocument();
+            ContractVersionInstance head = document.getHeadVersion();
 
-        assertVerbose("Precondition, first user exists ", documentOwner.exists(), is(true));
-        assertVerbose("Precondition, second user exists ", otherUser.exists(), is(true));
+            document.setAccess(AccessRight.getno() );   // Setting hidden access for the document
 
-        Project project = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), "Demo")));
+            PortalUser documentOwner = document.getOwner();
+            PortalUser otherUser  = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "demo")));
 
-        SearchManager2 originalSearchManager = new SearchManager2(project, documentOwner);
-        SearchManager2 otherSearchManager    = new SearchManager2(project, otherUser);
+            assertVerbose("Precondition, first user exists ", documentOwner.exists(), is(true));
+            assertVerbose("Precondition, second user exists ", otherUser.exists(), is(true));
 
-        originalSearchManager.indexFragment(fragment, document);
+            Project project = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), "Demo")));
 
-        // As before it should be possible to get the result back
+            SearchManager2 originalSearchManager = new SearchManager2(project, documentOwner);
+            SearchManager2 otherSearchManager    = new SearchManager2(project, otherUser);
 
-        JSONArray results;
+            originalSearchManager.indexFragment(fragment, head, document);
 
-        results = originalSearchManager.search("2014-07-01");
-        assertVerbose("Found the one and only fragment", results.length(), is( 1 ));
-        JSONObject theHit = results.getJSONObject( 0 );
-        assertVerbose("Got the correct fragment key back",        theHit.getString("fragment"), is( fragment.getKey().toString() ));
+            // As before it should be possible to get the result back
 
-        // For the otherSearchManager, there should be no results back, as the user is different and should not see the document
+            JSONArray results;
 
-        results = otherSearchManager.search("2014-07-01");
-        assertVerbose("Should get zero hidden fragment back", results.length(), is( 0 ));
+            results = originalSearchManager.search("2014-07-01");
+            assertVerbose("Found the one and only fragment", results.length(), is( 1 ));
+            JSONObject theHit = results.getJSONObject( 0 );
+            assertVerbose("Got the correct fragment key back",        theHit.getString("fragment"), is( fragment.getKey().toString() ));
+
+            // For the otherSearchManager, there should be no results back, as the user is different and should not see the document
+
+            results = otherSearchManager.search("2014-07-01");
+            assertVerbose("Should get zero hidden fragment back", results.length(), is( 0 ));
+
+        }catch(BackOfficeException e){
+
+            assertTrue(false);
+        }
 
 
     }

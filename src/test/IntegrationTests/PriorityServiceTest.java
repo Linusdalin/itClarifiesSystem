@@ -116,8 +116,8 @@ public class PriorityServiceTest extends ServletTests {
 
                 //Create two actions
 
-                Action first = new Action(1, "Action1", "Desc", "Pattern", fragment, document.getHeadVersion(), project, user, user, -1, ActionStatus.getOpen(), t.getISODate(), t.getISODate(), t.getISODate());
-                Action second = new Action(2, "Action2", "Desc", "Pattern", fragment, document.getHeadVersion(), project, user, user, -1, ActionStatus.getOpen(), t.getISODate(), t.getISODate(), t.getISODate());
+                Action first = new Action(1, "Action1", "Desc", "Pattern", fragment, document.getHeadVersion(), fragment, project, user, user, -1, ActionStatus.getOpen(), t.getISODate(), t.getISODate(), t.getISODate());
+                Action second = new Action(2, "Action2", "Desc", "Pattern", fragment, document.getHeadVersion(), fragment, project, user, user, -1, ActionStatus.getOpen(), t.getISODate(), t.getISODate(), t.getISODate());
 
                 first.store();
                 second.store();

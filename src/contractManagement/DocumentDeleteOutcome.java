@@ -18,8 +18,9 @@ public class DocumentDeleteOutcome {
     public int riskFlags = 0;
     public int references = 0;
     public int keywords = 0;
+    public int indices = 0;
 
-    DocumentDeleteOutcome(int documents, int versions, int clauses, int fragments, int annotations, int classifications, int riskFlags, int references, int keywords){
+    DocumentDeleteOutcome(int documents, int versions, int clauses, int fragments, int annotations, int classifications, int riskFlags, int references, int keywords, int indices){
 
         this.documents = documents;
         this.versions = versions;
@@ -30,6 +31,7 @@ public class DocumentDeleteOutcome {
         this.riskFlags = riskFlags;
         this.references = references;
         this.keywords = keywords;
+        this.indices = indices;
     }
 
     public DocumentDeleteOutcome() {
@@ -47,5 +49,6 @@ public class DocumentDeleteOutcome {
         riskFlags       += more.riskFlags;
         references      += more.references;
         keywords        += more.keywords;
+        indices         += more.indices;
     }
 }

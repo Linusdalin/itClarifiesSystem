@@ -1,10 +1,8 @@
 package search;
 
 import com.google.appengine.api.search.*;
-import contractManagement.Contract;
-import contractManagement.ContractFragment;
+import contractManagement.*;
 import classification.FragmentClassification;
-import contractManagement.Project;
 import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
 import databaseLayer.DatabaseAbstractionFactory;
@@ -45,34 +43,35 @@ public class SearchManager2 {
 
 
 
-    public void indexFragment(ContractFragment fragment, Contract document) {
+    public void indexFragment(ContractFragment fragment, ContractVersionInstance version, Contract document) {
 
-        Document indexDocument = createDocument(fragment, document);
+        Document indexDocument = createDocument(fragment, version, document);
         indexManager.indexDocument(indexDocument);
 
     }
 
     //TODO: Use batch index with 200 items at a time
 
-    public void indexFragments(List<DataObjectInterface> values, Contract document) {
+    public void indexFragments(List<DataObjectInterface> values, ContractVersionInstance version, Contract document) {
 
         for (DataObjectInterface value : values) {
 
             ContractFragment fragment = (ContractFragment)value;
-            Document indexDocument = createDocument(fragment, document);
+            Document indexDocument = createDocument(fragment, version, document);
             indexManager.indexDocument(indexDocument);
 
         }
     }
 
 
-    private Document createDocument(ContractFragment fragment, Contract document) {
+    private Document createDocument(ContractFragment fragment, ContractVersionInstance version, Contract document) {
 
         int visibility = getVisibilityForDocument(document);
 
         return indexManager.createDocument(
                 fragment.getText(),
                 fragment.getKey().toString(),
+                version.getKey().toString(),
                 document.getKey().toString(),
                 document.getOwnerId().toString(),
                 (int)fragment.getStructureNo(),
@@ -134,6 +133,7 @@ public class SearchManager2 {
         Document newDocument = indexManager.createDocument(
                 existingDocument.getOnlyField(IndexManager.CONTENT_FIELD).getText(),
                 existingDocument.getId(),
+                existingDocument.getOnlyField(IndexManager.VERSION_FIELD).getText(),
                 existingDocument.getOnlyField(IndexManager.DOCUMENT_FIELD).getText(),
                 existingDocument.getOnlyField(IndexManager.OWNER_FIELD).getText(),
                 existingDocument.getOnlyField(IndexManager.PARENT_FIELD).getNumber().intValue(),
@@ -148,6 +148,11 @@ public class SearchManager2 {
     }
 
 
+
+    public int remove(ContractFragmentTable fragments){
+
+        return indexManager.clear(fragments);
+    }
 
     public void clear(){
 
@@ -181,7 +186,6 @@ public class SearchManager2 {
      *      Lookup fragments matching the search string and filter on visibility
      *      It searches in the project given in the constructor
      *
-     *      //TODO: It would be possible to return keys as JSON for optimization.
      *
      * @param searchString  - search string
      * @return
@@ -216,6 +220,8 @@ public class SearchManager2 {
 
                 }
             }
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Got  " + fragmentList.length() + " search hits");
+
 
 
         } catch (BackOfficeException e) {

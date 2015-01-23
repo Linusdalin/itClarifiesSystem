@@ -126,6 +126,7 @@ public class ActionServlet extends ItClarifiesService {
                         pattern,
                         _fragment,
                         version.getKey(),
+                        _fragment,
                         project.getKey(),
                         creator.getKey(),
                         _assignee,

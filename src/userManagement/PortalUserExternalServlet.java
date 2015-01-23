@@ -33,28 +33,40 @@ public class PortalUserExternalServlet extends ItClarifiesService {
     public void doGet(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
         try{
+            System.out.println("checkpoint 1");
 
             logRequest(req);
+
+            System.out.println("checkpoint 2");
 
             if(!validateSession(req, resp))
                 return;
 
+            System.out.println("checkpoint 3");
+
             if(blockedSmokey(sessionManagement, resp))
                 return;
 
+            System.out.println("checkpoint 4");
 
             DBKeyInterface key                = getOptionalKey("user", req);
-            PortalUser requester = sessionManagement.getUser();
+            PortalUser requester              = sessionManagement.getUser();
             JSONObject json;
+
+            System.out.println("checkpoint 5");
 
             ConditionInterface condition = getLookupConditionForOptionalKey(key);
             condition.addFilter(new ReferenceFilter(PortalUserTable.Columns.Organization.name(), requester.getOrganizationId()));
+
+            System.out.println("checkpoint 6");
 
             if(key == null)
                 PukkaLogger.log(PukkaLogger.Level.INFO, "Qualifying list on organization " + requester.getOrganization().getName() + " for user " + requester.getName());
             PortalUserTable userList = new PortalUserTable(condition);
             Formatter formatter = getFormatFromParameters(req);
             JSONArray users = new JSONArray();
+
+            System.out.println("checkpoint 7");
 
             for(DataObjectInterface o : userList.getValues()){
 
@@ -67,6 +79,7 @@ public class PortalUserExternalServlet extends ItClarifiesService {
                     users.put(createExternalUserInfoObject(user));
 
             }
+            System.out.println("checkpoint 8");
 
             json = new JSONObject()
                   .put(DataServletName, users);

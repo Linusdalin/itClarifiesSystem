@@ -118,8 +118,14 @@ public class SearchServlet extends ItClarifiesService {
 
         } catch (BackOfficeException e) {
 
-            e.logError("Error (Get) in Search Servlet");
+            PukkaLogger.log( e ,"Error (Get) in Search Servlet");
             returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+            resp.flushBuffer();
+
+        } catch (Exception e) {
+
+            PukkaLogger.log( e , "Error (Get) in Search Servlet");
+            returnError("Internal Error", HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
             resp.flushBuffer();
 
         }

@@ -78,9 +78,6 @@
 <%@ include file="adminCommon/includes/verifyLoginSession.inc" %>
 
 
-
-
-
     <!-- START OF MAIN CONTENT -->
     <div class="mainwrapper">
         <div class="mainwrapperinner">
@@ -90,44 +87,7 @@
 
                     <%@ include file="adminCommon/includes/message.inc" %>
 
-                    <%
-                        // Get the tabs
-
-                        out.print(pageComponent.renderTabs(tabId));
-                        out.print("  <div class=\"content\">");
-
-                        PageTabInterface tab = pageComponent.getTabs().get(tabId);
-
-                        out.print("<h2>" + tab.getHeadline() + "</h2>");
-                        out.print("<p>" + tab.getDescription() + "</p></br>");
-
-                        //TODO: This should really be a message box class
-
-                        if(callBackMessage != null){
-
-                            out.print("<div class=\"notification msginfo\">\n" +
-                                    "                        <a class=\"close\"></a>\n" +
-                                    "                        <p>"+ callBackMessage+"</p>\n" +
-                                    "                    </div><!-- notification msginfo -->");
-
-
-                        }
-
-                        try{
-                            out.print(tab.getBody(pageComponent.getName(), tabId, backOffice, request, values, adminUser, acsSystem, loginMethod));
-
-                        }catch(BackOfficeException e){
-
-                            out.print("<div class=\"notification msgerror\">\n" +
-                                    "                        <a class=\"close\"></a>\n" +
-                                    "                        <p>"+ e.narration+"</p>\n" +
-                                    "                    </div><!-- notification -->");
-
-                            e.logError("Error on page");
-                        }
-
-                    %>
-
+                    <% out.print(pageComponent.render(tabId, callBackMessage, backOffice, request));  %>
 
             </div>
         </div>

@@ -329,6 +329,9 @@ public class Contract extends DataObject implements DataObjectInterface{
         int noClassifications = 0;
         int noKeywords = 0;
         int noFlags = 0;
+        int noIndices = 0;
+
+        SearchManager2 searchManager = new SearchManager2(this.getProject(), this.getOwner());
 
        // Get all instances
 
@@ -346,6 +349,10 @@ public class Contract extends DataObject implements DataObjectInterface{
 
            noFragments += allFragments.getCount();
            allFragments.delete();
+
+           // Clear the search index
+
+           noIndices += searchManager.remove(allFragments);
 
 
            // Get all annotations for this version and delete them
@@ -418,7 +425,7 @@ public class Contract extends DataObject implements DataObjectInterface{
 
         services.DocumentService.invalidateDocumentCache(this, this.getProject());
 
-        return new DocumentDeleteOutcome(1, noInstances, noClauses, noFragments, noAnnotations, noClassifications, noFlags, noReferences, noKeywords);
+        return new DocumentDeleteOutcome(1, noInstances, noClauses, noFragments, noAnnotations, noClassifications, noFlags, noReferences, noKeywords, noIndices);
 
     }
 
@@ -720,6 +727,8 @@ public class Contract extends DataObject implements DataObjectInterface{
 
                     PukkaLogger.log(PukkaLogger.Level.WARNING, "No classification found for fragment " + fragment.getName());
                 }
+
+                comments.append("key: " + fragment.getKey().toString() + pukkaBO.style.Html.newLine());
 
 
                 if(tableMode){

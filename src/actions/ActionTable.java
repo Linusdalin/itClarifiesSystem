@@ -34,7 +34,7 @@ public class ActionTable extends DataTable implements DataTableInterface{
     public static final String TABLE = "Action";
     private static final String DESCRIPTION = "Actions and work items";
 
-    public enum Columns {Id, Name, Description, Pattern, Fragment, Version, Project, Issuer, Assignee, Priority, Status, Created, Due, Completed, }
+    public enum Columns {Id, Name, Description, Pattern, Fragment, Version, Comply, Project, Issuer, Assignee, Priority, Status, Created, Due, Completed, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
@@ -44,6 +44,7 @@ public class ActionTable extends DataTable implements DataTableInterface{
             new TextColumn("Pattern", DataColumn.noFormatting),
             new ReferenceColumn("Fragment", DataColumn.noFormatting, new TableReference("ContractFragment", "Name")),
             new ReferenceColumn("Version", DataColumn.narrowColumn, new TableReference("ContractVersionInstance", "Version")),
+            new ReferenceColumn("Comply", DataColumn.noFormatting, new TableReference("ContractFragment", "Name")),
             new ReferenceColumn("Project", DataColumn.narrowColumn, new TableReference("Project", "Name")),
             new ReferenceColumn("Issuer", DataColumn.narrowColumn, new TableReference("PortalUser", "Name")),
             new ReferenceColumn("Assignee", DataColumn.narrowColumn, new TableReference("PortalUser", "Name")),
@@ -84,7 +85,7 @@ public class ActionTable extends DataTable implements DataTableInterface{
     };
     private static final String[][] TestValues = {
 
-          {"0", "TestAction", "This is a demo action", "", "first fragment", "Cannon v1.0", "Demo", "admin", "demo", "1", "In Progress", "2014-10-10", "2014-10-20", "2014-10-30", "system"},
+          {"0", "TestAction", "This is a demo action", "", "first fragment", "Cannon v1.0", "Definition fragment", "Demo", "admin", "demo", "1", "In Progress", "2014-10-10", "2014-10-20", "2014-10-30", "system"},
 
 
 

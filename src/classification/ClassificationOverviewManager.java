@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class ClassificationOverviewManager {
 
-    // The found observations
+    // The found observations while parsing the
     private Map<String, ClassificationStatistics> statisticsMap = new HashMap<String, ClassificationStatistics>();
 
     public ClassificationOverviewManager(){

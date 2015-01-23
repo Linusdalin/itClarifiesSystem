@@ -1,6 +1,10 @@
 package search;
 
 import com.google.appengine.api.search.*;
+import contractManagement.ContractFragment;
+import contractManagement.ContractFragmentTable;
+import contractManagement.ContractVersionInstance;
+import dataRepresentation.DataObjectInterface;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
 
@@ -30,6 +34,7 @@ public class IndexManager {
     // The spsecific Field names
 
     public static final String DOCUMENT_FIELD = "Document";
+    public static final String VERSION_FIELD = "Version";
     public static final String CONTENT_FIELD = "Content";
     public static final String PARENT_FIELD = "Parent";
     public static final String KEYWORD_FIELD = "Keyword";
@@ -106,6 +111,7 @@ public class IndexManager {
      *
      * @param text          - the actual fragment text
      * @param id            - ContractFragment key, for retrieval
+     * @param version       - the document version (contract)
      * @param document      - the document (contract)
      * @param owner         - PortalUser key
      * @param structureItem - structure Item (headline) for widened search
@@ -117,11 +123,12 @@ public class IndexManager {
      *
      */
 
-    public Document createDocument(String text, String id, String document, String owner, int structureItem, String keywords, int visibility, int ordinal){
+    public Document createDocument(String text, String id, String version, String document, String owner, int structureItem, String keywords, int visibility, int ordinal){
 
         Document doc = Document.newBuilder()
                 .setId(id)
                 .addField(Field.newBuilder().setName(CONTENT_FIELD).setText(text))
+                .addField(Field.newBuilder().setName(VERSION_FIELD).setText(version))
                 .addField(Field.newBuilder().setName(DOCUMENT_FIELD).setText(document))
                 .addField(Field.newBuilder().setName(KEYWORD_FIELD).setText(keywords))
                 .addField(Field.newBuilder().setName(VISIBILITY_FIELD).setNumber(visibility))
@@ -219,6 +226,21 @@ public class IndexManager {
 
 
 
+    public int clear(ContractFragmentTable fragments) {
 
+        List<String> keyList = new ArrayList<String>();
 
+        for (DataObjectInterface fragment : fragments.getValues()) {
+
+            keyList.add(fragment.getKey().toString());
+
+            if(keyList.size() >=200){
+                index.delete(keyList);
+                keyList.clear();
+            }
+
+        }
+        index.delete(keyList);
+        return keyList.size();
+    }
 }

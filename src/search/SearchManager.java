@@ -64,7 +64,7 @@ public class SearchManager {
     public JSONObject getMatchJson(String searchText, Project project, SessionManagement session) throws BackOfficeException {
 
 
-        List<SearchHit> matches = getAllMatches(searchText, project, session);
+        Set<SearchHit> matches = getAllMatches(searchText, project, session);
 
         JSONArray jsonMatches = new JSONArray();
 
@@ -77,7 +77,7 @@ public class SearchManager {
         JSONObject result = new JSONObject()
                 .put("fragments", jsonMatches);
 
-        //PukkaLogger.log(PukkaLogger.Level.INFO, "Created Search json" + result);
+        PukkaLogger.log(PukkaLogger.Level.INFO, "Found " + matches.size() + " search hits");
 
         return result;
 
@@ -102,12 +102,12 @@ public class SearchManager {
      * @throws BackOfficeException
      */
 
-    public List<SearchHit> getAllMatches(String searchText, Project project, SessionManagement session) throws BackOfficeException{
+    public Set<SearchHit> getAllMatches(String searchText, Project project, SessionManagement session) throws BackOfficeException{
 
 
         PukkaLogger.log(PukkaLogger.Level.DEBUG, "Get Matches 1");
 
-        List<SearchHit> results = new ArrayList<SearchHit>();
+        Set<SearchHit> results = new HashSet<SearchHit>();
 
         TextMatcher textmatcher = new TextMatcher();
         String strippedSearch = searchText.replaceAll("[@]", "");
@@ -189,8 +189,7 @@ public class SearchManager {
 
                 PukkaLogger.log(PukkaLogger.Level.INFO , "***************** Found " + classifications.size() + " classifications");
 
-                textmatcher.prepareSearchString(searchText)
-                        .caseInsensitive().useHashTags();
+                textmatcher.prepareSearchString(searchText).caseInsensitive().useHashTags();
 
                 for(FragmentClassification classification : classifications){
 
@@ -270,13 +269,15 @@ public class SearchManager {
 
 
                 List<Action> actions = head.getActionsForVersion();
-                textmatcher.prepareSearchString(strippedSearch).caseInsensitive();
+                //textmatcher.prepareSearchString(strippedSearch).caseInsensitive();
 
                 PukkaLogger.log(PukkaLogger.Level.INFO , "***************** Found " + actions.size() + " actions");
 
                 for(Action action : actions){
 
                     PukkaLogger.log(PukkaLogger.Level.DEBUG, "Action : " + action.getDescription());
+
+                    // This takes a lot of time due to the lookup of names
 
                     if(textmatcher.getMatch(action.getDescription() + " " + action.getName() + " " + action.getAssignee().getName() + " " + action.getIssuer().getName()) != null){
 
@@ -346,7 +347,7 @@ public class SearchManager {
      * @param clausesForVersion
      */
 
-    private void addHeadlinesForFragment(List<SearchHit> results, ContractFragment fragment, Contract document, List<ContractFragment> fragmentsForVersion, List<StructureItem> clausesForVersion) {
+    private void addHeadlinesForFragment(Set<SearchHit> results, ContractFragment fragment, Contract document, List<ContractFragment> fragmentsForVersion, List<StructureItem> clausesForVersion) {
 
         try {
 

@@ -234,7 +234,7 @@ public class DocumentService extends ItClarifiesService{
 
         // Index all fragments in the search engine
 
-        searchManager.indexFragments(fragmentsToStore.getValues(), document);
+        searchManager.indexFragments(fragmentsToStore.getValues(), versionInstance, document);
 
         // Store the keywords
 

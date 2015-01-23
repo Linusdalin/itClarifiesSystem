@@ -183,7 +183,8 @@ public class DocumentList extends GroupByList implements ListInterface{
                             " - " + outcome.annotations + " annotations" +
                             " - " + outcome.riskFlags + " risks" +
                             " - " + outcome.references + " references" +
-                            " - " + outcome.keywords + " keywords and" +
+                            " - " + outcome.keywords + " keywords " +
+                            " - " + outcome.indices + " indices and" +
                             " - " + outcome.classifications + " classifications<br>\n";
 
                 case Callback_Action_View:

@@ -167,9 +167,6 @@ public class ProjectServlet extends ItClarifiesService{
 
             key             = getOptionalKey("key", req);
 
-           if(!validateSession(req, resp))
-               return;
-
            PortalUser user = sessionManagement.getUser();
 
            ConditionInterface condition = getLookupConditionForOptionalKey(key);
@@ -195,6 +192,7 @@ public class ProjectServlet extends ItClarifiesService{
                     .put("status", "unknown")                       // TODO: Not implemented passing an analysis status
                     .put("noDocs", documentsForProject);
 
+                PukkaLogger.log(PukkaLogger.Level.INFO, "*** Project: " + project.getName());
                 projectList.put(projectJSON);
            }
 

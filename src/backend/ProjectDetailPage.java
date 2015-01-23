@@ -104,13 +104,17 @@ public class ProjectDetailPage extends NarrowPage {
             html.append("<thead><th colspan=\"6\">Classification Tag</th> <th>Occurences</th></thead>");
             html.append("<tbody>");
             html.append("<tr><td width=\"30\"></td><td width=\"30\"></td><td width=\"30\"></td><td width=\"30\"></td><td width=\"30\"></td><td width=\"200\"></td><td></td></tr>");
-            html.append(traverseOverviewJson(json, 0));
-            html.append("</tbody>");
-            html.append("</table>");
 
-            //html.append("<pre>");
-            //html.append(json.toString( 4 ));
-            //html.append("</pre>");
+            if(json != null)
+                html.append(traverseOverviewJson(json, 0));
+            html.append("</tbody>");
+            html.append("</table>" + Html.newLine()  + Html.newLine() + Html.newLine());
+
+            html.append("<pre>");
+
+            if(json != null)
+                html.append(json.toString( 4 ));
+            html.append("</pre>");
 
 
             return html.toString();

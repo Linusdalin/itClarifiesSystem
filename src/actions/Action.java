@@ -42,13 +42,13 @@ public class Action extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public Action(long id, String name, String description, String pattern, DataObjectInterface fragment, DataObjectInterface version, DataObjectInterface project, DataObjectInterface issuer, DataObjectInterface assignee, long priority, DataObjectInterface status, String created, String due, String completed) throws BackOfficeException{
+    public Action(long id, String name, String description, String pattern, DataObjectInterface fragment, DataObjectInterface version, DataObjectInterface comply, DataObjectInterface project, DataObjectInterface issuer, DataObjectInterface assignee, long priority, DataObjectInterface status, String created, String due, String completed) throws BackOfficeException{
 
-        this(id, name, description, pattern, fragment.getKey(), version.getKey(), project.getKey(), issuer.getKey(), assignee.getKey(), priority, status, created, due, completed);
+        this(id, name, description, pattern, fragment.getKey(), version.getKey(), comply.getKey(), project.getKey(), issuer.getKey(), assignee.getKey(), priority, status, created, due, completed);
     }
 
 
-    public Action(long id, String name, String description, String pattern, DBKeyInterface fragment, DBKeyInterface version, DBKeyInterface project, DBKeyInterface issuer, DBKeyInterface assignee, long priority, DataObjectInterface status, String created, String due, String completed){
+    public Action(long id, String name, String description, String pattern, DBKeyInterface fragment, DBKeyInterface version, DBKeyInterface comply, DBKeyInterface project, DBKeyInterface issuer, DBKeyInterface assignee, long priority, DataObjectInterface status, String created, String due, String completed){
 
         this();
         try{
@@ -63,14 +63,15 @@ public class Action extends DataObject implements DataObjectInterface{
            data[3] = new TextData(pattern);
            data[4] = new ReferenceData(fragment, columns[4].getTableReference());
            data[5] = new ReferenceData(version, columns[5].getTableReference());
-           data[6] = new ReferenceData(project, columns[6].getTableReference());
-           data[7] = new ReferenceData(issuer, columns[7].getTableReference());
-           data[8] = new ReferenceData(assignee, columns[8].getTableReference());
-           data[9] = new IntData(priority);
-           data[10] = new ConstantData(status.get__Id(), columns[10].getTableReference());
-           data[11] = new DateData(created);
-           data[12] = new DateData(due);
-           data[13] = new DateData(completed);
+           data[6] = new ReferenceData(comply, columns[6].getTableReference());
+           data[7] = new ReferenceData(project, columns[7].getTableReference());
+           data[8] = new ReferenceData(issuer, columns[8].getTableReference());
+           data[9] = new ReferenceData(assignee, columns[9].getTableReference());
+           data[10] = new IntData(priority);
+           data[11] = new ConstantData(status.get__Id(), columns[11].getTableReference());
+           data[12] = new DateData(created);
+           data[13] = new DateData(due);
+           data[14] = new DateData(completed);
 
            exists = true;
         }catch(BackOfficeException e){
@@ -206,21 +207,41 @@ public class Action extends DataObject implements DataObjectInterface{
 
 
 
-    public DBKeyInterface getProjectId(){
+    public DBKeyInterface getComplyId(){
 
         ReferenceData data = (ReferenceData)this.data[6];
         return data.value;
     }
 
-    public Project getProject(){
+    public ContractFragment getComply(){
 
         ReferenceData data = (ReferenceData)this.data[6];
+        return new ContractFragment(new LookupByKey(data.value));
+    }
+
+    public void setComply(DBKeyInterface comply){
+
+        ReferenceData data = (ReferenceData)this.data[6];
+        data.value = comply;
+    }
+
+
+
+    public DBKeyInterface getProjectId(){
+
+        ReferenceData data = (ReferenceData)this.data[7];
+        return data.value;
+    }
+
+    public Project getProject(){
+
+        ReferenceData data = (ReferenceData)this.data[7];
         return new Project(new LookupByKey(data.value));
     }
 
     public void setProject(DBKeyInterface project){
 
-        ReferenceData data = (ReferenceData)this.data[6];
+        ReferenceData data = (ReferenceData)this.data[7];
         data.value = project;
     }
 
@@ -228,19 +249,19 @@ public class Action extends DataObject implements DataObjectInterface{
 
     public DBKeyInterface getIssuerId(){
 
-        ReferenceData data = (ReferenceData)this.data[7];
+        ReferenceData data = (ReferenceData)this.data[8];
         return data.value;
     }
 
     public PortalUser getIssuer(){
 
-        ReferenceData data = (ReferenceData)this.data[7];
+        ReferenceData data = (ReferenceData)this.data[8];
         return new PortalUser(new LookupByKey(data.value));
     }
 
     public void setIssuer(DBKeyInterface issuer){
 
-        ReferenceData data = (ReferenceData)this.data[7];
+        ReferenceData data = (ReferenceData)this.data[8];
         data.value = issuer;
     }
 
@@ -248,19 +269,19 @@ public class Action extends DataObject implements DataObjectInterface{
 
     public DBKeyInterface getAssigneeId(){
 
-        ReferenceData data = (ReferenceData)this.data[8];
+        ReferenceData data = (ReferenceData)this.data[9];
         return data.value;
     }
 
     public PortalUser getAssignee(){
 
-        ReferenceData data = (ReferenceData)this.data[8];
+        ReferenceData data = (ReferenceData)this.data[9];
         return new PortalUser(new LookupByKey(data.value));
     }
 
     public void setAssignee(DBKeyInterface assignee){
 
-        ReferenceData data = (ReferenceData)this.data[8];
+        ReferenceData data = (ReferenceData)this.data[9];
         data.value = assignee;
     }
 
@@ -268,13 +289,13 @@ public class Action extends DataObject implements DataObjectInterface{
 
     public long getPriority(){
 
-        IntData data = (IntData) this.data[9];
+        IntData data = (IntData) this.data[10];
         return data.value;
     }
 
     public void setPriority(long priority){
 
-        IntData data = (IntData) this.data[9];
+        IntData data = (IntData) this.data[10];
         data.value = priority;
     }
 
@@ -282,14 +303,14 @@ public class Action extends DataObject implements DataObjectInterface{
 
     public ActionStatus getStatus(){
 
-        ConstantData data = (ConstantData)this.data[10];
+        ConstantData data = (ConstantData)this.data[11];
         return (ActionStatus)(new ActionStatusTable().getConstantValue(data.value));
 
     }
 
     public void setStatus(DataObjectInterface status){
 
-        ConstantData data = (ConstantData)this.data[10];
+        ConstantData data = (ConstantData)this.data[11];
         data.value = status.get__Id();
     }
 
@@ -297,13 +318,13 @@ public class Action extends DataObject implements DataObjectInterface{
 
     public DBTimeStamp getCreated()throws BackOfficeException{
 
-        DateData data = (DateData) this.data[11];
+        DateData data = (DateData) this.data[12];
         return new DBTimeStamp(DBTimeStamp.ISO_DATE, data.value);
     }
 
     public void setCreated(DBTimeStamp created){
 
-        DateData data = (DateData) this.data[11];
+        DateData data = (DateData) this.data[12];
         data.value = created.getISODate().toString();
     }
 
@@ -311,13 +332,13 @@ public class Action extends DataObject implements DataObjectInterface{
 
     public DBTimeStamp getDue()throws BackOfficeException{
 
-        DateData data = (DateData) this.data[12];
+        DateData data = (DateData) this.data[13];
         return new DBTimeStamp(DBTimeStamp.ISO_DATE, data.value);
     }
 
     public void setDue(DBTimeStamp due){
 
-        DateData data = (DateData) this.data[12];
+        DateData data = (DateData) this.data[13];
         data.value = due.getISODate().toString();
     }
 
@@ -325,13 +346,13 @@ public class Action extends DataObject implements DataObjectInterface{
 
     public DBTimeStamp getCompleted()throws BackOfficeException{
 
-        DateData data = (DateData) this.data[13];
+        DateData data = (DateData) this.data[14];
         return new DBTimeStamp(DBTimeStamp.ISO_DATE, data.value);
     }
 
     public void setCompleted(DBTimeStamp completed){
 
-        DateData data = (DateData) this.data[13];
+        DateData data = (DateData) this.data[14];
         data.value = completed.getISODate().toString();
     }
 

@@ -75,6 +75,9 @@ public class SessionManagement {
      * @param sessionToken - the token
      * @return             - status message
      * @throws BackOfficeException
+     *
+     *
+     *
      */
 
     public String close(String sessionToken) throws BackOfficeException {
@@ -120,6 +123,12 @@ public class SessionManagement {
      * @param ipAddress    - the ip address from the request
      * @return - true if the session is active
      *
+     *     <datastore-index kind="PortalSession" ancestor="false" source="manual">
+                 <property name="Token" direction="asc"/>
+                 <property name="Latest" direction="desc"/>
+             </datastore-index>
+
+     *
      */
 
 
@@ -127,15 +136,16 @@ public class SessionManagement {
 
         // Lookup the session
 
-       PortalSession session = new PortalSession(new LookupItem()
+        PortalSession session = new PortalSession(new LookupItem()
                     .addFilter(new ColumnFilter(PortalSessionTable.Columns.Token.name(), sessionToken))
                     .addSorting(new Sorting(PortalSessionTable.Columns.Latest.name(), Ordering.LAST)));
 
-       if(!session.exists()){
+
+        if(!session.exists()){
 
            PukkaLogger.log(PukkaLogger.Level.INFO, "No session exists for token " + sessionToken);
             return false;
-       }
+        }
 
 
         if(!internal(ipAddress) && !session.getIP().equals(ipAddress)){
@@ -157,6 +167,7 @@ public class SessionManagement {
            session.update();
            PukkaLogger.log(PukkaLogger.Level.INFO, "Validated user " + sessionUser.getName() + "( "+ sessionUser.getKey()+" ) in request");
 
+
        }
         else{
 
@@ -170,9 +181,11 @@ public class SessionManagement {
 
         // Store the system user
 
-        if(system == null)
+        if(system == null){
             system = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "itClarifies")));
+            System.out.println("Validate create system user");
 
+        }
         return isActive;
 
 

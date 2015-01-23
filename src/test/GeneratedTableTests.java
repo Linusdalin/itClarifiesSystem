@@ -661,7 +661,7 @@ public class GeneratedTableTests{
      
              try{
      
-                 actions.Action table1 = new actions.Action(1, "text 2", "text 3", "text 4", dummyKey, dummyKey, dummyKey, dummyKey, dummyKey, 10, new actions.ActionStatusTable().getDummyConstantValue( ), "2012-01-12", "2012-01-13", "2012-01-14");
+                 actions.Action table1 = new actions.Action(1, "text 2", "text 3", "text 4", dummyKey, dummyKey, dummyKey, dummyKey, dummyKey, dummyKey, 11, new actions.ActionStatusTable().getDummyConstantValue( ), "2012-01-13", "2012-01-14", "2012-01-15");
 
                  assertThat(table1.getId(), is((long)1));
                  assertThat(table1.getName(), is("text 2"));
@@ -671,17 +671,19 @@ public class GeneratedTableTests{
                  assertThat(table1.getFragment().exists(), is(false));
                  assertThat(table1.getVersionId(), is(dummyKey));
                  assertThat(table1.getVersion().exists(), is(false));
+                 assertThat(table1.getComplyId(), is(dummyKey));
+                 assertThat(table1.getComply().exists(), is(false));
                  assertThat(table1.getProjectId(), is(dummyKey));
                  assertThat(table1.getProject().exists(), is(false));
                  assertThat(table1.getIssuerId(), is(dummyKey));
                  assertThat(table1.getIssuer().exists(), is(false));
                  assertThat(table1.getAssigneeId(), is(dummyKey));
                  assertThat(table1.getAssignee().exists(), is(false));
-                 assertThat(table1.getPriority(), is((long)10));
+                 assertThat(table1.getPriority(), is((long)11));
                  assertThat(table1.getStatus(), is(new actions.ActionStatusTable().getDummyConstantValue( )));
-                 assertThat(table1.getCreated().getISODate(), is("2012-01-12"));
-                 assertThat(table1.getDue().getISODate(), is("2012-01-13"));
-                 assertThat(table1.getCompleted().getISODate(), is("2012-01-14"));
+                 assertThat(table1.getCreated().getISODate(), is("2012-01-13"));
+                 assertThat(table1.getDue().getISODate(), is("2012-01-14"));
+                 assertThat(table1.getCompleted().getISODate(), is("2012-01-15"));
 
                  table1.store();
                  actions.Action table2 = new actions.Action();
@@ -695,17 +697,19 @@ public class GeneratedTableTests{
                  assertThat(table2.getFragment().exists(), is(false));
                  assertThat(table2.getVersionId(), is(dummyKey));
                  assertThat(table2.getVersion().exists(), is(false));
+                 assertThat(table2.getComplyId(), is(dummyKey));
+                 assertThat(table2.getComply().exists(), is(false));
                  assertThat(table2.getProjectId(), is(dummyKey));
                  assertThat(table2.getProject().exists(), is(false));
                  assertThat(table2.getIssuerId(), is(dummyKey));
                  assertThat(table2.getIssuer().exists(), is(false));
                  assertThat(table2.getAssigneeId(), is(dummyKey));
                  assertThat(table2.getAssignee().exists(), is(false));
-                 assertThat(table2.getPriority(), is((long)10));
+                 assertThat(table2.getPriority(), is((long)11));
                  assertThat(table2.getStatus(), is(new actions.ActionStatusTable().getDummyConstantValue( )));
-                 assertThat(table2.getCreated().getISODate(), is("2012-01-12"));
-                 assertThat(table2.getDue().getISODate(), is("2012-01-13"));
-                 assertThat(table2.getCompleted().getISODate(), is("2012-01-14"));
+                 assertThat(table2.getCreated().getISODate(), is("2012-01-13"));
+                 assertThat(table2.getDue().getISODate(), is("2012-01-14"));
+                 assertThat(table2.getCompleted().getISODate(), is("2012-01-15"));
 
                  table1.setId(11);
                  table1.setName("text 12");
@@ -713,14 +717,15 @@ public class GeneratedTableTests{
                  table1.setPattern("text 14");
                  table1.setFragment( dummyKey);
                  table1.setVersion( dummyKey);
+                 table1.setComply( dummyKey);
                  table1.setProject( dummyKey);
                  table1.setIssuer( dummyKey);
                  table1.setAssignee( dummyKey);
-                 table1.setPriority(20);
+                 table1.setPriority(21);
                  table1.setStatus(new actions.ActionStatusTable().getDummyConstantValue( ));
-                 table1.setCreated(new DBTimeStamp(DBTimeStamp.ISO_DATE, "2012-01-22"));
-                 table1.setDue(new DBTimeStamp(DBTimeStamp.ISO_DATE, "2012-01-23"));
-                 table1.setCompleted(new DBTimeStamp(DBTimeStamp.ISO_DATE, "2012-01-24"));
+                 table1.setCreated(new DBTimeStamp(DBTimeStamp.ISO_DATE, "2012-01-23"));
+                 table1.setDue(new DBTimeStamp(DBTimeStamp.ISO_DATE, "2012-01-24"));
+                 table1.setCompleted(new DBTimeStamp(DBTimeStamp.ISO_DATE, "2012-01-25"));
                  assertThat(table1.getId(), is((long)11));
                  assertThat(table1.getName(), is("text 12"));
                  assertThat(table1.getDescription(), is("text 13"));
@@ -729,17 +734,19 @@ public class GeneratedTableTests{
                  assertThat(table1.getFragment().exists(), is(false));
                  assertThat(table1.getVersionId(), is(dummyKey));
                  assertThat(table1.getVersion().exists(), is(false));
+                 assertThat(table1.getComplyId(), is(dummyKey));
+                 assertThat(table1.getComply().exists(), is(false));
                  assertThat(table1.getProjectId(), is(dummyKey));
                  assertThat(table1.getProject().exists(), is(false));
                  assertThat(table1.getIssuerId(), is(dummyKey));
                  assertThat(table1.getIssuer().exists(), is(false));
                  assertThat(table1.getAssigneeId(), is(dummyKey));
                  assertThat(table1.getAssignee().exists(), is(false));
-                 assertThat(table1.getPriority(), is((long)20));
+                 assertThat(table1.getPriority(), is((long)21));
                  assertThat(table1.getStatus(), is(new actions.ActionStatusTable().getDummyConstantValue( )));
-                 assertThat(table1.getCreated().getISODate(), is("2012-01-22"));
-                 assertThat(table1.getDue().getISODate(), is("2012-01-23"));
-                 assertThat(table1.getCompleted().getISODate(), is("2012-01-24"));
+                 assertThat(table1.getCreated().getISODate(), is("2012-01-23"));
+                 assertThat(table1.getDue().getISODate(), is("2012-01-24"));
+                 assertThat(table1.getCompleted().getISODate(), is("2012-01-25"));
 
              }catch(BackOfficeException e){
      

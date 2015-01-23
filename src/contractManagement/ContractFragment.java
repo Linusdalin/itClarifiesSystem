@@ -548,20 +548,32 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
         try {
             StructureItem headline = getStructureItem();
-            if(headline.getTopElement() == getOrdinal() ){
+
+            if(!headline.exists()){
+
+                // There is no headline, which it should
+
+                PukkaLogger.log(PukkaLogger.Level.WARNING, "There is no structure item parent for fragment " + this.getName() + " in document " + this.getVersion().getDocument().getName());
 
 
-                ContractFragmentTable table = headline.getChildrenUnderStructureItem();
-                for(DataObjectInterface o : table.getValues()){
+            }
+            else{
 
-                    children.add((ContractFragment)o);
+                if(headline.getTopElement() == getOrdinal() ){
+
+
+                    ContractFragmentTable table = headline.getChildrenUnderStructureItem();
+                    for(DataObjectInterface o : table.getValues()){
+
+                        children.add((ContractFragment)o);
+                    }
+
                 }
 
             }
-
         } catch (BackOfficeException e) {
 
-            PukkaLogger.log(PukkaLogger.Level.WARNING, "Error getting structure item for fragment " + getDescription());
+            PukkaLogger.log(e, "Error getting structure item for fragment \"" + getDescription() + "\" in document " + this.getVersion().getDocument().getName());
         }
         return children;
 

@@ -106,6 +106,7 @@ public class ConvertToActionServlet extends ItClarifiesService {
                     pattern,
                     fragment.getKey(),
                     version.getKey(),
+                    fragment.getKey(),
                     _project,
                     creator.getKey(),
                     _assignee,

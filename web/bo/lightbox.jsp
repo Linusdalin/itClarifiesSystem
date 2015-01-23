@@ -83,31 +83,8 @@
 
             <%@ include file="adminCommon/includes/message.inc" %>
 
-            <%
-                // Get the tabs
+            <% out.print(pageComponent.render(tabId, callBackMessage, backOffice, request));  %>
 
-                out.print(pageComponent.renderTabs(tabId));
-                out.print("  <div class=\"content\">");
-
-                PageTabInterface tab = pageComponent.getTabs().get(tabId);
-
-                out.print("<h2>" + tab.getHeadline() + "</h2>");
-
-                //TODO: This should really be a message box
-
-                if(callBackMessage != null)
-                    out.print("<p>"+ callBackMessage+"</p>");
-
-                try{
-                    out.print(tab.getBody(pageComponent.getName(), tabId, backOffice, request, values, adminUser, acsSystem, loginMethod));
-
-                }catch(BackOfficeException e){
-
-                    e.logError("Error getting page");
-                    out.print("<p>No body</p>");
-                }
-
-            %>
 
     </body>
 </html>
