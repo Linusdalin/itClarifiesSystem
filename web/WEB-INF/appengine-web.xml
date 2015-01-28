@@ -33,7 +33,7 @@
                     1-10-2:         action key as string, fixes to numbering & restart
                     1-10-3:         Demo classification generation fixes, minor parsing fixes, document access lookup change, logging improvement,
                                     comment parsing, errors in search, remove fragments from index, extract title
-                    1-11-0:         image parsing w manual upload
+                    1-11-0:         image parsing w manual upload, list fixes
       -->
 
 </appengine-web-app>
