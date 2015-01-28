@@ -190,11 +190,11 @@ public class FileUploadServlet extends DocumentService {
 
                             // Title is sent URL-encoded according to the API spec
 
-                            title = new String(fi.get());
+                            String encodedTitle = new String(fi.get());
                             //title = URLDecoder.decode(title, "ISO-8859-1");
-                            title = URLDecoder.decode(title, "UTF-8");
-
-                            PukkaLogger.log(PukkaLogger.Level.INFO, "Title: " + title);
+                            PukkaLogger.log(PukkaLogger.Level.INFO, "Raw title: " + encodedTitle);
+                            title = URLDecoder.decode(encodedTitle, "UTF-8");
+                            PukkaLogger.log(PukkaLogger.Level.INFO, "Decoded title: " + title);
 
                         }
 
@@ -238,8 +238,11 @@ public class FileUploadServlet extends DocumentService {
                         //String fileName = new String (fi.getName().getBytes ("iso-8859-1"), "UTF-8");
                         String fileName = new String (fi.getName().getBytes ("UTF-8"), "UTF-8");
 
-                        if(title == null || title.equals(""))
+                        if(title == null || title.equals("")){
                             title = fileName;
+
+                            PukkaLogger.log(PukkaLogger.Level.WARNING, "No title found. Reusing the file name (potentially wrong encoding)");
+                        }
 
                         boolean isInMemory = fi.isInMemory();
                         long sizeInBytes = fi.getSize();

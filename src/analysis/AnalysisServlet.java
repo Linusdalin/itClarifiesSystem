@@ -1297,7 +1297,7 @@ public class AnalysisServlet extends DocumentService {
         try{
 
             PukkaLogger.log(PukkaLogger.Level.ACTION, "*******************Phase I: Parsing document");
-            docXManager = new DocumentManager(document.getFile(), stream);
+            docXManager = new DocumentManager(document.getName(), stream);
 
 
         }catch (AnalysisException e){
@@ -1319,7 +1319,10 @@ public class AnalysisServlet extends DocumentService {
 
             LanguageCode languageCode = Analyser.detectLanguage(document.getFile(), docXManager.getBody());
             document.setLanguage(languageCode.code);
+            String oldName = document.getName();
             document.setName(docXManager.getDocumentTitle());
+
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Updating name from " + oldName + " to " + docXManager.getDocumentTitle() );
             document.update();
 
         }catch(AnalysisException e){

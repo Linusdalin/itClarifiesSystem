@@ -64,7 +64,12 @@ public class IndexManager {
 
     public IndexManager(String name){
 
-        String indexName = name.replaceAll(" ", "_");    // Indexes can not have space in the name. Projects however can.
+        // Wash name
+
+        String indexName = name.replaceAll(" ", "_")
+                .replaceAll("å", "aa")
+                .replaceAll("ä", "ae")
+                .replaceAll("ö", "oe");
 
         PukkaLogger.log(PukkaLogger.Level.DEBUG, "Creating index manager " + indexName);
         IndexSpec indexSpec = IndexSpec.newBuilder().setName(indexName).build();

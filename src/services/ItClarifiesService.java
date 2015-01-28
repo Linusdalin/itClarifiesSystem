@@ -1,5 +1,6 @@
 package services;
 
+import adminServices.GenericAdminServlet;
 import cache.ServiceCache;
 import contractManagement.*;
 import dataRepresentation.DataObjectInterface;
@@ -27,7 +28,7 @@ import java.util.List;
  *
  */
 
-public class ItClarifiesService extends PukkaServlet {
+public class ItClarifiesService extends GenericAdminServlet {
 
     protected SessionManagement sessionManagement = new SessionManagement();
     public static String MODEL_DIRECTORY = "models";

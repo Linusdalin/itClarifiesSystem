@@ -22,11 +22,7 @@ import java.util.List;
  *              This uses Google accounts for access control
  */
 
-public class ClearSearchServlet extends GenericAdminServlet {
-
-    protected enum Environment {UNKNOWN, LOCAL, STAGE, LIVE}
-
-
+public class ClearSearchServlet extends AdminServlet {
 
 
     public void doGet(HttpServletRequest req, HttpServletResponse resp)throws IOException {

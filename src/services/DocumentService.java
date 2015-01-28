@@ -1,6 +1,8 @@
 package services;
 
 import analysis.*;
+import com.google.appengine.api.appidentity.AppIdentityServiceFactory;
+import com.google.appengine.api.utils.SystemProperty;
 import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
 import databaseLayer.DBKeyInterface;
@@ -52,7 +54,7 @@ public class DocumentService extends ItClarifiesService{
         Contract document = versionInstance.getDocument();
         Project project = document.getProject();
 
-        AutoNumberer autoNumberer = new AutoNumberer();
+        //AutoNumberer autoNumberer = new AutoNumberer();
         ContractRisk defaultRisk = ContractRisk.getNotSet();
         DBTimeStamp analysisTime = new DBTimeStamp();
 
@@ -64,14 +66,14 @@ public class DocumentService extends ItClarifiesService{
         fragmentsToStore.createEmpty();
 
         int fragmentNo = 0;
-        ContractFragment topFragment = new ContractFragment();
-
         Set<String> newKeywords = new HashSet<String>();  // To store all new keywords
 
         PukkaLogger.log(PukkaLogger.Level.ACTION, "*******************Phase II: Fragmenting Document");
         PukkaLogger.log(PukkaLogger.Level.INFO, "Found " + fragmenter.getFragments().size() + " abstract fragments from the parsing");
 
         SearchManager2 searchManager = new SearchManager2(project, document.getOwner());
+
+        String imageServer = getImageServer();
 
 
         for(AbstractFragment aFragment : fragments){
@@ -151,7 +153,20 @@ public class DocumentService extends ItClarifiesService{
 
                 }
 
-                String bodyText = testAddingHeadlineNumber(aFragment, autoNumberer);
+                //String bodyText = testAddingHeadlineNumber(aFragment, autoNumberer);
+                String bodyText = aFragment.getBody();
+
+                if(aFragment.getStyle().type == StructureType.IMAGE){
+
+                    bodyText = "";
+                    aFragment.getStyle().type = StructureType.TEXT; // Set it to text, the image will be represented as a text URL
+                    for (AbstractImage abstractImage : aFragment.getImages()) {
+
+                        bodyText += abstractImage.getRetrievalTag(imageServer, versionInstance.getKey().toString());
+
+                    }
+
+                }
 
 
                 // Now see if this is a new top level item. If that is the case, we create a new structure item for the fragment
@@ -282,6 +297,27 @@ public class DocumentService extends ItClarifiesService{
             }
 
         }
+
+    }
+
+    /*****************************************************************************************
+     *
+     *          Get the server where the images are stored.
+     *
+     *
+     * @return
+     */
+
+    private String getImageServer() {
+
+        String ID = SystemProperty.applicationId.get();
+        String serviceAccountName = AppIdentityServiceFactory.getAppIdentityService().getServiceAccountName();
+
+        if(serviceAccountName.contains("localhost"))
+
+            return"http://localhost:8080";
+
+        return "https://" + ID + ".appspot.com";
 
     }
 

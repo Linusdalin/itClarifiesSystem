@@ -521,7 +521,7 @@ public class Contract extends DataObject implements DataObjectInterface{
     }
 
 
-    private static final String[] types = { "HEADING", "TEXT", "LISTITEM", "TABLE", "IMPLICIT"};
+    private static final String[] types = { "HEADING", "TEXT", "LISTITEM", "TABLE", "IMPLICIT", "IMAGE"};
 
 
     /**********************************************************************************************'
@@ -728,7 +728,7 @@ public class Contract extends DataObject implements DataObjectInterface{
                     PukkaLogger.log(PukkaLogger.Level.WARNING, "No classification found for fragment " + fragment.getName());
                 }
 
-                comments.append("key: " + fragment.getKey().toString() + pukkaBO.style.Html.newLine());
+                comments.append( fragment.getKey().toString() + pukkaBO.style.Html.newLine());
 
 
                 if(tableMode){

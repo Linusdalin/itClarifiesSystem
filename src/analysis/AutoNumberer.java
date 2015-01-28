@@ -9,6 +9,8 @@ import log.PukkaLogger;
  * Time: 18:10
  * To change this template use File | Settings | File Templates.
  */
+
+@Deprecated
 public class AutoNumberer {
 
     // Default start values. All levels start at 0 so when we get a new number we get 1.
