@@ -42,13 +42,13 @@ public class ContractAnnotation extends DataObject implements DataObjectInterfac
             table = TABLE;
     }
 
-    public ContractAnnotation(String name, DataObjectInterface fragment, long ordinal, String description, DataObjectInterface creator, DataObjectInterface version, String pattern, String time) throws BackOfficeException{
+    public ContractAnnotation(String name, DataObjectInterface fragment, long ordinal, String description, DataObjectInterface creator, DataObjectInterface version, String pattern, long patternpos, String time) throws BackOfficeException{
 
-        this(name, fragment.getKey(), ordinal, description, creator.getKey(), version.getKey(), pattern, time);
+        this(name, fragment.getKey(), ordinal, description, creator.getKey(), version.getKey(), pattern, patternpos, time);
     }
 
 
-    public ContractAnnotation(String name, DBKeyInterface fragment, long ordinal, String description, DBKeyInterface creator, DBKeyInterface version, String pattern, String time){
+    public ContractAnnotation(String name, DBKeyInterface fragment, long ordinal, String description, DBKeyInterface creator, DBKeyInterface version, String pattern, long patternpos, String time){
 
         this();
         try{
@@ -64,7 +64,8 @@ public class ContractAnnotation extends DataObject implements DataObjectInterfac
            data[4] = new ReferenceData(creator, columns[4].getTableReference());
            data[5] = new ReferenceData(version, columns[5].getTableReference());
            data[6] = new TextData(pattern);
-           data[7] = new TimeStampData(time);
+           data[7] = new IntData(patternpos);
+           data[8] = new TimeStampData(time);
 
            exists = true;
         }catch(BackOfficeException e){
@@ -220,15 +221,29 @@ public class ContractAnnotation extends DataObject implements DataObjectInterfac
 
 
 
+    public long getPatternPos(){
+
+        IntData data = (IntData) this.data[7];
+        return data.value;
+    }
+
+    public void setPatternPos(long patternpos){
+
+        IntData data = (IntData) this.data[7];
+        data.value = patternpos;
+    }
+
+
+
     public DBTimeStamp getTime()throws BackOfficeException{
 
-        TimeStampData data = (TimeStampData) this.data[7];
+        TimeStampData data = (TimeStampData) this.data[8];
         return new DBTimeStamp(DBTimeStamp.SQL_TIMESTAMP, data.value);
     }
 
     public void setTime(DBTimeStamp time){
 
-        TimeStampData data = (TimeStampData) this.data[7];
+        TimeStampData data = (TimeStampData) this.data[8];
         data.value = time.getSQLTime().toString();
     }
 

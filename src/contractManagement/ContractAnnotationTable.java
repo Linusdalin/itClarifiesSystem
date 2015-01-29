@@ -34,7 +34,7 @@ public class ContractAnnotationTable extends DataTable implements DataTableInter
     public static final String TABLE = "ContractAnnotation";
     private static final String DESCRIPTION = "Manual comment";
 
-    public enum Columns {Name, Fragment, Ordinal, Description, Creator, Version, Pattern, Time, }
+    public enum Columns {Name, Fragment, Ordinal, Description, Creator, Version, Pattern, PatternPos, Time, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
@@ -45,6 +45,7 @@ public class ContractAnnotationTable extends DataTable implements DataTableInter
             new ReferenceColumn("Creator", DataColumn.noFormatting, new TableReference("PortalUser", "Name")),
             new ReferenceColumn("Version", DataColumn.noFormatting, new TableReference("ContractVersionInstance", "Version")),
             new TextColumn("Pattern", DataColumn.noFormatting),
+            new IntColumn("PatternPos", DataColumn.noFormatting),
             new TimeStampColumn("Time", DataColumn.noFormatting),
     };
 
@@ -78,7 +79,7 @@ public class ContractAnnotationTable extends DataTable implements DataTableInter
     };
     private static final String[][] TestValues = {
 
-          {"test annotation", "first fragment", "1", "This is an annotation", "admin", "Cannon v1.0", "", "2014-07-10 00:00:00", "system"},
+          {"test annotation", "first fragment", "1", "This is an annotation", "admin", "Cannon v1.0", "", "0", "2014-07-10 00:00:00", "system"},
 
 
 

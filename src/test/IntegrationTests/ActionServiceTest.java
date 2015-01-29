@@ -220,44 +220,6 @@ public class ActionServiceTest extends ServletTests {
         }
     }
 
-    @Test
-    public void testFailMissingParameter() throws Exception {
-
-        try{
-
-            MockWriter mockWriter;
-
-            ContractFragment fragment = new ContractFragment(new LookupItem().addFilter(new ColumnFilter(ContractFragmentTable.Columns.Name.name(), "first fragment")));
-            PortalUser assignee = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "demo")));
-
-            mockWriter = new MockWriter();
-
-            when(request.getParameter("session")).thenReturn("DummyAdminToken");
-            when(request.getParameter("fragment")).thenReturn(fragment.getKey().toString());
-            when(request.getParameter("assignee")).thenReturn(assignee.getKey().toString());
-            when(request.getParameter("name")).thenReturn("New test action");
-            when(request.getParameter("status")).thenReturn(null);
-            when(request.getParameter("description")).thenReturn("description of New test action");
-            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
-            when(response.getWriter()).thenReturn(mockWriter.getWriter());
-
-            new ActionServlet().doPost(request, response);
-
-            String output = mockWriter.getOutput();
-            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
-
-            JSONObject json = new JSONObject(output);
-
-            assertError(json, ItClarifiesService.ErrorType.GENERAL);
-
-
-
-    }catch(NullPointerException e){
-
-        e.printStackTrace();
-        assertTrue(false);
-    }
-}
 
 
 

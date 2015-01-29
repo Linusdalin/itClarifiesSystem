@@ -240,7 +240,7 @@ public class ReplaceDocumentTest extends ServletTests{
         first.setAnnotationCount(1);
         first.update();
 
-        new ContractAnnotation("", first, 1, "a comment", user, version, "", now.getISODate()).store();
+        new ContractAnnotation("", first, 1, "a comment", user, version, "", 0, now.getISODate()).store();
 
         new FragmentClassification(first, FeatureTypeTree.Definition.getName(), 0, 0, "", "", user, version, project, "", 0, 0, 70, "no rule specified", now.getISODate()).store();
 

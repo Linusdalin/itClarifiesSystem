@@ -131,18 +131,7 @@ public class ClassificationServlet extends DocumentService {
                     now.getISODate());
             classification.store();
 
-            // Update classification count
-
-            int newCount = fragment.getClassificationsForFragment(new LookupList()
-                    .addFilter(new ColumnFilter(FragmentClassificationTable.Columns.Significance.name(), Query.FilterOperator.GREATER_THAN, Significance.DISPLAY_SIGNIFICANCE))).size();
-
-            PukkaLogger.log(PukkaLogger.Level.INFO, "new count is " + newCount);
-
-            fragment.setClassificatonCount(newCount);
-            fragment.update();
-
             // Store the reclassification for future analysis and improvement of the rule
-
 
             String name = classifier.getName() + "@" + now.getISODate();
             boolean isPositiveClassification = true;
@@ -166,6 +155,28 @@ public class ClassificationServlet extends DocumentService {
                     false);
 
             reclassification.store();
+
+
+            // Update classification count
+
+            int oldCount = (int)fragment.getClassificatonCount();
+
+            int newCount = fragment.getClassificationsForFragment(new LookupList()
+                    .addFilter(new ColumnFilter(FragmentClassificationTable.Columns.Significance.name(), Query.FilterOperator.GREATER_THAN, Significance.DISPLAY_SIGNIFICANCE))).size();
+
+            fragment.setClassificatonCount(newCount);
+            fragment.update();
+
+
+            if(newCount == oldCount + 1 )
+                PukkaLogger.log(PukkaLogger.Level.INFO, "new (real) count of classifications in the fragment is " + newCount);
+            else
+                PukkaLogger.log(PukkaLogger.Level.WARNING, "Got (real) count of " + newCount + " classifications in the fragment but expected " + (oldCount + 1) );
+
+
+
+
+
 
             // Invalidate the cache. The document overview is changed.
 
@@ -205,7 +216,7 @@ public class ClassificationServlet extends DocumentService {
 
     private String getTag(String className, Organization organization, LanguageInterface userLanguage) {
 
-        String classTag = userLanguage.getClassificationForName(className);
+        //String classTag = userLanguage.getClassificationForName(className);
 
         ClassifierInterface[] classifiers = userLanguage.getSupportedClassifiers();
 
@@ -229,7 +240,7 @@ public class ClassificationServlet extends DocumentService {
         for (FragmentClass customClass : customClasses) {
 
             if(customClass.getKey().toString().equals(className))
-                return customClass.getType();
+                return customClass.getKey().toString();
         }
 
         return null;
@@ -394,16 +405,22 @@ public class ClassificationServlet extends DocumentService {
 
             }
 
-
-            ContractVersionInstance version = fragment.getVersion();
             new FragmentClassificationTable().deleteItem( classification);
+
+            int oldCount = (int)fragment.getClassificatonCount();
+            ContractVersionInstance version = fragment.getVersion();
+
 
             // Nuw update classification count
 
             int newCount = fragment.getClassificationsForFragment(new LookupList()
                     .addFilter(new ColumnFilter(FragmentClassificationTable.Columns.Significance.name(), Query.FilterOperator.GREATER_THAN, Significance.DISPLAY_SIGNIFICANCE))).size();
 
-            PukkaLogger.log(PukkaLogger.Level.INFO, "new count is " + newCount);
+
+            if(newCount == oldCount - 1 )
+                PukkaLogger.log(PukkaLogger.Level.INFO, "new (real) count of classifications in the fragment is " + newCount);
+            else
+                PukkaLogger.log(PukkaLogger.Level.WARNING, "Got (real) count of " + newCount + " classifications in the fragment but expected " + (oldCount - 1));
 
             fragment.setClassificatonCount(newCount);
             fragment.update();

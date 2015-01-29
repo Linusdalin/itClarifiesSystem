@@ -115,8 +115,8 @@ public class DocumentDetailsServiceTest extends ServletTests {
                 assertThat(details.getString("id"),             is(document.getKey().toString()));
                 assertThat(details.getString("name"),           is("Cannon"));
                 assertThat(details.getString("project"),        is(document.getProjectId().toString()));
-                assertThat(details.getString("visibility"),     is("Organization"));
-                assertThat(details.getString("access"),         is("ro"));
+                assertThat(details.getString("visibility"),     is("org"));
+                assertThat(details.getString("access"),         is("no"));
                 assertThat(details.getString("owner"), is(document.getOwnerId().toString()));
                 assertThat(details.getString("creation"),       is(document.getCreation().getISODate()));
 
@@ -147,7 +147,7 @@ public class DocumentDetailsServiceTest extends ServletTests {
             bo.createDb();
             bo.populateValues(true);
 
-            Contract document = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Google Analytics")));
+            Contract document = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Cannon")));
 
             MockWriter mockWriter = new MockWriter();
 

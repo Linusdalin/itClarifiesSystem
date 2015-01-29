@@ -88,7 +88,7 @@ public class DocumentService extends ItClarifiesService{
                 int structureNo = aStructureItem.getID();
                 boolean newStructureItemCreated = false;
 
-                PukkaLogger.log(PukkaLogger.Level.INFO, "fragment " + fragmentNo + ": ("+ aFragment.getStyle().type.name()+")" + aFragment.getBody() +"     (" +
+                PukkaLogger.log(PukkaLogger.Level.INFO, "fragment " + fragmentNo + ": ("+ aFragment.getStyle().name()+")" + aFragment.getBody() +"     (" +
                         indentation + ": " + aStructureItem.getStructureType().name() + ":" +
                         (aStructureItem.getTopElement() != null ? aStructureItem.getTopElement().getBody() : "--") +")" );
 
@@ -103,7 +103,7 @@ public class DocumentService extends ItClarifiesService{
 
                 // First check if this is an implicit top level fragment that we have not created yet
 
-                if(aFragment.getStyle().type == StructureType.IMPLICIT){
+                if(aFragment.getStyle() == StructureType.IMPLICIT){
 
 
                     PukkaLogger.log(PukkaLogger.Level.INFO, "Creating a new implicit structure item");
@@ -156,10 +156,10 @@ public class DocumentService extends ItClarifiesService{
                 //String bodyText = testAddingHeadlineNumber(aFragment, autoNumberer);
                 String bodyText = aFragment.getBody();
 
-                if(aFragment.getStyle().type == StructureType.IMAGE){
+                if(aFragment.getStyle() == StructureType.IMAGE){
 
                     bodyText = "";
-                    aFragment.getStyle().type = StructureType.TEXT; // Set it to text, the image will be represented as a text URL
+                    aFragment.setStyle(StructureType.TEXT); // Set it to text, the image will be represented as a text URL
                     for (AbstractImage abstractImage : aFragment.getImages()) {
 
                         bodyText += abstractImage.getRetrievalTag(imageServer, versionInstance.getKey().toString());
@@ -194,7 +194,7 @@ public class DocumentService extends ItClarifiesService{
 
                 // We want to ignore empty fragments. They are not really needed in the presentation
 
-                if(aFragment.getStyle().type == StructureType.TEXT && aFragment.getBody().equals("")){
+                if(aFragment.getStyle() == StructureType.TEXT && aFragment.getBody().equals("")){
 
                     PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring empty fragment");
 
@@ -211,7 +211,7 @@ public class DocumentService extends ItClarifiesService{
                             fragmentNo++,
                             bodyText,
                             aFragment.getIndentation(),
-                            aFragment.getStyle().type.name(),
+                            aFragment.getStyle().name(),
                             defaultRisk,
                             0,     // annotation
                             0,     // reference
@@ -286,6 +286,7 @@ public class DocumentService extends ItClarifiesService{
                         PortalUser.getExternalUser(),
                         versionInstance,
                         aComment.getAnchor(),
+                        0,                          //TODO: Anchor position not implemented
                         analysisTime.getSQLTime().toString());
 
                 annotation.store();
@@ -321,52 +322,6 @@ public class DocumentService extends ItClarifiesService{
 
     }
 
-    /******************************************************************************''''
-     *
-     *
-     *
-     *
-     * @param aFragment
-     * @param autoNumberer
-     * @return
-     *
-     *
-     *          //TODO: handle numbering restart
-     */
-
-    private String testAddingHeadlineNumber(AbstractFragment aFragment, AutoNumberer autoNumberer) {
-
-        String body = aFragment.getBody();
-
-        if(aFragment.getStyle().type != StructureType.HEADING)
-            return body;
-
-        if(aFragment.getStyle().numbering == SimpleStyle.Numbering.NONE)
-            return body;
-
-        boolean restartCount = aFragment.getStyle().restartNumbering;
-
-        if(restartCount){
-
-            System.out.println(" *** Numbering is set to restart for fragment" + aFragment.getBody());
-        }
-
-        String numberPrefix = autoNumberer.getNewNumber((int)aFragment.getIndentation(), restartCount);
-
-
-        if(numberPrefix.equals(""))
-            return body;
-
-        if(startsWithNumber(aFragment.getBody())){
-
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Fragment starts with numbers so we assume numbering has been done manually");
-            return body;
-        }
-
-
-        return numberPrefix + " " + body;
-
-    }
 
     private static boolean startsWithNumber(String body) {
 

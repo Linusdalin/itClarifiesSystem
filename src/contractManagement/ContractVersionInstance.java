@@ -327,7 +327,7 @@ public class ContractVersionInstance extends DataObject implements DataObjectInt
             document.AbstractStructureItem aStructureItem =
                     new document.AbstractStructureItem()
                             .setTopElement(new document.AbstractFragment(item.getName())
-                                                .setStyle(new document.SimpleStyle(document.StructureType.TEXT)));
+                                                .setStyle(document.StructureType.TEXT));
 
 
             if(topElement.exists())

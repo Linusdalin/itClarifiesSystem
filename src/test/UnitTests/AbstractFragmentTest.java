@@ -34,7 +34,7 @@ public class AbstractFragmentTest {
 
         AbstractStructureItem structure = new AbstractStructureItem().setId( 4711 );
         AbstractFragment fragment = new AbstractFragment(text)
-                .setStyle(new SimpleStyle( StructureType.TEXT))
+                .setStyle(StructureType.TEXT)
                 .setStructureParent(structure);
 
         assertThat("Fragment number", fragment.getStructureItem().getID(), is( 4711 ));

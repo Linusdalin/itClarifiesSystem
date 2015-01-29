@@ -144,6 +144,7 @@ public class FragmentDetailServlet extends ItClarifiesService{
         String time = "";
         String comment = "";
         String pattern = "";
+        long patternPos = 0;
         long severity = 0;
 
         try {
@@ -161,6 +162,7 @@ public class FragmentDetailServlet extends ItClarifiesService{
                 time = latest.getTime().getSQLTime().toString();
                 comment = latest.getComment();
                 pattern = latest.getPattern();
+                patternPos = latest.getPatternPos();
                 severity = new Integer(latest.getRisk().getSeverity());
             }
 
@@ -176,7 +178,8 @@ public class FragmentDetailServlet extends ItClarifiesService{
                 .put("classifier", classifier)
                 .put("time", time)
                 .put("comment", comment)
-                .put("pattern", pattern);
+                .put("pattern", pattern)
+                .put("patternPos", patternPos);
     }
 
 
@@ -199,13 +202,14 @@ public class FragmentDetailServlet extends ItClarifiesService{
                     JSONObject classificationJSON = new JSONObject()
 
 
-                            .put("id", classification.getKey().toString())
+                            .put("id",          classification.getKey().toString())
                             //.put("class", classification.getName())
-                            .put("class", classification.getClassTag())
-                            .put("classifier", classification.getCreatorId().toString())
-                            .put("time",       classification.getTime().getSQLTime().toString())
-                            .put("pattern", classification.getPattern())
-                            .put("comment", classification.getComment());
+                            .put("class",       classification.getClassTag())
+                            .put("classifier",  classification.getCreatorId().toString())
+                            .put("time",        classification.getTime().getSQLTime().toString())
+                            .put("pattern",     classification.getPattern())
+                            .put("patternPos",  classification.getPos())
+                            .put("comment",     classification.getComment());
 
                     classifications.put(classificationJSON);
 
@@ -247,6 +251,8 @@ public class FragmentDetailServlet extends ItClarifiesService{
 
                 JSONObject referenceJSON = new JSONObject()
                         .put("id", reference.getToId().toString())
+                        .put("pattern",    reference.getPattern())
+                        .put("patternPos", reference.getPatternPos())
                         .put("type", reference.getType().getName());
 
                 references.put(referenceJSON);
@@ -289,6 +295,7 @@ public class FragmentDetailServlet extends ItClarifiesService{
                         .put("text",        annotation.getDescription())
                         .put("annotator",   annotation.getCreatorId().toString())
                         .put("pattern",     annotation.getPattern())
+                        .put("patternPos",  annotation.getPatternPos())
                         .put("time",        annotation.getTime().getSQLTime().toString());
 
                 annotations.put(annotationJSON);

@@ -770,9 +770,11 @@ public class Contract extends DataObject implements DataObjectInterface{
 
                         body.append("<li style=\"margin-left: "+indentationInEm+"em;\">" + fragment.getText() + "</li>");
 
+                        //body.append(fragment.getText());
+
                     }
                     else{
-                        // TODO: Indentation is not implemented
+
                         body.append(fragment.getText());
 
                     }

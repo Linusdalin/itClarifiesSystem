@@ -39,6 +39,7 @@ public class FragmentServlet extends ItClarifiesService{
     public static final String DataServletName = "Fragment";
 
     public static final BackOfficeInterface backOffice = new ItClarifies();
+    private static final int TAB_WIDTH = 20;  //2x 20  px indentation
 
     public void init(){
 
@@ -375,6 +376,8 @@ public class FragmentServlet extends ItClarifiesService{
 
             for(ContractFragment fragment : allFragments){
 
+                String body = getIndentedText(fragment);
+
                 //PukkaLogger.log(PukkaLogger.Level.INFO, "Got fragment " + fragment.getText().substring(0, (fragment.getText().length() > 40 ? 40 : fragment.getText().length())) + "...");
 
                 //System.out.println("Fragment risk: " + fragment.getRisk());
@@ -382,7 +385,7 @@ public class FragmentServlet extends ItClarifiesService{
                 JSONObject fragmentJSON = new JSONObject()
                     .put("id",              fragment.getKey().toString())
                     .put("ordinal",         fragment.getOrdinal())
-                    .put("text",            encodeToJSON(fragment.getText()))
+                    .put("text",            encodeToJSON(body))
                     .put("document", documentKey)
                     .put("project",         projectKey)
 
@@ -408,6 +411,35 @@ public class FragmentServlet extends ItClarifiesService{
             throw new BackOfficeException(BackOfficeException.General, "Error encoding to JSON " + e.getMessage());
         }
 
+    }
+
+    private String getIndentedText(ContractFragment fragment) {
+
+        long indentation = fragment.getIndentation();
+        if(indentation > 10)
+            indentation = 10;
+
+
+        if(!fragment.getType().equals("LISTITEM") && !fragment.getType().equals("TEXT")){
+
+            System.out.println("Not a list or text fragment ("+fragment.getType() +"), no indentation");
+            return fragment.getText();
+        }
+
+        if(fragment.getText().equals("TEXT")){
+
+            indentation += 1;   // One more for text to compensate for the bullet symbol
+        }
+
+
+        if(indentation <= 2)
+            indentation = 0;
+        else
+            indentation -= 2;       // Remove two if possible. For the headline and the implicit
+
+        long width = indentation * TAB_WIDTH;
+
+        return "<span style=\"display: inline-block; width: "+ width + "px;\">&nbsp;</span>" + fragment.getText();
     }
 
     /************************************************************************************************'

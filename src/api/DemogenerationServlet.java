@@ -362,6 +362,7 @@ public class DemogenerationServlet extends GenericAdminServlet {
                 user.getKey(),
                 version.getKey(),
                 comment.pattern,
+                0,                          //TODO: Anchor position not implemented
                 analysisTime.getISODate());
 
         classification.store();

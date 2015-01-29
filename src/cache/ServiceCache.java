@@ -102,7 +102,7 @@ public class ServiceCache {
 
             // Failed to store in cache. Log this as Fatal error for knowledge, but continue
 
-            PukkaLogger.log(e, " Error in " + comment);
+            PukkaLogger.log(PukkaLogger.Level.WARNING, " Error in " + comment + " Exception: " + e.getLocalizedMessage());
 
         }
 

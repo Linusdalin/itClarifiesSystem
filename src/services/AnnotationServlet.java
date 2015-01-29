@@ -95,6 +95,7 @@ public class AnnotationServlet extends ItClarifiesService{
                         creator,
                         version,
                         pattern,
+                        0,                          //TODO: Anchor position not implemented
                         now.getSQLTime().toString());
                 annotation.store();
 

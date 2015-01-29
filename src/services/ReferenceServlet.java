@@ -24,7 +24,7 @@ import java.util.List;
 
 /********************************************************
  *
- *          Search Servlet returning a list of fragment id:s that should be listed
+ *          Reference overview
  *
  */
 

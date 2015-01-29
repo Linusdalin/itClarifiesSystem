@@ -135,6 +135,7 @@ public class ClassificationOverviewManager {
 
         levelN.put("classification", node.type.getName());
         levelN.put("subClassifications", children);
+        levelN.put("comment", node.type.getDescription());
         levelN.put("statistics", statistics.toJSON());
 
         return levelN;

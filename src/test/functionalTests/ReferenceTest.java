@@ -169,7 +169,9 @@ public class ReferenceTest extends ServletTests {
                     cannon.getHeadVersion().getKey(),
                     project.getKey(),
                     ReferenceType.getOpen(),
-                    "pattern");
+                    "pattern",
+                    0                          //TODO: Anchor position not implemented
+            );
             newOpen.store();
 
             Reference newExplicit = new Reference(
@@ -179,7 +181,9 @@ public class ReferenceTest extends ServletTests {
                     cannon.getHeadVersion().getKey(),
                     project.getKey(),
                     ReferenceType.getExplicit(),
-                    "pattern");
+                    "pattern",
+                    0                          //TODO: Anchor position not implemented
+                    );
 
             newExplicit.store();
 

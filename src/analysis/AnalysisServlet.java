@@ -618,7 +618,7 @@ public class AnalysisServlet extends DocumentService {
                             // Create a new reference and store it in the fragment
                             // It will point to the first clause in the document
 
-                            Reference reference = new Reference(name, fragment, firstFragment,  versionInstance, project, type, name);
+                            Reference reference = new Reference(name, fragment, firstFragment,  versionInstance, project, type, name, 0);
                             reference.store();
                         }
 
@@ -901,7 +901,9 @@ public class AnalysisServlet extends DocumentService {
                             fragment.getVersionId(),
                             project.getKey(),
                             type,
-                            classification.getExtraction().getSemanticExtraction());
+                            classification.getExtraction().getSemanticExtraction(),
+                            0                          //TODO: Anchor position not implemented
+                    );
                     reference.store();
 
                     references++;
@@ -993,7 +995,9 @@ public class AnalysisServlet extends DocumentService {
                             system.getKey(),
                             fragment.getVersionId(),
                             classification.getPattern().getText(),
+                            0,                          //TODO: Anchor position not implemented
                             analysisTime.getSQLTime().toString()
+
                     );
 
 
@@ -1024,7 +1028,9 @@ public class AnalysisServlet extends DocumentService {
                                 fragment.getVersionId(),
                                 project.getKey(),
                                 type,
-                                classification.getExtraction().getSemanticExtraction());
+                                classification.getExtraction().getSemanticExtraction(),
+                                0                          //TODO: Anchor position not implemented
+                                );
                         reference.store();
 
                         references++;
@@ -1172,7 +1178,9 @@ public class AnalysisServlet extends DocumentService {
                                 fragment.getVersionId(),
                                 project.getKey(),
                                 type,
-                                classification.getPattern().getText());
+                                classification.getPattern().getText(),
+                                0                          //TODO: Anchor position not implemented
+                                );
                         reference.store();
 
                         references++;
