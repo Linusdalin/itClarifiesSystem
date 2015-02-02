@@ -10,13 +10,16 @@ import com.google.appengine.api.datastore.Query;
 import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
 import databaseLayer.DBKeyInterface;
+import featureTypes.FeatureType;
+import featureTypes.FeatureTypeInterface;
+import language.Language;
+import language.LanguageAnalyser;
+import language.LanguageCode;
 import language.LanguageInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import pukkaBO.condition.ColumnFilter;
-import pukkaBO.condition.LookupByKey;
-import pukkaBO.condition.LookupList;
+import pukkaBO.condition.*;
 
 import pukkaBO.exceptions.BackOfficeException;
 import services.DocumentService;
@@ -103,7 +106,16 @@ public class ClassificationServlet extends DocumentService {
             Organization organization = classifier.getOrganization();
 
 
-            String classTag = getTag(className, organization, defaultLanguage);
+            LanguageCode documentLanguage = new LanguageCode(document.getLanguage());
+            LanguageInterface languageForDocument = new LanguageAnalyser().getLanguage(documentLanguage);
+
+            // Lookup the tag. Either in the static tree or custom tags in the database
+
+            String classTag = getTag(className, organization, languageForDocument);
+            String tagName = getTagName(className, organization, languageForDocument);
+            FeatureTypeInterface featureType = getFeatureType(className, languageForDocument);
+
+
 
             if(classTag == null){
 
@@ -111,11 +123,15 @@ public class ClassificationServlet extends DocumentService {
                 return;
             }
 
+            if(featureType != null)
+                keyword = featureType.createKeywordString(keyword);
+
+
             //Now update the fragment with a new classification
 
             FragmentClassification classification = new FragmentClassification(
                     fragment.getKey(),
-                    classTag,
+                    className,
                     0,              // requirement level not implemented
                     0,              // applicable phase not implemented
                     comment,
@@ -133,7 +149,7 @@ public class ClassificationServlet extends DocumentService {
 
             // Store the reclassification for future analysis and improvement of the rule
 
-            String name = classifier.getName() + "@" + now.getISODate();
+            String name = classifier.getName() + "@ " + now.getISODate();
             boolean isPositiveClassification = true;
             ContractFragment headline = fragment.getStructureItem().getFragmentForStructureItem();
 
@@ -146,7 +162,7 @@ public class ClassificationServlet extends DocumentService {
                     fragment.getOrdinal(),
                     pattern,
                     comment,
-                    classTag,
+                    tagName,                    // Using the name here for code generation
                     0,
                     0,
                     fragment.getRisk(),
@@ -202,49 +218,6 @@ public class ClassificationServlet extends DocumentService {
 
      }
 
-    /***************************************************************************
-     *
-     *          looking up the tag from both the classification tree and custom tags in the database
-     *
-     *
-     *
-     * @param className
-     * @param organization
-     * @param userLanguage
-     * @return
-     */
-
-    private String getTag(String className, Organization organization, LanguageInterface userLanguage) {
-
-        //String classTag = userLanguage.getClassificationForName(className);
-
-        ClassifierInterface[] classifiers = userLanguage.getSupportedClassifiers();
-
-        for (ClassifierInterface classifier : classifiers) {
-
-            if(classifier.getClassificationTag().equals(className))
-                return className;
-        }
-
-
-            // Look in the database for custom tags
-
-        List<FragmentClass> customClasses = organization.getCustomTagsForOrganization();
-        try {
-            customClasses.addAll(Organization.getnone().getCustomTagsForOrganization());
-        } catch (BackOfficeException e) {
-
-            PukkaLogger.log(PukkaLogger.Level.WARNING, "Ignoring global classifications");
-        }
-
-        for (FragmentClass customClass : customClasses) {
-
-            if(customClass.getKey().toString().equals(className))
-                return customClass.getKey().toString();
-        }
-
-        return null;
-    }
 
 
     /*************************************************************************
@@ -294,7 +267,7 @@ public class ClassificationServlet extends DocumentService {
             for (ClassifierInterface classifier : classifiers) {
 
                 JSONObject riskObject = new JSONObject()
-                            .put("id", classifier.getClassificationTag())
+                            .put("id", classifier.getType().getName())
                             .put("name", classifier.getClassificationName())
                             .put("desc", classifier.getClassificationName())   //TODO: Description not implemented for standard classes
                             .put("type", "General");
@@ -369,6 +342,7 @@ public class ClassificationServlet extends DocumentService {
 
             FragmentClassification classification = new FragmentClassification(new LookupByKey(key));
             ContractFragment fragment = classification.getFragment();
+            ContractVersionInstance version = fragment.getVersion();
 
             if(!mandatoryObjectExists(classification, resp))
                 return;
@@ -378,15 +352,11 @@ public class ClassificationServlet extends DocumentService {
             if(classification.getCreatorId().equals(PortalUser.getSystemUser().getKey())){
 
                 // We are removing a system classification. Apparently the user did not agree
-                //TODO. Improvement: Add check if there is another similar classification
 
                 ContractFragment headline = fragment.getStructureItem().getFragmentForStructureItem();
 
-                //     public Reclassification(String name, boolean ispositive, DBKeyInterface user, String fragment, String headline, String pattern, String tag, DBKeyInterface classification, DBKeyInterface document, String date) throws BackOfficeException{
-
-
                 Reclassification reclassification = new Reclassification(
-                        "delete classification@" + now.getISODate(),
+                        "delete@ " + now.getISODate(),
                         false,
                         sessionManagement.getUser().getKey(),
                         fragment.getText(),
@@ -404,12 +374,36 @@ public class ClassificationServlet extends DocumentService {
                 reclassification.store();
 
             }
+            else{
+
+                // We are removing a user defined classification. (User changed his/her mind)
+                // There should be a reclassification note that we now should remove
+
+                Reclassification reclassificationToDelete = new Reclassification(new LookupItem()
+                        .addFilter(new ReferenceFilter(ReclassificationTable.Columns.Document.name(), version.getDocumentId()))
+                        .addFilter(new ColumnFilter(ReclassificationTable.Columns.ClassTag.name(), classification.getClassTag()))
+                        .addFilter(new ColumnFilter(ReclassificationTable.Columns.FragmentNo.name(), fragment.getOrdinal())));
+
+                if(reclassificationToDelete.exists()){
+
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "Deleting a reclassification note for classification " + classification.getClassTag());
+                    reclassificationToDelete.delete();
+                }
+                else{
+
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "Found no reclassification note to delete for classification " + classification.getClassTag() +
+                            "in fragment no " + fragment.getOrdinal() + " in document (version)" + version.getNameColumn());
+
+                }
+
+            }
+
+
+
 
             new FragmentClassificationTable().deleteItem( classification);
 
             int oldCount = (int)fragment.getClassificatonCount();
-            ContractVersionInstance version = fragment.getVersion();
-
 
             // Nuw update classification count
 

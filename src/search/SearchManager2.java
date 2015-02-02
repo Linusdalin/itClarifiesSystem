@@ -261,13 +261,18 @@ public class SearchManager2 {
             if(word.startsWith("#")){
 
                 String pattern = keywordFieldHandler.getPatternForTag( word );
-                patternList.put(new JSONObject().put("pattern", pattern));
+                patternList.put(new JSONObject()
+                        .put("pattern", pattern)
+
+                );
 
             }
             else{
 
                 patternList.put(new JSONObject().put("pattern", word));
             }
+
+
 
         }
 

@@ -112,7 +112,8 @@ public class ItClarifiesService extends GenericAdminServlet {
 
         // This is a sneak variant of tabs, just adding a span for the text.
 
-        data = data.replaceAll("^(.*)\t", "<span style=\"display: inline-block; width: 160px;\">$1</span>");
+        data = data.replaceAll("^(.*)?\t\\{(.*)?\\}", "<span style=\"display: inline-block; width: $2px;\">$1</span>");
+        //data = data.replaceAll("^(.*)\t", "<span style=\"display: inline-block; width: 160px;\">$1</span>");
         data = data.replaceAll("\t", "&nbsp; &nbsp; ");
 
         return data;

@@ -89,8 +89,9 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
         // Access rights
 
         whiteList.allow("217.13.245.*");        // Office IP
-        whiteList.allow("127.0.0.1");         // Local host for testing
-        whiteList.allow("213.89.59.*");       // Linus Home
+        whiteList.allow("127.0.0.1");           // Local host for testing
+        whiteList.allow("213.89.59.*");         // Linus Home
+        whiteList.allow("83.251.28.*");         // Linus Home
         whiteList.allow("213.185.250.*");       // Ulf Home
 
 

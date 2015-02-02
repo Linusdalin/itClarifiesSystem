@@ -1052,6 +1052,8 @@ public class AnalysisServlet extends DocumentService {
 
                     //System.out.println(classification.getType().getName() + " " + classification.getTag());
 
+                    System.out.println(" *** Storing pattern " + classification.getPattern().getText() + " for classificaiton");
+
                     fragmentClassification = new FragmentClassification(
                             fragment.getKey(),
                             classification.getType().getName(),

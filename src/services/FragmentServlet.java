@@ -439,7 +439,7 @@ public class FragmentServlet extends ItClarifiesService{
 
         long width = indentation * TAB_WIDTH;
 
-        return "<span style=\"display: inline-block; width: "+ width + "px;\">&nbsp;</span>" + fragment.getText();
+        return (width > 0 ? "<span style=\"display: inline-block; width: "+ width + "px;\">&nbsp;</span>" : "" ) + fragment.getText();
     }
 
     /************************************************************************************************'

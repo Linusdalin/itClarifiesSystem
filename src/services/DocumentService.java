@@ -1,6 +1,8 @@
 package services;
 
 import analysis.*;
+import classification.FragmentClass;
+import classifiers.ClassifierInterface;
 import com.google.appengine.api.appidentity.AppIdentityServiceFactory;
 import com.google.appengine.api.utils.SystemProperty;
 import contractManagement.*;
@@ -8,6 +10,8 @@ import dataRepresentation.DBTimeStamp;
 import databaseLayer.DBKeyInterface;
 import document.*;
 import document.SimpleStyle;
+import featureTypes.FeatureTypeInterface;
+import featureTypes.FeatureTypeTree;
 import language.English;
 import language.LanguageInterface;
 import log.PukkaLogger;
@@ -18,6 +22,7 @@ import risk.ContractRisk;
 import search.Keyword;
 import search.KeywordTable;
 import search.SearchManager2;
+import userManagement.Organization;
 import userManagement.PortalUser;
 
 import java.util.HashSet;
@@ -378,200 +383,112 @@ public class DocumentService extends ItClarifiesService{
 
     }
 
+    /***************************************************************************
+     *
+     *          looking up the tag from both the classification tree and custom tags in the database
+     *
+     *
+     *
+     * @param className
+     * @param organization
+     * @param language         -document language
+     * @return
+     */
 
-    /*
+    protected String getTag(String className, Organization organization, LanguageInterface language) {
 
-    protected void fragmentDocumentOld(String fileName, ContractVersionInstance versionInstance, FragmentSplitterInterface fragmenter) throws BackOfficeException {
+        //String classTag = languageInterface.getClassificationForName(className);
 
-        ContractFragmentType listType = ContractFragmentType.getBList();
-        ContractFragmentType headlineType = ContractFragmentType.getHeadline();
-        DBTimeStamp analysisTime = new DBTimeStamp();
-        Contract document = versionInstance.getDocument();
-        Project project = document.getProject();
+        ClassifierInterface[] classifiers = language.getSupportedClassifiers();
 
+        for (ClassifierInterface classifier : classifiers) {
 
-        ContractRisk defaultRisk = ContractRisk.getNone();
+            if(classifier.getType().getName().equals(className)){
 
-        int clauseNumber = 1;
-
-        // The clauses cant be batch stored as we need the DB Key to be able to
-        // link the fragments to the clause
-
-        System.out.println("In fragmentDocument: Generated " + fragmenter.getFragments().size() + " fragments");
-
-
-        for(AbstractClause aClause : fragmenter.getClauses()){
-
-            ContractClause clause = new ContractClause(aClause.getBody(), versionInstance.getKey(), clauseNumber);
-            clause.store();
-
-            // Save the key
-
-            aClause.setKey(clause.getKey().toString());
-            clauseNumber++;
-
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Found static classTag " + className);
+                return classifier.getClassificationName();
+            }
         }
 
 
-        int fragmentNo = 0;
+            // Look in the database for custom tags
 
-        List<AbstractFragment> fragments = fragmenter.getFragments();
-        AutoNumberer autoNumberer = new AutoNumberer();  // Use the auto numberer to create numbering in the document
+        List<FragmentClass> customClasses = organization.getCustomTagsForOrganization();
+        try {
+            customClasses.addAll(Organization.getnone().getCustomTagsForOrganization());
+        } catch (BackOfficeException e) {
 
-        List<String> definitions = new ArrayList<String>();  // Not implemented - just an empty list
-
-        //TODO: Get the document title from the document by looking for a title element. Before this, we use document title as name.
-
-        String documentName = fileName;
-
-        AbstractProject currentProject = new AbstractProject(); // Empty placeholder for now
-
-        // Create an empty list to store the fragments in.
-
-        ContractFragmentTable fragmentsToStore = new ContractFragmentTable();
-        fragmentsToStore.createEmpty();
-
-        Set<String> newKeywords = new HashSet<String>();  // To store all new keywords
-
-
-        //To keep track of which
-
-        // Make a pass over the fragments to create teh data. We store them in a structure to be able to bach store in the database
-        // This means we cant perform the analysis yet as we don't know the fragment id's to store the outcome at.
-
-        for(AbstractFragment aFragment : fragments){
-
-
-
-            // Store all new keywords from the fragment
-
-            if(aFragment.getKeywords() != null)
-                newKeywords.addAll(aFragment.getKeywords());
-
-
-            String fragmentName = (aFragment.getBody().length() < 30 ? aFragment.getBody() : aFragment.getBody().substring(0, 29));
-
-            DBKeyInterface clauseId = new DatabaseAbstractionFactory().createKey(aFragment.getClause().getKey());
-
-            ContractFragmentType type = ContractFragmentType.getText();
-            String numbering = "";
-
-            if(aFragment.isList())
-                type = listType;
-            else if(aFragment.isHeading()){
-
-                type = headlineType;
-                numbering = autoNumberer.getNewNumber((int) aFragment.getIndentation(), aFragment.isRestart());
-
-                // Update the clause with the numbering
-
-                ContractClause clause = new ContractClause(new LookupByKey(clauseId));
-                clause.setName(addNumber( numbering, clause.getName()));
-                clause.update();
-
-            }
-
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Creating a fragment " + fragmentName);
-
-            //TODO Add these to the error list, ignoring the fragment
-
-            if(aFragment == null){
-                PukkaLogger.log(PukkaLogger.Level.INFO, "aFragment is null!");
-            }
-
-            if(aFragment.getClause() == null){
-                PukkaLogger.log(PukkaLogger.Level.INFO, "fragment clause is null!");
-            }
-
-            int row = 0;
-            int column = 0;
-
-            if(aFragment.getCellInfo() != null){
-
-                row = aFragment.getCellInfo().row;
-                column = aFragment.getCellInfo().col;
-            }
-
-
-            ContractFragment fragment = new ContractFragment(
-                    fragmentName,
-                    versionInstance.getKey(),
-                    clauseId,
-                    fragmentNo++,
-                    addNumber(numbering, aFragment.getBody()),  //TODO: Add warning to this too
-                    aFragment.getIndentation(),
-                    type.getKey(),
-                    defaultRisk.getKey(),
-                    0,     // annotation
-                    0,     // reference
-                    0,     // classificaton
-                    column,
-                    row
-
-            );
-
-            fragmentsToStore.add(fragment);
-
+            PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring global classifications");
         }
 
-        System.out.println("Storing " + fragmentsToStore.getCount() + " fragments");
-        fragmentsToStore.store(); // Save all
+        for (FragmentClass customClass : customClasses) {
 
-
-        // Store the keywords:
-        KeywordTable keywordTable = new KeywordTable();
-        keywordTable.createEmpty();
-
-        for(String k : newKeywords){
-
-            Keyword keyword = new Keyword(k, document,  project);
-            keywordTable.add(keyword);
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Added a bold keyword " + keyword.getKeyword());
-
+            if(customClass.getKey().toString().equals(className)){
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Found custom classTag " + customClass.getName());
+                return customClass.getKey().toString();
+            }
         }
 
-        keywordTable.store();
-
-        // Add comments from the document
-
-        int noComments = fragmenter.getComments().size();
-        System.out.println("** Found " + noComments + " comments in the document" );
-
-        for(AbstractComment aComment : fragmenter.getComments()){
-
-            ContractFragment fragment = new ContractFragment(new LookupItem()
-                    .addFilter(new ColumnFilter   (ContractFragmentTable.Columns.Ordinal.name(), aComment.getFragmentId() - 1))
-                    .addFilter(new ReferenceFilter(ContractFragmentTable.Columns.Version.name(), versionInstance.getKey())));
-
-            if(!fragment.exists()){
-
-                for(ContractFragment f : versionInstance.getFragmentsForVersion()){
-                    System.out.println("Fragment: " + f.getName() + "id" + f.getOrdinal());
-                }
-
-                PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not find fragment for comment. Fragment id: " + aComment.getFragmentId() + "("+ aComment.getComment()+")");
-
-            }
-            else{
-
-                ContractAnnotation annotation = new ContractAnnotation(fragment, (long)1, aComment.getComment(),
-                        PortalUser.getExternalUser(),
-                        versionInstance, aComment.getAnchor(), analysisTime.toString());
-                annotation.store();
-
-                fragment.setAnnotationCount(fragment.getAnnotationCount() + 1);
-                fragment.update();
-
-
-            }
-
-
-        }
-
-
+        return null;
     }
 
-      */
+    protected String getTagName(String className, Organization organization, LanguageInterface language) {
+
+        //String classTag = languageInterface.getClassificationForName(className);
+
+        ClassifierInterface[] classifiers = language.getSupportedClassifiers();
+
+        for (ClassifierInterface classifier : classifiers) {
+
+            if(classifier.getType().getName().equals(className)){
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Found static classTag " + className);
+                return className;
+            }
+        }
+
+
+            // Look in the database for custom tags
+
+        List<FragmentClass> customClasses = organization.getCustomTagsForOrganization();
+        try {
+            customClasses.addAll(Organization.getnone().getCustomTagsForOrganization());
+        } catch (BackOfficeException e) {
+
+            PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring global classifications");
+        }
+
+        for (FragmentClass customClass : customClasses) {
+
+            if(customClass.getKey().toString().equals(className)){
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Found custom classTag " + customClass.getName());
+                return customClass.getName();
+            }
+        }
+
+        return null;
+    }
+
+
+    protected FeatureTypeInterface getFeatureType(String className, LanguageInterface languageForDocument) {
+
+
+
+        ClassifierInterface[] classifiers = languageForDocument.getSupportedClassifiers();
+
+        for (ClassifierInterface classifier : classifiers) {
+
+            if(classifier.getType().getName().equals(className)){
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Found static classTag " + className);
+                return classifier.getType();
+            }
+        }
+
+        return null;
+    }
+
+
 
 
     public static void main(String[] args){
