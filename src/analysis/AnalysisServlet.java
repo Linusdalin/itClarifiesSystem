@@ -244,6 +244,9 @@ public class AnalysisServlet extends DocumentService {
         AbstractProject aProject = new AbstractProject();
         AbstractDocument aDocument = newVersion.createAbstractDocumentVersion(aProject);
         LanguageCode documentLanguage = new LanguageCode(document.getLanguage());
+        List<ContractFragment> fragments = newVersion.getFragmentsForVersion();
+        PortalUser owner = document.getOwner();
+        SearchManager2 searchManager = new SearchManager2(project, owner);
 
         document.setStatus(ContractStatus.getAnalysing());  // Setting the status for the document
         document.update();
@@ -270,7 +273,7 @@ public class AnalysisServlet extends DocumentService {
 
             // Now make a new pass over all the fragments to analyse them. At this point all fragments should have a key
 
-            analyseFragments(analyser, newVersion, aDocument, project, document, aProject, analysisTime, outcomeList);
+            analyseFragments(fragments, analyser, newVersion, aDocument, project, document, owner, aProject, analysisTime, outcomeList);
 
             // Make a second pass over all the fragments
             // This is to handle definition references
@@ -302,6 +305,12 @@ public class AnalysisServlet extends DocumentService {
             // Finally a last pass over the project to close any open references
 
             closeReferences(analyser, project);
+
+
+            // Index all fragments in the search engine
+
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Indexing" + fragments.size() + " fragments for the analysis of the document " + document);
+            searchManager.indexFragments(fragments, newVersion, document);
 
 
 
@@ -341,6 +350,9 @@ public class AnalysisServlet extends DocumentService {
         AbstractProject aProject = new AbstractProject();
         AbstractDocument aDocument = documentVersion.createAbstractDocumentVersion(aProject);
         LanguageCode documentLanguage = new LanguageCode(document.getLanguage());
+        List<ContractFragment> fragments = documentVersion.getFragmentsForVersion();
+        PortalUser owner = document.getOwner();
+        SearchManager2 searchManager = new SearchManager2(project, owner);
 
         document.setStatus(ContractStatus.getAnalysing());  // Setting the status for the document
         document.update();
@@ -363,7 +375,7 @@ public class AnalysisServlet extends DocumentService {
 
             // Now make a new pass over all the fragments to analyse them. At this point all fragments should have a key
 
-            analyseFragments(analyser, documentVersion, aDocument, project, document, aProject, analysisTime, outcomeList);
+            analyseFragments(fragments, analyser, documentVersion, aDocument, project, document, owner, aProject, analysisTime, outcomeList);
 
 
             // Make a second pass over all the fragments
@@ -385,6 +397,10 @@ public class AnalysisServlet extends DocumentService {
 
             closeReferences(analyser, project);
 
+            // Index all fragments in the search engine
+
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Indexing" + fragments.size() + " fragments for the analysis of the document " + document);
+            searchManager.indexFragments(fragments, documentVersion, document);
 
 
         } catch (AnalysisException e) {
@@ -395,14 +411,14 @@ public class AnalysisServlet extends DocumentService {
 
     }
 
-    private void analyseFragments(Analyser analyser, ContractVersionInstance documentVersion, AbstractDocument aDocument, Project project,
-                                  Contract document, AbstractProject aProject, DBTimeStamp analysisTime, List<OutcomeMap> outcomeList) throws BackOfficeException {
+    private void analyseFragments(List<ContractFragment> fragments, Analyser analyser, ContractVersionInstance documentVersion, AbstractDocument aDocument, Project project,
+                                  Contract document, PortalUser owner, AbstractProject aProject, DBTimeStamp analysisTime, List<OutcomeMap> outcomeList) throws BackOfficeException {
 
-        List<ContractFragment> fragments = documentVersion.getFragmentsForVersion();
         StringBuffer errorMessages = new StringBuffer();
-        PortalUser owner = document.getOwner();
+        SearchManager2 searchManager = new SearchManager2(project, owner);
 
         int risks = 0;
+        NewAnalysisOutcome analysisOutcome;
 
         for(ContractFragment fragment : fragments){
 
@@ -426,9 +442,9 @@ public class AnalysisServlet extends DocumentService {
                                           // this is additional text from surrounding parts of the document,
                                           // relevant for the analysis e.g. Lists
 
-                NewAnalysisOutcome analysisOutcome = analyser.analyseFragment2(fragment.getText(), headline, contextText, aDocument, aProject);
+                analysisOutcome = analyser.analyseFragment2(fragment.getText(), headline, contextText, aDocument, aProject);
 
-                risks += handleResult(analysisOutcome, fragment, owner, project, analysisTime, aDocument);
+                risks += handleResult(analysisOutcome, fragment, owner, project, analysisTime, searchManager, aDocument);
 
                 // Store it for the second pass. In that pass we dont want to redo the parsing and analysis
 
@@ -631,19 +647,31 @@ public class AnalysisServlet extends DocumentService {
 
     }
 
+    /*************************************************************************************************
+     *
+     *          Post processing looking for definitions
+     *
+     * @param analyser
+     * @param outcomeList
+     * @param aDocument
+     * @param project
+     * @param aProject
+     * @param analysisTime
+     * @throws BackOfficeException
+     */
 
     private void analyseDefinitions(Analyser analyser, List<OutcomeMap> outcomeList, AbstractDocument aDocument, Project project, AbstractProject aProject, DBTimeStamp analysisTime) throws BackOfficeException{
 
-        System.out.println("**** Second pass with " + outcomeList.size() + " elements");
+        PukkaLogger.log(PukkaLogger.Level.DEBUG, "Second pass with " + outcomeList.size() + " elements");
 
 
         for(OutcomeMap outcome : outcomeList){
 
-            System.out.println("**** Post processing " + outcome.fragment.getText());
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Post processing " + outcome.fragment.getText());
 
             NewAnalysisOutcome newOutcome = analyser.postProcess(outcome.outcome, aProject);
 
-            handlePostProcessResult(newOutcome, outcome.fragment, project, analysisTime, aDocument);
+            handlePostProcessResult(newOutcome, outcome.fragment, project);
 
         }
 
@@ -689,6 +717,8 @@ public class AnalysisServlet extends DocumentService {
 
         // Add all classifications if this is a new language for this project
 
+        /*
+
         ContractTable contractsForLanguage = new ContractTable(new LookupList()
                 .addFilter(new ColumnFilter(ContractTable.Columns.Language.name(), analyser.getLanguage().getLanguageCode().code))
                 .addFilter(new ReferenceFilter(ContractTable.Columns.Project.name(), project.getKey())));
@@ -707,6 +737,7 @@ public class AnalysisServlet extends DocumentService {
             }
 
         }
+        */
 
         // TODO: Move these to create project
 
@@ -858,7 +889,10 @@ public class AnalysisServlet extends DocumentService {
      */
 
 
-    private int handleResult(NewAnalysisOutcome analysisResult, ContractFragment fragment, PortalUser owner, Project project, DBTimeStamp analysisTime, AbstractDocument aDocument) throws BackOfficeException{
+    private int handleResult(NewAnalysisOutcome analysisResult, ContractFragment fragment,
+                             PortalUser owner, Project project, DBTimeStamp analysisTime,
+                             SearchManager2 searchManager,
+                             AbstractDocument aDocument) throws BackOfficeException{
 
         boolean updated = false;
 
@@ -874,10 +908,12 @@ public class AnalysisServlet extends DocumentService {
 
         ContractRisk defaultRisk = ContractRisk.getUnknown();
         PortalUser system = PortalUser.getSystemUser();
-        SearchManager2 searchManager = new SearchManager2(project, owner);
-
 
         System.out.println("Found " + analysisResult.getClassifications().size() + " classifications in analysis");
+
+        FragmentClassificationTable classificationsToStore = new FragmentClassificationTable();
+        classificationsToStore.createEmpty();
+
 
         for(Classification classification : analysisResult.getClassifications()){
 
@@ -912,7 +948,7 @@ public class AnalysisServlet extends DocumentService {
                 }
 
 
-                if(classification.getType().getName().equals(FeatureTypeTree.Definition.getName())){
+                if(classification.getType().getName().equals(FeatureTypeTree.DefinitionDef.getName())){
 
                     // The analysis has classified a definition Source.
                     // We create a definition and also add a definition tag. (This may be removed
@@ -932,7 +968,7 @@ public class AnalysisServlet extends DocumentService {
 
                     fragmentClassification = new FragmentClassification(
                             fragment.getKey(),
-                            FeatureTypeTree.Definition.getName(),
+                            FeatureTypeTree.DefinitionDef.getName(),
                             0,              // requirement level not implemented
                             0,              // applicable phase not implemented
                             "",
@@ -946,10 +982,14 @@ public class AnalysisServlet extends DocumentService {
                             classification.getSignificance(),
                             "not specified rule",                       //TODO: This should be implemented later
                             analysisTime.getSQLTime().toString());
-                    fragmentClassification.store();
+
+
+                    //fragmentClassification.store();
+                    classificationsToStore.add(fragmentClassification);
                     classifications++;
 
-                    searchManager.updateIndexWithClassification(fragment, fragmentClassification);
+                    //TODO: Store this for update once and for all
+                    //searchManager.updateIndexWithClassification(fragment, fragmentClassification);
 
                     updated = true;
 
@@ -1004,13 +1044,14 @@ public class AnalysisServlet extends DocumentService {
                     riskAnnotation.store();
                     annotations++;
 
-                    searchManager.updateIndexWithRisk(fragment, risk);
-
+                    fragment.keywordString =  searchManager.getUpdatedKeywords(fragment, risk);
 
                     updated = true;
                     break;
 
                 }
+
+                /*
 
                 if(classification.getType().getName().equals(FeatureTypeTree.DefinitionUsage.getName())){
 
@@ -1018,27 +1059,37 @@ public class AnalysisServlet extends DocumentService {
 
                     PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating Definition Usage reference for fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
 
+                    ReferenceType type = ReferenceType.getDefinitionUsage();
 
-                        ReferenceType type = ReferenceType.getDefinitionUsage();
+                    String definition = classification.getExtraction().getSemanticExtraction();
+                    ContractFragment source = getDefinitionSource(definition, fragment, definitions);
 
-                        Reference reference = new Reference(
-                                classification.getExtraction().getSemanticExtraction(),
-                                fragment.getKey(),
-                                getDefinitionSource(classification, fragment, project),
-                                fragment.getVersionId(),
-                                project.getKey(),
-                                type,
-                                classification.getExtraction().getSemanticExtraction(),
-                                0                          //TODO: Anchor position not implemented
-                                );
-                        reference.store();
+                    if(source == null){
 
-                        references++;
-                        updated = true;
+                        // We could not find a definition source, so we create an open reference
+                        source = fragment;
+                        type = ReferenceType.getOpen();
+
+                    }
+
+                    Reference reference = new Reference(
+                            definition,
+                            fragment.getKey(),
+                            source.getKey(),
+                            fragment.getVersionId(),
+                            project.getKey(),
+                            type,
+                            definition,
+                            0                          //TODO: Anchor position not implemented
+                            );
+                    reference.store();
+
+                    references++;
+                    updated = true;
 
 
                 }
-
+                  */
                 // Default action is to jut add the classification from the analysis
 
 
@@ -1071,9 +1122,10 @@ public class AnalysisServlet extends DocumentService {
                             "not specified rule",
                             analysisTime.getSQLTime().toString());
 
-                    fragmentClassification.store();
+                    classificationsToStore.add(fragmentClassification);
+                    //fragmentClassification.store();
 
-                    searchManager.updateIndexWithClassification(fragment, fragmentClassification);
+                    fragment.keywordString =  searchManager.getUpdatedKeywords(fragment, fragmentClassification);
 
 
                     // Only update the number of classifications if it is above the threshold
@@ -1099,7 +1151,12 @@ public class AnalysisServlet extends DocumentService {
 
         }
 
+        // Store all classifications
+
+        classificationsToStore.store();
+
         if(classifications != 0){
+
 
             fragment.setClassificatonCount(fragment.getClassificationsForFragment().size());   // Using actual value here to correct any issues
         }
@@ -1129,22 +1186,34 @@ public class AnalysisServlet extends DocumentService {
      *
      *
      *
-     * @param classification      - the definition usage classification
+     *
+     *
+     * @param definition          - the definition usage classification
      * @param fragment            - the fragment where it is used
-     * @param project             - the active project
+     * @param projectDefinitions  - the definitions found in the project
      * @return                    - key to the fragment for the definition
+     *
+     *
+     *              If the definition source is not found, we will return null. This indicates that
+     *              we create an open reference
+     *
      */
 
 
-    private DBKeyInterface getDefinitionSource(Classification classification, ContractFragment fragment, Project project) {
+    private ContractFragment getDefinitionSource(String definition, ContractFragment fragment, List<Definition> projectDefinitions) {
 
-        //TODO: Not implemented locating definition source.
+        for (Definition projectDefinition : projectDefinitions) {
 
-        return fragment.getKey();
+            if(projectDefinition.getName().equals(definition))
+                return projectDefinition.getDefinedIn();
+        }
+
+        PukkaLogger.log(PukkaLogger.Level.INFO, "Detected a definition usage, but could not find definition source for " + definition);
+        return null;
     }
 
 
-    private void handlePostProcessResult(NewAnalysisOutcome analysisResult, ContractFragment fragment, Project project, DBTimeStamp analysisTime, AbstractDocument aDocument) throws BackOfficeException{
+    private void handlePostProcessResult(NewAnalysisOutcome analysisResult, ContractFragment fragment, Project project) throws BackOfficeException{
 
         boolean updated = false;
         int classifications = 0;
@@ -1152,13 +1221,13 @@ public class AnalysisServlet extends DocumentService {
         int annotations = 0;
         ContractFragment definitionFragment;
 
-        System.out.println("Found " + analysisResult.getClassifications().size() + " classifications in post process of " + fragment.getText());
+        PukkaLogger.log(PukkaLogger.Level.DEBUG, "Found " + analysisResult.getClassifications().size() + " classifications in post process of " + fragment.getText());
 
         for(Classification classification : analysisResult.getClassifications()){
 
             try{
 
-                System.out.println("Classification is " + classification.getType().getName());
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Classification is " + classification.getType().getName());
 
 
                 if(classification.getType().getName().equals(FeatureTypeTree.DefinitionUsage.getName())){
@@ -1227,7 +1296,6 @@ public class AnalysisServlet extends DocumentService {
 
         if(updated)
             fragment.update();
-
     }
 
 

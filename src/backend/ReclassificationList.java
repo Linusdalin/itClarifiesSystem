@@ -2,8 +2,9 @@ package backend;
 
 import classification.Reclassification;
 import classification.ReclassificationTable;
-import classifiers.swedishClassifiers.NumberClassifierSV;
+import com.google.appengine.api.datastore.Query;
 import contractManagement.*;
+import dataRepresentation.DBTimeStamp;
 import dataRepresentation.DataObjectInterface;
 import dataRepresentation.DataTableInterface;
 import dataRepresentation.DisplayFormat;
@@ -14,6 +15,9 @@ import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.backOffice.Icon;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
+import pukkaBO.form.DateField;
+import pukkaBO.form.FormFieldInterface;
+import pukkaBO.form.FormInterface;
 import pukkaBO.list.*;
 import pukkaBO.renderer.GroupListRenderer;
 import pukkaBO.renderer.ListRendererInterface;
@@ -62,7 +66,7 @@ public class ReclassificationList extends GroupByList implements ListInterface{
 
             add(new ListTableColumn( 1, table ).withNameFromTableColumn( ).withFormat(new DisplayFormat(DisplayFormat.SMALL)));
             add(new ListTableColumn( 2, table ).withName("Set"));
-            add(new ListTableColumn( 3, table ).withNameFromTableColumn( ));
+            add(new ListTableColumn( 3, table ).withNameFromTableColumn( ).withConstantMap());
             add(new ListTableColumn( 4, table ).withNameFromTableColumn( ).withFormat(new DisplayFormat(DisplayFormat.EXTRA_WIDE)));
             add(new ListTableColumn( 6, table ).withName("Frg"));
             add(new ListTableColumn( 7, table ).withNameFromTableColumn( ));
@@ -92,6 +96,11 @@ public class ReclassificationList extends GroupByList implements ListInterface{
 
         // Set the number of elements to display
         displaySize = 20;                                 //TODO: Size not implemented in the Starlight table
+
+        // Add a filter for selecting a date
+
+        setFilter(new SelectDateFilter());
+
     }
 
 
@@ -162,8 +171,10 @@ public class ReclassificationList extends GroupByList implements ListInterface{
 
                 case Callback_Action_Reopen:
 
+                    System.out.println("*** Closing");
                     reclassification.setClosed(false);
                     reclassification.update();
+                    System.out.println("*** Closed");
 
                     return "Reopened " + reclassification.getName();
 
@@ -422,9 +433,56 @@ public class ReclassificationList extends GroupByList implements ListInterface{
         return "Error: No submit action defined...";
     }
 
+    /************************************************************
+     *
+     *      Select a start date. Only show items after this date
+     *
+     *      //TODO: Automatic index:
+     *
+     *      <datastore-index kind="Reclassification" ancestor="false" source="manual">
+             <property name="Document" direction="asc"/>
+             <property name="Date" direction="asc"/>
+         </datastore-index>
+     *
+     */
+
+    private class SelectDateFilter extends ListFilter implements ListFilterInterface {
+
+
+        private static final String FROM_DATE_PARAMETER = "From";
+
+        SelectDateFilter(){
+
+            formFields.add(new DateField("From", FROM_DATE_PARAMETER));
+        }
+
+        public ConditionInterface getFilterCondition(HttpServletRequest request){
+
+            System.out.println("Got "+ request.getParameter(FROM_DATE_PARAMETER)+" in parameter " + FROM_DATE_PARAMETER + " in request. But not implemented filter");
+
+            String date = request.getParameter(FROM_DATE_PARAMETER);
+            ConditionInterface filterCondition = new LookupList();
+
+            try{
+
+                if(date != null){
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "Got "+ request.getParameter(FROM_DATE_PARAMETER)+" in parameter " + FROM_DATE_PARAMETER + " in request. Adding filter");
+                    DBTimeStamp fromTime = new DBTimeStamp(DBTimeStamp.ISO_DATE, date);
+
+                    filterCondition.addFilter(new ColumnFilter(ReclassificationTable.Columns.Date.name(), Query.FilterOperator.GREATER_THAN_OR_EQUAL, fromTime.getISODate()));
+
+                }
+            }catch(BackOfficeException e){
+
+                PukkaLogger.log( e );
+
+            }
 
 
 
+            return filterCondition;
+        }
 
 
+    }
 }

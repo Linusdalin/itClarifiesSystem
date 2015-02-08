@@ -252,12 +252,10 @@ public class DocumentService extends ItClarifiesService{
         PukkaLogger.log(PukkaLogger.Level.INFO, "Storing " + fragmentsToStore.getCount() + " fragments for the analysis of the document " + document);
         fragmentsToStore.store(); // Save all
 
-        // Index all fragments in the search engine
-
-        searchManager.indexFragments(fragmentsToStore.getValues(), versionInstance, document);
 
         // Store the keywords
 
+        PukkaLogger.log(PukkaLogger.Level.INFO, "Storing keywords for the analysis of the document " + document);
         storeKeyWords(newKeywords, versionInstance, document, project);
 
         // Handle comments. The comments are extracted by the parsing and stored with a fragment id,
@@ -406,7 +404,7 @@ public class DocumentService extends ItClarifiesService{
             if(classifier.getType().getName().equals(className)){
 
                 PukkaLogger.log(PukkaLogger.Level.INFO, "Found static classTag " + className);
-                return classifier.getClassificationName();
+                return classifier.getType().getName();   // This should be the #TAG as this is the key to the frontend
             }
         }
 

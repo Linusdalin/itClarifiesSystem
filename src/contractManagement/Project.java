@@ -344,6 +344,28 @@ public class Project extends DataObject implements DataObjectInterface{
 
 
 
+    public List<Definition> getDefinitionsForProject(ConditionInterface condition){
+
+        condition.addFilter(new ReferenceFilter(DefinitionTable.Columns.Project.name(), getKey()));
+
+        List<DataObjectInterface> objects = new DefinitionTable(condition).getValues();
+
+        List<Definition> list = (List<Definition>)(List<?>) objects;
+
+        return list;
+    }
+
+    // No condition retrieves all items
+
+    public List<Definition> getDefinitionsForProject(){
+
+        return getDefinitionsForProject(new LookupList());
+    }
+
+
+
+
+
 
     public document.AbstractProject createAbstractProject() throws BackOfficeException{
 

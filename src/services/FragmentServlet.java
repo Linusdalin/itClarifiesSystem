@@ -389,10 +389,11 @@ public class FragmentServlet extends ItClarifiesService{
                     .put("document", documentKey)
                     .put("project",         projectKey)
 
-                    .put("annotations", fragment.getAnnotationCount())
+                    .put("annotations",     fragment.getAnnotationCount())
                     .put("actions",         fragment.getActionCount())
                     .put("classifications", fragment.getClassificatonCount())
-                    .put("references", getReferencesForFragment(fragment, references))
+                    .put("references",      getReferencesForFragment(fragment, references))
+                    .put("incoming",        getInReferencesForFragment(fragment, references))
                     .put("type",            fragment.getType())
                     .put("risk",            "" + fragment.getRisk().getId())
                     .put("display",         getDisplayInfo(fragment))
@@ -470,6 +471,26 @@ public class FragmentServlet extends ItClarifiesService{
 
         return refrenceJSON;
     }
+
+    private JSONArray getInReferencesForFragment(ContractFragment fragment, List<Reference> references) {
+
+        JSONArray refrenceJSON = new JSONArray();
+
+        for (Reference reference : references) {
+
+            if(reference.getToId().equals(fragment.getKey()))
+                refrenceJSON.put(new JSONObject()
+                        .put("from", reference.getFromId().toString())
+                        .put("type", reference.getType().getName())
+
+                );
+        }
+
+
+        return refrenceJSON;
+    }
+
+
 
     /**************************************************************************************
      *

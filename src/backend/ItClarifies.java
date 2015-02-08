@@ -166,7 +166,8 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
 
                                 new LinkElement[] {
 
-                                    new LinkElement("Dashboard",            new DashboardPage()),
+                                        new LinkElement("Dashboard",            new DashboardPage()),
+                                        //new LinkElement("Create Reference",     new CreateReferenceLightbox(null)),
 
                                 },
                                 new ListInterface[] {
@@ -331,9 +332,10 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
 
                         new LinkElement[] {
 
+                                new LinkElement("Import Reclassifications",            new ReclassificationImportPage()),
+
                                 //new LinkElement("Form Example", "form.jsp?form=ExampleForm2&section=Home", "An example form"),
                                 //new LinkElement("Form Example",     new ExampleForm(this), ACS_Product.GENERAL),
-                                //new LinkElement("Dashboard",            new DashboardPage()),
                                 //new LinkElement("Service Overview",     new ServiceContractPivot()),
                                 //new LinkElement("PivotTest",            new ExamplePivotPage()),
 
@@ -412,6 +414,7 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
         forms = new FormInterface[] {
 
                 new LoginForm(),
+                new ReferenceForm( this, ""),
                 //new contractManagement.FilterForm( this, "", null, null),
 
           //new ExampleForm(this),
@@ -433,6 +436,8 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
                 //new ReviewPage(),
 
                 new DashboardPage(),
+                new ReclassificationImportPage(),
+                new CreateReferenceLightbox(  ),
 
                 //new TestLightbox(),
                 //new TestPage(),        // Test bar chart

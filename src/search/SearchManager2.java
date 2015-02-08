@@ -52,7 +52,7 @@ public class SearchManager2 {
 
     //TODO: Use batch index with 200 items at a time
 
-    public void indexFragments(List<DataObjectInterface> values, ContractVersionInstance version, Contract document) {
+    public void indexFragments(List<ContractFragment> values, ContractVersionInstance version, Contract document) {
 
         for (DataObjectInterface value : values) {
 
@@ -75,7 +75,7 @@ public class SearchManager2 {
                 document.getKey().toString(),
                 document.getOwnerId().toString(),
                 (int)fragment.getStructureNo(),
-                "",
+                fragment.keywordString,
                 visibility,
                 (int)fragment.getOrdinal());
     }
@@ -97,23 +97,29 @@ public class SearchManager2 {
 
     }
 
-    /*****************************************************************************
-     *
-     *          Update the indexed fragment with a risk tagging
-     *
-     *
-     * @param fragment
-     * @param risk
-     *
-     *
-     */
-
 
     public void updateIndexWithRisk(ContractFragment fragment, RiskClassification risk) {
 
         tagFragment(fragment, risk.getRisk().getName(), risk.getComment(), risk.getPattern());
 
     }
+
+    public String getUpdatedKeywords(ContractFragment fragment, FragmentClassification classification){
+
+        KeywordFieldHandler keywordField = new KeywordFieldHandler(fragment.keywordString);
+        keywordField.addTag(classification.getClassTag() +classification.getKeywords(), classification.getPattern());
+
+        return keywordField.encode();
+    }
+
+    public String getUpdatedKeywords(ContractFragment fragment, RiskClassification risk){
+
+        KeywordFieldHandler keywordField = new KeywordFieldHandler(fragment.keywordString);
+        keywordField.addTag(risk.getRisk().getName() +risk.getKeywords(), risk.getPattern());
+
+        return keywordField.encode();
+    }
+
 
 
     private void tagFragment(ContractFragment fragment, String tag, String keywords, String pattern){

@@ -859,7 +859,7 @@ public class Contract extends DataObject implements DataObjectInterface{
         return "<tr>" +
                   "<td width=\"10%\">"+ textTags.toString()+"</td>" +
                   "<td style=\"border-bottom:1pt solid black;\" width=\"10%\">"+ styleForm + "</td>" +
-                  "<td width=\"30px\"></td>" +
+                  //"<td width=\"30px\">"+ new CreateReferenceLightbox().getLink(fragment) +"</td>" +
                   "<td style=\"border-bottom:1pt solid black;\" width=\"40%\">"+ fragmentText.toString() +"</td>" +
                   "<td style=\"border-bottom:1pt solid black;\" width=\"40%\">"+ analysisTags.toString() +"</td>" +
                 "</tr>";

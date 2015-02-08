@@ -71,7 +71,7 @@ public class ClassificationServlet extends DocumentService {
 
 
             DBKeyInterface key                = getMandatoryKey("fragment", req);
-            String className                  = getMandatoryString("class", req);
+            String classTag                  = getMandatoryString("class", req);
             String comment                    = getOptionalString("comment", req, "");
             String pattern                    = getOptionalString("pattern", req, "");
             String keyword                    = getOptionalString("keyword", req, "");
@@ -111,15 +111,15 @@ public class ClassificationServlet extends DocumentService {
 
             // Lookup the tag. Either in the static tree or custom tags in the database
 
-            String classTag = getTag(className, organization, languageForDocument);
-            String tagName = getTagName(className, organization, languageForDocument);
-            FeatureTypeInterface featureType = getFeatureType(className, languageForDocument);
+            String localizedClass = getTag(classTag, organization, languageForDocument);
+            String tagName = getTagName(classTag, organization, languageForDocument);
+            FeatureTypeInterface featureType = getFeatureType(classTag, languageForDocument);
 
 
 
-            if(classTag == null){
+            if(localizedClass == null){
 
-                returnError("The classification tag " + className + " does not exist.", ErrorType.DATA, HttpServletResponse.SC_BAD_REQUEST, resp);
+                returnError("The classification tag " + classTag + " does not exist.", ErrorType.DATA, HttpServletResponse.SC_BAD_REQUEST, resp);
                 return;
             }
 
@@ -131,7 +131,7 @@ public class ClassificationServlet extends DocumentService {
 
             FragmentClassification classification = new FragmentClassification(
                     fragment.getKey(),
-                    className,
+                    localizedClass,
                     0,              // requirement level not implemented
                     0,              // applicable phase not implemented
                     comment,
@@ -151,14 +151,18 @@ public class ClassificationServlet extends DocumentService {
 
             String name = classifier.getName() + "@ " + now.getISODate();
             boolean isPositiveClassification = true;
-            ContractFragment headline = fragment.getStructureItem().getFragmentForStructureItem();
+            StructureItem headline = fragment.getStructureItem();
+            String headlineText = "";
+
+            if(headline.exists())
+                headlineText = headline.getFragmentForStructureItem().getText();
 
             Reclassification reclassification = new Reclassification(
                     name,
                     isPositiveClassification,
                     classifier.getKey(),
                     fragment.getText(),
-                    headline.getText(),
+                    headlineText,
                     fragment.getOrdinal(),
                     pattern,
                     comment,
@@ -206,13 +210,13 @@ public class ClassificationServlet extends DocumentService {
 
         }catch(BackOfficeException e){
 
+            PukkaLogger.log( e );
             returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            e.printStackTrace();
 
         } catch ( Exception e) {
 
+            PukkaLogger.log( e );
             returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            e.printStackTrace();
 
         }
 

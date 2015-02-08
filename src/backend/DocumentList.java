@@ -80,8 +80,8 @@ public class DocumentList extends GroupByList implements ListInterface{
             add(new ListTableColumn( 5, table ).withNameFromTableColumn());
             add(new ListTableColumn( 6, table ).withNameFromTableColumn());
             add(new ListTableColumn( 7, table ).withNameFromTableColumn());
-            add(new ListTableColumn( 8, table ).withNameFromTableColumn());
-            add(new ListTableColumn( 9, table ).withNameFromTableColumn());
+            add(new ListTableColumn( 8, table ).withNameFromTableColumn().withConstantMap());
+            add(new ListTableColumn( 9, table ).withNameFromTableColumn().withConstantMap());
             add(new ListTableColumn( 10, table ).withNameFromTableColumn());
 
         }};

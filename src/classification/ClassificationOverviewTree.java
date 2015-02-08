@@ -27,7 +27,7 @@ public class ClassificationOverviewTree {
 
             new ClassificationOverviewNode(FeatureTypeTree.Root, new ClassificationOverviewNode[]{
 
-                    new ClassificationOverviewNode(FeatureTypeTree.Requirement, new ClassificationOverviewNode[]{
+                    new ClassificationOverviewNode(FeatureTypeTree.ContractDelivery, new ClassificationOverviewNode[]{
 
                             new ClassificationOverviewNode(FeatureTypeTree.RightsAndObligations, new ClassificationOverviewNode[]{
 
@@ -36,6 +36,12 @@ public class ClassificationOverviewTree {
 
                             }),
                     }),
+
+                    new ClassificationOverviewNode(FeatureTypeTree.RiskMgmnt, new ClassificationOverviewNode[]{
+
+                            new ClassificationOverviewNode(FeatureTypeTree.Security, LEAF),
+                    }),
+
 
 
 

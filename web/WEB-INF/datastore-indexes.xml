@@ -101,4 +101,10 @@
             <property name="Name" direction="asc"/>
         </datastore-index>
 
+    <datastore-index kind="Reclassification" ancestor="false" source="manual">
+            <property name="Document" direction="asc"/>
+            <property name="Date" direction="asc"/>
+        </datastore-index>
+
+
 </datastore-indexes>
