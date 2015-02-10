@@ -90,7 +90,7 @@ public class ClassificationServiceTest extends ServletTests {
         try {
 
             ContractFragment fragment = new ContractFragment(new LookupItem().addFilter(new ColumnFilter(ContractFragmentTable.Columns.Name.name(), "first fragment")));
-            String classForFragment = FeatureTypeTree.Definition.getName();  // Just arbitrary class for test
+            String classForFragment = FeatureTypeTree.DefinitionDef.getName();  // Just arbitrary class for test
 
             long classificationCount = fragment.getClassificatonCount();
             PukkaLogger.log(PukkaLogger.Level.INFO, "There are " + classificationCount + " classifications");
@@ -152,11 +152,11 @@ public class ClassificationServiceTest extends ServletTests {
 
             assertThat(readBack.getClassificatonCount(), is(classificationCount));
 
-            // After deleting the classification, the log should still show one entry, as this
-            // was not a system classificaton.
+            // After deleting the classification, the log should not show any entries,
+            // as the classification was revoked.
 
             ReclassificationTable classificatonLogAfter = new ReclassificationTable();
-            assertThat("There should be one re-classification note", classificatonLogAfter.getCount(), is( 1 ));
+            assertThat("There should be one re-classification note", classificatonLogAfter.getCount(), is( 0 ));
 
 
 

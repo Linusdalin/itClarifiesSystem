@@ -603,6 +603,8 @@ public class Contract extends DataObject implements DataObjectInterface{
 
             for(ContractFragment fragment : fragmentsForDocument){
 
+                System.out.println(" *** Displaying fragment (" + fragment.getType() + ") "+ fragment.getName());
+
                 if(!tableMode){
 
                     // Clear all from last fragment.
@@ -618,10 +620,12 @@ public class Contract extends DataObject implements DataObjectInterface{
                     // Entering table mode
                     tableMode = true;
                     tableRow = 0;
+                    System.out.println(" *** Entering table mode!");
 
                 }else if(!fragment.getType().equals("TABLE") && tableMode){
 
                     // Leaving table mode. Create the (multi) line
+                    System.out.println(" *** Found fragment type: " + fragment.getType()+ "Leaving table mode!");
 
                     if(editable)
                         html.append(createLine(this, fragment, style, body , comments));
@@ -633,7 +637,23 @@ public class Contract extends DataObject implements DataObjectInterface{
                     // And Clear all from last fragment.
 
                     style = new StringBuffer();
-                    body = new StringBuffer();
+                    body = new StringBuffer("");
+                    comments = new StringBuffer();
+
+                }else if(fragment.getxPos() == 0 && !body.toString().equals("")){
+
+                    // Leaving table mode. Create the (multi) line
+                    System.out.println(" *** Found new line. Writing table content");
+
+                    if(editable)
+                        html.append(createLine(this, fragment, style, body , comments));
+                    else
+                        html.append(createLine(null, null, style, body , comments));
+
+                    // And Clear all from last fragment.
+
+                    style = new StringBuffer();
+                    body = new StringBuffer("");
                     comments = new StringBuffer();
 
                 }
@@ -682,7 +702,7 @@ public class Contract extends DataObject implements DataObjectInterface{
                         comments.append(" Open Reference " + reference.getName() +" <br/>");
                     else{
 
-                        // Reference too. We are assuming that the "to"-fragment exists
+                        // Reference to. We are assuming that the "to"-fragment exists
 
                         if(reference.getTo() == null){
 
@@ -805,6 +825,17 @@ public class Contract extends DataObject implements DataObjectInterface{
                         html.append(createLine(null, null, style, body , comments));
 
                 }
+
+            }
+
+            if(tableMode){
+
+                System.out.println(" *** Ending in table mode. Closing up!");
+
+                if(editable)
+                    html.append(createLine(this, null, style, body , comments));
+                else
+                    html.append(createLine(null, null, style, body , comments));
 
             }
         }

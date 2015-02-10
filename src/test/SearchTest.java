@@ -106,7 +106,7 @@ public class SearchTest extends ServletTests {
             expectMatches(json, 13);
 
             json = new SearchManager().getMatchJson("åäö", demo, mockedSession);
-            expectMatches(json, 2);
+            expectMatches(json, 1);
 
 
         } catch (BackOfficeException e) {

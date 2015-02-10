@@ -4,6 +4,7 @@ package classification;
 import contractManagement.Contract;
 import contractManagement.ContractVersionInstance;
 import contractManagement.Project;
+import featureTypes.FeatureTypeInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -109,7 +110,7 @@ public class ClassificationOverviewManager {
         // Lookup the stats for the node in the tree.
         // If it doesn't exist, we create a new (to potentially store indirect classifications)
 
-        ClassificationStatistics statistics = getStatisticsNode(statisticsMap, node);
+        ClassificationStatistics statistics = getStatisticsNode(statisticsMap, node.type);
 
         // Traverse all children
 
@@ -142,9 +143,9 @@ public class ClassificationOverviewManager {
 
     }
 
-    private ClassificationStatistics getStatisticsNode(Map<String, ClassificationStatistics> statisticsMap, ClassificationOverviewNode node) {
+    private ClassificationStatistics getStatisticsNode(Map<String, ClassificationStatistics> statisticsMap, FeatureTypeInterface classification) {
 
-        ClassificationStatistics statistics = statisticsMap.get(node.type.getName());
+        ClassificationStatistics statistics = statisticsMap.get(classification.getName());
 
         if(statistics == null){
 
@@ -172,6 +173,11 @@ public class ClassificationOverviewManager {
         statisticsMap.put(classification.getClassTag(), statForClassification);
 
 
+    }
+
+    public Map<String, ClassificationStatistics> getStatisticsMap(){
+
+        return statisticsMap;
     }
 
 }

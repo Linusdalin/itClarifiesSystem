@@ -60,7 +60,6 @@ public class BlobRepository implements RepositoryInterface {
      * @param req - the HTTP request
      */
 
-    @Override
     public RepositoryFileHandler getFileHandler(String fileName, HttpServletRequest req) {
 
         Map<String, BlobKey> blobs = blobstoreService.getUploadedBlobs(req);
@@ -71,7 +70,6 @@ public class BlobRepository implements RepositoryInterface {
 
     }
 
-    @Override
     public void serveFile(RepositoryFileHandler fileHandler, HttpServletResponse res) throws IOException {
 
         GcsFilename gcsFile = new GcsFilename(getBucket(), fileHandler.getFileName());
@@ -83,7 +81,6 @@ public class BlobRepository implements RepositoryInterface {
 
     }
 
-    @Override
     public boolean existsFile(RepositoryFileHandler fileHandler) {
 
         if(fileHandler.toString() == null)
@@ -93,7 +90,6 @@ public class BlobRepository implements RepositoryInterface {
     }
 
 
-    @Override
     public RepositoryFileHandler getEmptyFileHandler() {
 
         return new RepositoryFileHandler(EMPTY);
@@ -101,7 +97,6 @@ public class BlobRepository implements RepositoryInterface {
 
 
 
-    @Override
     public InputStream getInputStream(RepositoryFileHandler fileHandler) throws IOException {
 
 
@@ -118,7 +113,6 @@ public class BlobRepository implements RepositoryInterface {
     }
 
 
-    @Override
     public OutputStream getOutputStream(RepositoryFileHandler fileHandler) throws IOException {
 
         GcsFilename gcsFile = new GcsFilename(getBucket(), fileHandler.getFileName());

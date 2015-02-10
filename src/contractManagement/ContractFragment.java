@@ -1,5 +1,7 @@
 package contractManagement;
 
+import document.CellInfo;
+import document.TableSpan;
 import risk.*;
 import contractManagement.*;
 import classification.*;
@@ -584,5 +586,22 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
         return children;
 
 
+    }
+
+    /*******************************************************************************
+     *
+     *          This is used to pass to the analysis. Not all elements are used
+     *
+     *
+     * @return
+     */
+
+
+    public CellInfo getCellInfo() {
+
+        TableSpan tableSpan = new TableSpan( 1, 1 );  //TODO: Table span not implemented
+
+        CellInfo cellInfo = new CellInfo((int)this.getxPos(), (int)this.getyPos(), "#FFFFFF", 0, 0, tableSpan , 1, true);
+        return cellInfo;
     }
 }

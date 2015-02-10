@@ -12,6 +12,8 @@
 <%@ page import="pukkaBO.dropdown.DropDownTableReference" %>
 <%@ page import="pukkaBO.form.DropDownList" %>
 <%@ page import="classification.FragmentClassTable" %>
+<%@ page import="actions.Checklist" %>
+<%@ page import="actions.ChecklistTable" %>
 <html>
 
 
@@ -69,10 +71,12 @@
 
 
 
-    String riskDropdown = new ContractRiskTable().getDropDown(null).withName("risk").withUnselected("select").render();
-    String classDropdown = new FragmentClassTable().getDropDown(null).withName("class").withUnselected("select").render();
-    String statusDropdown = new ActionStatusTable().getDropDown(null).withName("status").withUnselected("select").render();
-    String userDropdown = new PortalUserTable().getDropDown(null).withName("assignee").withUnselected("select").render();
+    String riskDropdown      = new ContractRiskTable().getDropDown(null).withName("risk").withUnselected("select").render();
+    String classDropdown     = new FragmentClassTable().getDropDown(null).withName("class").withUnselected("select").render();
+    String statusDropdown    = new ActionStatusTable().getDropDown(null).withName("status").withUnselected("select").render();
+    String userDropdown      = new PortalUserTable().getDropDown(null).withName("assignee").withUnselected("select").render();
+    String projectDropdown  = new ProjectTable().getDropDown(null).withName("project").withUnselected("select").render();
+    String checklistDropdown = new ChecklistTable().getDropDown(null).withName("checkList").withUnselected("select").render();
 
 
 %>
@@ -109,7 +113,7 @@
         <li><a href="#DocumentLink">Documents</a></li>
         <li><a href="#FragmentLink">Fragments</a></li>
         <li><a href="#AnnotationLink">Annotations, Classifications and Risk</a></li>
-        <li><a href="#ActionLink">Actions</a></li>
+        <li><a href="#ActionLink">Actions and Checklists</a></li>
         <li><a href="#SearchLink">Search</a></li>
         <li><a href="#UploadLink">Upload</a></li>
         <li><a href="#ReferencesLink">References</a></li>
@@ -1154,7 +1158,7 @@
 
         <FORM METHOD=GET action="<% out.print(host); %>/Action" id="getActionForm" name="deleteActionForm" accept-charset="UTF-8">
 
-            <fieldset style="height:200px">
+            <fieldset style="height:195px">
                 <h3>Get all Actions</h3>
                 <p>Get all actions for a project</p>
 
@@ -1174,7 +1178,7 @@
 
         <FORM METHOD=DELETE action="<% out.print(host); %>/Action" id="deleteActionForm" name="deleteActionForm" accept-charset="UTF-8">
 
-            <fieldset style="height:200px">
+            <fieldset style="height:195px">
                 <h3>Delete Action</h3>
                 <p>Deleting an action</p>
 
@@ -1202,7 +1206,7 @@
 
     <FORM METHOD=POST action="<% out.print(host); %>/ConvertToAction" id="convertActionForm" name="convertActionForm" accept-charset="UTF-8">
 
-        <fieldset style="height:200px">
+        <fieldset style="height:195px">
             <h3>Convert To Action</h3>
             <p>Converting an annotation to an action by providing an assignee </p>
 
@@ -1226,7 +1230,7 @@
 
     <FORM METHOD=GET action="<% out.print(host); %>/ActionStatus" id="ActionStatusForm" name="ActionStatusForm" accept-charset="UTF-8">
 
-        <fieldset style="height:200px">
+        <fieldset style="height:195px">
             <h3>Get Action Statuses</h3>
             <p>Return all the possible statuses for the actions</p>
 
@@ -1243,6 +1247,116 @@
 
 
 </div>
+
+<div style="clear:both">&nbsp;</div>
+
+<div style="width:100%">
+
+    <a id="ChecklistLink"></a>
+    <h1>Checklists</h1>
+    <p>Cross Reference Checklists</p>
+</div>
+
+
+<div style="float:left; width:33%">
+
+    <FORM METHOD=POST action="<% out.print(host); %>/Checklist" id="postChecklistForm" name="postChecklistForm" accept-charset="UTF-8">
+
+        <fieldset style="height:420px">
+            <h3>Add/Update Checklist </h3>
+            <p>Adding or updating an action</p>
+
+            <p>	<label for="ChecklistName">Name</label>
+                <input type="text" id="ChecklistName" name="name" size="50"></p>
+            <p>	<label for="ChecklistDescription">Description</label>
+                <input type="text" id="ChecklistDescription" name="ChecklistDescription" size="50"></p>
+            <p> <label for="ChecklistProject">Project</label> <% out.print(projectDropdown);%></p>
+
+            <input type="hidden" name="html" value="on">
+            <% out.print(getTokenParameter(useRealToken, "postAction"));%>
+
+            <p>
+                <input type="submit" value="Edit" class="btn primary" id="submit_postChecklistForm" />
+            </p>
+        </fieldset>
+
+    </FORM>
+
+    </div>
+
+    <div style="float:left; width:33%">
+
+
+        <FORM METHOD=GET action="<% out.print(host); %>/Checklist" id="getChecklistsForm" name="getChecklistsForm" accept-charset="UTF-8">
+
+            <fieldset style="height:195px">
+                <h3>Get all Checklists</h3>
+                <p>Get all checklists for a project</p>
+
+                <p>	<label for="ChecklistProject">Project</label>
+                    <input type="text" id="ChecklistProject" name="project" size="50" value="<% out.print(demoProjectKey);%>"></p>
+
+                <input type="hidden" name="html" value="on">
+                <% out.print(getTokenParameter(useRealToken, "getAction"));%>
+
+                <p>
+                    <input type="submit" value="Get" class="btn primary" id="submit_getChecklistsForm" />
+                </p>
+            </fieldset>
+
+        </FORM>
+
+
+        <FORM METHOD=DELETE action="<% out.print(host); %>/Checklist" id="deleteChecklistForm" name="deleteActionForm" accept-charset="UTF-8">
+
+            <fieldset style="height:195px">
+                <h3>Delete Checklist</h3>
+                <p>Deleting a checkist</p>
+
+                <p>	<label for="DeleteChecklist">Checklist</label>
+                    <input type="text" id="DeleteChecklist" name="Checklist" size="50"></p>
+
+                <input type="hidden" name="html" value="on">
+                <input type="hidden" name="_method" value="DELETE" />
+                <% out.print(getTokenParameter(useRealToken, "deleteAction"));%>
+
+                <p>
+                    <input type="submit" value="Delete" class="btn primary" id="submit_deleteChecklistForm" />
+                </p>
+            </fieldset>
+
+        </FORM>
+
+
+    </div>
+
+
+
+<div style="float:left; width:33%">
+
+
+
+    <FORM METHOD=GET action="<% out.print(host); %>/ChecklistItem" id="ChecklistDetailForm" name="ChecklistDetailForm" accept-charset="UTF-8">
+
+        <fieldset style="height:195px">
+            <h3>Get Checklist Details</h3>
+            <p>Return details for a given checklist</p>
+
+            <p> <label for="GetChecklist">Checklist</label> <% out.print(checklistDropdown);%></p>
+
+            <input type="hidden" name="html" value="on">
+            <% out.print(getTokenParameter(useRealToken, "ChecklistStatus"));%>
+
+            <p>
+                <input type="submit" value="Convert" class="btn primary" id="submit_ChecklistDetailForm" />
+            </p>
+        </fieldset>
+
+    </FORM>
+
+
+</div>
+
 
 <div style="clear:both">&nbsp;</div>
 

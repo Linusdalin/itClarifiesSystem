@@ -231,6 +231,11 @@ public class AnalysisServlet extends DocumentService {
      * @param newVersion - the new version
      * @param oldVersion - old optional version
      * @throws BackOfficeException
+     *
+     *          //TODO: Optimization: Definitions are retreived twice.
+     *
+     *          //TODO: Refactor: analyse and reanalyse are to similar NOT to refactor to one
+     *
      */
 
 
@@ -241,8 +246,9 @@ public class AnalysisServlet extends DocumentService {
         Contract document = newVersion.getDocument();
         Project project = document.getProject();
         Organization organization = project.getOrganization();
-        AbstractProject aProject = new AbstractProject();
+        AbstractProject aProject = project.createAbstractProject();
         AbstractDocument aDocument = newVersion.createAbstractDocumentVersion(aProject);
+        List<Definition> definitions = project.getDefinitionsForProject();
         LanguageCode documentLanguage = new LanguageCode(document.getLanguage());
         List<ContractFragment> fragments = newVersion.getFragmentsForVersion();
         PortalUser owner = document.getOwner();
@@ -278,7 +284,7 @@ public class AnalysisServlet extends DocumentService {
             // Make a second pass over all the fragments
             // This is to handle definition references
 
-            analyseDefinitions(analyser, outcomeList, aDocument, project, aProject, analysisTime);
+            analyseDefinitions(analyser, outcomeList, aDocument, project, aProject, analysisTime, definitions);
 
 
             // Retrieve and store all keywords
@@ -347,8 +353,9 @@ public class AnalysisServlet extends DocumentService {
         Contract document = documentVersion.getDocument();
         Project project = document.getProject();
         Organization organization = project.getOrganization();
-        AbstractProject aProject = new AbstractProject();
+        AbstractProject aProject = project.createAbstractProject();
         AbstractDocument aDocument = documentVersion.createAbstractDocumentVersion(aProject);
+        List<Definition> definitions = project.getDefinitionsForProject();
         LanguageCode documentLanguage = new LanguageCode(document.getLanguage());
         List<ContractFragment> fragments = documentVersion.getFragmentsForVersion();
         PortalUser owner = document.getOwner();
@@ -381,7 +388,7 @@ public class AnalysisServlet extends DocumentService {
             // Make a second pass over all the fragments
             // This is to handle definition references
 
-            analyseDefinitions(analyser, outcomeList, aDocument, project, aProject, analysisTime);
+            analyseDefinitions(analyser, outcomeList, aDocument, project, aProject, analysisTime, definitions);
 
 
             // Retrieve and store all keywords
@@ -425,6 +432,7 @@ public class AnalysisServlet extends DocumentService {
             try{
 
                 StructureItem item = fragment.getStructureItem();
+                CellInfo cellInfo = fragment.getCellInfo();
                 String headline = "";
                 if(item.exists())
                     headline = item.getName();
@@ -442,7 +450,7 @@ public class AnalysisServlet extends DocumentService {
                                           // this is additional text from surrounding parts of the document,
                                           // relevant for the analysis e.g. Lists
 
-                analysisOutcome = analyser.analyseFragment2(fragment.getText(), headline, contextText, aDocument, aProject);
+                analysisOutcome = analyser.analyseFragment2(fragment.getText(), headline, contextText, aDocument, cellInfo, aProject);
 
                 risks += handleResult(analysisOutcome, fragment, owner, project, analysisTime, searchManager, aDocument);
 
@@ -660,10 +668,10 @@ public class AnalysisServlet extends DocumentService {
      * @throws BackOfficeException
      */
 
-    private void analyseDefinitions(Analyser analyser, List<OutcomeMap> outcomeList, AbstractDocument aDocument, Project project, AbstractProject aProject, DBTimeStamp analysisTime) throws BackOfficeException{
+    private void analyseDefinitions(Analyser analyser, List<OutcomeMap> outcomeList, AbstractDocument aDocument, Project project, AbstractProject aProject, DBTimeStamp analysisTime,
+                                    List<Definition> definitionsForProject) throws BackOfficeException{
 
-        PukkaLogger.log(PukkaLogger.Level.DEBUG, "Second pass with " + outcomeList.size() + " elements");
-
+        PukkaLogger.log(PukkaLogger.Level.INFO, "Second pass with " + outcomeList.size() + " elements.");
 
         for(OutcomeMap outcome : outcomeList){
 
@@ -671,7 +679,7 @@ public class AnalysisServlet extends DocumentService {
 
             NewAnalysisOutcome newOutcome = analyser.postProcess(outcome.outcome, aProject);
 
-            handlePostProcessResult(newOutcome, outcome.fragment, project);
+            handlePostProcessResult(newOutcome, outcome.fragment, project, definitionsForProject);
 
         }
 
@@ -715,29 +723,6 @@ public class AnalysisServlet extends DocumentService {
             table.add(keyword);
         }
 
-        // Add all classifications if this is a new language for this project
-
-        /*
-
-        ContractTable contractsForLanguage = new ContractTable(new LookupList()
-                .addFilter(new ColumnFilter(ContractTable.Columns.Language.name(), analyser.getLanguage().getLanguageCode().code))
-                .addFilter(new ReferenceFilter(ContractTable.Columns.Project.name(), project.getKey())));
-
-        System.out.println("*** Found " + contractsForLanguage.getCount() + " documents with language " + analyser.getLanguage().getLanguageCode().code);
-        if(contractsForLanguage.getCount() <= 1){
-
-            String[] classificationTagKeywords = analyser.getAllClassificationKeywords();
-
-            System.out.println("*** Adding " + classificationTagKeywords.length + " keywords");
-
-            for (String classificationTagKeyword : classificationTagKeywords) {
-
-                Keyword keyword = new Keyword(classificationTagKeyword, versionInstance, document, project);
-                table.add(keyword);
-            }
-
-        }
-        */
 
         // TODO: Move these to create project
 
@@ -911,6 +896,8 @@ public class AnalysisServlet extends DocumentService {
 
         System.out.println("Found " + analysisResult.getClassifications().size() + " classifications in analysis");
 
+        //TODO: Optimization; this batch store is done once per fragment result. Could be done once and for all for the analysis- (Pass this around)
+
         FragmentClassificationTable classificationsToStore = new FragmentClassificationTable();
         classificationsToStore.createEmpty();
 
@@ -988,7 +975,6 @@ public class AnalysisServlet extends DocumentService {
                     classificationsToStore.add(fragmentClassification);
                     classifications++;
 
-                    //TODO: Store this for update once and for all
                     //searchManager.updateIndexWithClassification(fragment, fragmentClassification);
 
                     updated = true;
@@ -1001,7 +987,8 @@ public class AnalysisServlet extends DocumentService {
                      break;
                 }
 
-                if(classification.getType().getName().equals(FeatureTypeTree.Risk.getName())){
+                if(classification.getType().getName().equals(FeatureTypeTree.Risk.getName()) ||
+                    classification.getType().getParent().getName().equals(FeatureTypeTree.Risk.getName())){
 
                     // Detecting a risk should result in a risk created in the system.
 
@@ -1051,45 +1038,6 @@ public class AnalysisServlet extends DocumentService {
 
                 }
 
-                /*
-
-                if(classification.getType().getName().equals(FeatureTypeTree.DefinitionUsage.getName())){
-
-                    // Handle definition usage classifications. They should generate a reference to the actual definition
-
-                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating Definition Usage reference for fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
-
-                    ReferenceType type = ReferenceType.getDefinitionUsage();
-
-                    String definition = classification.getExtraction().getSemanticExtraction();
-                    ContractFragment source = getDefinitionSource(definition, fragment, definitions);
-
-                    if(source == null){
-
-                        // We could not find a definition source, so we create an open reference
-                        source = fragment;
-                        type = ReferenceType.getOpen();
-
-                    }
-
-                    Reference reference = new Reference(
-                            definition,
-                            fragment.getKey(),
-                            source.getKey(),
-                            fragment.getVersionId(),
-                            project.getKey(),
-                            type,
-                            definition,
-                            0                          //TODO: Anchor position not implemented
-                            );
-                    reference.store();
-
-                    references++;
-                    updated = true;
-
-
-                }
-                  */
                 // Default action is to jut add the classification from the analysis
 
 
@@ -1158,20 +1106,22 @@ public class AnalysisServlet extends DocumentService {
         if(classifications != 0){
 
 
-            fragment.setClassificatonCount(fragment.getClassificationsForFragment().size());   // Using actual value here to correct any issues
+            fragment.setClassificatonCount(classifications);
+            System.out.println("*** Updating classification count to " + classifications + " for fragment " + fragment.getName());
+            updated = true;
         }
 
         if(references != 0){
 
-            fragment.setReferenceCount(fragment.getReferencesForFragment().size());   // Using actual value here to correct any issues
+            fragment.setReferenceCount(references);
+            updated = true;
         }
 
         if(annotations != 0){
 
-            fragment.setAnnotationCount(fragment.getAnnotationsForFragment().size());   // Using actual value here to correct any issues
+            fragment.setAnnotationCount(annotations);
+            updated = true;
         }
-
-        // Todo: This takes a lot of time. Look into optimizing this. Perhaps storing all of these for a batch update
 
         if(updated)
             fragment.update();
@@ -1213,7 +1163,17 @@ public class AnalysisServlet extends DocumentService {
     }
 
 
-    private void handlePostProcessResult(NewAnalysisOutcome analysisResult, ContractFragment fragment, Project project) throws BackOfficeException{
+    /********************************************************************************************************
+     *
+     *
+     *
+     * @param analysisResult
+     * @param fragment
+     * @param project
+     * @throws BackOfficeException
+     */
+
+    private void handlePostProcessResult(NewAnalysisOutcome analysisResult, ContractFragment fragment, Project project, List<Definition> definitionsForProject) throws BackOfficeException{
 
         boolean updated = false;
         int classifications = 0;
@@ -1237,7 +1197,7 @@ public class AnalysisServlet extends DocumentService {
 
                     PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating definition reference fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
 
-                    definitionFragment = getFragmentForDefinition(fragment, classification.getPattern().getText());
+                    definitionFragment = getFragmentForDefinition(fragment, classification.getPattern().getText(), definitionsForProject);
 
                     if(definitionFragment.exists()){
                         ReferenceType type = ReferenceType.getDefinitionUsage();
@@ -1308,18 +1268,14 @@ public class AnalysisServlet extends DocumentService {
      * @return
      *
      *
-     *          //TODO: Optimize this. No need to lookup all definitions every time.
      */
 
-    private ContractFragment getFragmentForDefinition(ContractFragment fragment, String pattern) throws BackOfficeException {
+    private ContractFragment getFragmentForDefinition(ContractFragment fragment, String pattern, List<Definition> definitionsForProject) throws BackOfficeException {
 
-        ContractVersionInstance document = fragment.getVersion();
 
-        List<Definition> definitions = document.getDefinitionsForVersion();
+        //System.out.println("Looking through " + definitionsForProject.size() + " definitions in project");
 
-        System.out.println("Found " + definitions.size() + " definitions in document");
-
-        for(Definition definition : definitions){
+        for(Definition definition : definitionsForProject){
 
             if(definition.getName().toLowerCase().equals(pattern.toLowerCase())){
 

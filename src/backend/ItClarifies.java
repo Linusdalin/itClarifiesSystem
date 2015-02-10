@@ -2,6 +2,8 @@ package backend;
 
 import actions.ActionStatusTable;
 import actions.ActionTable;
+import actions.ChecklistItemTable;
+import actions.ChecklistTable;
 import classification.FragmentClassTable;
 import classification.FragmentClassificationTable;
 import classification.ReclassificationTable;
@@ -194,6 +196,8 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
 
                                                      new DataTableInterface[] {
 
+                                                             new ChecklistTable( ),
+                                                             new ChecklistItemTable( ),
                                                              new ActionTable( ),
                                                              new ActionStatusTable( ),
 

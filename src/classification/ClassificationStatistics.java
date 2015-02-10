@@ -11,10 +11,10 @@ import net.sf.json.JSONObject;
  */
 public class ClassificationStatistics {
 
-    private int direct;
+    public int direct;
     private int indirect;
 
-    ClassificationStatistics(){
+    public ClassificationStatistics(){
 
         direct = 0;
         indirect = 0;

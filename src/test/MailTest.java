@@ -16,8 +16,8 @@ public class MailTest {
     /******************************************************************
      *
      *
+     *  //TODO: Figure out how to test this
      *
-     */
 
 
 
@@ -41,5 +41,5 @@ public class MailTest {
     }
 
 
-
+      */
 }

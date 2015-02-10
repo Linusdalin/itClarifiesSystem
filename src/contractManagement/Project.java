@@ -363,6 +363,24 @@ public class Project extends DataObject implements DataObjectInterface{
     }
 
 
+    public List<Checklist> getChecklistsForProject(ConditionInterface condition){
+
+        condition.addFilter(new ReferenceFilter(ChecklistTable.Columns.Project.name(), getKey()));
+
+        List<DataObjectInterface> objects = new ChecklistTable(condition).getValues();
+
+        List<Checklist> list = (List<Checklist>)(List<?>) objects;
+
+        return list;
+    }
+
+    // No condition retrieves all items
+
+    public List<Checklist> getChecklistsForProject(){
+
+        return getChecklistsForProject(new LookupList());
+    }
+
 
 
 

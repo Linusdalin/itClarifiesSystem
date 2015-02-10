@@ -153,8 +153,8 @@ public class ReplaceDocumentTest extends ServletTests{
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Class: " + classification + " Risk: " + risk.getName() + " Annotation: " + annotation.getDescription());
 
-            assertThat(classification, is("Definition"));
-            assertThat(risk.getName(), is("Black"));
+            assertThat(classification, is("#DEFINITION"));
+            assertThat(risk.getName(), is("Blocker"));
             assertThat(annotation.getDescription(), is("a comment"));
             assertThat(action.getDescription(), is("action description"));
 
@@ -196,8 +196,8 @@ public class ReplaceDocumentTest extends ServletTests{
 
             // The classification and risk should have been transposed to the new version of the document
 
-            assertThat(classification, is("Definition"));
-            assertThat(risk.getName(), is("Black"));
+            assertThat(classification, is("#DEFINITION"));
+            assertThat(risk.getName(), is("Blocker"));
             assertThat(annotation.getDescription(), is("a comment"));
             assertThat(action.getDescription(), is("action description"));
 

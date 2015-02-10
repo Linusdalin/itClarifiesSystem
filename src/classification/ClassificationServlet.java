@@ -115,8 +115,6 @@ public class ClassificationServlet extends DocumentService {
             String tagName = getTagName(classTag, organization, languageForDocument);
             FeatureTypeInterface featureType = getFeatureType(classTag, languageForDocument);
 
-
-
             if(localizedClass == null){
 
                 returnError("The classification tag " + classTag + " does not exist.", ErrorType.DATA, HttpServletResponse.SC_BAD_REQUEST, resp);

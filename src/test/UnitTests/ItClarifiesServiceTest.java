@@ -31,7 +31,7 @@ public class ItClarifiesServiceTest{
     public void encoding(){
 
         String encodedText = ItClarifiesService.encodeToJSON("first tab\tSecond tab");
-        assertThat(encodedText + "Should contain a span", encodedText.contains("<span"), is(true));
+        assertThat(encodedText + "Should contain a span", encodedText.contains("&nbsp;"), is(true));
 
     }
 }
