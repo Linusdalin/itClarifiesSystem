@@ -25,7 +25,10 @@ import java.util.Map;
 public class SessionManagement {
 
     private static final int SESSION_TIME = 180;    // Default session time
+
     private PortalUser sessionUser = null;          // The user
+    private String sessionToken = null;
+
     private static PortalUser system = null;
     private static IPAccessList internalIPAccess = null;
 
@@ -162,7 +165,8 @@ public class SessionManagement {
 
        if(isActive){
 
-           sessionUser = session.getUser();
+           this.sessionUser = session.getUser();
+           this.sessionToken = sessionToken;
            session.setLatest(new DBTimeStamp());
            session.update();
            PukkaLogger.log(PukkaLogger.Level.INFO, "Validated user " + sessionUser.getName() + "( "+ sessionUser.getKey()+" ) in request");
@@ -296,5 +300,9 @@ public class SessionManagement {
         return document.getAccess();
 
 
+    }
+
+    public String getToken() {
+        return sessionToken;
     }
 }

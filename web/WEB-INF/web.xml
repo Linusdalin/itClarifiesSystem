@@ -332,6 +332,16 @@
      </servlet-mapping>
 
     <servlet>
+         <servlet-name>Image</servlet-name>
+         <servlet-class>services.ImageServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>Image</servlet-name>
+         <url-pattern>/Image</url-pattern>
+     </servlet-mapping>
+
+
+    <servlet>
          <servlet-name>Preview</servlet-name>
          <servlet-class>services.PreviewServlet</servlet-class>
      </servlet>

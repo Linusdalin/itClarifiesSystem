@@ -235,6 +235,7 @@ public class ItClarifiesService extends GenericAdminServlet {
 
         if(!sessionManagement.validate(sessionToken, ipAddress)){
 
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Access Error. Could not validate session "+ sessionToken+" for user");
             returnError("No session", ErrorType.SESSION, errorCode, resp);
             resp.flushBuffer();
             return false;

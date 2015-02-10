@@ -886,12 +886,16 @@ public class Contract extends DataObject implements DataObjectInterface{
             PukkaLogger.log(PukkaLogger.Level.WARNING, "Could not get style for fragment " + fragmentText);
         }
 
+        String fragmentBody = fragment.getText();
+        fragmentBody = fragmentBody.replace("$(_SESSION)", "DummyAdminToken");
+
+
 
         return "<tr>" +
                   "<td width=\"10%\">"+ textTags.toString()+"</td>" +
                   "<td style=\"border-bottom:1pt solid black;\" width=\"10%\">"+ styleForm + "</td>" +
                   //"<td width=\"30px\">"+ new CreateReferenceLightbox().getLink(fragment) +"</td>" +
-                  "<td style=\"border-bottom:1pt solid black;\" width=\"40%\">"+ fragmentText.toString() +"</td>" +
+                  "<td style=\"border-bottom:1pt solid black;\" width=\"40%\">"+ fragmentBody +"</td>" +
                   "<td style=\"border-bottom:1pt solid black;\" width=\"40%\">"+ analysisTags.toString() +"</td>" +
                 "</tr>";
     }

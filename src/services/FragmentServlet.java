@@ -382,6 +382,10 @@ public class FragmentServlet extends ItClarifiesService{
 
                 //System.out.println("Fragment risk: " + fragment.getRisk());
 
+                //TODO: Refactor this to a separate class in anticipation of more replacements
+
+                body = body.replace("$(_SESSION)", session.getToken());
+
                 JSONObject fragmentJSON = new JSONObject()
                     .put("id",              fragment.getKey().toString())
                     .put("ordinal",         fragment.getOrdinal())

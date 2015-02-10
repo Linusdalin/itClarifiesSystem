@@ -67,5 +67,9 @@ public class ServerFactory {
         return ID;
     }
 
+    public static boolean isStage(String applicationId){
+
+        return applicationId.contains("stage");
+    }
 
 }
