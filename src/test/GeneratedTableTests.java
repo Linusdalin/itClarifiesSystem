@@ -717,11 +717,13 @@ public class GeneratedTableTests{
      
              try{
      
-                 actions.ChecklistItem table1 = new actions.ChecklistItem(1, 2, "text 3", dummyKey, dummyKey, dummyKey, dummyKey, "text 8", new actions.ActionStatusTable().getDummyConstantValue( ), "2012-01-10");
+                 actions.ChecklistItem table1 = new actions.ChecklistItem(1, 2, "text 3", "text 4", "text 5", dummyKey, dummyKey, dummyKey, dummyKey, "text 10", new actions.ActionStatusTable().getDummyConstantValue( ), "2012-01-12");
 
                  assertThat(table1.getId(), is((long)1));
                  assertThat(table1.getParent(), is((long)2));
-                 assertThat(table1.getDescription(), is("text 3"));
+                 assertThat(table1.getName(), is("text 3"));
+                 assertThat(table1.getDescription(), is("text 4"));
+                 assertThat(table1.getComment(), is("text 5"));
                  assertThat(table1.getChecklistId(), is(dummyKey));
                  assertThat(table1.getChecklist().exists(), is(false));
                  assertThat(table1.getSourceId(), is(dummyKey));
@@ -730,9 +732,9 @@ public class GeneratedTableTests{
                  assertThat(table1.getCompletion().exists(), is(false));
                  assertThat(table1.getProjectId(), is(dummyKey));
                  assertThat(table1.getProject().exists(), is(false));
-                 assertThat(table1.getTagReference(), is("text 8"));
+                 assertThat(table1.getTagReference(), is("text 10"));
                  assertThat(table1.getStatus(), is(new actions.ActionStatusTable().getDummyConstantValue( )));
-                 assertThat(table1.getCompleted().getISODate(), is("2012-01-10"));
+                 assertThat(table1.getCompleted().getISODate(), is("2012-01-12"));
 
                  table1.store();
                  actions.ChecklistItem table2 = new actions.ChecklistItem();
@@ -740,7 +742,9 @@ public class GeneratedTableTests{
 
                  assertThat(table2.getId(), is((long)1));
                  assertThat(table2.getParent(), is((long)2));
-                 assertThat(table2.getDescription(), is("text 3"));
+                 assertThat(table2.getName(), is("text 3"));
+                 assertThat(table2.getDescription(), is("text 4"));
+                 assertThat(table2.getComment(), is("text 5"));
                  assertThat(table2.getChecklistId(), is(dummyKey));
                  assertThat(table2.getChecklist().exists(), is(false));
                  assertThat(table2.getSourceId(), is(dummyKey));
@@ -749,23 +753,27 @@ public class GeneratedTableTests{
                  assertThat(table2.getCompletion().exists(), is(false));
                  assertThat(table2.getProjectId(), is(dummyKey));
                  assertThat(table2.getProject().exists(), is(false));
-                 assertThat(table2.getTagReference(), is("text 8"));
+                 assertThat(table2.getTagReference(), is("text 10"));
                  assertThat(table2.getStatus(), is(new actions.ActionStatusTable().getDummyConstantValue( )));
-                 assertThat(table2.getCompleted().getISODate(), is("2012-01-10"));
+                 assertThat(table2.getCompleted().getISODate(), is("2012-01-12"));
 
                  table1.setId(11);
                  table1.setParent(12);
-                 table1.setDescription("text 13");
+                 table1.setName("text 13");
+                 table1.setDescription("text 14");
+                 table1.setComment("text 15");
                  table1.setChecklist( dummyKey);
                  table1.setSource( dummyKey);
                  table1.setCompletion( dummyKey);
                  table1.setProject( dummyKey);
-                 table1.setTagReference("text 18");
+                 table1.setTagReference("text 20");
                  table1.setStatus(new actions.ActionStatusTable().getDummyConstantValue( ));
-                 table1.setCompleted(new DBTimeStamp(DBTimeStamp.ISO_DATE, "2012-01-20"));
+                 table1.setCompleted(new DBTimeStamp(DBTimeStamp.ISO_DATE, "2012-01-22"));
                  assertThat(table1.getId(), is((long)11));
                  assertThat(table1.getParent(), is((long)12));
-                 assertThat(table1.getDescription(), is("text 13"));
+                 assertThat(table1.getName(), is("text 13"));
+                 assertThat(table1.getDescription(), is("text 14"));
+                 assertThat(table1.getComment(), is("text 15"));
                  assertThat(table1.getChecklistId(), is(dummyKey));
                  assertThat(table1.getChecklist().exists(), is(false));
                  assertThat(table1.getSourceId(), is(dummyKey));
@@ -774,9 +782,9 @@ public class GeneratedTableTests{
                  assertThat(table1.getCompletion().exists(), is(false));
                  assertThat(table1.getProjectId(), is(dummyKey));
                  assertThat(table1.getProject().exists(), is(false));
-                 assertThat(table1.getTagReference(), is("text 18"));
+                 assertThat(table1.getTagReference(), is("text 20"));
                  assertThat(table1.getStatus(), is(new actions.ActionStatusTable().getDummyConstantValue( )));
-                 assertThat(table1.getCompleted().getISODate(), is("2012-01-20"));
+                 assertThat(table1.getCompleted().getISODate(), is("2012-01-22"));
 
              }catch(BackOfficeException e){
      

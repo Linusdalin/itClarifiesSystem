@@ -36,7 +36,7 @@
                     1-11-0:         image parsing w manual upload, list fixes, classification class error in custom classes
                     1-11-1:         Added new set of classifiers (w performance issues), analysis optimizations
                     1-12-0:         Checklist, classification count issue, definitions left col
-                    1-12-1:         Image service
+                    1-12-1:         Image service, checklist name, second pass analysis, definition/use/def fixes
       -->
 
 </appengine-web-app>

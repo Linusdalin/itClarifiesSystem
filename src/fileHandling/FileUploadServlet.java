@@ -1,8 +1,13 @@
 package fileHandling;
 
+import actions.Checklist;
+import analysis.AnalysisFeedback;
+import analysis.AnalysisFeedbackItem;
+import analysis2.AnalysisException;
 import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
 import databaseLayer.DatabaseAbstractionFactory;
+import document.DocumentManager;
 import language.LanguageCode;
 import log.PukkaLogger;
 import net.sf.json.JSONObject;
@@ -26,6 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -46,7 +52,7 @@ public class FileUploadServlet extends DocumentService {
 
     public static final String DataServletName = "Document";
 
-    /******************************************************
+   /******************************************************
      *
      *      Uploading a file and parsing the result
      *
@@ -75,9 +81,10 @@ public class FileUploadServlet extends DocumentService {
             String sessionToken = "";
 
             Project project = null;
-            PortalUser portalUser = null;
+            PortalUser owner = null;
             Contract document = null;
             String title = null;
+            UploadType uploadType = UploadType.DOCUMENT;    // Default if no parameter is given is to treat the upload as a regular document
 
             String _project = null;
             String _document = null;
@@ -210,17 +217,32 @@ public class FileUploadServlet extends DocumentService {
 
                         }
 
+                        // Check the type. There are different types of uploading
+
+                        if(fi.getFieldName().equals("type")){
+
+                            String _type = new String(fi.get());
+                            if(_type.equalsIgnoreCase("CHECKLIST"))
+                                uploadType = UploadType.CHECKLIST;
+
+                            if(!_type.equalsIgnoreCase(uploadType.name())){
+
+                                returnError("Unknown upload type " + _type, HttpServletResponse.SC_BAD_REQUEST, resp);
+                                return;
+                            }
+
+                            PukkaLogger.log(PukkaLogger.Level.INFO, "Got type " + uploadType.name() + " for the upload.");
+
+                        }
 
                     }
                      else{
 
-
-
-                        portalUser = sessionManagement.getUser();
+                        owner = sessionManagement.getUser();
 
                         //TODO; This should be more relaxed. Within a team more than the owner must be able to contribute. Fix this with team access rights
 
-                        if(!portalUser.equals(project.getCreator())){
+                        if(!owner.equals(project.getCreator())){
 
                             returnError("Not sufficient access to upload document. Please contact project owner", ErrorType.PERMISSION, HttpServletResponse.SC_FORBIDDEN, resp);
                             return;
@@ -228,9 +250,7 @@ public class FileUploadServlet extends DocumentService {
 
 
 
-
-
-                        PukkaLogger.log(PukkaLogger.Level.INFO, "Found user " + portalUser.getName());
+                        PukkaLogger.log(PukkaLogger.Level.INFO, "Found user " + owner.getName());
 
 
                         // If there is no explicit title given, we use the document name as title
@@ -250,44 +270,63 @@ public class FileUploadServlet extends DocumentService {
 
                         InputStream stream = fi.getInputStream();
 
-                        ContractVersionInstance oldVersion = null;
 
-                        if(document != null)
-                            oldVersion = document.getHeadVersion();
-
-                        DBTimeStamp uploadTime = new DBTimeStamp();
-
-                        RepositoryInterface repository = new BlobRepository();
-                        RepositoryFileHandler fileHandler = repository.saveFile(fileName, stream);
+                        switch (uploadType) {
 
 
-                        ContractVersionInstance newVersion = handleUpload(title, fileHandler, document, project, portalUser, accessRight, visibility);
 
-                        // Document is uploaded. Update the status
+                            case DOCUMENT:
 
-                        document = newVersion.getDocument();
+                                RepositoryInterface repository = new BlobRepository();
+                                RepositoryFileHandler fileHandler = repository.saveFile(fileName, stream);
 
-                        document.setMessage("Uploaded. Parsing Document...");
-                        document.setStatus(ContractStatus.getUploaded());
-                        document.update();
+                                AsynchAnalysis analysisQueue = new AsynchAnalysis(sessionToken);
+                                ContractVersionInstance oldVersion = null;
 
-                        //System.out.println("Document: " + document.getKey().toString());
+                                if(document != null)
+                                    oldVersion = document.getHeadVersion();
+
+                                ContractVersionInstance newVersion = handleUploadDocument(title, fileHandler, document, project, owner, accessRight, visibility);
+
+                                // Document is uploaded. Update the status
+
+                                document = newVersion.getDocument();
+
+                                document.setMessage("Uploaded. Parsing Document...");
+                                document.setStatus(ContractStatus.getUploaded());
+                                document.update();
+
+                                // Start the asynchronous parsing and analysis
+
+                                analysisQueue.analyseDocument(newVersion, oldVersion);
+
+                                json.put("uploaded", newVersion.getDocument().getKey().toString());
+
+                                // Clear cache for project and document list
+
+                                invalidateDocumentCache(document, project);
+
+                                break;
+                            case CHECKLIST:
+
+                                PukkaLogger.log(PukkaLogger.Level.ACTION, "Parsing checklist " + title);
+                                AnalysisFeedback feedback = handleUploadChecklist(title, stream, project, owner);
+                                json = feedback.toJSON();
+
+                                break;
+
+                            default:
+
+                                returnError("Internal error trying to parse upload type " + uploadType, ErrorType.GENERAL, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+                                return;
+                        }
 
 
-                        // Start the asynchronous parsing and analysis
-
-                        AsynchAnalysis analysisQueue = new AsynchAnalysis(sessionToken);
-                        analysisQueue.analyseDocument(newVersion, oldVersion);
-
-                        json.put("uploaded", newVersion.getDocument().getKey().toString());
 
                     }
 
                  }
 
-                // Clear cache for project and document list
-
-                invalidateDocumentCache(document, project);
 
                 sendJSONResponse(json, formatter, resp);
 
@@ -323,6 +362,34 @@ public class FileUploadServlet extends DocumentService {
 
     }
 
+    // TODO: Description for checklist not implemented. Reusing title
+    // TODO: Create feedback and pass back here
+
+    private AnalysisFeedback handleUploadChecklist(String title, InputStream inFile, Project project, PortalUser owner)throws BackOfficeException {
+
+        String id = title.substring(0, 1);
+        DBTimeStamp now = new DBTimeStamp();
+        Checklist newChecklist;
+
+        AnalysisFeedback feedback = new AnalysisFeedback();
+
+        try {
+
+            newChecklist = new Checklist(title, title, id ,  project, owner, now.getSQLTime().toString());
+            newChecklist.store();
+
+            DocumentManager docManager = new DocumentManager(title, inFile);
+            feedback = parseChecklist(docManager, newChecklist);
+
+
+        } catch (AnalysisException e) {
+
+            PukkaLogger.log(e);
+        }
+
+        return feedback;
+
+    }
 
 
     /******************************************************************************************************************
@@ -339,7 +406,7 @@ public class FileUploadServlet extends DocumentService {
      */
 
 
-    public ContractVersionInstance handleUpload(String title, RepositoryFileHandler fileHandler, Contract document, Project project, PortalUser portalUser, AccessRight accessRight, Visibility visibility) throws BackOfficeException{
+    public ContractVersionInstance handleUploadDocument(String title, RepositoryFileHandler fileHandler, Contract document, Project project, PortalUser portalUser, AccessRight accessRight, Visibility visibility) throws BackOfficeException{
 
         ContractVersionInstance version;
 

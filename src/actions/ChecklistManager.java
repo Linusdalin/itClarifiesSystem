@@ -70,19 +70,23 @@ public class ChecklistManager {
                 item.getSourceId().toString(),
                 item.getCompletionId().toString(),
                 item.getStatus().getId(),
+                item.getName(),
                 item.getDescription(),
+                item.getComment(),
                 item.getTagReference(),
                 classificationCount);
     }
 
 
-    private JSONObject createJSON(long id, String source, String completion, long status, String description, String tagReference, int classificationCount) {
+    private JSONObject createJSON(long id, String source, String completion, long status, String name, String description, String comment, String tagReference, int classificationCount) {
 
         return new JSONObject().put("checklistItem",
                 new JSONObject()
                 .put("id",              id)
                 .put("status",          status)
+                .put("name",            name)
                 .put("description",     description)
+                .put("comment",         comment)
                 .put("tag",             tagReference)
                 .put("source",          source)
                 .put("completion",      completion)

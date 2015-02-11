@@ -349,6 +349,7 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
                         new ListInterface[] {
 
                                 new DocumentList(this),
+                                new ChecklistList(this),
                                 new DefinitionList(this),
                                 new ActionList(this),
                                 new RiskList(this),

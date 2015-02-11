@@ -876,7 +876,7 @@ public class Contract extends DataObject implements DataObjectInterface{
                         "&fragment="+fragment.getKey().toString()+"\" name=\"styleForm\">\n";
                 //styleForm += allTypes.getDropDown().generate("styleType", fragment.getType(), null, null, true);
 
-                styleForm += pukkaBO.style.Html.dropDown("styleType", types, fragment.getType(), " onchange='this.form.submit()'");
+                styleForm += pukkaBO.style.Html.dropDown("styleType", types, fragment.getType(), " onchange='this.form.submit()'", "stylaType");
                 //styleForm += fragment.getType();
                 styleForm += "</FORM>";
             }

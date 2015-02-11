@@ -1,18 +1,20 @@
 package services;
 
-import analysis.*;
+import actions.ActionStatus;
+import actions.Checklist;
+import actions.ChecklistItem;
+import analysis.AnalysisFeedback;
+import analysis.AnalysisFeedbackItem;
 import classification.FragmentClass;
 import classifiers.ClassifierInterface;
 import com.google.appengine.api.appidentity.AppIdentityServiceFactory;
 import com.google.appengine.api.utils.SystemProperty;
 import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
+import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
 import document.*;
-import document.SimpleStyle;
 import featureTypes.FeatureTypeInterface;
-import featureTypes.FeatureTypeTree;
-import language.English;
 import language.LanguageInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONObject;
@@ -304,6 +306,133 @@ public class DocumentService extends ItClarifiesService{
 
     }
 
+
+    private static final String[] checklistHeadlines = {"Id", "Subject", "Compliance Requirement","#Tag", "Comment"};
+
+    /******************************************************************************'
+     *
+     *      parsing a checklist
+     *
+     * @param doc
+     *
+     *      //TODO: Optimization: Add btch store here
+     *
+     */
+
+
+    public AnalysisFeedback parseChecklist(FragmentSplitterInterface doc, Checklist checklist) {
+
+        List<AbstractFragment> fragments = doc.getFragments();
+        AnalysisFeedback feedback = new AnalysisFeedback();
+
+        try{
+
+            ChecklistItem currentItem = new ChecklistItem();
+
+            for (AbstractFragment fragment : fragments) {
+
+                CellInfo cellInfo = fragment.getCellInfo();
+
+                if(cellInfo == null){
+
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "Ignoring non cell fragment " + fragment.getBody());
+                }
+                else{
+
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "Handling cell fragment " + fragment.getBody());
+
+                    // Handle table data for the checklist
+
+                    if(cellInfo.row == 0 ){
+
+                        // The expectation is that the first row is a headline
+
+                        if(cellInfo.col < checklistHeadlines.length && !fragment.getBody().equalsIgnoreCase(checklistHeadlines[cellInfo.col])){
+
+                            feedback.add(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Expected to find " + checklistHeadlines[cellInfo.col] + " as title in cell (" + cellInfo.row +", " +  cellInfo.col + "). Found " + fragment.getBody(), cellInfo.row));
+                            return feedback;
+                        }
+
+                    }
+
+
+                    if(cellInfo.row > 1 && cellInfo.col == 0){
+
+                        // New row, store the old row
+
+                        PukkaLogger.log(PukkaLogger.Level.INFO, "Storing a checklist item");
+                        feedback.add(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.INFO, "Created checklist item "+ currentItem.getName()+" with id " + currentItem.getId(), cellInfo.row));
+                        currentItem.store();
+                    }
+
+
+                    if(cellInfo.row > 0 && cellInfo.col == 0){
+
+                        if(fragment.getBody().equals("")){
+
+                            feedback.add(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.INFO, "Ended checklist ( no more id... )", cellInfo.row));
+
+                        }
+
+                        // New row, create a new item
+                        currentItem = new ChecklistItem((long)0, (long)0, "name", "text", "comment", checklist.getKey(),  null, null,
+                                checklist.getProjectId(), "", ActionStatus.getOpen(), new DBTimeStamp().getSQLTime().toString());
+
+                        try{
+
+                            int id = new Double(fragment.getBody()).intValue();
+                            currentItem.setId(id);
+
+                        }catch(NumberFormatException e){
+
+                            feedback.add(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Expected to find number (id) in cell (" + cellInfo.row +", " +  cellInfo.col + "). Found " + fragment.getBody(), cellInfo.row));
+                            return feedback;
+                        }
+                    }
+
+                    if(cellInfo.row > 0 && cellInfo.col == 1){
+
+                        currentItem.setName(fragment.getBody());
+                    }
+
+                    if(cellInfo.row > 0 && cellInfo.col == 2){
+
+                        currentItem.setDescription(fragment.getBody());
+                    }
+
+                    if(cellInfo.row > 0 && cellInfo.col == 3){
+
+                        currentItem.setTagReference(fragment.getBody());
+                    }
+
+                    if(cellInfo.row > 0 && cellInfo.col == 4){
+
+                        currentItem.setComment(fragment.getBody());
+                    }
+
+
+                }
+            }
+
+        }catch(BackOfficeException e){
+
+            PukkaLogger.log( e );
+            feedback.add(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Internal Error:" + e.narration, 0));
+
+        }catch(Exception e){
+
+            PukkaLogger.log( e );
+            feedback.add(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Internal Error: " + e.getLocalizedMessage(), 0));
+
+        }
+
+
+        return feedback;
+
+    }
+
+
+
     /*****************************************************************************************
      *
      *          Get the server where the images are stored.
@@ -504,6 +633,8 @@ public class DocumentService extends ItClarifiesService{
         System.out.println(test +  startsWithNumber(test));
 
     }
+
+
 
 }
 

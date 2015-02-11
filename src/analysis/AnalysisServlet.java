@@ -103,7 +103,6 @@ public class AnalysisServlet extends DocumentService {
                 return;
 
             Contract document = versionInstance.getDocument();
-            Project project = document.getProject();
 
             if(!document.exists()){
 
@@ -111,6 +110,7 @@ public class AnalysisServlet extends DocumentService {
                 return;
             }
 
+            Project project = document.getProject();
 
             if(!mandatoryObjectExists(document, resp))
                 return;
@@ -279,12 +279,12 @@ public class AnalysisServlet extends DocumentService {
 
             // Now make a new pass over all the fragments to analyse them. At this point all fragments should have a key
 
-            analyseFragments(fragments, analyser, newVersion, aDocument, project, document, owner, aProject, analysisTime, outcomeList);
+            analyseFragments(fragments, analyser, newVersion, aDocument, project, document, owner, aProject, analysisTime, outcomeList, definitions);
 
             // Make a second pass over all the fragments
             // This is to handle definition references
 
-            analyseDefinitions(analyser, outcomeList, aDocument, project, aProject, analysisTime, definitions);
+            postProcessAnalysis(analyser, outcomeList, aDocument, owner, project, aProject, analysisTime, definitions);
 
 
             // Retrieve and store all keywords
@@ -382,13 +382,13 @@ public class AnalysisServlet extends DocumentService {
 
             // Now make a new pass over all the fragments to analyse them. At this point all fragments should have a key
 
-            analyseFragments(fragments, analyser, documentVersion, aDocument, project, document, owner, aProject, analysisTime, outcomeList);
+            analyseFragments(fragments, analyser, documentVersion, aDocument, project, document, owner, aProject, analysisTime, outcomeList, definitions);
 
 
             // Make a second pass over all the fragments
             // This is to handle definition references
 
-            analyseDefinitions(analyser, outcomeList, aDocument, project, aProject, analysisTime, definitions);
+            postProcessAnalysis(analyser, outcomeList, aDocument, owner, project, aProject, analysisTime, definitions);
 
 
             // Retrieve and store all keywords
@@ -418,11 +418,32 @@ public class AnalysisServlet extends DocumentService {
 
     }
 
-    private void analyseFragments(List<ContractFragment> fragments, Analyser analyser, ContractVersionInstance documentVersion, AbstractDocument aDocument, Project project,
-                                  Contract document, PortalUser owner, AbstractProject aProject, DBTimeStamp analysisTime, List<OutcomeMap> outcomeList) throws BackOfficeException {
+    private void analyseFragments(List<ContractFragment> fragments,
+                                  Analyser analyser,
+                                  ContractVersionInstance documentVersion,
+                                  AbstractDocument aDocument,
+                                  Project project,
+                                  Contract document,
+                                  PortalUser owner,
+                                  AbstractProject aProject,
+                                  DBTimeStamp analysisTime,
+                                  List<OutcomeMap> outcomeList,
+                                  List<Definition> definitionsForProject) throws BackOfficeException {
 
         StringBuffer errorMessages = new StringBuffer();
         SearchManager2 searchManager = new SearchManager2(project, owner);
+
+        for (AbstractDocument abstractDocument : aProject.documents) {
+            System.out.println(" *** Document " + abstractDocument.name + " has " + abstractDocument.definitions.size() + " definitions for the analysis.");
+
+            for (String definition : abstractDocument.definitions) {
+
+                System.out.print( definition + ", ");
+
+            }
+            System.out.println(" *** ");
+
+        }
 
         int risks = 0;
         NewAnalysisOutcome analysisOutcome;
@@ -452,7 +473,7 @@ public class AnalysisServlet extends DocumentService {
 
                 analysisOutcome = analyser.analyseFragment2(fragment.getText(), headline, contextText, aDocument, cellInfo, aProject);
 
-                risks += handleResult(analysisOutcome, fragment, owner, project, analysisTime, searchManager, aDocument);
+                risks += handleResult(analysisOutcome, fragment, project, analysisTime, searchManager, aDocument, definitionsForProject);
 
                 // Store it for the second pass. In that pass we dont want to redo the parsing and analysis
 
@@ -655,31 +676,22 @@ public class AnalysisServlet extends DocumentService {
 
     }
 
-    /*************************************************************************************************
-     *
-     *          Post processing looking for definitions
-     *
-     * @param analyser
-     * @param outcomeList
-     * @param aDocument
-     * @param project
-     * @param aProject
-     * @param analysisTime
-     * @throws BackOfficeException
-     */
 
-    private void analyseDefinitions(Analyser analyser, List<OutcomeMap> outcomeList, AbstractDocument aDocument, Project project, AbstractProject aProject, DBTimeStamp analysisTime,
-                                    List<Definition> definitionsForProject) throws BackOfficeException{
+    private void postProcessAnalysis(Analyser analyser, List<OutcomeMap> outcomeList, AbstractDocument aDocument, PortalUser owner, Project project, AbstractProject aProject, DBTimeStamp analysisTime,
+                                     List<Definition> definitionsForProject) throws BackOfficeException{
 
         PukkaLogger.log(PukkaLogger.Level.INFO, "Second pass with " + outcomeList.size() + " elements.");
+        SearchManager2 searchManager = new SearchManager2(project, owner);
+
 
         for(OutcomeMap outcome : outcomeList){
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Post processing " + outcome.fragment.getText());
 
-            NewAnalysisOutcome newOutcome = analyser.postProcess(outcome.outcome, aProject);
+            NewAnalysisOutcome postProcessOutcome = analyser.postProcess(outcome.outcome, aProject);
 
-            handlePostProcessResult(newOutcome, outcome.fragment, project, definitionsForProject);
+            //handlePostProcessResult(postProcessOutcome, outcome.fragment, project, definitionsForProject);
+            handleResult(postProcessOutcome, outcome.fragment, project, analysisTime, searchManager, aDocument, definitionsForProject);
 
         }
 
@@ -867,7 +879,6 @@ public class AnalysisServlet extends DocumentService {
      *
      * @param analysisResult - the feature definitions from the analysis
      * @param fragment - the data base fragment to update with classifications and references from analysis
-     * @param owner
      * @param project
      * @param analysisTime - time for the analysis
      *
@@ -875,9 +886,9 @@ public class AnalysisServlet extends DocumentService {
 
 
     private int handleResult(NewAnalysisOutcome analysisResult, ContractFragment fragment,
-                             PortalUser owner, Project project, DBTimeStamp analysisTime,
+                             Project project, DBTimeStamp analysisTime,
                              SearchManager2 searchManager,
-                             AbstractDocument aDocument) throws BackOfficeException{
+                             AbstractDocument aDocument, List<Definition> definitionsForProject) throws BackOfficeException{
 
         boolean updated = false;
 
@@ -1037,6 +1048,42 @@ public class AnalysisServlet extends DocumentService {
                     break;
 
                 }
+
+                if(classification.getType().getName().equals(FeatureTypeTree.DefinitionUsage.getName())){
+
+                    // The analysis has classified a definition usage
+                    // We create a definition usage tag.
+
+                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating definition reference fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
+
+                    ContractFragment definitionFragment = getFragmentForDefinition(fragment, classification.getPattern().getText(), definitionsForProject);
+
+                    if(definitionFragment.exists()){
+                        ReferenceType type = ReferenceType.getDefinitionUsage();
+
+                        Reference reference = new Reference(
+                                classification.getPattern().getText(),
+                                fragment.getKey(),
+                                definitionFragment.getKey(),     // Point to the definition
+                                fragment.getVersionId(),
+                                project.getKey(),
+                                type,
+                                classification.getPattern().getText(),
+                                0                          //TODO: Anchor position not implemented
+                                );
+                        reference.store();
+
+                        references++;
+                        updated = true;
+                    }
+                    else{
+                        PukkaLogger.log(PukkaLogger.Level.FATAL, "Internal error: Definition \""+ classification.getPattern().getText()+
+                                "\" identified in analysis but then not found for processing. (Document: " + fragment.getVersion().getDocument().getName() + ")");
+                    }
+                }
+
+
+
 
                 // Default action is to jut add the classification from the analysis
 
@@ -1379,6 +1426,7 @@ public class AnalysisServlet extends DocumentService {
         returnError("Delete not supported in " + DataServletName, HttpServletResponse.SC_METHOD_NOT_ALLOWED, resp);
 
     }
+
 
 
 }

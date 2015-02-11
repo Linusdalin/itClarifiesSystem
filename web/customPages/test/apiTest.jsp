@@ -14,6 +14,7 @@
 <%@ page import="classification.FragmentClassTable" %>
 <%@ page import="actions.Checklist" %>
 <%@ page import="actions.ChecklistTable" %>
+<%@ page import="pukkaBO.style.Html" %>
 <html>
 
 
@@ -1514,6 +1515,10 @@
 
             <p>	<label for="upload_title">Title</label>
                 <input type="text" id="upload_title" name="title" value="" size="50"></p>
+
+            <p>	<label for="upload_type">Type</label>
+                <% out.print(Html.dropDown("type", new String[] {"Document", "Checklist"}, "Document", "", "upload_type")); %>
+            </p>
 
             <input type="hidden" name="html" value="on">
             <% out.print(getTokenParameter(useRealToken, "upload"));%>

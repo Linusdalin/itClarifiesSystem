@@ -277,6 +277,20 @@ public class ClassificationServlet extends DocumentService {
 
             }
 
+            classifiers = defaultLanguage.getDefinitionUsageClassifiers();
+
+            for (ClassifierInterface classifier : classifiers) {
+
+                JSONObject riskObject = new JSONObject()
+                            .put("id", classifier.getType().getName())
+                            .put("name", classifier.getClassificationName())
+                            .put("desc", classifier.getClassificationName())   //TODO: Description not implemented for standard classes
+                            .put("type", "General");
+                    list.put(riskObject);
+
+            }
+
+
             // Get generic classifications stored in the database. First generic
 
             List<FragmentClass> customClasses = user.getOrganization().getCustomTagsForOrganization();
