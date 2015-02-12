@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
   <application>itclarifiesapistage</application>
-   <version>1-12-1</version>
+   <version>1-12-2</version>
   <threadsafe>true</threadsafe>
 
     <system-properties>
@@ -37,6 +37,7 @@
                     1-11-1:         Added new set of classifiers (w performance issues), analysis optimizations
                     1-12-0:         Checklist, classification count issue, definitions left col
                     1-12-1:         Image service, checklist name, second pass analysis, definition/use/def fixes
+                    1-12-2:         Fixes to double generation, fixes to uploading checklist
       -->
 
 </appengine-web-app>

@@ -1261,17 +1261,24 @@
 
 <div style="float:left; width:33%">
 
-    <FORM METHOD=POST action="<% out.print(host); %>/Checklist" id="postChecklistForm" name="postChecklistForm" accept-charset="UTF-8">
+    <FORM METHOD=POST action="<% out.print(host); %>/ChecklistItem" id="postChecklistForm" name="postChecklistForm" accept-charset="UTF-8">
 
         <fieldset style="height:420px">
-            <h3>Add/Update Checklist </h3>
+            <h3>Add/Update Checklist Item </h3>
             <p>Adding or updating an action</p>
 
+            <p>	<label for="ChecklistKey">Item Key</label>
+                <input type="text" id="ChecklistKey" name="item" size="50"></p>
             <p>	<label for="ChecklistName">Name</label>
                 <input type="text" id="ChecklistName" name="name" size="50"></p>
             <p>	<label for="ChecklistDescription">Description</label>
-                <input type="text" id="ChecklistDescription" name="ChecklistDescription" size="50"></p>
-            <p> <label for="ChecklistProject">Project</label> <% out.print(projectDropdown);%></p>
+                <input type="text" id="ChecklistDescription" name="description" size="50"></p>
+            <p>	<label for="ChecklistTag">Description</label>
+                <input type="text" id="ChecklistTag" name="tag" size="50"></p>
+            <p>	<label for="ChecklistSource">Source Fragment</label>
+                <input type="text" id="ChecklistSource" name="source" size="50"></p>
+            <p>	<label for="ChecklistCompletion">Completion Fragment</label>
+                <input type="text" id="ChecklistCompletion" name="completion" size="50"></p>
 
             <input type="hidden" name="html" value="on">
             <% out.print(getTokenParameter(useRealToken, "postAction"));%>

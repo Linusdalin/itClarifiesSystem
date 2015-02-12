@@ -402,7 +402,12 @@ public class DocumentService extends ItClarifiesService{
 
                     if(cellInfo.row > 0 && cellInfo.col == 3){
 
-                        currentItem.setTagReference(fragment.getBody());
+                        String tag = fragment.getBody();
+
+                        if(tag.startsWith("#"))
+                            feedback.add(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Expected to find #TAG in tag column. Found " + tag, cellInfo.row));
+
+                        currentItem.setTagReference(tag.substring(1)); // Remove #
                     }
 
                     if(cellInfo.row > 0 && cellInfo.col == 4){
@@ -520,6 +525,10 @@ public class DocumentService extends ItClarifiesService{
      * @param organization
      * @param language         -document language
      * @return
+     *
+     *
+     *          //TODO: Refactor: Should not need duplicate lookups here
+     *
      */
 
     protected String getTag(String className, Organization organization, LanguageInterface language) {
@@ -527,6 +536,17 @@ public class DocumentService extends ItClarifiesService{
         //String classTag = languageInterface.getClassificationForName(className);
 
         ClassifierInterface[] classifiers = language.getSupportedClassifiers();
+
+        for (ClassifierInterface classifier : classifiers) {
+
+            if(classifier.getType().getName().equals(className)){
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Found static classTag " + className);
+                return classifier.getType().getName();   // This should be the #TAG as this is the key to the frontend
+            }
+        }
+
+        classifiers = language.getDefinitionUsageClassifiers();
 
         for (ClassifierInterface classifier : classifiers) {
 
@@ -573,6 +593,18 @@ public class DocumentService extends ItClarifiesService{
                 return className;
             }
         }
+
+        classifiers = language.getDefinitionUsageClassifiers();
+
+        for (ClassifierInterface classifier : classifiers) {
+
+            if(classifier.getType().getName().equals(className)){
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Found static classTag " + className);
+                return className;
+            }
+        }
+
 
 
             // Look in the database for custom tags

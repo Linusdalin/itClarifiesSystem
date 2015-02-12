@@ -4,6 +4,7 @@ package actions;
 import classification.ClassificationStatistics;
 import classification.FragmentClassification;
 import databaseLayer.DBKeyInterface;
+import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -63,12 +64,33 @@ public class ChecklistManager {
 
     private JSONObject createItemJSON(ChecklistItem item) {
 
-        int classificationCount = statisticsMap.get(item.getTagReference()).direct;
+        int classificationCount = 0;
+
+        if(item.getTagReference() != null && !item.getTagReference().equals("")){
+
+            ClassificationStatistics statisticsForTag = statisticsMap.get(item.getTagReference());
+            if(statisticsForTag != null){
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Getting statistics for tag \"#" + item.getTagReference()+"\"");
+                classificationCount = statisticsForTag.direct;
+            }else{
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Ignoring unknown tag \"#" + item.getTagReference()+"\" when retrieving statistics");
+            }
+        }else{
+
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Tag missing for Checklist Item. No statistics retrieved");
+        }
+
+        String sourceKey = (item.getSourceId() == null ? "" : item.getSourceId().toString());
+        String complianceKey = (item.getCompletionId() == null ? "" : item.getCompletionId().toString());
+
 
         return createJSON(
                 item.getId(),
-                item.getSourceId().toString(),
-                item.getCompletionId().toString(),
+                item.getKey().toString(),
+                sourceKey,
+                complianceKey,
                 item.getStatus().getId(),
                 item.getName(),
                 item.getDescription(),
@@ -78,15 +100,16 @@ public class ChecklistManager {
     }
 
 
-    private JSONObject createJSON(long id, String source, String completion, long status, String name, String description, String comment, String tagReference, int classificationCount) {
+    private JSONObject createJSON(long id, String key, String source, String completion, long status, String name, String description, String comment, String tagReference, int classificationCount) {
 
         return new JSONObject().put("checklistItem",
                 new JSONObject()
-                .put("id",              id)
-                .put("status",          status)
+                .put("key", key)
+                .put("id", id)
+                .put("status", status)
                 .put("name",            name)
                 .put("description",     description)
-                .put("comment",         comment)
+                .put("comment", comment)
                 .put("tag",             tagReference)
                 .put("source",          source)
                 .put("completion",      completion)

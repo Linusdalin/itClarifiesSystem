@@ -12,6 +12,7 @@ import dataRepresentation.DBTimeStamp;
 import databaseLayer.DBKeyInterface;
 import featureTypes.FeatureType;
 import featureTypes.FeatureTypeInterface;
+import featureTypes.FeatureTypeTree;
 import language.Language;
 import language.LanguageAnalyser;
 import language.LanguageCode;
@@ -268,12 +269,20 @@ public class ClassificationServlet extends DocumentService {
 
             for (ClassifierInterface classifier : classifiers) {
 
-                JSONObject riskObject = new JSONObject()
-                            .put("id", classifier.getType().getName())
-                            .put("name", classifier.getClassificationName())
-                            .put("desc", classifier.getClassificationName())   //TODO: Description not implemented for standard classes
-                            .put("type", "General");
-                    list.put(riskObject);
+                FeatureTypeInterface featureType = classifier.getType();
+
+                // Only add the classifications that actually have a TYPE
+
+                if(featureType != FeatureTypeTree.None){
+
+                    JSONObject riskObject = new JSONObject()
+                                .put("id", classifier.getType().getName())
+                                .put("name", classifier.getClassificationName())
+                                .put("desc", classifier.getClassificationName())   //TODO: Description not implemented for standard classes
+                                .put("type", "General");
+                        list.put(riskObject);
+
+                }
 
             }
 

@@ -94,8 +94,6 @@ public class GeneratedTableTests{
                  assertTrue(false);
              }
              try{
-                assertThat(classification.FragmentClass.getPhase1(), is(classification.FragmentClass.getPhase1()));
-                assertThat(classification.FragmentClass.getPhase2(), is(classification.FragmentClass.getPhase2()));
                 assertThat(classification.FragmentClass.getReq1(), is(classification.FragmentClass.getReq1()));
                 assertThat(classification.FragmentClass.getReq2(), is(classification.FragmentClass.getReq2()));
                 assertThat(classification.FragmentClass.getReq3(), is(classification.FragmentClass.getReq3()));

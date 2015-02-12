@@ -471,7 +471,7 @@ public class AnalysisServlet extends DocumentService {
                                           // this is additional text from surrounding parts of the document,
                                           // relevant for the analysis e.g. Lists
 
-                analysisOutcome = analyser.analyseFragment2(fragment.getText(), headline, contextText, aDocument, cellInfo, aProject);
+                analysisOutcome = analyser.analyseFragment(fragment.getText(), headline, contextText, aDocument, cellInfo, aProject);
 
                 risks += handleResult(analysisOutcome, fragment, project, analysisTime, searchManager, aDocument, definitionsForProject);
 
@@ -917,6 +917,12 @@ public class AnalysisServlet extends DocumentService {
 
             try{
 
+                /**************************************
+                        Reference
+
+                 */
+
+
                 if(classification.getType().getName().equals(FeatureTypeTree.Reference.getName())){
 
                     // The analysis has classified it as a reference. We create the reference here as open.
@@ -939,11 +945,16 @@ public class AnalysisServlet extends DocumentService {
                             0                          //TODO: Anchor position not implemented
                     );
                     reference.store();
-
                     references++;
                     updated = true;
-                    break;
+                    continue;
                 }
+
+
+                /**************************************
+                        Definition Source
+
+                 */
 
 
                 if(classification.getType().getName().equals(FeatureTypeTree.DefinitionDef.getName())){
@@ -960,8 +971,6 @@ public class AnalysisServlet extends DocumentService {
                             fragment.getVersionId(),
                             project.getKey());
                     definition.store();
-
-                    //     public FragmentClassification(DBKeyInterface fragment, String classtag, String comment, String keywords, DBKeyInterface creator, DBKeyInterface version, DBKeyInterface project, String pattern, long pos, long length, long significance, String ruleid, String time) throws BackOfficeException{
 
 
                     fragmentClassification = new FragmentClassification(
@@ -982,21 +991,22 @@ public class AnalysisServlet extends DocumentService {
                             analysisTime.getSQLTime().toString());
 
 
-                    //fragmentClassification.store();
                     classificationsToStore.add(fragmentClassification);
                     classifications++;
 
-                    //searchManager.updateIndexWithClassification(fragment, fragmentClassification);
-
                     updated = true;
-
 
                     // Also store the definition in the abstract document to be able to detect it later
                     aDocument.addDefinition(definition.getName());
 
-
-                     break;
+                    continue;
                 }
+
+                /**************************************
+                        Risk (or a child to risk)
+
+                 */
+
 
                 if(classification.getType().getName().equals(FeatureTypeTree.Risk.getName()) ||
                     classification.getType().getParent().getName().equals(FeatureTypeTree.Risk.getName())){
@@ -1045,14 +1055,20 @@ public class AnalysisServlet extends DocumentService {
                     fragment.keywordString =  searchManager.getUpdatedKeywords(fragment, risk);
 
                     updated = true;
-                    break;
+                    continue;
 
                 }
+
+                /**************************************
+                        Definition Usage
+
+                 */
+
 
                 if(classification.getType().getName().equals(FeatureTypeTree.DefinitionUsage.getName())){
 
                     // The analysis has classified a definition usage
-                    // We create a definition usage tag.
+                    // We create a reference and a low priority classificaiton that will not be shown
 
                     PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating definition reference fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
 
@@ -1077,15 +1093,42 @@ public class AnalysisServlet extends DocumentService {
                         updated = true;
                     }
                     else{
-                        PukkaLogger.log(PukkaLogger.Level.FATAL, "Internal error: Definition \""+ classification.getPattern().getText()+
+                        PukkaLogger.log(PukkaLogger.Level.WARNING, "Internal error: Definition \""+ classification.getPattern().getText()+
                                 "\" identified in analysis but then not found for processing. (Document: " + fragment.getVersion().getDocument().getName() + ")");
                     }
+
+                    System.out.println(" *** Storing Definition Usage classificaiton for definition");
+
+                    fragmentClassification = new FragmentClassification(
+                            fragment.getKey(),
+                            classification.getType().getName(),
+                            0,              // requirement level not implemented
+                            0,              // applicable phase not implemented
+                            "",
+                            classification.getKeywords(),
+                            system.getKey(),
+                            fragment.getVersionId(),
+                            project.getKey(),
+                            classification.getPattern().getText(),
+                            classification.getPattern().getPos(),
+                            classification.getPattern().getLength(),
+                            Significance.MATCH_SIGNIFICANCE,
+                            "not specified rule",
+                            analysisTime.getSQLTime().toString());
+
+                    classificationsToStore.add(fragmentClassification);
+
+                    continue;
                 }
 
+                /**************************************
+
+                        Default action is to jut add the classification from the analysis
+
+                 */
 
 
 
-                // Default action is to jut add the classification from the analysis
 
 
                 if(classification.getRelevance() < RELEVANCE_THRESHOLD){

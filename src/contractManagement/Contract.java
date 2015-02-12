@@ -862,6 +862,7 @@ public class Contract extends DataObject implements DataObjectInterface{
     private String createLine(Contract contract, ContractFragment fragment, StringBuffer textTags, StringBuffer fragmentText, StringBuffer analysisTags){
 
         String styleForm = "";
+        String fragmentBody = "";
 
         try{
 
@@ -879,6 +880,10 @@ public class Contract extends DataObject implements DataObjectInterface{
                 styleForm += pukkaBO.style.Html.dropDown("styleType", types, fragment.getType(), " onchange='this.form.submit()'", "stylaType");
                 //styleForm += fragment.getType();
                 styleForm += "</FORM>";
+
+                fragmentBody = fragment.getText();
+                fragmentBody = fragmentBody.replace("$(_SESSION)", "DummyAdminToken");
+
             }
 
         }catch(Exception e){
@@ -886,8 +891,6 @@ public class Contract extends DataObject implements DataObjectInterface{
             PukkaLogger.log(PukkaLogger.Level.WARNING, "Could not get style for fragment " + fragmentText);
         }
 
-        String fragmentBody = fragment.getText();
-        fragmentBody = fragmentBody.replace("$(_SESSION)", "DummyAdminToken");
 
 
 
