@@ -41,7 +41,6 @@ import java.util.List;
  *              This servlet adds custom data to the demo project
  *
  *              // TODO: Add checks if this is already run
- *              // TODO: Add heuristic check if the fragment is same/similar or has changed
  *
  */
 

@@ -87,7 +87,7 @@ public class ChecklistManager {
 
 
         return createJSON(
-                item.getId(),
+                item.getIdentifier(),
                 item.getKey().toString(),
                 sourceKey,
                 complianceKey,

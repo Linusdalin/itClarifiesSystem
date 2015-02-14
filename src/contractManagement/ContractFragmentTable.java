@@ -173,5 +173,18 @@ public class ContractFragmentTable extends DataTable implements DataTableInterfa
 
     }
 
+    public List<ContractFragment> getAllValues(){
+
+
+        List<DataObjectInterface> objects = getValues();
+
+        List<ContractFragment> fragments = (List<ContractFragment>)(List<?>) objects;
+
+        return fragments;
+    }
+
+
+
+
 
 }

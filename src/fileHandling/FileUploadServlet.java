@@ -1,6 +1,7 @@
 package fileHandling;
 
 import actions.Checklist;
+import actions.ChecklistParser;
 import analysis.AnalysisFeedback;
 import analysis.AnalysisFeedbackItem;
 import analysis2.AnalysisException;
@@ -378,8 +379,10 @@ public class FileUploadServlet extends DocumentService {
             newChecklist = new Checklist(title, title, id ,  project, owner, now.getSQLTime().toString());
             newChecklist.store();
 
-            DocumentManager docManager = new DocumentManager(title, inFile);
-            feedback = parseChecklist(docManager, newChecklist);
+            DocumentManager document = new DocumentManager(title, inFile);
+            ChecklistParser parser = new ChecklistParser(document);
+            parser.startNewChecklist(newChecklist);
+            feedback = parser.parseChecklist();
 
 
         } catch (AnalysisException e) {

@@ -1,9 +1,7 @@
 package services;
 
-import actions.ActionStatus;
 import actions.Checklist;
-import actions.ChecklistItem;
-import analysis.AnalysisFeedback;
+import actions.ChecklistParser;
 import analysis.AnalysisFeedbackItem;
 import classification.FragmentClass;
 import classifiers.ClassifierInterface;
@@ -11,7 +9,6 @@ import com.google.appengine.api.appidentity.AppIdentityServiceFactory;
 import com.google.appengine.api.utils.SystemProperty;
 import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
-import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
 import document.*;
 import featureTypes.FeatureTypeInterface;
@@ -23,7 +20,6 @@ import pukkaBO.exceptions.BackOfficeException;
 import risk.ContractRisk;
 import search.Keyword;
 import search.KeywordTable;
-import search.SearchManager2;
 import userManagement.Organization;
 import userManagement.PortalUser;
 
@@ -73,14 +69,15 @@ public class DocumentService extends ItClarifiesService{
         fragmentsToStore.createEmpty();
 
         int fragmentNo = 0;
+        boolean isChecklist = false;
         Set<String> newKeywords = new HashSet<String>();  // To store all new keywords
 
         PukkaLogger.log(PukkaLogger.Level.ACTION, "*******************Phase II: Fragmenting Document");
         PukkaLogger.log(PukkaLogger.Level.INFO, "Found " + fragmenter.getFragments().size() + " abstract fragments from the parsing");
 
-        SearchManager2 searchManager = new SearchManager2(project, document.getOwner());
-
         String imageServer = getImageServer();
+
+        ChecklistParser checklistParser = new ChecklistParser(fragmenter);
 
 
         for(AbstractFragment aFragment : fragments){
@@ -199,9 +196,70 @@ public class DocumentService extends ItClarifiesService{
 
                 }
 
+                // Handle the parsing of checklists in table
+
+                if(aFragment.getStyle() == StructureType.TABLE){
+
+                    if(cellinfo.row == 0 && cellinfo.col == 0 && bodyText.equals("$_CL")){
+
+                        PukkaLogger.log(PukkaLogger.Level.ACTION, "Detected a Checklist in document. Creating checklist");
+                        isChecklist = true;
+                        bodyText = "";      // Remove the tag. We do not want it in the uploaded table it ws just to trigger the extraction of the checklist
+
+                    }
+
+                    if(isChecklist && cellinfo.row == 0 && cellinfo.col == 1){
+
+                        String checklistName = bodyText;
+
+                        PukkaLogger.log(PukkaLogger.Level.INFO, "Found checklist name " + checklistName);
+                        Checklist newChecklist = new Checklist(checklistName, checklistName, checklistName.substring(0, 1),
+                                project.getKey(), document.getOwnerId(), document.getCreation().getISODate());
+                        newChecklist.store();
+
+                        checklistParser.startNewChecklist(newChecklist);
+
+                    }
+
+                    if(isChecklist && cellinfo.row > 0){
+
+                        if(!checklistParser.hasOpenCheckist()){
+
+                            PukkaLogger.log(PukkaLogger.Level.INFO, "No name found for checklist in cell (0, 1). Aborting parsing checklist");
+                            isChecklist = false;
+                        }
+
+                        AnalysisFeedbackItem checklistParsingFeedback = checklistParser.parseChecklistCell(aFragment);
+
+                        if(checklistParsingFeedback != null){
+                            PukkaLogger.log(PukkaLogger.Level.INFO, checklistParsingFeedback.severity.name()+ ": " + checklistParsingFeedback.message);
+
+                            if(checklistParsingFeedback.severity == AnalysisFeedbackItem.Severity.ABORT){
+                                isChecklist = false;
+
+                            }
+                        }
+
+
+                    }
+
+
+                }
+                else{
+
+                    // No more table. Close the checklist
+
+                    if(isChecklist){
+
+                        isChecklist = false;
+                        checklistParser.endCurrentChecklist();
+                    }
+                }
+
+
                 // We want to ignore empty fragments. They are not really needed in the presentation
 
-                if(aFragment.getStyle() == StructureType.TEXT && aFragment.getBody().equals("")){
+                if(aFragment.getStyle() == StructureType.TEXT && bodyText.equals("")){
 
                     PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring empty fragment");
 
@@ -243,16 +301,26 @@ public class DocumentService extends ItClarifiesService{
             }
 
 
-
-
             // Store all new keywords from the fragment
             if(aFragment.getKeywords() != null)
                 newKeywords.addAll(aFragment.getKeywords());
 
         }
 
+        // Complete the checklist if it is still open
+
+        if(isChecklist)
+            checklistParser.endCurrentChecklist();
+
+
         PukkaLogger.log(PukkaLogger.Level.INFO, "Storing " + fragmentsToStore.getCount() + " fragments for the analysis of the document " + document);
         fragmentsToStore.store(); // Save all
+
+        // Now we can map the checklist sources to the correct fragment id:s
+
+        //TODO: This kind of cast should be generated automatically for all tables
+        checklistParser.mapItemSources((List<ContractFragment>)(List<?>) fragmentsToStore.getValues());
+
 
 
         // Store the keywords
@@ -303,136 +371,6 @@ public class DocumentService extends ItClarifiesService{
             }
 
         }
-
-    }
-
-
-    private static final String[] checklistHeadlines = {"Id", "Subject", "Compliance Requirement","#Tag", "Comment"};
-
-    /******************************************************************************'
-     *
-     *      parsing a checklist
-     *
-     * @param doc
-     *
-     *      //TODO: Optimization: Add btch store here
-     *
-     */
-
-
-    public AnalysisFeedback parseChecklist(FragmentSplitterInterface doc, Checklist checklist) {
-
-        List<AbstractFragment> fragments = doc.getFragments();
-        AnalysisFeedback feedback = new AnalysisFeedback();
-
-        try{
-
-            ChecklistItem currentItem = new ChecklistItem();
-
-            for (AbstractFragment fragment : fragments) {
-
-                CellInfo cellInfo = fragment.getCellInfo();
-
-                if(cellInfo == null){
-
-                    PukkaLogger.log(PukkaLogger.Level.INFO, "Ignoring non cell fragment " + fragment.getBody());
-                }
-                else{
-
-                    PukkaLogger.log(PukkaLogger.Level.INFO, "Handling cell fragment " + fragment.getBody());
-
-                    // Handle table data for the checklist
-
-                    if(cellInfo.row == 0 ){
-
-                        // The expectation is that the first row is a headline
-
-                        if(cellInfo.col < checklistHeadlines.length && !fragment.getBody().equalsIgnoreCase(checklistHeadlines[cellInfo.col])){
-
-                            feedback.add(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Expected to find " + checklistHeadlines[cellInfo.col] + " as title in cell (" + cellInfo.row +", " +  cellInfo.col + "). Found " + fragment.getBody(), cellInfo.row));
-                            return feedback;
-                        }
-
-                    }
-
-
-                    if(cellInfo.row > 1 && cellInfo.col == 0){
-
-                        // New row, store the old row
-
-                        PukkaLogger.log(PukkaLogger.Level.INFO, "Storing a checklist item");
-                        feedback.add(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.INFO, "Created checklist item "+ currentItem.getName()+" with id " + currentItem.getId(), cellInfo.row));
-                        currentItem.store();
-                    }
-
-
-                    if(cellInfo.row > 0 && cellInfo.col == 0){
-
-                        if(fragment.getBody().equals("")){
-
-                            feedback.add(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.INFO, "Ended checklist ( no more id... )", cellInfo.row));
-
-                        }
-
-                        // New row, create a new item
-                        currentItem = new ChecklistItem((long)0, (long)0, "name", "text", "comment", checklist.getKey(),  null, null,
-                                checklist.getProjectId(), "", ActionStatus.getOpen(), new DBTimeStamp().getSQLTime().toString());
-
-                        try{
-
-                            int id = new Double(fragment.getBody()).intValue();
-                            currentItem.setId(id);
-
-                        }catch(NumberFormatException e){
-
-                            feedback.add(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Expected to find number (id) in cell (" + cellInfo.row +", " +  cellInfo.col + "). Found " + fragment.getBody(), cellInfo.row));
-                            return feedback;
-                        }
-                    }
-
-                    if(cellInfo.row > 0 && cellInfo.col == 1){
-
-                        currentItem.setName(fragment.getBody());
-                    }
-
-                    if(cellInfo.row > 0 && cellInfo.col == 2){
-
-                        currentItem.setDescription(fragment.getBody());
-                    }
-
-                    if(cellInfo.row > 0 && cellInfo.col == 3){
-
-                        String tag = fragment.getBody();
-
-                        if(tag.startsWith("#"))
-                            feedback.add(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Expected to find #TAG in tag column. Found " + tag, cellInfo.row));
-
-                        currentItem.setTagReference(tag.substring(1)); // Remove #
-                    }
-
-                    if(cellInfo.row > 0 && cellInfo.col == 4){
-
-                        currentItem.setComment(fragment.getBody());
-                    }
-
-
-                }
-            }
-
-        }catch(BackOfficeException e){
-
-            PukkaLogger.log( e );
-            feedback.add(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Internal Error:" + e.narration, 0));
-
-        }catch(Exception e){
-
-            PukkaLogger.log( e );
-            feedback.add(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Internal Error: " + e.getLocalizedMessage(), 0));
-
-        }
-
-
-        return feedback;
 
     }
 

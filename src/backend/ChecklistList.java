@@ -85,7 +85,7 @@ public class ChecklistList extends GroupByList implements ListInterface{
         initiateTable( table, columnStructure);
 
         setGroupColumn(GroupColumn);
-        setSorting(new Sorting(ChecklistItemTable.Columns.Id.name(), Ordering.FIRST));   //Ordered by the ordinal tag
+        setSorting(new Sorting(ChecklistItemTable.Columns.Identifier.name(), Ordering.FIRST));   //Ordered by the ordinal tag
 
 
         // Add actions to each element. In this example we have multiple actions.
