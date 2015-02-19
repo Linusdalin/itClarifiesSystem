@@ -47,7 +47,7 @@
                             if(!action.equals("submit"))
                                 out.print(form.renderForm());
                             else
-                                out.print(form.submitCallBack(values, backOffice));
+                                out.print(form.submitCallBack(request, backOffice));
                         else
                             out.print("<p>Error no form "+ formParameter + "</p>");
 

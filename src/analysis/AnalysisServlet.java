@@ -284,7 +284,7 @@ public class AnalysisServlet extends DocumentService {
             // Make a second pass over all the fragments
             // This is to handle definition references
 
-            postProcessAnalysis(analyser, outcomeList, aDocument, owner, project, aProject, analysisTime, definitions);
+            postProcessAnalysis(analyser, outcomeList, aDocument, owner, newVersion, project, aProject, analysisTime, definitions);
 
 
             // Retrieve and store all keywords
@@ -388,7 +388,7 @@ public class AnalysisServlet extends DocumentService {
             // Make a second pass over all the fragments
             // This is to handle definition references
 
-            postProcessAnalysis(analyser, outcomeList, aDocument, owner, project, aProject, analysisTime, definitions);
+            postProcessAnalysis(analyser, outcomeList, aDocument, owner, documentVersion, project, aProject, analysisTime, definitions);
 
 
             // Retrieve and store all keywords
@@ -473,7 +473,7 @@ public class AnalysisServlet extends DocumentService {
 
                 analysisOutcome = analyser.analyseFragment(fragment.getText(), headline, contextText, aDocument, cellInfo, aProject);
 
-                risks += handleResult(analysisOutcome, fragment, project, analysisTime, searchManager, aDocument, definitionsForProject);
+                risks += handleResult(analysisOutcome, fragment, project, analysisTime, searchManager, aDocument, definitionsForProject, documentVersion);
 
                 // Store it for the second pass. In that pass we dont want to redo the parsing and analysis
 
@@ -677,7 +677,8 @@ public class AnalysisServlet extends DocumentService {
     }
 
 
-    private void postProcessAnalysis(Analyser analyser, List<OutcomeMap> outcomeList, AbstractDocument aDocument, PortalUser owner, Project project, AbstractProject aProject, DBTimeStamp analysisTime,
+    private void postProcessAnalysis(Analyser analyser, List<OutcomeMap> outcomeList, AbstractDocument aDocument, PortalUser owner,
+                                     ContractVersionInstance version, Project project, AbstractProject aProject, DBTimeStamp analysisTime,
                                      List<Definition> definitionsForProject) throws BackOfficeException{
 
         PukkaLogger.log(PukkaLogger.Level.INFO, "Second pass with " + outcomeList.size() + " elements.");
@@ -691,7 +692,7 @@ public class AnalysisServlet extends DocumentService {
             NewAnalysisOutcome postProcessOutcome = analyser.postProcess(outcome.outcome, aProject);
 
             //handlePostProcessResult(postProcessOutcome, outcome.fragment, project, definitionsForProject);
-            handleResult(postProcessOutcome, outcome.fragment, project, analysisTime, searchManager, aDocument, definitionsForProject);
+            handleResult(postProcessOutcome, outcome.fragment, project, analysisTime, searchManager, aDocument, definitionsForProject, version);
 
         }
 
@@ -881,6 +882,7 @@ public class AnalysisServlet extends DocumentService {
      * @param fragment - the data base fragment to update with classifications and references from analysis
      * @param project
      * @param analysisTime - time for the analysis
+     * @param version
      *
      */
 
@@ -888,7 +890,8 @@ public class AnalysisServlet extends DocumentService {
     private int handleResult(NewAnalysisOutcome analysisResult, ContractFragment fragment,
                              Project project, DBTimeStamp analysisTime,
                              SearchManager2 searchManager,
-                             AbstractDocument aDocument, List<Definition> definitionsForProject) throws BackOfficeException{
+                             AbstractDocument aDocument, List<Definition> definitionsForProject,
+                             ContractVersionInstance version) throws BackOfficeException{
 
         boolean updated = false;
 
@@ -938,7 +941,7 @@ public class AnalysisServlet extends DocumentService {
                             classification.getExtraction().getSemanticExtraction(),
                             fragment.getKey(),
                             fragment.getKey(),          // TODO: Points to itself, is this ok?
-                            fragment.getVersionId(),
+                            version.getKey(),
                             project.getKey(),
                             type,
                             classification.getExtraction().getSemanticExtraction(),
@@ -968,7 +971,7 @@ public class AnalysisServlet extends DocumentService {
                     Definition definition = new Definition(
                             classification.getPattern().getText(),
                             fragment.getKey(),
-                            fragment.getVersionId(),
+                            version.getKey(),
                             project.getKey());
                     definition.store();
 
@@ -981,7 +984,7 @@ public class AnalysisServlet extends DocumentService {
                             "",
                             classification.getKeywords(),
                             system.getKey(),
-                            fragment.getVersionId(),
+                            version.getKey(),
                             project.getKey(),
                             classification.getPattern().getText(),
                             classification.getPattern().getPos(),
@@ -1023,7 +1026,7 @@ public class AnalysisServlet extends DocumentService {
                             riskDescription,
                             "#RISK",
                             system.getKey(),
-                            fragment.getVersionId(),
+                            version.getKey(),
                             project.getKey(),
                             classification.getPattern().getText(),
                             classification.getPattern().getPos(),
@@ -1041,7 +1044,7 @@ public class AnalysisServlet extends DocumentService {
                             0,  // This is the first anyway...
                             riskDescription,
                             system.getKey(),
-                            fragment.getVersionId(),
+                            version.getKey(),
                             classification.getPattern().getText(),
                             0,                          //TODO: Anchor position not implemented
                             analysisTime.getSQLTime().toString()
@@ -1081,11 +1084,11 @@ public class AnalysisServlet extends DocumentService {
                                 classification.getPattern().getText(),
                                 fragment.getKey(),
                                 definitionFragment.getKey(),     // Point to the definition
-                                fragment.getVersionId(),
+                                version.getKey(),
                                 project.getKey(),
                                 type,
                                 classification.getPattern().getText(),
-                                0                          //TODO: Anchor position not implemented
+                                classification.getPattern().getPos()
                                 );
                         reference.store();
 
@@ -1107,7 +1110,7 @@ public class AnalysisServlet extends DocumentService {
                             "",
                             classification.getKeywords(),
                             system.getKey(),
-                            fragment.getVersionId(),
+                            version.getKey(),
                             project.getKey(),
                             classification.getPattern().getText(),
                             classification.getPattern().getPos(),
@@ -1151,7 +1154,7 @@ public class AnalysisServlet extends DocumentService {
                             "",
                             classification.getKeywords(),
                             system.getKey(),
-                            fragment.getVersionId(),
+                            version.getKey(),
                             project.getKey(),
                             classification.getPattern().getText(),
                             classification.getPattern().getPos(),

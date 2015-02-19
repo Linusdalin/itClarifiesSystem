@@ -1,6 +1,7 @@
 package services;
 
 import actions.Action;
+import actions.ChecklistItem;
 import analysis.Significance;
 import classification.FragmentClassification;
 import contractManagement.*;
@@ -90,6 +91,8 @@ public class FragmentDetailServlet extends ItClarifiesService{
            DBKeyInterface _fragment = getMandatoryKey("fragment", req);
            ContractFragment fragment = new ContractFragment(new LookupByKey(_fragment));
 
+           Project project = fragment.getProject();
+
            if(!fragment.exists()){
 
                returnError("Fragment Missing", HttpServletResponse.SC_BAD_REQUEST, resp);
@@ -107,6 +110,8 @@ public class FragmentDetailServlet extends ItClarifiesService{
            if(!mandatoryObjectExists(contract, resp))
                return;
 
+           List<ChecklistItem> checklistItemsInProject = project.getChecklistItemsForProject();
+
            JSONObject detailJSON = new JSONObject();
 
                 try{  detailJSON.put("annotations",     getAnnotations(fragment));      }catch(Exception e){ PukkaLogger.log(e); }
@@ -114,6 +119,9 @@ public class FragmentDetailServlet extends ItClarifiesService{
                 try{  detailJSON.put("classifications", getClassifications(fragment));  }catch(Exception e){ PukkaLogger.log(e); }
                 try{  detailJSON.put("risk",            getRisk(fragment));             }catch(Exception e){ PukkaLogger.log(e); }
                 try{  detailJSON.put("action",          getActions(fragment));          }catch(Exception e){ PukkaLogger.log(e); }
+
+                try{  detailJSON.put("checklist",       getChecklistReferences(fragment, checklistItemsInProject));
+                                                                                        }catch(Exception e){ PukkaLogger.log(e); }
 
 
            JSONObject output = new JSONObject()

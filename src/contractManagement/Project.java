@@ -1,5 +1,6 @@
 package contractManagement;
 
+import classifiers.Classification;
 import risk.*;
 import contractManagement.*;
 import classification.*;
@@ -263,6 +264,27 @@ public class Project extends DataObject implements DataObjectInterface{
 
 
 
+    public List<FragmentClassification> getFragmentClassificationsForProject(ConditionInterface condition){
+
+        condition.addFilter(new ReferenceFilter(FragmentClassificationTable.Columns.Project.name(), getKey()));
+
+        List<DataObjectInterface> objects = new FragmentClassificationTable(condition).getValues();
+
+        List<FragmentClassification> documents = (List<FragmentClassification>)(List<?>) objects;
+
+        return documents;
+
+    }
+
+    public List<FragmentClassification> getFragmentClassificationsForProject(){
+
+        return getFragmentClassificationsForProject(new LookupList());
+    }
+
+
+
+
+
     public List<Action> getActionsForProject(ConditionInterface condition){
 
         condition.addFilter(new ReferenceFilter(ActionTable.Columns.Project.name(), getKey()));
@@ -381,6 +403,25 @@ public class Project extends DataObject implements DataObjectInterface{
         return getChecklistsForProject(new LookupList());
     }
 
+
+
+    public List<ChecklistItem> getChecklistItemsForProject(ConditionInterface condition){
+
+        condition.addFilter(new ReferenceFilter(ChecklistItemTable.Columns.Project.name(), getKey()));
+
+        List<DataObjectInterface> objects = new ChecklistItemTable(condition).getValues();
+
+        List<ChecklistItem> list = (List<ChecklistItem>)(List<?>) objects;
+
+        return list;
+    }
+
+    // No condition retrieves all items
+
+    public List<ChecklistItem> getChecklistItemsForProject(){
+
+        return getChecklistItemsForProject(new LookupList());
+    }
 
 
 

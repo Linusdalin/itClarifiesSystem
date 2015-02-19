@@ -88,7 +88,7 @@ public class SessionServlet extends ItClarifiesService{
                 return;
             }
 
-            PortalUser user = createSessionForUser(token, userId, ipAddress);
+            PortalUser user = sessionManagement.createSessionForUser(token, userId, ipAddress);
 
             if(!user.exists()){
                 returnError("No user found for userid " + userId, HttpServletResponse.SC_BAD_REQUEST, resp);

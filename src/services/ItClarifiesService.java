@@ -1,5 +1,6 @@
 package services;
 
+import actions.ChecklistItem;
 import adminServices.GenericAdminServlet;
 import cache.ServiceCache;
 import contractManagement.*;
@@ -711,52 +712,6 @@ public class ItClarifiesService extends GenericAdminServlet {
         return condition;
     }
 
-    /********************************************************************************************************'
-     *
-     *          Creating a session for the user given the reply from the login service
-     *
-     *
-     * @param token             - the generated session token
-     * @param userId            - the user logging in (provided by the login service)
-     * @param ipAddress         - login ip to be stored in the session
-     *
-     * @return                  - The user looked up
-     * @throws BackOfficeException
-     */
-
-
-    protected PortalUser createSessionForUser(String token, int userId, String ipAddress) throws BackOfficeException {
-
-        PortalUser user = new PortalUser(new LookupItem()
-                .addFilter(new ColumnFilter(PortalUserTable.Columns.UserId.name(), userId)));
-
-        if(!user.exists()){
-
-            // The user does not exist. It is probably a user from another instance of the application
-
-            PukkaLogger.log(PukkaLogger.Level.INFO, "User with id " + userId + "does not exist in this application instance.");
-            return user;
-
-
-        }
-
-        // Check if there is an active session
-
-        if(!sessionManagement.validate(token, ipAddress)){
-
-            new PortalSessionTable().createNewSession(user, token, ipAddress);
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Creating new session for user " + user.getName() + "( id: " + userId + ")");
-        }
-        else{
-
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Found existing session for user " + user.getName() + "( id: " + userId + ")");
-        }
-
-
-        return user;
-
-
-    }
 
     /********************************************************************'
      *
@@ -815,6 +770,43 @@ public class ItClarifiesService extends GenericAdminServlet {
         return annotationCount;
     }
 
+
+    /**************************************************************************
+     *
+     *      Create an object for all checklist source and compliance references
+     *
+     *
+     *
+     * @param  fragment                 - the fragment
+     * @param  checklistItemsInProject - all checklist items (to loop through
+     * @return
+     */
+
+
+    protected JSONObject getChecklistReferences(ContractFragment fragment, List<ChecklistItem> checklistItemsInProject) {
+
+        JSONArray sourceReferences = new JSONArray();
+        JSONArray complianceReferences = new JSONArray();
+
+
+        for (ChecklistItem checklistItem : checklistItemsInProject) {
+
+            if(checklistItem.getSourceId() != null && checklistItem.getSourceId().equals(fragment.getKey()))
+                sourceReferences.put(checklistItem.getKey().toString());
+
+            if(checklistItem.getCompletionId() != null && checklistItem.getCompletionId().equals(fragment.getKey()))
+                complianceReferences.put(checklistItem.getKey().toString());
+        }
+
+
+
+        JSONObject checkListReference = new JSONObject()
+                .put("source", sourceReferences)
+                .put("compliance", complianceReferences);
+
+        return checkListReference;
+
+    }
 
 
 }

@@ -44,7 +44,7 @@
         // We have a form with a submit action
 
         try {
-            callBackMessage = form.submitCallBack(values, backOffice);
+            callBackMessage = form.submitCallBack(request, backOffice);
 
         } catch (BackOfficeException e) {
 
@@ -77,11 +77,9 @@
 <body class="loggedin">
 <%@ include file="adminCommon/includes/verifyLoginSession.inc" %>
 
-
-
-
-
             <%@ include file="adminCommon/includes/message.inc" %>
+
+
 
             <% out.print(pageComponent.render(tabId, callBackMessage, backOffice, request));  %>
 

@@ -1,5 +1,6 @@
 package services;
 
+import actions.CanonicalReferenceParser;
 import actions.Checklist;
 import actions.ChecklistParser;
 import analysis.AnalysisFeedbackItem;
@@ -70,6 +71,7 @@ public class DocumentService extends ItClarifiesService{
 
         int fragmentNo = 0;
         boolean isChecklist = false;
+        boolean isCanonicalDefinitionTable = false;
         Set<String> newKeywords = new HashSet<String>();  // To store all new keywords
 
         PukkaLogger.log(PukkaLogger.Level.ACTION, "*******************Phase II: Fragmenting Document");
@@ -78,6 +80,7 @@ public class DocumentService extends ItClarifiesService{
         String imageServer = getImageServer();
 
         ChecklistParser checklistParser = new ChecklistParser(fragmenter);
+        CanonicalReferenceParser canonicalReferenceParser = new CanonicalReferenceParser(fragmenter, document, project);
 
 
         for(AbstractFragment aFragment : fragments){
@@ -208,6 +211,16 @@ public class DocumentService extends ItClarifiesService{
 
                     }
 
+                    if(cellinfo.row == 0 && cellinfo.col == 0 && bodyText.equals("$_Canonical")){
+
+                        PukkaLogger.log(PukkaLogger.Level.ACTION, "Detected a Canonical Definition table in document.");
+                        isCanonicalDefinitionTable = true;
+                        bodyText = "";      // Remove the tag. We do not want it in the uploaded table it ws just to trigger the extraction of the checklist
+
+                        canonicalReferenceParser.startNew();
+                    }
+
+
                     if(isChecklist && cellinfo.row == 0 && cellinfo.col == 1){
 
                         String checklistName = bodyText;
@@ -244,6 +257,23 @@ public class DocumentService extends ItClarifiesService{
                     }
 
 
+                    if(isCanonicalDefinitionTable && cellinfo.row > 0){
+
+                        AnalysisFeedbackItem feedback = canonicalReferenceParser.parseCell(aFragment);
+
+                        if(feedback != null){
+                            PukkaLogger.log(PukkaLogger.Level.INFO, feedback.severity.name()+ ": " + feedback.message);
+
+                            if(feedback.severity == AnalysisFeedbackItem.Severity.ABORT){
+                                isCanonicalDefinitionTable = false;
+
+                            }
+                        }
+
+
+                    }
+
+
                 }
                 else{
 
@@ -262,6 +292,11 @@ public class DocumentService extends ItClarifiesService{
                 if(aFragment.getStyle() == StructureType.TEXT && bodyText.equals("")){
 
                     PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring empty fragment");
+
+                }
+                else if(isCanonicalDefinitionTable){
+
+                    PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring item in canonical reference table");
 
                 }
                 else{
@@ -311,6 +346,8 @@ public class DocumentService extends ItClarifiesService{
 
         if(isChecklist)
             checklistParser.endCurrentChecklist();
+        if(isCanonicalDefinitionTable)
+            canonicalReferenceParser.endCurrentTable();
 
 
         PukkaLogger.log(PukkaLogger.Level.INFO, "Storing " + fragmentsToStore.getCount() + " fragments for the analysis of the document " + document);
@@ -320,6 +357,7 @@ public class DocumentService extends ItClarifiesService{
 
         //TODO: This kind of cast should be generated automatically for all tables
         checklistParser.mapItemSources((List<ContractFragment>)(List<?>) fragmentsToStore.getValues());
+        canonicalReferenceParser.mapItemSources((List<ContractFragment>)(List<?>) fragmentsToStore.getValues());
 
 
 

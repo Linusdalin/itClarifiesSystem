@@ -82,7 +82,7 @@ public class LoginServlet extends ItClarifiesService{
             int userId = response.getInt("User");
 
 
-            PortalUser user = createSessionForUser(token, userId, ipAddress);
+            PortalUser user = sessionManagement.createSessionForUser(token, userId, ipAddress);
 
             if(!user.exists()){
                 returnError("The user " + name + " does not exist", ErrorType.SESSION, HttpServletResponse.SC_BAD_REQUEST, resp);

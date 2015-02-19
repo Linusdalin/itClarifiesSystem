@@ -1,5 +1,6 @@
 package actions;
 
+import classification.ClassificationOverviewManager;
 import contractManagement.ContractFragment;
 import contractManagement.Project;
 import databaseLayer.DBKeyInterface;
@@ -14,6 +15,7 @@ import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.util.List;
 
@@ -23,15 +25,15 @@ import java.util.List;
  *
  */
 
-public class ChecklistServlet extends DocumentService {
+public class ChecklistItemServlet extends DocumentService {
 
-    public static final String DataServletName = "Checklist";
+    public static final String DataServletName = "ChecklistDetails";
 
 
 
     /*************************************************************************
      *
-     *          Get check lists for a project or one specific checklist
+     *          Get checlists for a project or details given a checklist
      *
      *
      * @throws java.io.IOException
@@ -55,7 +57,7 @@ public class ChecklistServlet extends DocumentService {
 
             Formatter formatter = getFormatFromParameters(req);
 
-            DBKeyInterface _key             = getOptionalKey("key", req);
+            DBKeyInterface _key             = getOptionalKey("checkList", req);
 
             JSONObject response;
 
@@ -70,13 +72,16 @@ public class ChecklistServlet extends DocumentService {
                 if(!mandatoryObjectExists(project, resp))
                     return;
 
-                response =  new JSONObject().put(DataServletName, getAllChecklists(project));
+                        // Go through the classifications for the project
+
+
+                response =  new JSONObject().put(DataServletName, getDetailsForAllChecklists(project));
 
 
             }
             else{
 
-                // Return one specific checklist
+                // Return details of a given checklist
 
                 Checklist checklist = new Checklist(new LookupByKey(_key));
 
@@ -88,9 +93,7 @@ public class ChecklistServlet extends DocumentService {
                 if(!mandatoryObjectExists(project, resp))
                     return;
 
-                ChecklistManager checklistManager = new ChecklistManager(checklist, null);
-
-                response =  new JSONObject().put(DataServletName, checklistManager.getChecklistOverview());
+                response =  new JSONObject().put(DataServletName, getChecklistDetails(checklist, project));
 
             }
 
@@ -114,13 +117,17 @@ public class ChecklistServlet extends DocumentService {
 
     /**********************************************************************
      *
-     *      Get all checklists for a project
+     *      Get all checklists details for a project
      *
      * @param project - active project
      * @return
      */
 
-    JSONArray getAllChecklists(Project project){
+    JSONArray getDetailsForAllChecklists(Project project){
+
+
+        ClassificationOverviewManager classificationManager = new ClassificationOverviewManager();
+        classificationManager.compileClassificationsForProject(project, sessionManagement);
 
 
         JSONArray checklistsJSON = new JSONArray();
@@ -128,16 +135,44 @@ public class ChecklistServlet extends DocumentService {
 
         for (Checklist checklist : checklists) {
 
-            ChecklistManager checklistManager = new ChecklistManager(checklist, null);
-            checklistsJSON.put(checklistManager.getChecklistOverview());
+            ChecklistManager checklistManager = new ChecklistManager(checklist, classificationManager.getStatisticsMap());
+
+            checklistsJSON.put(checklistManager.getChecklist());
         }
 
-        PukkaLogger.log(PukkaLogger.Level.INFO, "Getting "+ checklists.size() +" checklists for project " + project.getName());
+        PukkaLogger.log(PukkaLogger.Level.INFO, "Getting "+ checklists.size() +" checklists with details for project " + project.getName());
 
         return checklistsJSON;
 
     }
 
+    /***************************************************************'
+     *
+     *          Get checklist details for a specific checklist
+     *
+     * @param checklist
+     * @param project
+     * @return
+     */
+
+
+    private JSONObject getChecklistDetails(Checklist checklist, Project project) {
+
+
+        PukkaLogger.log(PukkaLogger.Level.INFO, "Getting Checklist " + checklist.getName());
+
+        // Go through the classifications for the project
+
+        ClassificationOverviewManager classificationManager = new ClassificationOverviewManager();
+        classificationManager.compileClassificationsForProject(project, sessionManagement);
+
+        // Create a checklist
+
+        ChecklistManager checklistManager = new ChecklistManager(checklist, classificationManager.getStatisticsMap());
+
+        return checklistManager.getChecklist();
+
+    }
 
     public void doPost(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 

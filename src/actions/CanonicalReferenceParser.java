@@ -2,8 +2,10 @@ package actions;
 
 import analysis.AnalysisFeedback;
 import analysis.AnalysisFeedbackItem;
+import contractManagement.Contract;
 import contractManagement.ContractFragment;
-import dataRepresentation.DBTimeStamp;
+import contractManagement.Project;
+import crossReference.Definition;
 import document.AbstractFragment;
 import document.CellInfo;
 import document.FragmentSplitterInterface;
@@ -15,7 +17,7 @@ import java.util.List;
 
 /********************************************************************************************************'
  *
- *          handle parsing checklists either as a separate excel document or
+ *          handle parsing a canonical references definition document either as a separate excel document or
  *          as embedded into a compliance document
  *
  *          The Parser handles all checklists in a document and they are opened and closed by:
@@ -40,20 +42,23 @@ import java.util.List;
  *
  */
 
-public class ChecklistParser {
+public class CanonicalReferenceParser {
 
-    private static final String[] checklistHeadlines = {"Id", "Name", "Description","#Tag", "Comment", "Source"};
+    private static final String[] checklistHeadlines = {"Name", "Description", "Source",};
 
     private FragmentSplitterInterface doc;
-    private Checklist currentChecklist = null;
-    private ChecklistItem currentItem;  // The current item that we are building up
+    private Definition currentItem;     // The current item that we are building up
     private String currentSourceText;   // The source text for the current item
+
+    private boolean isInCanonicalReferenceList = false;
 
     // Create a map for the connection from a ChecklistItem to the source fragment.
     // As the source fragments are not yet stored at the point of parsing, we put this in a list and
     // Iterate through it when all the fragments from the document is stored.
 
     private List<SourceMap> sourceMap = new java.util.ArrayList<SourceMap>();
+    private final Contract document;
+    private final Project project;
 
 
     /**********************************************************************
@@ -64,37 +69,26 @@ public class ChecklistParser {
      * @param doc
      */
 
-    public ChecklistParser(FragmentSplitterInterface doc){
+    public CanonicalReferenceParser(FragmentSplitterInterface doc, Contract document, Project project){
 
+        this.document = document;
+        this.project = project;
         this.doc = doc;
     }
 
-    /***********************************************************************
-     *
-     *          Starting a new checklist (as there can be more than one checklist in the document.
-     *
-     *          If there is one checklist that is open, we complete it.
-     *
-     *
-     * @param checklist
-     */
+    public void startNew(){
 
-    public void startNewChecklist(Checklist checklist){
 
-        if(hasOpenCheckist())
-            endCurrentChecklist();
-
-        this.currentChecklist = checklist;
+        isInCanonicalReferenceList = true;
         currentItem = createNewItem();
 
 
     }
 
-    public void endCurrentChecklist(){
+    public void endCurrentTable(){
 
         storeDefinition(0);
-        currentChecklist = null;
-
+        isInCanonicalReferenceList = false;
     }
 
     /*********************************************************************
@@ -107,13 +101,12 @@ public class ChecklistParser {
 
     public void mapItemSources(List<ContractFragment> documentFragments){
 
-        System.out.println(" *** There are " + sourceMap.size() + " items stored in the sourcemap, but this is not implemented!");
-
         for (ContractFragment documentFragment : documentFragments) {
 
             for (SourceMap map : sourceMap) {
 
-                ChecklistItem item = new ChecklistItem(new LookupByKey(map.fragmentKey));
+                Definition definition = new Definition(new LookupByKey(map.fragmentKey));
+
 
                 //Very simple match. It could be more lenient
 
@@ -121,9 +114,10 @@ public class ChecklistParser {
 
                     try {
 
-                        item.setSource(documentFragment.getKey());
-                        item.update();
-                        PukkaLogger.log(PukkaLogger.Level.INFO, "Setting source fragment on Checklist Item " + map.itemName);
+                        definition.setDefinedIn(documentFragment.getKey());
+                        definition.setVersion(documentFragment.getVersionId());
+                        definition.update();
+                        PukkaLogger.log(PukkaLogger.Level.INFO, "Setting source fragment on Canonical Definition " + map.itemName);
 
                     } catch (BackOfficeException e) {
                         PukkaLogger.log(PukkaLogger.Level.FATAL, "Unable to update source");
@@ -155,7 +149,7 @@ public class ChecklistParser {
 
             for (AbstractFragment fragment : fragments) {
 
-                AnalysisFeedbackItem cellFeedback = parseChecklistCell(fragment);
+                AnalysisFeedbackItem cellFeedback = parseCell(fragment);
                 if(cellFeedback != null){
 
                     feedback.add(cellFeedback);
@@ -177,12 +171,12 @@ public class ChecklistParser {
     }
 
 
-    private ChecklistItem createNewItem(){
+    private Definition createNewItem(){
 
         currentSourceText = null;
 
-        return new ChecklistItem((long)0, (long)0, "name", "text", "comment", currentChecklist.getKey(),  null, null,
-                currentChecklist.getProjectId(), "", ActionStatus.getOpen(), new DBTimeStamp().getSQLTime().toString());
+        return new Definition("undefined", null,  document.getKey(), project.getKey());
+
     }
 
 
@@ -200,7 +194,7 @@ public class ChecklistParser {
      */
 
 
-    public AnalysisFeedbackItem parseChecklistCell(AbstractFragment fragment){
+    public AnalysisFeedbackItem parseCell(AbstractFragment fragment){
 
         AnalysisFeedbackItem feedback = null;
 
@@ -210,11 +204,11 @@ public class ChecklistParser {
 
             if(cellInfo == null){
 
-                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Checklist Parser: Ignoring non cell fragment " + fragment.getBody());
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Canonical Reference Parser: Ignoring non cell fragment " + fragment.getBody());
             }
             else{
 
-                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Checklist Parser: Handling cell fragment " + fragment.getBody());
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Canonical Reference Parser: Handling cell fragment " + fragment.getBody());
 
                 // Handle table data for the checklist
 
@@ -225,7 +219,7 @@ public class ChecklistParser {
                     if(cellInfo.col < checklistHeadlines.length && !fragment.getBody().equalsIgnoreCase(checklistHeadlines[cellInfo.col])){
 
                         abortCurrentChecklist();
-                        return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Checklist Parser: Expected to find " + checklistHeadlines[cellInfo.col] + " as title in cell (" + cellInfo.row +", " +  cellInfo.col + "). Found " + fragment.getBody(), cellInfo.row));
+                        return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Canonical Reference Parser: Expected to find " + checklistHeadlines[cellInfo.col] + " as title in cell (" + cellInfo.row +", " +  cellInfo.col + "). Found " + fragment.getBody(), cellInfo.row));
                     }
 
                 }
@@ -241,68 +235,29 @@ public class ChecklistParser {
 
                 if(cellInfo.row > 1 && cellInfo.col == 0){
 
-
                     // New row, create a new item
-                    currentItem = new ChecklistItem((long)0, (long)0, "name", "text", "comment", currentChecklist.getKey(),  null, null,
-                            currentChecklist.getProjectId(), "", ActionStatus.getOpen(), new DBTimeStamp().getSQLTime().toString());
+                    currentItem = createNewItem();
 
                     if(fragment.getBody().equals("")){
 
-                        return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.INFO, "Ended checklist ( no more id... )", cellInfo.row));
+                        return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.INFO, "Canonical Reference Parser: Ended canonical reference table ( no more id... )", cellInfo.row));
 
                     }
 
+                    currentItem.setName(fragment.getBody());
 
-                    try{
-
-                        int id = new Double(fragment.getBody()).intValue();
-                        System.out.println("Extracted " + id + " from " + fragment.getBody());
-                        currentItem.setIdentifier(id);
-
-                    }catch(NumberFormatException e){
-
-                        abortCurrentChecklist();
-                        return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Expected to find number (id) in cell (" + cellInfo.row +", " +  cellInfo.col + "). Found " + fragment.getBody(), cellInfo.row));
-
-                    }
                 }
 
                 if(cellInfo.row > 1 && cellInfo.col == 1){
 
-                    currentItem.setName(fragment.getBody());
+                    if(fragment.getBody().equals(""))
+                        return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.INFO, "Ignoring empty definition", cellInfo.row));
+
+                    return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ERROR, "Not implemented definition description. Use canonical reference", cellInfo.row));
+
                 }
 
                 if(cellInfo.row > 1 && cellInfo.col == 2){
-
-                    currentItem.setDescription(fragment.getBody());
-                }
-
-                if(cellInfo.row > 1 && cellInfo.col == 3){
-
-                    String tag = fragment.getBody();
-
-                    if(tag.equals("")){
-                        return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.WARNING, "Empty tag column, no tag set for checklist item.", cellInfo.row));
-
-                    }
-                    if(!tag.startsWith("#")){
-
-                        abortCurrentChecklist();
-                        return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Expected to find #TAG in tag column. Found " + tag, cellInfo.row));
-
-                    }
-                    String trimmedTag = tag.trim();
-                    System.out.println("*** Storing tag:" + trimmedTag);
-
-                    currentItem.setTagReference(trimmedTag); // Remove # and potential trailing space
-                }
-
-                if(cellInfo.row > 1 && cellInfo.col == 4){
-
-                    currentItem.setComment(fragment.getBody());
-                }
-
-                if(cellInfo.row > 1 && cellInfo.col == 5){
 
                     currentSourceText = fragment.getBody().trim();  //Store this until we create teh item.
                 }
@@ -325,30 +280,30 @@ public class ChecklistParser {
     public AnalysisFeedbackItem storeDefinition(int row){
 
         try{
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Storing a checklist item");
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Canonical Reference Parser: Storing a definition");
             currentItem.store();
 
             if(currentSourceText != null)
                 sourceMap.add(new SourceMap(currentItem.getKey(), currentSourceText, currentItem.getName()));
 
-            return new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.INFO, "Created checklist item "+ currentItem.getName()+" with id " + currentItem.getIdentifier(), row);
+            return new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.INFO, "Created definition "+ currentItem.getName(), row);
 
         }catch(BackOfficeException e){
 
             abortCurrentChecklist();
-            return new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "FAILED to create checklist item "+ currentItem.getName(), row);
+            return new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "FAILED to create definition "+ currentItem.getName(), row);
 
         }
     }
 
     private void abortCurrentChecklist() {
-        currentChecklist = null;
+        isInCanonicalReferenceList = false;
     }
 
 
     public boolean hasOpenCheckist() {
 
-        return currentChecklist != null;
+        return isInCanonicalReferenceList;
     }
 
 }

@@ -252,11 +252,11 @@
      </servlet-mapping>
 
     <servlet>
-         <servlet-name>ChecklistItem</servlet-name>
-         <servlet-class>actions.ChecklistServlet</servlet-class>
+         <servlet-name>ChecklistDetails</servlet-name>
+         <servlet-class>actions.ChecklistItemServlet</servlet-class>
      </servlet>
      <servlet-mapping>
-         <servlet-name>ChecklistItem</servlet-name>
+         <servlet-name>ChecklistDetails</servlet-name>
          <url-pattern>/ChecklistItem</url-pattern>
      </servlet-mapping>
 

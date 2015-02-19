@@ -4,6 +4,7 @@ import actions.ActionStatusTable;
 import actions.ActionTable;
 import actions.ChecklistItemTable;
 import actions.ChecklistTable;
+import cache.ServiceCache;
 import classification.FragmentClassTable;
 import classification.FragmentClassificationTable;
 import classification.ReclassificationTable;
@@ -50,10 +51,6 @@ import java.util.Arrays;
 
 
 public class ItClarifies extends AppBackOffice implements BackOfficeInterface, Serializable {
-
-
-
-
 
 
     public ItClarifies(){
@@ -419,7 +416,7 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
         forms = new FormInterface[] {
 
                 new LoginForm(),
-                new ReferenceForm( this, ""),
+                new EditFragmentDetailsForm( this, ""),
                 //new contractManagement.FilterForm( this, "", null, null),
 
           //new ExampleForm(this),
@@ -442,7 +439,7 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
 
                 new DashboardPage(),
                 new ReclassificationImportPage(),
-                new CreateReferenceLightbox(  ),
+                new EditFragmentDetailsLightbox(  ),
 
                 //new TestLightbox(),
                 //new TestPage(),        // Test bar chart
@@ -501,6 +498,12 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
 
 
             }
+
+            // Store the pre-loggedin demo users
+
+            ServiceCache cache = new ServiceCache("Token");
+            cache.store("DummyAdminToken", "admin@2020-01-01 00:00:00#127.0.0.1", "");
+            cache.store("DummySessionToken", "demo@2020-01-01 00:00:00#127.0.0.1", "");
 
 
 

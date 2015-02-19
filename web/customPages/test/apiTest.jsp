@@ -15,6 +15,7 @@
 <%@ page import="actions.Checklist" %>
 <%@ page import="actions.ChecklistTable" %>
 <%@ page import="pukkaBO.style.Html" %>
+<%@ page import="cache.ServiceCache" %>
 <html>
 
 
@@ -23,6 +24,9 @@
     // Check if we want to use real access tokens or pre-populate it
 
     boolean useRealToken = (request.getParameter("useToken") != null);
+
+
+
 
     String hostParameter = request.getParameter("host");
     String host = "";
@@ -65,6 +69,8 @@
 
         }
 
+
+
     } catch (Exception e) {
         PukkaLogger.log(PukkaLogger.Level.INFO, "No demo project found " + e.getMessage());
     }
@@ -78,6 +84,14 @@
     String userDropdown      = new PortalUserTable().getDropDown(null).withName("assignee").withUnselected("select").render();
     String projectDropdown  = new ProjectTable().getDropDown(null).withName("project").withUnselected("select").render();
     String checklistDropdown = new ChecklistTable().getDropDown(null).withName("checkList").withUnselected("select").render();
+
+
+                        // Store the pre-loggedin demo users
+
+            ServiceCache cache = new ServiceCache("Token");
+            cache.store("DummyAdminToken", "admin@2020-01-01 00:00:00#127.0.0.1", "");
+            cache.store("DummySessionToken", "demo@2020-01-01 00:00:00#127.0.0.1", "");
+
 
 
 %>

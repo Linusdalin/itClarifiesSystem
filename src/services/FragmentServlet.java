@@ -1,5 +1,6 @@
 package services;
 
+import actions.ChecklistItem;
 import backend.ItClarifies;
 import cache.ServiceCache;
 import contractManagement.*;
@@ -301,12 +302,17 @@ public class FragmentServlet extends ItClarifiesService{
 
            }else{
 
+               PukkaLogger.log(PukkaLogger.Level.INFO, "Building response");
+
                json = new JSONObject()
                        .put(DataServletName, getFragmentsForDocumentVersion(document, activeVersion, sessionManagement, formatter));
+               PukkaLogger.log(PukkaLogger.Level.INFO, "Caching response");
                cache.store(activeVersion.getKey().toString(), json.toString(), "Document " + document.getName());
            }
 
+           PukkaLogger.log(PukkaLogger.Level.INFO, "Sending response");
            sendJSONResponse(json, formatter, resp);
+           PukkaLogger.log(PukkaLogger.Level.INFO, "Sent response");
 
        }catch(BackOfficeException e){
 
@@ -366,13 +372,12 @@ public class FragmentServlet extends ItClarifiesService{
             String contractName = encodeToJSON(document.getName());
 
             String documentKey = document.getKey().toString();
-            String projectKey = document.getProjectId().toString();
+            Project project = document.getProject();
+
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Found " + allFragments.size() + " fragments for document " + contractName);
 
-            JSONObject rowObject = null;
-
-            //PukkaLogger.log(PukkaLogger.Level.INFO, "Before json loop");
+            List<ChecklistItem> checklistItemsInProject = project.getChecklistItemsForProject();  //TODO: Optimization: Use a map here. Multiple loops through the list
 
             for(ContractFragment fragment : allFragments){
 
@@ -391,7 +396,7 @@ public class FragmentServlet extends ItClarifiesService{
                     .put("ordinal",         fragment.getOrdinal())
                     .put("text",            encodeToJSON(body))
                     .put("document", documentKey)
-                    .put("project",         projectKey)
+                    .put("project",         project.getKey().toString())
 
                     .put("annotations",     fragment.getAnnotationCount())
                     .put("actions",         fragment.getActionCount())
@@ -401,6 +406,7 @@ public class FragmentServlet extends ItClarifiesService{
                     .put("type",            fragment.getType())
                     .put("risk",            "" + fragment.getRisk().getId())
                     .put("display",         getDisplayInfo(fragment))
+                    .put("checklist",       getChecklistReferences(fragment, checklistItemsInProject))
                 ;
 
                 fragmentList.put(fragmentJSON);
@@ -418,6 +424,7 @@ public class FragmentServlet extends ItClarifiesService{
 
     }
 
+
     private String getIndentedText(ContractFragment fragment) {
 
         long indentation = fragment.getIndentation();
@@ -427,7 +434,7 @@ public class FragmentServlet extends ItClarifiesService{
 
         if(!fragment.getType().equals("LISTITEM") && !fragment.getType().equals("TEXT")){
 
-            System.out.println("Not a list or text fragment ("+fragment.getType() +"), no indentation");
+            //System.out.println("Not a list or text fragment ("+fragment.getType() +"), no indentation");
             return fragment.getText();
         }
 
@@ -467,6 +474,7 @@ public class FragmentServlet extends ItClarifiesService{
                 refrenceJSON.put(new JSONObject()
                         .put("to", reference.getToId().toString())
                         .put("pattern", reference.getPattern())
+                        .put("pos", reference.getPatternPos())
                         .put("type", reference.getType().getName())
 
                 );

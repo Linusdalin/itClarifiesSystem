@@ -1,18 +1,12 @@
 package userManagement;
 
+import cache.ServiceCache;
 import contractManagement.Contract;
-import contractManagement.ContractTable;
 import dataRepresentation.DBTimeStamp;
-import dataRepresentation.DataObjectInterface;
-import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
 import pukkaBO.acs.IPAccessList;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
-import pukkaBO.password.PasswordManager;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /****************************************************************************
  *
@@ -33,6 +27,7 @@ public class SessionManagement {
     private static IPAccessList internalIPAccess = null;
 
     public SessionManagement(){
+
 
         if(internalIPAccess == null){
             internalIPAccess = new IPAccessList();
@@ -69,6 +64,59 @@ public class SessionManagement {
     }
 
 
+    /********************************************************************************************************'
+     *
+     *          Creating a session for the user given the reply from the login service
+     *
+     *
+     * @param token             - the generated session token
+     * @param userId            - the user logging in (provided by the login service)
+     * @param ipAddress         - login ip to be stored in the session
+     *
+     * @return                  - The user looked up
+     * @throws BackOfficeException
+     */
+
+
+    public PortalUser createSessionForUser(String token, int userId, String ipAddress) throws BackOfficeException {
+
+        PortalUser user = new PortalUser(new LookupItem()
+                .addFilter(new ColumnFilter(PortalUserTable.Columns.UserId.name(), userId)));
+
+        if(!user.exists()){
+
+            // The user does not exist. It is probably a user from another instance of the application
+
+            PukkaLogger.log(PukkaLogger.Level.INFO, "User with id " + userId + "does not exist in this application instance.");
+            return user;
+
+
+        }
+
+        // Check if there is an active session
+
+        if(!validate(token, ipAddress)){
+
+            //new PortalSessionTable().createNewSession(user, token, ipAddress);
+
+            SessionCacheKey newSessionKey = new SessionCacheKey(user, ipAddress, new DBTimeStamp()).forToken(token);
+            newSessionKey.store();
+
+
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Creating new session for user " + user.getName() + "( id: " + userId + ")");
+        }
+        else{
+
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Found existing session for user " + user.getName() + "( id: " + userId + ")");
+        }
+
+
+        return user;
+
+
+    }
+
+
     /*******************************************************************************
      *
      *          Close the session
@@ -87,26 +135,26 @@ public class SessionManagement {
 
             // Lookup the last session for the user
 
-            PortalSession session = new PortalSession(new LookupItem()
-                    .addFilter(new ColumnFilter(PortalSessionTable.Columns.Token.name(), sessionToken))
-                    .addSorting(new Sorting(PortalSessionTable.Columns.Latest.name(), Ordering.LAST)));
+            //PortalSession session = new PortalSession(new LookupItem()
+            //        .addFilter(new ColumnFilter(PortalSessionTable.Columns.Token.name(), sessionToken))
+            //        .addSorting(new Sorting(PortalSessionTable.Columns.Latest.name(), Ordering.LAST)));
 
 
-            if(!session.exists()){
+        SessionCacheKey sessionCacheKey = new SessionCacheKey(sessionToken);
+
+            if(!sessionCacheKey.exists()){
 
                 PukkaLogger.log(PukkaLogger.Level.WARNING, "Trying to access non existing session with token " + sessionToken );
                 return "unknown session";
 
-            }else if(session.getStatus().equals(SessionStatus.gettimeout())){
-
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Session implicitly closed through timeout" + sessionToken );
-                return "implicit";
             }else{
 
                 // Close session
 
-                session.setStatus(SessionStatus.getclosed());
-                session.update();
+                //session.setStatus(SessionStatus.getclosed());
+                //session.update();
+
+                sessionCacheKey.remove();
                 PukkaLogger.log(PukkaLogger.Level.INFO, "Session closed" + sessionToken );
 
             }
@@ -139,21 +187,27 @@ public class SessionManagement {
 
         // Lookup the session
 
-        PortalSession session = new PortalSession(new LookupItem()
-                    .addFilter(new ColumnFilter(PortalSessionTable.Columns.Token.name(), sessionToken))
-                    .addSorting(new Sorting(PortalSessionTable.Columns.Latest.name(), Ordering.LAST)));
+        //PortalSession session = new PortalSession(new LookupItem()
+        //            .addFilter(new ColumnFilter(PortalSessionTable.Columns.Token.name(), sessionToken))
+        //            .addSorting(new Sorting(PortalSessionTable.Columns.Latest.name(), Ordering.LAST)));
 
+        SessionCacheKey sessionCacheKey = new SessionCacheKey(sessionToken);
 
-        if(!session.exists()){
+        if(!sessionCacheKey.exists()){
 
            PukkaLogger.log(PukkaLogger.Level.INFO, "No session exists for token " + sessionToken);
             return false;
         }
 
 
-        if(!internal(ipAddress) && !session.getIP().equals(ipAddress)){
 
-            PukkaLogger.log(PukkaLogger.Level.WARNING, "Access attempt on "+ session.getUser().getName()+" account from another IP address. (Login: " + session.getIP() + " access: " + ipAddress + ")");
+        System.out.println(" *** Access details: (" + sessionCacheKey.getUser().getName() + ", " +sessionCacheKey.getTs().getSQLTime().toString() + ", " + sessionCacheKey.getIpAddress() + ")" );
+
+
+        if(!internal(ipAddress) && !sessionCacheKey.getIpAddress().equals(ipAddress)){
+
+            PukkaLogger.log(PukkaLogger.Level.WARNING, "Access attempt on "+ sessionCacheKey.getUser().getName()+" account from another IP address. (Login: " + sessionCacheKey.getIpAddress() +
+                    " access: " + ipAddress + ")");
             return false;
 
         }
@@ -161,25 +215,22 @@ public class SessionManagement {
 
         // Check if the session is open and not expired
 
-       boolean isActive =(session.getStatus().equals(SessionStatus.getopen()) && !expired(session));
+       boolean isActive = !expired(sessionCacheKey);
 
        if(isActive){
 
-           this.sessionUser = session.getUser();
+           this.sessionUser = sessionCacheKey.getUser();
            this.sessionToken = sessionToken;
-           session.setLatest(new DBTimeStamp());
-           session.update();
+           DBTimeStamp newAccess = new DBTimeStamp();
+           sessionCacheKey.setAccess(newAccess);
+
            PukkaLogger.log(PukkaLogger.Level.INFO, "Validated user " + sessionUser.getName() + "( "+ sessionUser.getKey()+" ) in request");
 
 
        }
         else{
 
-           if(expired(session))
                 PukkaLogger.log(PukkaLogger.Level.INFO, "Session for token " + sessionToken + " has expired");
-           else
-               PukkaLogger.log(PukkaLogger.Level.INFO, "Session for token " + sessionToken + " has status " + session.getStatus().getName());
-
 
        }
 
@@ -187,13 +238,14 @@ public class SessionManagement {
 
         if(system == null){
             system = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "itClarifies")));
-            System.out.println("Validate create system user");
+            System.out.println("Validatecreate system user");
 
         }
         return isActive;
 
 
     }
+
 
     private boolean internal(String ip) {
 
@@ -227,6 +279,14 @@ public class SessionManagement {
         }
     }
 
+    private boolean expired(SessionCacheKey session) {
+
+            DBTimeStamp endTime = session.getTs().addMinutes(SESSION_TIME);
+            DBTimeStamp now = new DBTimeStamp();
+
+            return endTime.isBefore(now);
+
+    }
 
 
     public PortalUser getUser() throws BackOfficeException{

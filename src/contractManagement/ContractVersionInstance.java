@@ -343,7 +343,7 @@ public class ContractVersionInstance extends DataObject implements DataObjectInt
 
     }
 
-    public List<FragmentClassification> getFragmentClassificationsForVersion(ConditionInterface condition) throws BackOfficeException{
+    public List<FragmentClassification> getFragmentClassificationsForVersion(ConditionInterface condition){
 
         condition.addFilter(new ReferenceFilter(FragmentClassificationTable.Columns.Version.name(), getKey()));
 
@@ -357,7 +357,7 @@ public class ContractVersionInstance extends DataObject implements DataObjectInt
 
     // No condition retrieves all items
 
-    public List<FragmentClassification> getFragmentClassificationsForVersion() throws BackOfficeException{
+    public List<FragmentClassification> getFragmentClassificationsForVersion(){
 
         return getFragmentClassificationsForVersion(new LookupList());
     }
