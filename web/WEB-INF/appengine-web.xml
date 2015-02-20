@@ -39,7 +39,7 @@
                     1-12-1:         Image service, checklist name, second pass analysis, definition/use/def fixes
                     1-12-2:         Fixes to double generation, fixes to uploading checklist
                     1-12-3:         Upload Compliance Document, Setting source, checklistitemservlet update
-                    1-12-4:         New session mem-cache, canonical definition, remove def in BO
+                    1-12-4:         New session mem-cache, canonical definition, remove def in BO, class tree
       -->
 
 </appengine-web-app>

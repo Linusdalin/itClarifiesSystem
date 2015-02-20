@@ -306,7 +306,7 @@ public class AnalysisServlet extends DocumentService {
 
             // Now reanalyse project to find existing references to the new document
 
-            reanalyseProjectForReferences(project, newVersion);
+            reanalyseProjectForReferences(analyser, project, newVersion, aProject, aDocument, owner);
 
             // Finally a last pass over the project to close any open references
 
@@ -398,7 +398,7 @@ public class AnalysisServlet extends DocumentService {
 
             // Now reanalyse project to find existing references to the new document
 
-            reanalyseProjectForReferences(project, documentVersion);
+            reanalyseProjectForReferences(analyser, project, documentVersion, aProject, aDocument, owner);
 
             // Finally a last pass over the project to close any open references
 
@@ -595,11 +595,14 @@ public class AnalysisServlet extends DocumentService {
      *
      *      Go through the entire project to find existing undetected references to the new document
      *
+     * @param analyser
      * @param project
      * @param versionInstance
+
      */
 
-    public void reanalyseProjectForReferences(Project project, ContractVersionInstance versionInstance) throws BackOfficeException {
+    public void reanalyseProjectForReferences(Analyser analyser, Project project, ContractVersionInstance versionInstance, AbstractProject aProject,
+                                              AbstractDocument aDocument, PortalUser user) throws BackOfficeException {
 
 
         List<Contract> contractsForProject = project.getContractsForProject();
@@ -607,6 +610,12 @@ public class AnalysisServlet extends DocumentService {
         String name = currentDocument.getName().toLowerCase();
         String file = currentDocument.getFile().toLowerCase();
         ReferenceType type = ReferenceType.getExplicit();
+        DBTimeStamp analysisTime = new DBTimeStamp();
+        SearchManager2 searchManager = new SearchManager2(project, user);
+        List<Definition> definitionsForProject = project.getDefinitionsForProject();
+
+        PukkaLogger.log(PukkaLogger.Level.ACTION, "*****************************\nPhase IV: References and Definitions");
+
 
         ContractFragment firstFragment = new ContractFragment(new LookupItem()
                 .addFilter(new ColumnFilter(ContractFragmentTable.Columns.Ordinal.name(), 0))
@@ -622,19 +631,20 @@ public class AnalysisServlet extends DocumentService {
                 System.out.println("Fragment: " + fragment.getName() + " " + fragment.getOrdinal());
             }
 
-            PukkaLogger.log(PukkaLogger.Level.FATAL, "The document " + currentDocument.getName() + " does not have a first fragment to direct references to");
-            return;
+            PukkaLogger.log(PukkaLogger.Level.WARNING, "The document " + currentDocument.getName() + " does not have a first fragment to direct references to");
         }
 
 
-        for(Contract contract : contractsForProject){
+        for(Contract document : contractsForProject){
 
 
             //For all other documents we look for references to the title and document name
-            if(!contract.equals(currentDocument)){
+            if(!document.equals(currentDocument)){
 
-                ContractVersionInstance latestVersion = contract.getHeadVersion();
+                ContractVersionInstance latestVersion = document.getHeadVersion();
                 List<ContractFragment> fragmentsForDocument = latestVersion.getFragmentsForVersion();
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Reanalysing references in document " + document.getName());
 
                 for(ContractFragment fragment : fragmentsForDocument){
 
@@ -663,13 +673,23 @@ public class AnalysisServlet extends DocumentService {
                             // Create a new reference and store it in the fragment
                             // It will point to the first clause in the document
 
-                            Reference reference = new Reference(name, fragment, firstFragment,  versionInstance, project, type, name, 0);
+                            Reference reference = new Reference(name, fragment, firstFragment,  latestVersion, project, type, name, 0);
                             reference.store();
                         }
 
                     }
 
+
+
+                    NewAnalysisOutcome postProcessOutcome = analyser.postProcess(fragment.getText(), aProject);
+                    handleResult(postProcessOutcome, fragment, project, analysisTime, searchManager, aDocument, definitionsForProject, latestVersion);
+
+
                 }
+
+                //TODO: Optimization: Only do this if it is changed
+                invalidateFragmentCache(latestVersion);
+                invalidateDocumentCache(document, project);
 
             }
         }
@@ -975,6 +995,9 @@ public class AnalysisServlet extends DocumentService {
                             project.getKey());
                     definition.store();
 
+                    // Also add the definition to the active list of definitions. This will be needed for subsequent reanalyze of the project
+
+                    definitionsForProject.add(definition);
 
                     fragmentClassification = new FragmentClassification(
                             fragment.getKey(),
@@ -1078,29 +1101,44 @@ public class AnalysisServlet extends DocumentService {
                     ContractFragment definitionFragment = getFragmentForDefinition(fragment, classification.getPattern().getText(), definitionsForProject);
 
                     if(definitionFragment.exists()){
-                        ReferenceType type = ReferenceType.getDefinitionUsage();
 
-                        Reference reference = new Reference(
-                                classification.getPattern().getText(),
-                                fragment.getKey(),
-                                definitionFragment.getKey(),     // Point to the definition
-                                version.getKey(),
-                                project.getKey(),
-                                type,
-                                classification.getPattern().getText(),
-                                classification.getPattern().getPos()
-                                );
-                        reference.store();
+                        System.out.println("Check source = usage for " + classification.getPattern().getText());
 
-                        references++;
-                        updated = true;
+                        if(definitionFragment.getKey().equals(fragment.getKey())){
+
+                            // We have found da definition and usage in the same fragment. Ignore this
+
+                            PukkaLogger.log(PukkaLogger.Level.INFO, "Ignoring definition usage of " + classification.getPattern() + ". This is the definition.");
+
+                        }
+                        else{
+
+                            ReferenceType type = ReferenceType.getDefinitionUsage();
+
+                            Reference reference = new Reference(
+                                    classification.getPattern().getText(),
+                                    fragment.getKey(),
+                                    definitionFragment.getKey(),     // Point to the definition
+                                    version.getKey(),
+                                    project.getKey(),
+                                    type,
+                                    classification.getPattern().getText(),
+                                    classification.getPattern().getPos()
+                                    );
+                            reference.store();
+
+                            references++;
+                            updated = true;
+
+                        }
+
                     }
                     else{
                         PukkaLogger.log(PukkaLogger.Level.WARNING, "Internal error: Definition \""+ classification.getPattern().getText()+
                                 "\" identified in analysis but then not found for processing. (Document: " + fragment.getVersion().getDocument().getName() + ")");
                     }
 
-                    System.out.println(" *** Storing Definition Usage classificaiton for definition");
+                    System.out.println(" *** Storing Definition Usage classification for definition");
 
                     fragmentClassification = new FragmentClassification(
                             fragment.getKey(),

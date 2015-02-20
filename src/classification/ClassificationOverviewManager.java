@@ -73,7 +73,7 @@ public class ClassificationOverviewManager {
                 }
                 else{
 
-                    PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignorng document " + document.getName() + ". No access.");
+                    PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring document " + document.getName() + ". No access.");
 
                 }
 

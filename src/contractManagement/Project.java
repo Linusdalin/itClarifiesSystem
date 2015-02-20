@@ -460,4 +460,23 @@ public class Project extends DataObject implements DataObjectInterface{
 
         return openReferences;
     }
+
+    public List<ContractFragment> getContractFragmentsForProject(ConditionInterface condition){
+
+        condition.addFilter(new ReferenceFilter(ContractFragmentTable.Columns.Project.name(), getKey()));
+
+        List<DataObjectInterface> objects = new ContractFragmentTable(condition).getValues();
+
+        List<ContractFragment> list = (List<ContractFragment>)(List<?>) objects;
+
+        return list;
+    }
+
+    // No condition retrieves all items
+
+    public List<ContractFragment> getContractFragmentsForProject(){
+
+        return getContractFragmentsForProject(new LookupList());
+    }
+
 }

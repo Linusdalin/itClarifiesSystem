@@ -5,9 +5,13 @@ import backend.ItClarifies;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import contractManagement.*;
+import crossReference.Definition;
 import crossReference.Reference;
 import crossReference.ReferenceType;
 import dataRepresentation.DBTimeStamp;
+import document.AbstractDocument;
+import document.AbstractProject;
+import language.LanguageCode;
 import log.PukkaLogger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -16,6 +20,7 @@ import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupItem;
 import risk.ContractRisk;
+import system.Analyser;
 import test.ServletTests;
 import userManagement.AccessRight;
 import userManagement.PortalUser;
@@ -23,6 +28,7 @@ import userManagement.PortalUser;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -101,6 +107,8 @@ public class ReferenceTest extends ServletTests {
 
             try{
 
+                Analyser analyser = new Analyser(new LanguageCode("EN"), "" );
+
                 // First create a new document for the project "Demo"
 
                 Project project = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), "Demo")));
@@ -113,6 +121,8 @@ public class ReferenceTest extends ServletTests {
                 ContractStatus status = ContractStatus.getAnalysing();
                 PortalUser user = PortalUser.getSystemUser();
                 DBTimeStamp creationTime = new DBTimeStamp();
+                AbstractProject aProject = project.createAbstractProject();
+                AbstractDocument aDocument = null;
                 Contract newDocument = new Contract("pricelist", "Test Document.docx", 3, documentType, status,  "no message", "test document", project, user, creationTime.toString(), "EN", AccessRight.getrwd());
                 newDocument.store();
 
@@ -132,7 +142,7 @@ public class ReferenceTest extends ServletTests {
 
                 // Now perform the reanalysis
 
-                new AnalysisServlet().reanalyseProjectForReferences(project, version);
+                new AnalysisServlet().reanalyseProjectForReferences(analyser, project, version, aProject, aDocument, user);
 
                 referencesForFragment = firstFragmentInCannonDoc.getReferencesForFragment();
                 assertVerbose("One more reference (over the " + referencesCount + " before) is expected from the analysis", referencesForFragment.size(), is(referencesCount + 1));

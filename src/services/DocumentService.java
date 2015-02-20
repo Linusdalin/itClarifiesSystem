@@ -355,9 +355,8 @@ public class DocumentService extends ItClarifiesService{
 
         // Now we can map the checklist sources to the correct fragment id:s
 
-        //TODO: This kind of cast should be generated automatically for all tables
         checklistParser.mapItemSources((List<ContractFragment>)(List<?>) fragmentsToStore.getValues());
-        canonicalReferenceParser.mapItemSources((List<ContractFragment>)(List<?>) fragmentsToStore.getValues());
+        canonicalReferenceParser.mapItemSources(project);
 
 
 

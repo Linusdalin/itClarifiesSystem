@@ -96,19 +96,27 @@ public class CanonicalReferenceParser {
      *          map all found source references to the appropriate fragments found in the list
      *
      *
-     * @param documentFragments     - list of fragments (with a proper key)
+     * @param project       - current project
      */
 
-    public void mapItemSources(List<ContractFragment> documentFragments){
+    public void mapItemSources(Project project){
 
-        for (ContractFragment documentFragment : documentFragments) {
 
-            for (SourceMap map : sourceMap) {
+        if(sourceMap.isEmpty())
+            return;
 
-                Definition definition = new Definition(new LookupByKey(map.fragmentKey));
+        List<ContractFragment> fragments = project.getContractFragmentsForProject();
 
+        for (SourceMap map : sourceMap) {
+
+            Definition definition = new Definition(new LookupByKey(map.fragmentKey));
+            boolean hit = false;
+
+            for (ContractFragment documentFragment : fragments) {
 
                 //Very simple match. It could be more lenient
+
+                System.out.println(" * Cpr: " + map.sourceText.toLowerCase() + " with " + documentFragment.getText().toLowerCase());
 
                 if(documentFragment.getText().toLowerCase().contains(map.sourceText.toLowerCase())){
 
@@ -117,7 +125,9 @@ public class CanonicalReferenceParser {
                         definition.setDefinedIn(documentFragment.getKey());
                         definition.setVersion(documentFragment.getVersionId());
                         definition.update();
+                        hit = true;
                         PukkaLogger.log(PukkaLogger.Level.INFO, "Setting source fragment on Canonical Definition " + map.itemName);
+                        break;
 
                     } catch (BackOfficeException e) {
                         PukkaLogger.log(PukkaLogger.Level.FATAL, "Unable to update source");
@@ -125,10 +135,15 @@ public class CanonicalReferenceParser {
                 }
 
             }
+
+            if(!hit)
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Could not find " + map.itemName + "(" + map.sourceText + ") in project " + project.getName());
         }
 
     }
 
+    // innovation norway's tinc (tech incubator)
+    // innovation norway's tinc (tech incubator)
 
     /******************************************************************************'
      *
@@ -280,7 +295,7 @@ public class CanonicalReferenceParser {
     public AnalysisFeedbackItem storeDefinition(int row){
 
         try{
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Canonical Reference Parser: Storing a definition");
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Canonical Reference Parser: Storing a definition " + currentItem.getName());
             currentItem.store();
 
             if(currentSourceText != null)
