@@ -82,6 +82,7 @@ public class DocumentService extends ItClarifiesService{
         ChecklistParser checklistParser = new ChecklistParser(fragmenter);
         CanonicalReferenceParser canonicalReferenceParser = new CanonicalReferenceParser(fragmenter, document, project);
 
+        AnalysisFeedbackItem feedback;
 
         for(AbstractFragment aFragment : fragments){
 
@@ -95,6 +96,8 @@ public class DocumentService extends ItClarifiesService{
                 int structureNo = aStructureItem.getID();
                 boolean newStructureItemCreated = false;
 
+                feedback = null;
+
                 PukkaLogger.log(PukkaLogger.Level.INFO, "fragment " + fragmentNo + ": ("+ aFragment.getStyle().name()+")" + aFragment.getBody() +"     (" +
                         indentation + ": " + aStructureItem.getStructureType().name() + ":" +
                         (aStructureItem.getTopElement() != null ? aStructureItem.getTopElement().getBody() : "--") +")" );
@@ -105,8 +108,8 @@ public class DocumentService extends ItClarifiesService{
                     cellinfo = new CellInfo();
 
 
-                int row = cellinfo.row;
-                int column = cellinfo.col;
+                //int row = cellinfo.row;
+                //int column = cellinfo.col;
 
                 // First check if this is an implicit top level fragment that we have not created yet
 
@@ -242,12 +245,12 @@ public class DocumentService extends ItClarifiesService{
                             isChecklist = false;
                         }
 
-                        AnalysisFeedbackItem checklistParsingFeedback = checklistParser.parseChecklistCell(aFragment);
+                        feedback = checklistParser.parseChecklistCell(aFragment);
 
-                        if(checklistParsingFeedback != null){
-                            PukkaLogger.log(PukkaLogger.Level.INFO, checklistParsingFeedback.severity.name()+ ": " + checklistParsingFeedback.message);
+                        if(feedback != null){
+                            PukkaLogger.log(PukkaLogger.Level.INFO, feedback.severity.name()+ ": " + feedback.message);
 
-                            if(checklistParsingFeedback.severity == AnalysisFeedbackItem.Severity.ABORT){
+                            if(feedback.severity == AnalysisFeedbackItem.Severity.ABORT){
                                 isChecklist = false;
 
                             }
@@ -259,7 +262,7 @@ public class DocumentService extends ItClarifiesService{
 
                     if(isCanonicalDefinitionTable && cellinfo.row > 0){
 
-                        AnalysisFeedbackItem feedback = canonicalReferenceParser.parseCell(aFragment);
+                        feedback = canonicalReferenceParser.parseCell(aFragment);
 
                         if(feedback != null){
                             PukkaLogger.log(PukkaLogger.Level.INFO, feedback.severity.name()+ ": " + feedback.message);
@@ -299,6 +302,11 @@ public class DocumentService extends ItClarifiesService{
                     PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring item in canonical reference table");
 
                 }
+                else if(feedback != null && feedback.severity == AnalysisFeedbackItem.Severity.HIDE){
+
+                    PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring item in canonical reference table");
+
+                }
                 else{
 
                     // Finally we create the actual fragment
@@ -317,8 +325,9 @@ public class DocumentService extends ItClarifiesService{
                             0,     // reference
                             0,     // classificaton
                             0,     // actions
-                            column,
-                            row,
+                            cellinfo.col,
+                            cellinfo.row,
+                            cellinfo.width,
                             toJSON(cellinfo)
 
                     );

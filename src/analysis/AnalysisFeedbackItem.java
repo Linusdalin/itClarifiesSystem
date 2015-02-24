@@ -22,7 +22,8 @@ public class AnalysisFeedbackItem {
         ABORT,
         ERROR,
         WARNING,
-        INFO
+        INFO,
+        HIDE
     }
 
     public AnalysisFeedbackItem(Severity severity, String message, int row){

@@ -40,7 +40,7 @@ public class EditFragmentDetailsLightbox extends Lightbox {
     }
 
     @Override
-    public String render(int activeTab, String callbackMessage, BackOfficeInterface backOffice, HttpServletRequest request) {
+    public String render(String callbackMessage, BackOfficeInterface backOffice, HttpServletRequest request) {
 
         StringBuffer html = new StringBuffer();
 
@@ -65,6 +65,9 @@ public class EditFragmentDetailsLightbox extends Lightbox {
 
 
     public String getLink(ContractFragment fragment){
+
+        if(fragment == null)
+            return "#";
 
         return getLink(getLink() + "&fragment=" + fragment.getKey().toString(), "Edit", Lightbox.NORMAL);
     }

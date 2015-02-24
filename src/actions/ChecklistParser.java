@@ -107,30 +107,43 @@ public class ChecklistParser {
 
     public void mapItemSources(List<ContractFragment> documentFragments){
 
-        System.out.println(" *** There are " + sourceMap.size() + " items stored in the sourcemap, but this is not implemented!");
+        System.out.println(" *** There are " + sourceMap.size() + " items stored in the source map!");
 
-        for (ContractFragment documentFragment : documentFragments) {
+        for (SourceMap map : sourceMap) {
 
-            for (SourceMap map : sourceMap) {
+            if(map.sourceText.length() < 10){
 
-                ChecklistItem item = new ChecklistItem(new LookupByKey(map.fragmentKey));
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Ignoring source reference \""+ map.sourceText + "\" for item " + map.itemName + " source reference too short");
+                break;
+            }
+
+            // Look in all fragments
+
+            for (ContractFragment documentFragment : documentFragments) {
 
                 //Very simple match. It could be more lenient
+                // Minimum of 10 characters to avoid white space and accidental comments
 
                 if(documentFragment.getText().toLowerCase().contains(map.sourceText.toLowerCase())){
 
                     try {
 
+                        ChecklistItem item = new ChecklistItem(new LookupByKey(map.fragmentKey));
+
                         item.setSource(documentFragment.getKey());
                         item.update();
-                        PukkaLogger.log(PukkaLogger.Level.INFO, "Setting source fragment on Checklist Item " + map.itemName);
+                        PukkaLogger.log(PukkaLogger.Level.INFO, "Setting source fragment on Checklist Item " + map.itemName + " source reference \"" + map.sourceText + "\" found in " + item.getName());
+                        System.out.println("source ref:" + map.sourceText.length()    );
+                        break;
 
                     } catch (BackOfficeException e) {
                         PukkaLogger.log(PukkaLogger.Level.FATAL, "Unable to update source");
                     }
                 }
 
+
             }
+
         }
 
     }
@@ -228,6 +241,15 @@ public class ChecklistParser {
                         return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Checklist Parser: Expected to find " + checklistHeadlines[cellInfo.col] + " as title in cell (" + cellInfo.row +", " +  cellInfo.col + "). Found " + fragment.getBody(), cellInfo.row));
                     }
 
+                    if(cellInfo.col == 5){
+
+                        // Source. This column is parsed and hidden. Remove the title too
+                        return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.HIDE, "Removing Source column header.", cellInfo.row));
+
+
+                    }
+
+
                 }
 
 
@@ -304,7 +326,8 @@ public class ChecklistParser {
 
                 if(cellInfo.row > 1 && cellInfo.col == 5){
 
-                    currentSourceText = fragment.getBody().trim();  //Store this until we create teh item.
+                    currentSourceText = fragment.getBody().trim();  //Store this until we create the item.
+                    return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.HIDE, "Found source reference", cellInfo.row));
                 }
 
 

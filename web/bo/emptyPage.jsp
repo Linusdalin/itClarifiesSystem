@@ -87,7 +87,7 @@
 
                     <%@ include file="adminCommon/includes/message.inc" %>
 
-                    <% out.print(pageComponent.render(tabId, callBackMessage, backOffice, request));  %>
+                    <% out.print(pageComponent.render(callBackMessage, backOffice, request));  %>
 
             </div>
         </div>

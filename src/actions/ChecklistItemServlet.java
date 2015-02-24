@@ -212,6 +212,13 @@ public class ChecklistItemServlet extends DocumentService {
                 // Updating an existing action
 
                 ChecklistItem item = new ChecklistItem(new LookupByKey(_key));
+
+                if(!item.exists()){
+
+                    returnError("Cant find checklist item with key " + _key, HttpServletResponse.SC_BAD_REQUEST, resp);
+                    return;
+                }
+
                 ContractFragment complianceFragment = null;
 
                 if(tag != null && !tag.equals(""))
@@ -228,22 +235,12 @@ public class ChecklistItemServlet extends DocumentService {
 
                 if(_source != null){
 
-                    ContractFragment sourceFragment = new ContractFragment(new LookupByKey(_source));
-
-                    if(!mandatoryObjectExists(sourceFragment, resp))
-                        return;
-
-                    item.setSource(sourceFragment.getKey());
+                        item.setSource(_source);
                 }
 
                 if(_comply != null){
 
-                    complianceFragment = new ContractFragment(new LookupByKey(_comply));
-
-                    if(!mandatoryObjectExists(complianceFragment, resp))
-                        return;
-
-                    item.setCompletion(complianceFragment.getKey());
+                    item.setCompletion(_comply);
                 }
 
                 if(_status != -1){

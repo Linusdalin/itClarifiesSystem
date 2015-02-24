@@ -3,6 +3,7 @@ package backend;
 import classification.ClassificationOverviewManager;
 import classification.ClassificationOverviewServlet;
 import contractManagement.Project;
+import crossReference.Definition;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
@@ -23,8 +24,10 @@ import pukkaBO.style.Html;
 import pukkaBO.style.StyleWidth;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
+ *
  * Created with IntelliJ IDEA.
  * User: Linus
  * Date: 2015-01-21
@@ -39,10 +42,13 @@ public class ProjectDetailPage extends NarrowPage {
         super(  "projectDetailPage",
                 "Project Details");
 
-        setSection("Organizations and Projects");
 
-        addTab(new ClassificationTab("Classifications", "Classifications for Project", project));
-        //addTab(new DashboardTab2("Statistics", "Headline for page 2"));
+        setSection("Organizations and Projects");
+        setList("ProjectList");
+
+        addTab(new ClassificationTab ("Classifications", "Classifications for Project", project));
+        addTab(new DefinitionsTab    ("Definitions",     "Definitions for Project",     project));
+
     }
 
     /***************************************************************************''
@@ -73,33 +79,6 @@ public class ProjectDetailPage extends NarrowPage {
             overview.compileClassificationsForProject(project, null);
             JSONObject json = overview.getStatistics();
 
-/*
-            html.append("<table class=\"minimalist\" id=\"\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">\n" +
-                    "<colgroup>\n" +
-                    "   <col class=\"con0\">\n" +
-                    "   <col class=\"con1\">\n" +
-                    "   <col class=\"con0\">\n" +
-                    "   <col class=\"con1\">\n" +
-                    "   <col class=\"con0\">\n" +
-                    "   <col class=\"con1\">\n" +
-                    "   <col class=\"con0\">\n" +
-                    "   <col class=\"con1\">\n" +
-                    "</colgroup>\n" +
-                    "<thead><tr>\n" +
-                    "<th> Name</th>\n" +
-                    "<th> Description</th>\n" +
-                    "<th> Creator</th>\n" +
-                    "<th> Organization</th>\n" +
-                    "<th> CreationTime</th>\n" +
-                    "<th></th><th></th><th></th>\n" +
-                    "</tr></thead>\n" +
-                    "<tbody>\n" +
-                    "<tr class=\"odd narrow\"><td class=\" width40 state-normal\">Demo</td><td class=\" width120 state-normal\">Test project</td><td class=\" width240 state-normal\">admin</td><td class=\" width120 state-normal\">demo.org</td><td class=\" width120 state-normal\">2014-02-01</td><td></td>\n" +
-                    "<td class=\" width45 norightborder\"><a class=\"btn btn3_small btn_trash\" href=\"?action=List&amp;callbackAction=2&amp;id=ahNpdGNsYXJpZmllc2FwaXN0YWdlchQLEgdQcm9qZWN0GICAgICAtpoJDA&amp;list=ProjectList&amp;section=Organizations and Projects\"></a></td><td class=\" width45 norightborder\"><a class=\"btn btn3_small btn_search\" href=\"?action=Item&amp;callbackAction=3&amp;id=ahNpdGNsYXJpZmllc2FwaXN0YWdlchQLEgdQcm9qZWN0GICAgICAtpoJDA&amp;list=ProjectList&amp;section=Organizations and Projects\"></a></td></tr>\n" +
-                    "<tr></tr>\n" +
-                    "</tbody>\n" +
-                    "</table>");
-  */
             html.append("<table class=\"minimalist\" id=\"\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">");
             html.append("<thead><th colspan=\"6\">Classification Tag</th> <th>Occurences</th></thead>");
             html.append("<tbody>");
@@ -110,12 +89,15 @@ public class ProjectDetailPage extends NarrowPage {
             html.append("</tbody>");
             html.append("</table>" + Html.newLine()  + Html.newLine() + Html.newLine());
 
+            /*
+
             html.append("<pre>");
 
             if(json != null)
                 html.append(json.toString( 4 ));
             html.append("</pre>");
 
+            */
 
             return html.toString();
         }
@@ -147,6 +129,48 @@ public class ProjectDetailPage extends NarrowPage {
     }
 
 
+    private class DefinitionsTab extends PageTab implements PageTabInterface {
+
+        private Project project;
+
+        DefinitionsTab(String title, String headline, Project project){
+
+            super(title, headline);
+            this.project = project;
+        }
+
+        @Override
+        public String getBody(String page, int tabId, BackOfficeInterface backOffice, HttpServletRequest req) throws BackOfficeException {
+
+            StringBuffer html = new StringBuffer();
+
+            html.append(Html.paragraph("Classification overview of the project " + project.getName()) + Html.newLine() + Html.newLine());
+
+            ClassificationOverviewManager overview = new ClassificationOverviewManager();
+            overview.compileClassificationsForProject(project, null);
+            JSONObject json = overview.getStatistics();
+
+            html.append("<table class=\"minimalist\" id=\"\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">");
+            html.append("<thead><th width=\"100px\">Definition</th> <th width=\"300px\">Fragment Text</th> <th width=\"100px\">Document</th> <th width=\"100px\">Source</th></thead>");
+            html.append("<tbody>");
+
+            List<Definition> definitionsForProject = project.getDefinitionsForProject();
+
+            for (Definition definition : definitionsForProject) {
+
+                html.append("<tr>");
+                html.append("<td>"+ definition.getName()+"</td><td>"+ definition.getDefinedIn().getText()+"</td><td>"+definition.getVersion().getDocument().getName()+"</td><td>"+ definition.getDefinedInId()+"</td>");
+                html.append("</tr>");
+            }
+
+
+            html.append("</tbody>");
+            html.append("</table>" + Html.newLine()  + Html.newLine() + Html.newLine());
+
+            return html.toString();
+        }
+
+    }
 
     private class DashboardTab2 extends PageTab implements PageTabInterface {
 

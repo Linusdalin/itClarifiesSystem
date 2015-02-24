@@ -124,9 +124,10 @@ public class CanonicalReferenceParser {
 
                         definition.setDefinedIn(documentFragment.getKey());
                         definition.setVersion(documentFragment.getVersionId());
+                        definition.setProject(documentFragment.getProjectId());
                         definition.update();
                         hit = true;
-                        PukkaLogger.log(PukkaLogger.Level.INFO, "Setting source fragment on Canonical Definition " + map.itemName);
+                        PukkaLogger.log(PukkaLogger.Level.INFO, "Setting source fragment on Canonical Definition " + map.itemName + " to " + documentFragment.getKey().toString() + " in " + documentFragment.getVersionId());
                         break;
 
                     } catch (BackOfficeException e) {

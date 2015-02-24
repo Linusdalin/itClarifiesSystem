@@ -1,6 +1,5 @@
 package crossReference;
 
-import featureTypes.FeatureTypeTree;
 import risk.*;
 import contractManagement.*;
 import classification.*;
@@ -214,13 +213,13 @@ public class Definition extends DataObject implements DataObjectInterface{
 
         for (FragmentClassification classification : currentProject.getFragmentClassificationsForProject()){
 
-            if(classification.getClassTag().equals(FeatureTypeTree.DefinitionUsage.getName()) &&
+            if(classification.getClassTag().equals(featureTypes.FeatureTypeTree.DefinitionUsage.getName()) &&
                     classification.getPattern().equalsIgnoreCase(this.getName())){
 
                 classification.delete();
             }
 
-            if(classification.getClassTag().equals(FeatureTypeTree.DefinitionDef.getName()) &&
+            if(classification.getClassTag().equals(featureTypes.FeatureTypeTree.DefinitionDef.getName()) &&
                     classification.getPattern().equalsIgnoreCase(this.getName()) &&
                     classification.getFragmentId().equals(currentFragment)){
 

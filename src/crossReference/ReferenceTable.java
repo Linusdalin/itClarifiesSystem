@@ -79,7 +79,6 @@ public class ReferenceTable extends DataTable implements DataTableInterface{
     private static final String[][] TestValues = {
 
           {"as listed below", "first fragment", "Definition fragment", "Cannon v1.0", "Demo", "Implicit", "Pricelist", "0", "system"},
-          {"as listed below", "first fragment", "Definition fragment", "Cannon v1.0", "Demo", "Implicit", "Pricelist", "0", "system"},
 
 
 

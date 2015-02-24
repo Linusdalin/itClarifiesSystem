@@ -1,7 +1,7 @@
 package contractManagement;
 
-import backend.EditFragmentDetailsLightbox;
 import risk.*;
+import contractManagement.*;
 import classification.*;
 import userManagement.*;
 import versioning.*;
@@ -11,10 +11,14 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
-
+import java.util.ArrayList;
+import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
 import pukkaBO.condition.*;
+import pukkaBO.database.*;
+
+import pukkaBO.acs.*;
 
 /********************************************************
  *
@@ -894,7 +898,7 @@ public class Contract extends DataObject implements DataObjectInterface{
                   "<td width=\"10%\">"+ textTags.toString()+"</td>" +
                   "<td style=\"border-bottom:1pt solid black;\" width=\"10%\">"+ styleForm + "</td>" +
                   "<td style=\"border-bottom:1pt solid black;\" width=\"40%\">"+ fragmentBody +"</td>" +
-                  "<td width=\"30px\">"+ new EditFragmentDetailsLightbox().getLink(fragment) +"</td>" +
+                  "<td width=\"30px\">"+ new backend.EditFragmentDetailsLightbox().getLink(fragment) +"</td>" +
                   "<td style=\"border-bottom:1pt solid black;\" width=\"40%\">"+ analysisTags.toString() +"</td>" +
                 "</tr>";
     }

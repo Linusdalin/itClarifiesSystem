@@ -42,13 +42,13 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public ContractFragment(String name, DataObjectInterface version, DataObjectInterface project, long structureno, long ordinal, String text, long indentation, String type, DataObjectInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, String display) throws BackOfficeException{
+    public ContractFragment(String name, DataObjectInterface version, DataObjectInterface project, long structureno, long ordinal, String text, long indentation, String type, DataObjectInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, long width, String display) throws BackOfficeException{
 
-        this(name, version.getKey(), project.getKey(), structureno, ordinal, text, indentation, type, risk, annotationcount, referencecount, classificatoncount, actioncount, xpos, ypos, display);
+        this(name, version.getKey(), project.getKey(), structureno, ordinal, text, indentation, type, risk, annotationcount, referencecount, classificatoncount, actioncount, xpos, ypos, width, display);
     }
 
 
-    public ContractFragment(String name, DBKeyInterface version, DBKeyInterface project, long structureno, long ordinal, String text, long indentation, String type, DataObjectInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, String display){
+    public ContractFragment(String name, DBKeyInterface version, DBKeyInterface project, long structureno, long ordinal, String text, long indentation, String type, DataObjectInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, long width, String display){
 
         this();
         try{
@@ -72,7 +72,8 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
            data[12] = new IntData(actioncount);
            data[13] = new IntData(xpos);
            data[14] = new IntData(ypos);
-           data[15] = new StringData(display);
+           data[15] = new IntData(width);
+           data[16] = new StringData(display);
 
            exists = true;
         }catch(BackOfficeException e){
@@ -335,15 +336,29 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
 
 
+    public long getwidth(){
+
+        IntData data = (IntData) this.data[15];
+        return data.value;
+    }
+
+    public void setwidth(long width){
+
+        IntData data = (IntData) this.data[15];
+        data.value = width;
+    }
+
+
+
     public String getdisplay(){
 
-        StringData data = (StringData) this.data[15];
+        StringData data = (StringData) this.data[16];
         return data.getStringValue();
     }
 
     public void setdisplay(String display){
 
-        StringData data = (StringData) this.data[15];
+        StringData data = (StringData) this.data[16];
         data.setStringValue(display);
     }
 
@@ -599,7 +614,7 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
         document.TableSpan tableSpan = new document.TableSpan( 1, 1 );  //TODO: Table span not implemented
 
-        document.CellInfo cellInfo = new document.CellInfo((int)this.getxPos(), (int)this.getyPos(), "#FFFFFF", 0, 0, tableSpan , 1, true);
+        document.CellInfo cellInfo = new document.CellInfo((int)this.getxPos(), (int)this.getyPos(), "#FFFFFF", 0, 0, tableSpan , 1, true, (int)this.getwidth());
         return cellInfo;
     }
 }

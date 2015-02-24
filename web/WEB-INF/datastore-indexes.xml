@@ -106,5 +106,9 @@
             <property name="Date" direction="asc"/>
         </datastore-index>
 
+        <datastore-index kind="ChecklistItem" ancestor="false" source="manual">
+            <property name="Checklist" direction="asc"/>
+            <property name="Identifier" direction="asc"/>
+        </datastore-index>
 
 </datastore-indexes>

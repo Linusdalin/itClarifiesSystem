@@ -22,14 +22,14 @@ public class SessionCacheKey {
     private DBTimeStamp ts;
     private boolean exists = false;
 
-    SessionCacheKey(PortalUser user, String ipAddress, DBTimeStamp ts){
+    public SessionCacheKey(PortalUser user, String ipAddress, DBTimeStamp ts){
 
         this.user = user;
         this.ipAddress = ipAddress;
         this.ts = ts;
     }
 
-    SessionCacheKey(String sessionToken){
+    public SessionCacheKey(String sessionToken){
 
         try{
 

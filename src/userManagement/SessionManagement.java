@@ -18,7 +18,7 @@ import pukkaBO.exceptions.BackOfficeException;
 
 public class SessionManagement {
 
-    private static final int SESSION_TIME = 180;    // Default session time
+    private static final int SESSION_TIME = 60;    // Default session time
 
     private PortalUser sessionUser = null;          // The user
     private String sessionToken = null;
@@ -364,5 +364,50 @@ public class SessionManagement {
 
     public String getToken() {
         return sessionToken;
+    }
+
+
+    /**********************************************************************************
+     *
+     *              Session keep-alive. Used in the ping service.
+     *
+     * @param sessionToken
+     * @param ipAddress
+     * @return
+     * @throws BackOfficeException
+     */
+
+
+    public boolean keepAlive(String sessionToken, String ipAddress) throws BackOfficeException{
+
+        SessionCacheKey sessionCacheKey = new SessionCacheKey(sessionToken);
+
+        if(!sessionCacheKey.exists()){
+
+           PukkaLogger.log(PukkaLogger.Level.INFO, "No session exists for token " + sessionToken);
+            return false;
+        }
+
+        if(!internal(ipAddress) && !sessionCacheKey.getIpAddress().equals(ipAddress)){
+
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Cant keep session alive from another ip. Session ip " + sessionCacheKey.getIpAddress() + "!= " + ipAddress);
+            return false;
+
+        }
+
+        if(expired(sessionCacheKey)){
+
+
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Cant keep expired session alive. Session for user " + sessionCacheKey.getUser() + " expired. (Usage timestamp: " + sessionCacheKey.getUsageTimestamp() + ")");
+            return false;
+
+        }
+
+        DBTimeStamp newAccess = new DBTimeStamp();
+        sessionCacheKey.setAccess(newAccess);
+        sessionCacheKey.store();
+
+        return true;
+
     }
 }

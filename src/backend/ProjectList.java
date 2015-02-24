@@ -180,7 +180,7 @@ public class ProjectList extends GroupByList implements ListInterface{
     private String getDetailedView(Project project, BackOfficeInterface backOffice, HttpServletRequest request) {
 
         ProjectDetailPage page = new ProjectDetailPage(project);
-        return page.render(0, null, backOffice, request);
+        return page.render(null, backOffice, request);
     }
 
 

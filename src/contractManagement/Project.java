@@ -1,6 +1,5 @@
 package contractManagement;
 
-import classifiers.Classification;
 import risk.*;
 import contractManagement.*;
 import classification.*;

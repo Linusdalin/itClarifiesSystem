@@ -2,6 +2,7 @@ package services;
 
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+import userManagement.SessionCacheKey;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,8 +30,25 @@ public class PingServlet extends ItClarifiesService {
     public void doPost(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
         try{
-        logRequest(req);
-        Formatter formatter = getFormatFromParameters(req);
+            logRequest(req);
+            Formatter formatter = getFormatFromParameters(req);
+
+            String sessionToken = getOptionalString("session", req);
+
+            if(sessionToken != null){
+
+                // If there is a session token passed to the ping service, we will
+                // update the session to keep it alive.
+
+                String ipAddress = getIPAddress(req);
+                if(!sessionManagement.keepAlive(sessionToken, ipAddress)){
+
+                    returnError("Failed to keep session alive", HttpServletResponse.SC_FORBIDDEN, resp);
+
+                }
+
+            }
+
 
             JSONObject response = new JSONObject()
                     .put(DataServletName, "Pong");
