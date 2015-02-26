@@ -327,7 +327,7 @@ public class DocumentService extends ItClarifiesService{
                             0,     // actions
                             cellinfo.col,
                             cellinfo.row,
-                            cellinfo.width,
+                            cellinfo.rowWidth,
                             toJSON(cellinfo)
 
                     );

@@ -1,5 +1,6 @@
-package actions;
+package crossReference;
 
+import actions.*;
 import classification.ClassificationOverviewManager;
 import contractManagement.ContractFragment;
 import contractManagement.Project;
@@ -15,7 +16,6 @@ import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.util.List;
 
@@ -25,7 +25,7 @@ import java.util.List;
  *
  */
 
-public class ChecklistItemServlet extends DocumentService {
+public class CrossReferenceServlet extends DocumentService {
 
     public static final String DataServletName = "ChecklistDetails";
 

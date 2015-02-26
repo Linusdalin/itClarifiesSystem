@@ -25,7 +25,7 @@ import java.util.Map;
 public class ClassificationOverviewManager {
 
     // The found observations while parsing the
-    private Map<String, ClassificationStatistics> statisticsMap = new HashMap<String, ClassificationStatistics>();
+    private Map<String, ClassificationStatistics> statisticsMap = new HashMap<String, ClassificationStatistics>(512);
 
     public ClassificationOverviewManager(){
 
@@ -56,6 +56,9 @@ public class ClassificationOverviewManager {
 
                 if(session == null || session.getReadAccess(document)){
 
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "Handling document " + document.getName());
+
+
                     ContractVersionInstance latest = document.getHeadVersion();
                     List<FragmentClassification> classifications = latest.getFragmentClassificationsForVersion();
 
@@ -69,11 +72,12 @@ public class ClassificationOverviewManager {
 
 
                     }
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "Document ready");
 
                 }
                 else{
 
-                    PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring document " + document.getName() + ". No access.");
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "Ignoring document " + document.getName() + ". No access.");
 
                 }
 

@@ -556,7 +556,7 @@ public class AnalysisServlet extends DocumentService {
 
         for(Reference reference : openReferencesForProject){
 
-            NewAnalysisOutcome outcome2 = analyser.analyseOpenReference2(reference.getName(), aProject);
+            NewAnalysisOutcome outcome2 = analyser.analyseOpenReferences(reference.getName(), aProject);
 
             System.out.println("***** New close delivered " + outcome2.getClassifications().size() + " classifications.");
 
@@ -638,7 +638,7 @@ public class AnalysisServlet extends DocumentService {
         for(Contract document : contractsForProject){
 
 
-            //For all other documents we look for references to the title and document name
+            //For all documents we look for references to the title and document name
             if(!document.equals(currentDocument)){
 
                 ContractVersionInstance latestVersion = document.getHeadVersion();
@@ -711,7 +711,6 @@ public class AnalysisServlet extends DocumentService {
 
             NewAnalysisOutcome postProcessOutcome = analyser.postProcess(outcome.outcome, aProject);
 
-            //handlePostProcessResult(postProcessOutcome, outcome.fragment, project, definitionsForProject);
             handleResult(postProcessOutcome, outcome.fragment, project, analysisTime, searchManager, aDocument, definitionsForProject, version);
 
         }
@@ -958,13 +957,13 @@ public class AnalysisServlet extends DocumentService {
                     ReferenceType type = ReferenceType.getOpen();
 
                     Reference reference = new Reference(
-                            classification.getExtraction().getSemanticExtraction(),
+                            classification.getExtraction().getSyntacticExtraction(),
                             fragment.getKey(),
                             fragment.getKey(),          // TODO: Points to itself, is this ok?
                             version.getKey(),
                             project.getKey(),
                             type,
-                            classification.getExtraction().getSemanticExtraction(),
+                            classification.getExtraction().getSyntacticExtraction(),
                             0                          //TODO: Anchor position not implemented
                     );
                     reference.store();

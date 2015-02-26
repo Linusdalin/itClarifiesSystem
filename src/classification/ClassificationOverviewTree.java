@@ -81,6 +81,8 @@ public class ClassificationOverviewTree {
                                             new ClassificationOverviewNode(FeatureTypeTree.Expenses, LEAF),
                                             new ClassificationOverviewNode(FeatureTypeTree.Payment, LEAF),
                                             new ClassificationOverviewNode(FeatureTypeTree.Invoicing, LEAF),
+                                            new ClassificationOverviewNode(FeatureTypeTree.Penalties, LEAF),
+
 
                                     }),
                                     new ClassificationOverviewNode(FeatureTypeTree.Damages, new ClassificationOverviewNode[]{
@@ -160,8 +162,6 @@ public class ClassificationOverviewTree {
 
                                     new ClassificationOverviewNode(FeatureTypeTree.Unspecific, LEAF),
                                     new ClassificationOverviewNode(FeatureTypeTree.Exclusivity, LEAF),
-                                    new ClassificationOverviewNode(FeatureTypeTree.Penalties, LEAF),
-                                    new ClassificationOverviewNode(FeatureTypeTree.Compensation, LEAF),
 
                             }),
 
