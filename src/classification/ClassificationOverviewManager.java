@@ -56,7 +56,7 @@ public class ClassificationOverviewManager {
 
                 if(session == null || session.getReadAccess(document)){
 
-                    PukkaLogger.log(PukkaLogger.Level.INFO, "Handling document " + document.getName());
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "Compiling classifications for document " + document.getName());
 
 
                     ContractVersionInstance latest = document.getHeadVersion();
@@ -65,10 +65,15 @@ public class ClassificationOverviewManager {
                     for (FragmentClassification classification : classifications) {
 
                         // For each classification add it to the list or increase the count
+                        boolean track = false;
 
-                        PukkaLogger.log(PukkaLogger.Level.DEBUG, "Found classification " + classification.getClassTag());
+                        if(classification.getClassTag().contains("RESOURCE")){
 
-                        updateStatistics(classification);
+                            track = true;
+                            PukkaLogger.log(PukkaLogger.Level.INFO, "Found classification " + classification.getClassTag() + ". Updating statistics ");
+                        }
+
+                        updateStatistics(classification, track);
 
 
                     }
@@ -166,7 +171,7 @@ public class ClassificationOverviewManager {
     }
 
 
-    private void updateStatistics(FragmentClassification classification) {
+    private void updateStatistics(FragmentClassification classification, boolean track) {
 
         ClassificationStatistics statForClassification = statisticsMap.get(classification.getClassTag());
 
@@ -176,6 +181,8 @@ public class ClassificationOverviewManager {
         statForClassification.updateHit();
         statisticsMap.put(classification.getClassTag(), statForClassification);
 
+        if(track)
+            System.out.println(" --- Updating statistics: " + classification.getClassTag() + ":" + statForClassification.toString());
 
     }
 

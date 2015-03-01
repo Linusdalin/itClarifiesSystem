@@ -1,7 +1,7 @@
 package actions;
 
-import analysis.AnalysisFeedback;
-import analysis.AnalysisFeedbackItem;
+import analysis.ParseFeedback;
+import analysis.ParseFeedbackItem;
 import contractManagement.ContractFragment;
 import dataRepresentation.DBTimeStamp;
 import document.AbstractFragment;
@@ -159,20 +159,20 @@ public class ChecklistParser {
      */
 
 
-    public AnalysisFeedback parseChecklist() {
+    public ParseFeedback parseChecklist() {
 
         List<AbstractFragment> fragments = doc.getFragments();
-        AnalysisFeedback feedback = new AnalysisFeedback();
+        ParseFeedback feedback = new ParseFeedback();
 
         try{
 
             for (AbstractFragment fragment : fragments) {
 
-                AnalysisFeedbackItem cellFeedback = parseChecklistCell(fragment);
+                ParseFeedbackItem cellFeedback = parseChecklistCell(fragment);
                 if(cellFeedback != null){
 
                     feedback.add(cellFeedback);
-                    if(cellFeedback.severity == AnalysisFeedbackItem.Severity.ABORT)
+                    if(cellFeedback.severity == ParseFeedbackItem.Severity.ABORT)
                         return feedback;
                 }
             }
@@ -180,7 +180,7 @@ public class ChecklistParser {
         }catch(Exception e){
 
             PukkaLogger.log( e );
-            feedback.add(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Internal Error: " + e.getLocalizedMessage(), 0));
+            feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.ABORT, "Internal Error: " + e.getLocalizedMessage(), 0));
 
         }
 
@@ -213,9 +213,9 @@ public class ChecklistParser {
      */
 
 
-    public AnalysisFeedbackItem parseChecklistCell(AbstractFragment fragment){
+    public ParseFeedbackItem parseChecklistCell(AbstractFragment fragment){
 
-        AnalysisFeedbackItem feedback = null;
+        ParseFeedbackItem feedback = null;
 
         try{
 
@@ -238,13 +238,13 @@ public class ChecklistParser {
                     if(cellInfo.col < checklistHeadlines.length && !fragment.getBody().equalsIgnoreCase(checklistHeadlines[cellInfo.col])){
 
                         abortCurrentChecklist();
-                        return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Checklist Parser: Expected to find " + checklistHeadlines[cellInfo.col] + " as title in cell (" + cellInfo.row +", " +  cellInfo.col + "). Found " + fragment.getBody(), cellInfo.row));
+                        return(new ParseFeedbackItem(ParseFeedbackItem.Severity.ABORT, "Checklist Parser: Expected to find " + checklistHeadlines[cellInfo.col] + " as title in cell (" + cellInfo.row +", " +  cellInfo.col + "). Found " + fragment.getBody(), cellInfo.row));
                     }
 
                     if(cellInfo.col == 5){
 
                         // Source. This column is parsed and hidden. Remove the title too
-                        return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.HIDE, "Removing Source column header.", cellInfo.row));
+                        return(new ParseFeedbackItem(ParseFeedbackItem.Severity.HIDE, "Removing Source column header.", cellInfo.row));
 
 
                     }
@@ -270,7 +270,7 @@ public class ChecklistParser {
 
                     if(fragment.getBody().equals("")){
 
-                        return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.INFO, "Ended checklist ( no more id... )", cellInfo.row));
+                        return(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Ended checklist ( no more id... )", cellInfo.row));
 
                     }
 
@@ -284,7 +284,7 @@ public class ChecklistParser {
                     }catch(NumberFormatException e){
 
                         abortCurrentChecklist();
-                        return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Expected to find number (id) in cell (" + cellInfo.row +", " +  cellInfo.col + "). Found " + fragment.getBody(), cellInfo.row));
+                        return(new ParseFeedbackItem(ParseFeedbackItem.Severity.ABORT, "Expected to find number (id) in cell (" + cellInfo.row +", " +  cellInfo.col + "). Found " + fragment.getBody(), cellInfo.row));
 
                     }
                 }
@@ -304,13 +304,13 @@ public class ChecklistParser {
                     String tag = fragment.getBody();
 
                     if(tag.equals("")){
-                        return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.WARNING, "Empty tag column, no tag set for checklist item.", cellInfo.row));
+                        return(new ParseFeedbackItem(ParseFeedbackItem.Severity.WARNING, "Empty tag column, no tag set for checklist item.", cellInfo.row));
 
                     }
                     if(!tag.startsWith("#")){
 
                         abortCurrentChecklist();
-                        return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Expected to find #TAG in tag column. Found " + tag, cellInfo.row));
+                        return(new ParseFeedbackItem(ParseFeedbackItem.Severity.ABORT, "Expected to find #TAG in tag column. Found " + tag, cellInfo.row));
 
                     }
                     String trimmedTag = tag.trim();
@@ -327,7 +327,7 @@ public class ChecklistParser {
                 if(cellInfo.row > 1 && cellInfo.col == 5){
 
                     currentSourceText = fragment.getBody().trim();  //Store this until we create the item.
-                    return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.HIDE, "Found source reference", cellInfo.row));
+                    return(new ParseFeedbackItem(ParseFeedbackItem.Severity.HIDE, "Found source reference", cellInfo.row));
                 }
 
 
@@ -338,14 +338,14 @@ public class ChecklistParser {
 
             PukkaLogger.log( e );
             abortCurrentChecklist();
-            return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Internal Error:" + e.getLocalizedMessage(), 0));
+            return(new ParseFeedbackItem(ParseFeedbackItem.Severity.ABORT, "Internal Error:" + e.getLocalizedMessage(), 0));
 
         }
         return feedback;
     }
 
 
-    public AnalysisFeedbackItem storeDefinition(int row){
+    public ParseFeedbackItem storeDefinition(int row){
 
         try{
             PukkaLogger.log(PukkaLogger.Level.INFO, "Storing a checklist item");
@@ -354,12 +354,12 @@ public class ChecklistParser {
             if(currentSourceText != null)
                 sourceMap.add(new SourceMap(currentItem.getKey(), currentSourceText, currentItem.getName()));
 
-            return new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.INFO, "Created checklist item "+ currentItem.getName()+" with id " + currentItem.getIdentifier(), row);
+            return new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Created checklist item "+ currentItem.getName()+" with id " + currentItem.getIdentifier(), row);
 
         }catch(BackOfficeException e){
 
             abortCurrentChecklist();
-            return new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "FAILED to create checklist item "+ currentItem.getName(), row);
+            return new ParseFeedbackItem(ParseFeedbackItem.Severity.ABORT, "FAILED to create checklist item "+ currentItem.getName(), row);
 
         }
     }

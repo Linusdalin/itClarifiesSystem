@@ -655,17 +655,29 @@ public class ItClarifiesService extends GenericAdminServlet {
 
     public static void invalidateDocumentCache(Contract document, Project project) throws BackOfficeException {
 
+        if(document == null || project == null){
+
+            PukkaLogger.log(PukkaLogger.Level.WARNING, "Trying to clear cache for project/document that is null");
+            return;
+        }
+
+        invalidateDocumentCache(document.getKey(), project.getKey());
+    }
+
+
+    public static void invalidateDocumentCache(DBKeyInterface _document, DBKeyInterface _project) throws BackOfficeException {
+
         ServiceCache cache = new ServiceCache(ContractServlet.DataServletName);
 
-        if(project != null && project.getKey() != null){
+        if(_project != null){
 
-            cache.clearKeyForAllQualifiers(project.getKey().toString());
+            cache.clearKeyForAllQualifiers(_project.toString());
         }
 
 
-        if(document != null && document.getKey() != null){
+        if(_document != null){
 
-            cache.clearKeyForAllQualifiers(document.getKey().toString());
+            cache.clearKeyForAllQualifiers(_document.toString());
 
         }
 

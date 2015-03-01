@@ -170,7 +170,7 @@ public class SearchTest extends ServletTests {
 
             searchManager.indexFragment(fragment, head, document);
 
-            JSONArray results = searchManager.search("2014-07-01");
+            JSONArray results = searchManager.search("2014-07-01", English);
             assertVerbose("Found the one and only fragment", results.length(), is( 1 ));
             //JSONObject theHit = results.getJSONObject(0);
             //assertVerbose("Got the correct fragment key back",        theHit.getString("fragment"), is( fragment.getKey().toString() ));
@@ -218,14 +218,14 @@ public class SearchTest extends ServletTests {
 
             JSONArray results;
 
-            results = originalSearchManager.search("2014-07-01");
+            results = originalSearchManager.search("2014-07-01", Swedish);
             assertVerbose("Found the one and only fragment", results.length(), is( 1 ));
             JSONObject theHit = results.getJSONObject( 0 );
             assertVerbose("Got the correct fragment key back",        theHit.getString("fragment"), is( fragment.getKey().toString() ));
 
             // For the otherSearchManager, there should be no results back, as the user is different and should not see the document
 
-            results = otherSearchManager.search("2014-07-01");
+            results = otherSearchManager.search("2014-07-01", Swedish);
             assertVerbose("Should get zero hidden fragment back", results.length(), is( 0 ));
 
         }catch(BackOfficeException e){

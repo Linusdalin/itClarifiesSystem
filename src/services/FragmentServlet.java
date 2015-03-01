@@ -401,13 +401,17 @@ public class FragmentServlet extends ItClarifiesService{
                     .put("annotations",     fragment.getAnnotationCount())
                     .put("actions",         fragment.getActionCount())
                     .put("classifications", fragment.getClassificatonCount())
-                    .put("references",      getReferencesForFragment(fragment, references))
                     .put("incoming",        getInReferencesForFragment(fragment, references))
                     .put("type",            fragment.getType())
                     .put("risk",            "" + fragment.getRisk().getId())
                     .put("display",         getDisplayInfo(fragment))
                     .put("checklist",       getChecklistReferences(fragment, checklistItemsInProject))
                 ;
+
+
+                // Only display reference when the document is readily analysed
+                if(document.getStatus().get__Id() != ContractStatus.getAnalysed().get__Id())
+                    fragmentJSON.put("references",      getReferencesForFragment(fragment, references));
 
                 fragmentList.put(fragmentJSON);
 

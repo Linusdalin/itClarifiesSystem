@@ -2,8 +2,7 @@ package fileHandling;
 
 import actions.Checklist;
 import actions.ChecklistParser;
-import analysis.AnalysisFeedback;
-import analysis.AnalysisFeedbackItem;
+import analysis.ParseFeedback;
 import analysis2.AnalysisException;
 import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
@@ -32,7 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -311,7 +309,7 @@ public class FileUploadServlet extends DocumentService {
                             case CHECKLIST:
 
                                 PukkaLogger.log(PukkaLogger.Level.ACTION, "Parsing checklist " + title);
-                                AnalysisFeedback feedback = handleUploadChecklist(title, stream, project, owner);
+                                ParseFeedback feedback = handleUploadChecklist(title, stream, project, owner);
                                 json = feedback.toJSON();
 
                                 break;
@@ -366,13 +364,13 @@ public class FileUploadServlet extends DocumentService {
     // TODO: Description for checklist not implemented. Reusing title
     // TODO: Create feedback and pass back here
 
-    private AnalysisFeedback handleUploadChecklist(String title, InputStream inFile, Project project, PortalUser owner)throws BackOfficeException {
+    private ParseFeedback handleUploadChecklist(String title, InputStream inFile, Project project, PortalUser owner)throws BackOfficeException {
 
         String id = title.substring(0, 1);
         DBTimeStamp now = new DBTimeStamp();
         Checklist newChecklist;
 
-        AnalysisFeedback feedback = new AnalysisFeedback();
+        ParseFeedback feedback = new ParseFeedback();
 
         try {
 

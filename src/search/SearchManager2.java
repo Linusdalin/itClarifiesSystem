@@ -1,17 +1,23 @@
 package search;
 
+import classification.FragmentClass;
+import classifiers.ClassifierInterface;
 import com.google.appengine.api.search.*;
 import contractManagement.*;
 import classification.FragmentClassification;
 import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
 import databaseLayer.DatabaseAbstractionFactory;
+import language.LanguageInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import pukkaBO.exceptions.BackOfficeException;
 import risk.RiskClassification;
+import services.DocumentService;
+import system.Analyser;
 import userManagement.AccessRight;
+import userManagement.Organization;
 import userManagement.PortalUser;
 
 import java.util.Arrays;
@@ -201,15 +207,17 @@ public class SearchManager2 {
      */
 
 
-    public JSONArray search(String searchString) {
+    public JSONArray search(String searchString, LanguageInterface language) {
 
         JSONArray fragmentList = new JSONArray();
         DatabaseAbstractionFactory keyFactory = new DatabaseAbstractionFactory();  // For key creation
-        String[] searchWords = searchString.split(" ");     // TODO: More advanced split
+        String[] searchWords = searchString.split(" ");
 
         try {
 
-            Results<ScoredDocument> results = indexManager.search(searchString);
+            String transformedSearch = transformSearchString(searchString, language);
+
+            Results<ScoredDocument> results = indexManager.search(transformedSearch);
 
             for (ScoredDocument result : results) {
 
@@ -239,6 +247,30 @@ public class SearchManager2 {
 
     }
 
+    private String transformSearchString(String searchString, LanguageInterface language) {
+
+        String[] searchWords = searchString.split(" ");
+        StringBuffer resultingString = new StringBuffer();
+
+        for (String searchWord : searchWords) {
+
+            if(searchWord.startsWith("#")){
+
+                String tag = getTagForLocalizedName(searchWord.substring( 1 ), language);
+
+                resultingString.append(tag).append(" ");
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Transforming search tag " + searchWord + " to " + tag);
+
+            }else{
+                resultingString.append(searchWord).append(" ");
+            }
+        }
+
+
+        return resultingString.toString();
+
+    }
+
     //TODO: Add search patterns to list
 
     private JSONObject createHit(ScoredDocument result, String[] searchWords) {
@@ -264,6 +296,7 @@ public class SearchManager2 {
 
         for (String word : searchWords) {
 
+
             if(word.startsWith("#")){
 
                 String pattern = keywordFieldHandler.getPatternForTag( word );
@@ -286,5 +319,35 @@ public class SearchManager2 {
 
     }
 
+
+    //TODO: Refactor this with the methods in DocumentService
+    //TODO: Custom tags not implemented
+
+    public static String getTagForLocalizedName(String localizedTag, LanguageInterface language) {
+
+        //String classTag = languageInterface.getClassificationForName(className);
+
+        ClassifierInterface[] classifiers = language.getSupportedClassifiers();
+
+        for (ClassifierInterface classifier : classifiers) {
+
+            if(classifier.getClassificationName().equalsIgnoreCase(localizedTag)){
+
+                return classifier.getType().getName();
+            }
+        }
+
+        classifiers = language.getDefinitionUsageClassifiers();
+
+        for (ClassifierInterface classifier : classifiers) {
+
+            if(classifier.getClassificationName().equalsIgnoreCase(localizedTag)){
+
+                return classifier.getType().getName();
+            }
+        }
+
+        return localizedTag;  // No transformation
+    }
 
 }

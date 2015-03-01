@@ -34,7 +34,7 @@ public class ReferenceTable extends DataTable implements DataTableInterface{
     public static final String TABLE = "Reference";
     private static final String DESCRIPTION = "A reference from a fragment to a clause";
 
-    public enum Columns {Name, From, To, Version, Project, Type, Pattern, PatternPos, }
+    public enum Columns {Name, From, To, Version, Project, Type, Pattern, PatternPos, Creator, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
@@ -46,6 +46,7 @@ public class ReferenceTable extends DataTable implements DataTableInterface{
             new ConstantColumn("Type", DataColumn.narrowColumn, new TableReference("ReferenceType", "Name")),
             new TextColumn("Pattern", DataColumn.noFormatting),
             new IntColumn("PatternPos", DataColumn.noFormatting),
+            new ReferenceColumn("Creator", DataColumn.noFormatting, new TableReference("PortalUser", "Name")),
     };
 
     private static final Reference associatedObject = new Reference();
@@ -78,7 +79,7 @@ public class ReferenceTable extends DataTable implements DataTableInterface{
     };
     private static final String[][] TestValues = {
 
-          {"as listed below", "first fragment", "Definition fragment", "Cannon v1.0", "Demo", "Implicit", "Pricelist", "0", "system"},
+          {"as listed below", "first fragment", "Definition fragment", "Cannon v1.0", "Demo", "Implicit", "Pricelist", "0", "itClarifies", "system"},
 
 
 

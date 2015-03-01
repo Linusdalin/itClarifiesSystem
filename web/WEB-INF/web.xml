@@ -429,6 +429,24 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>CrossReference</servlet-name>
+        <servlet-class>crossReference.CrossReferenceServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CrossReference</servlet-name>
+        <url-pattern>/CrossReference</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>CrossReferenceInternal</servlet-name>
+        <servlet-class>crossReference.CrossReferenceInternalServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CrossReferenceInternal</servlet-name>
+        <url-pattern>/CrossReferenceInternal</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>Export</servlet-name>
         <servlet-class>fileHandling.ExportServlet</servlet-class>
     </servlet>

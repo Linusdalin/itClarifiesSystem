@@ -42,13 +42,13 @@ public class Reference extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public Reference(String name, DataObjectInterface from, DataObjectInterface to, DataObjectInterface version, DataObjectInterface project, DataObjectInterface type, String pattern, long patternpos) throws BackOfficeException{
+    public Reference(String name, DataObjectInterface from, DataObjectInterface to, DataObjectInterface version, DataObjectInterface project, DataObjectInterface type, String pattern, long patternpos, DataObjectInterface creator) throws BackOfficeException{
 
-        this(name, from.getKey(), to.getKey(), version.getKey(), project.getKey(), type, pattern, patternpos);
+        this(name, from.getKey(), to.getKey(), version.getKey(), project.getKey(), type, pattern, patternpos, creator.getKey());
     }
 
 
-    public Reference(String name, DBKeyInterface from, DBKeyInterface to, DBKeyInterface version, DBKeyInterface project, DataObjectInterface type, String pattern, long patternpos){
+    public Reference(String name, DBKeyInterface from, DBKeyInterface to, DBKeyInterface version, DBKeyInterface project, DataObjectInterface type, String pattern, long patternpos, DBKeyInterface creator){
 
         this();
         try{
@@ -65,6 +65,7 @@ public class Reference extends DataObject implements DataObjectInterface{
            data[5] = new ConstantData(type.get__Id(), columns[5].getTableReference());
            data[6] = new TextData(pattern);
            data[7] = new IntData(patternpos);
+           data[8] = new ReferenceData(creator, columns[8].getTableReference());
 
            exists = true;
         }catch(BackOfficeException e){
@@ -237,6 +238,26 @@ public class Reference extends DataObject implements DataObjectInterface{
 
         IntData data = (IntData) this.data[7];
         data.value = patternpos;
+    }
+
+
+
+    public DBKeyInterface getCreatorId(){
+
+        ReferenceData data = (ReferenceData)this.data[8];
+        return data.value;
+    }
+
+    public userManagement.PortalUser getCreator(){
+
+        ReferenceData data = (ReferenceData)this.data[8];
+        return new userManagement.PortalUser(new LookupByKey(data.value));
+    }
+
+    public void setCreator(DBKeyInterface creator){
+
+        ReferenceData data = (ReferenceData)this.data[8];
+        data.value = creator;
     }
 
 

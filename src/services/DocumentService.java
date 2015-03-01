@@ -3,24 +3,36 @@ package services;
 import actions.CanonicalReferenceParser;
 import actions.Checklist;
 import actions.ChecklistParser;
-import analysis.AnalysisFeedbackItem;
+import analysis.NewAnalysisFeedback;
+import analysis.ParseFeedbackItem;
+import analysis.Significance;
+import analysis2.NewAnalysisOutcome;
 import classification.FragmentClass;
+import classification.FragmentClassification;
+import classification.FragmentClassificationTable;
+import classifiers.Classification;
 import classifiers.ClassifierInterface;
 import com.google.appengine.api.appidentity.AppIdentityServiceFactory;
 import com.google.appengine.api.utils.SystemProperty;
 import contractManagement.*;
+import crossReference.Definition;
+import crossReference.Reference;
+import crossReference.ReferenceType;
 import dataRepresentation.DBTimeStamp;
 import databaseLayer.DBKeyInterface;
 import document.*;
 import featureTypes.FeatureTypeInterface;
+import featureTypes.FeatureTypeTree;
 import language.LanguageInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONObject;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
 import risk.ContractRisk;
+import risk.RiskClassification;
 import search.Keyword;
 import search.KeywordTable;
+import search.SearchManager2;
 import userManagement.Organization;
 import userManagement.PortalUser;
 
@@ -37,6 +49,7 @@ import java.util.Set;
 public class DocumentService extends ItClarifiesService{
 
     public static String MODEL_DIRECTORY = "models";
+    private static final int RELEVANCE_THRESHOLD = 40;          // What is the relevance needed to actually create an entry in the database
 
 
     /*********************************************************************************
@@ -82,7 +95,7 @@ public class DocumentService extends ItClarifiesService{
         ChecklistParser checklistParser = new ChecklistParser(fragmenter);
         CanonicalReferenceParser canonicalReferenceParser = new CanonicalReferenceParser(fragmenter, document, project);
 
-        AnalysisFeedbackItem feedback;
+        ParseFeedbackItem feedback;
 
         for(AbstractFragment aFragment : fragments){
 
@@ -250,7 +263,7 @@ public class DocumentService extends ItClarifiesService{
                         if(feedback != null){
                             PukkaLogger.log(PukkaLogger.Level.INFO, feedback.severity.name()+ ": " + feedback.message);
 
-                            if(feedback.severity == AnalysisFeedbackItem.Severity.ABORT){
+                            if(feedback.severity == ParseFeedbackItem.Severity.ABORT){
                                 isChecklist = false;
 
                             }
@@ -267,7 +280,7 @@ public class DocumentService extends ItClarifiesService{
                         if(feedback != null){
                             PukkaLogger.log(PukkaLogger.Level.INFO, feedback.severity.name()+ ": " + feedback.message);
 
-                            if(feedback.severity == AnalysisFeedbackItem.Severity.ABORT){
+                            if(feedback.severity == ParseFeedbackItem.Severity.ABORT){
                                 isCanonicalDefinitionTable = false;
 
                             }
@@ -302,7 +315,7 @@ public class DocumentService extends ItClarifiesService{
                     PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring item in canonical reference table");
 
                 }
-                else if(feedback != null && feedback.severity == AnalysisFeedbackItem.Severity.HIDE){
+                else if(feedback != null && feedback.severity == ParseFeedbackItem.Severity.HIDE){
 
                     PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring item in canonical reference table");
 
@@ -511,11 +524,11 @@ public class DocumentService extends ItClarifiesService{
      * @return
      *
      *
-     *          //TODO: Refactor: Should not need duplicate lookups here
+     *          //TODO: Refactor: Should not need duplicate lookups here.
      *
      */
 
-    protected String getTag(String className, Organization organization, LanguageInterface language) {
+    public static String getTag(String className, Organization organization, LanguageInterface language) {
 
         //String classTag = languageInterface.getClassificationForName(className);
 
@@ -544,26 +557,30 @@ public class DocumentService extends ItClarifiesService{
 
             // Look in the database for custom tags
 
-        List<FragmentClass> customClasses = organization.getCustomTagsForOrganization();
-        try {
-            customClasses.addAll(Organization.getnone().getCustomTagsForOrganization());
-        } catch (BackOfficeException e) {
+        if(organization != null){
 
-            PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring global classifications");
-        }
+            List<FragmentClass> customClasses = organization.getCustomTagsForOrganization();
+            try {
+                customClasses.addAll(Organization.getnone().getCustomTagsForOrganization());
+            } catch (BackOfficeException e) {
 
-        for (FragmentClass customClass : customClasses) {
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring global classifications");
+            }
 
-            if(customClass.getKey().toString().equals(className)){
-                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Found custom classTag " + customClass.getName());
-                return customClass.getKey().toString();
+            for (FragmentClass customClass : customClasses) {
+
+                if(customClass.getKey().toString().equals(className)){
+                    PukkaLogger.log(PukkaLogger.Level.DEBUG, "Found custom classTag " + customClass.getName());
+                    return customClass.getKey().toString();
+                }
             }
         }
+
 
         return null;
     }
 
-    protected String getTagName(String className, Organization organization, LanguageInterface language) {
+    public static String getTagName(String className, Organization organization, LanguageInterface language) {
 
         //String classTag = languageInterface.getClassificationForName(className);
 
@@ -593,21 +610,26 @@ public class DocumentService extends ItClarifiesService{
 
             // Look in the database for custom tags
 
-        List<FragmentClass> customClasses = organization.getCustomTagsForOrganization();
-        try {
-            customClasses.addAll(Organization.getnone().getCustomTagsForOrganization());
-        } catch (BackOfficeException e) {
+        if(organization != null){
 
-            PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring global classifications");
-        }
+            List<FragmentClass> customClasses = organization.getCustomTagsForOrganization();
+            try {
+                customClasses.addAll(Organization.getnone().getCustomTagsForOrganization());
+            } catch (BackOfficeException e) {
 
-        for (FragmentClass customClass : customClasses) {
-
-            if(customClass.getKey().toString().equals(className)){
-                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Found custom classTag " + customClass.getName());
-                return customClass.getName();
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring global classifications");
             }
+
+            for (FragmentClass customClass : customClasses) {
+
+                if(customClass.getKey().toString().equals(className)){
+                    PukkaLogger.log(PukkaLogger.Level.DEBUG, "Found custom classTag " + customClass.getName());
+                    return customClass.getName();
+                }
+            }
+
         }
+
 
         return null;
     }
@@ -633,6 +655,383 @@ public class DocumentService extends ItClarifiesService{
 
 
 
+    /***************************************************************************
+     *
+     *      Handle the result from the analysis
+     *
+     * @param analysisResult - the feature definitions from the analysis
+     * @param fragment - the data base fragment to update with classifications and references from analysis
+     * @param project
+     * @param analysisTime - time for the analysis
+     * @param version
+     *
+     *
+     *              //TODO: Refactor: This should be broken out to a separate AnalysisManager class
+     *
+     */
+
+
+    protected NewAnalysisFeedback handleResult(NewAnalysisOutcome analysisResult, ContractFragment fragment,
+                             Project project, DBTimeStamp analysisTime,
+                             SearchManager2 searchManager,
+                             AbstractDocument aDocument, List<Definition> definitionsForProject,
+                             ContractVersionInstance version) throws BackOfficeException{
+
+        boolean updated = false;
+
+        // Counters for updating the fragment
+
+        int classifications = 0;
+        int references = 0;
+        int annotations = 0;
+        int risks = 0;
+
+
+        FragmentClassification fragmentClassification;
+
+        ContractRisk defaultRisk = ContractRisk.getUnknown();
+        PortalUser system = PortalUser.getSystemUser();
+
+        //System.out.println("Found " + analysisResult.getClassifications().size() + " classifications in analysis");
+
+        //TODO: Optimization; this batch store is done once per fragment result. Could be done once and for all for the analysis- (Pass this around)
+
+        FragmentClassificationTable classificationsToStore = new FragmentClassificationTable();
+        classificationsToStore.createEmpty();
+
+
+        for(Classification classification : analysisResult.getClassifications()){
+
+            try{
+
+                FeatureTypeInterface type = classification.getType();
+                FeatureTypeInterface parent = type.getParent();
+
+
+                /**************************************
+                        Reference
+
+                 */
+
+
+                if(type.getName().equals(FeatureTypeTree.Reference.getName())){
+
+                    // The analysis has classified it as a reference. We create the reference here as open.
+                    // In the second phase we go through all the open references and try to close them.
+                    // We use the semantic extraction that will be the
+
+
+                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating reference for fragment " + fragment.getName() + "(" + classification.getExtraction().getSemanticExtraction() + ")");
+
+                    ReferenceType refType = ReferenceType.getOpen();
+
+                    Reference reference = new Reference(
+                            classification.getExtraction().getSyntacticExtraction(),
+                            fragment.getKey(),
+                            null,
+                            version.getKey(),
+                            project.getKey(),
+                            refType,
+                            classification.getExtraction().getSyntacticExtraction(),
+                            0,                          //TODO: Anchor position not implemented
+                            system.getKey()
+                    );
+                    reference.store();
+                    references++;
+                    updated = true;
+                    continue;
+                }
+
+
+                /**************************************
+                        Definition Source
+
+                 */
+
+
+                if(type.getName().equals(FeatureTypeTree.DefinitionDef.getName())){
+
+                    // The analysis has classified a definition Source.
+                    // We create a definition and also add a definition tag. (This may be removed
+                    // later when definitions are properly displayed and searchable from the frontend)
+
+                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating definition for fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
+
+                    Definition definition = new Definition(
+                            classification.getPattern().getText(),
+                            fragment.getKey(),
+                            version.getKey(),
+                            project.getKey());
+                    definition.store();
+
+                    // Also add the definition to the active list of definitions. This will be needed for subsequent reanalyze of the project
+
+                    definitionsForProject.add(definition);
+
+                    fragmentClassification = new FragmentClassification(
+                            fragment.getKey(),
+                            FeatureTypeTree.DefinitionDef.getName(),
+                            0,              // requirement level not implemented
+                            0,              // applicable phase not implemented
+                            "",
+                            classification.getKeywords(),
+                            system.getKey(),
+                            version.getKey(),
+                            project.getKey(),
+                            classification.getPattern().getText(),
+                            classification.getPattern().getPos(),
+                            classification.getPattern().getLength(),
+                            classification.getSignificance(),
+                            "not specified rule",                       //TODO: This should be implemented later
+                            analysisTime.getSQLTime().toString());
+
+
+                    classificationsToStore.add(fragmentClassification);
+                    classifications++;
+
+                    updated = true;
+
+                    // Also store the definition in the abstract document to be able to detect it later
+                    if(aDocument != null)
+                        aDocument.addDefinition(definition.getName());
+
+                    continue;
+                }
+
+                /**************************************
+                        Risk (or a child to risk)
+
+                 */
+
+
+                if(type.getName().equals(FeatureTypeTree.Risk.getName()) ||
+                    (parent != null && parent.getName().equals(FeatureTypeTree.Risk.getName()))){
+
+                    // Detecting a risk should result in a risk created in the system.
+
+                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating risk for fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
+
+                    String riskDescription = "The phrasing " + classification.getPattern().getText() + "(" + classification.getTag()+ ")";
+
+                    RiskClassification risk = new RiskClassification(
+                            fragment.getKey(),
+                            defaultRisk,
+                            riskDescription,
+                            "#RISK",
+                            system.getKey(),
+                            version.getKey(),
+                            project.getKey(),
+                            classification.getPattern().getText(),
+                            classification.getPattern().getPos(),
+                            analysisTime.getSQLTime().toString()
+                    );
+                    risk.store();
+                    risks++;
+                    fragment.setRisk(defaultRisk);  // Set it in the fragment too
+
+                    // Creating a risk description. This should really be part of displaying the risk, but the
+
+                    ContractAnnotation riskAnnotation = new ContractAnnotation(
+                            "Risk Description",
+                            fragment.getKey(),
+                            0,  // This is the first anyway...
+                            riskDescription,
+                            system.getKey(),
+                            version.getKey(),
+                            classification.getPattern().getText(),
+                            0,                          //TODO: Anchor position not implemented
+                            analysisTime.getSQLTime().toString()
+
+                    );
+
+
+                    riskAnnotation.store();
+                    annotations++;
+
+                    fragment.keywordString =  searchManager.getUpdatedKeywords(fragment, risk);
+
+                    updated = true;
+                    continue;
+
+                }
+
+                /**************************************
+                        Definition Usage
+
+                 */
+
+
+                if(type.getName().equals(FeatureTypeTree.DefinitionUsage.getName())){
+
+                    // The analysis has classified a definition usage
+                    // We create a reference and a low priority classificaiton that will not be shown
+
+                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating definition reference fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
+
+                    ContractFragment definitionFragment = getFragmentForDefinition(fragment, classification.getPattern().getText(), definitionsForProject);
+
+                    if(definitionFragment.exists()){
+
+                        System.out.println("Check source = usage for " + classification.getPattern().getText());
+
+                        if(definitionFragment.getKey().equals(fragment.getKey())){
+
+                            // We have found da definition and usage in the same fragment. Ignore this
+
+                            PukkaLogger.log(PukkaLogger.Level.INFO, "Ignoring definition usage of " + classification.getPattern() + ". This is the definition.");
+
+                        }
+                        else{
+
+                            ReferenceType referenceType = ReferenceType.getDefinitionUsage();
+
+                            Reference reference = new Reference(
+                                    classification.getPattern().getText(),
+                                    fragment.getKey(),
+                                    definitionFragment.getKey(),     // Point to the definition
+                                    version.getKey(),
+                                    project.getKey(),
+                                    referenceType,
+                                    classification.getPattern().getText(),
+                                    classification.getPattern().getPos(),
+                                    system.getKey());
+                            reference.store();
+
+                            references++;
+                            updated = true;
+
+                        }
+
+                    }
+                    else{
+                        PukkaLogger.log(PukkaLogger.Level.WARNING, "Internal error: Definition \""+ classification.getPattern().getText()+
+                                "\" identified in analysis but then not found for processing. (Document: " + fragment.getVersion().getDocument().getName() + ")");
+                    }
+
+                    System.out.println(" *** Storing Definition Usage classification for definition");
+
+                    fragmentClassification = new FragmentClassification(
+                            fragment.getKey(),
+                            classification.getType().getName(),
+                            0,              // requirement level not implemented
+                            0,              // applicable phase not implemented
+                            "",
+                            classification.getKeywords(),
+                            system.getKey(),
+                            version.getKey(),
+                            project.getKey(),
+                            classification.getPattern().getText(),
+                            classification.getPattern().getPos(),
+                            classification.getPattern().getLength(),
+                            Significance.MATCH_SIGNIFICANCE,
+                            "not specified rule",
+                            analysisTime.getSQLTime().toString());
+
+                    classificationsToStore.add(fragmentClassification);
+
+                    continue;
+                }
+
+                /**************************************
+
+                        Default action is to jut add the classification from the analysis
+
+                 */
+
+
+
+
+
+                if(classification.getRelevance() < RELEVANCE_THRESHOLD){
+
+                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Ignoring classification " + fragment.getName() + "( relevance "+ classification.getRelevance()+" below threshold)");
+                }
+                else{
+
+                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Classifying fragment " + fragment.getName() + " with tag "+ classification.getType()+". Pattern(" + classification.getPattern().getText() + ")" + "Relevance: " + classification.getRelevance());
+
+                    //System.out.println(classification.getType().getName() + " " + classification.getTag());
+
+                    System.out.println(" *** Storing pattern " + classification.getPattern().getText() + " for classificaiton");
+
+                    fragmentClassification = new FragmentClassification(
+                            fragment.getKey(),
+                            classification.getType().getName(),
+                            0,              // requirement level not implemented
+                            0,              // applicable phase not implemented
+                            "",
+                            classification.getKeywords(),
+                            system.getKey(),
+                            version.getKey(),
+                            project.getKey(),
+                            classification.getPattern().getText(),
+                            classification.getPattern().getPos(),
+                            classification.getPattern().getLength(),
+                            classification.getSignificance(),
+                            "not specified rule",
+                            analysisTime.getSQLTime().toString());
+
+                    classificationsToStore.add(fragmentClassification);
+                    //fragmentClassification.store();
+
+                    fragment.keywordString =  searchManager.getUpdatedKeywords(fragment, fragmentClassification);
+
+
+                    // Only update the number of classifications if it is above the threshold
+                    // for displaying in the front-end
+
+                    if(classification.getSignificance() > Significance.DISPLAY_SIGNIFICANCE){
+
+                        classifications++;
+                        updated = true;
+                    }
+
+
+                }
+
+            }catch(BackOfficeException e){
+
+
+                e.printStackTrace(System.out);
+                e.logError("Error in hanndleResult for fragment " + fragment + " and classification " + classification.getType().getName());
+            }
+
+
+
+        }
+
+        // Store all classifications
+
+        classificationsToStore.store();
+
+        if(classifications != 0){
+
+
+            fragment.setClassificatonCount(classifications);
+            System.out.println("*** Updating classification count to " + classifications + " for fragment " + fragment.getName());
+            updated = true;
+        }
+
+        if(references != 0){
+
+            fragment.setReferenceCount(references);
+            updated = true;
+        }
+
+        if(annotations != 0){
+
+            fragment.setAnnotationCount(annotations);
+            updated = true;
+        }
+
+        if(updated)
+            fragment.update();
+
+
+        return new NewAnalysisFeedback(classifications, references, annotations, risks);
+    }
+
+
 
     public static void main(String[] args){
 
@@ -649,6 +1048,36 @@ public class DocumentService extends ItClarifiesService{
         System.out.println(test +  startsWithNumber(test));
 
     }
+
+
+    /*******************************************************************************'
+     *
+     *          look up the definition for the reference
+     *
+     * @param fragment
+     * @param pattern
+     * @return
+     *
+     *
+     */
+
+    private ContractFragment getFragmentForDefinition(ContractFragment fragment, String pattern, List<Definition> definitionsForProject) throws BackOfficeException {
+
+
+        //System.out.println("Looking through " + definitionsForProject.size() + " definitions in project");
+
+        for(Definition definition : definitionsForProject){
+
+            if(definition.getName().toLowerCase().equals(pattern.toLowerCase())){
+
+                return definition.getDefinedIn();
+            }
+        }
+
+        return new ContractFragment();
+
+    }
+
 
 
 

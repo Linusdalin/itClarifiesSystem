@@ -1,6 +1,9 @@
 package test;
 
 import contractManagement.Project;
+import language.English;
+import language.LanguageInterface;
+import language.Swedish;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -26,6 +29,9 @@ import static org.mockito.Mockito.when;
  * To change this template use File | Settings | File Templates.
  */
 public class ServletTests extends PukkaTest{
+
+    protected static final LanguageInterface English = new English();
+    protected static final LanguageInterface Swedish = new Swedish();
 
     protected void isKey(String key){
 

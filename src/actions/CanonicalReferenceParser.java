@@ -1,7 +1,7 @@
 package actions;
 
-import analysis.AnalysisFeedback;
-import analysis.AnalysisFeedbackItem;
+import analysis.ParseFeedback;
+import analysis.ParseFeedbackItem;
 import contractManagement.Contract;
 import contractManagement.ContractFragment;
 import contractManagement.Project;
@@ -156,20 +156,20 @@ public class CanonicalReferenceParser {
      */
 
 
-    public AnalysisFeedback parseChecklist() {
+    public ParseFeedback parseChecklist() {
 
         List<AbstractFragment> fragments = doc.getFragments();
-        AnalysisFeedback feedback = new AnalysisFeedback();
+        ParseFeedback feedback = new ParseFeedback();
 
         try{
 
             for (AbstractFragment fragment : fragments) {
 
-                AnalysisFeedbackItem cellFeedback = parseCell(fragment);
+                ParseFeedbackItem cellFeedback = parseCell(fragment);
                 if(cellFeedback != null){
 
                     feedback.add(cellFeedback);
-                    if(cellFeedback.severity == AnalysisFeedbackItem.Severity.ABORT)
+                    if(cellFeedback.severity == ParseFeedbackItem.Severity.ABORT)
                         return feedback;
                 }
             }
@@ -177,7 +177,7 @@ public class CanonicalReferenceParser {
         }catch(Exception e){
 
             PukkaLogger.log( e );
-            feedback.add(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Internal Error: " + e.getLocalizedMessage(), 0));
+            feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.ABORT, "Internal Error: " + e.getLocalizedMessage(), 0));
 
         }
 
@@ -210,9 +210,9 @@ public class CanonicalReferenceParser {
      */
 
 
-    public AnalysisFeedbackItem parseCell(AbstractFragment fragment){
+    public ParseFeedbackItem parseCell(AbstractFragment fragment){
 
-        AnalysisFeedbackItem feedback = null;
+        ParseFeedbackItem feedback = null;
 
         try{
 
@@ -235,7 +235,7 @@ public class CanonicalReferenceParser {
                     if(cellInfo.col < checklistHeadlines.length && !fragment.getBody().equalsIgnoreCase(checklistHeadlines[cellInfo.col])){
 
                         abortCurrentChecklist();
-                        return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Canonical Reference Parser: Expected to find " + checklistHeadlines[cellInfo.col] + " as title in cell (" + cellInfo.row +", " +  cellInfo.col + "). Found " + fragment.getBody(), cellInfo.row));
+                        return(new ParseFeedbackItem(ParseFeedbackItem.Severity.ABORT, "Canonical Reference Parser: Expected to find " + checklistHeadlines[cellInfo.col] + " as title in cell (" + cellInfo.row +", " +  cellInfo.col + "). Found " + fragment.getBody(), cellInfo.row));
                     }
 
                 }
@@ -256,7 +256,7 @@ public class CanonicalReferenceParser {
 
                     if(fragment.getBody().equals("")){
 
-                        return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.INFO, "Canonical Reference Parser: Ended canonical reference table ( no more id... )", cellInfo.row));
+                        return(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Canonical Reference Parser: Ended canonical reference table ( no more id... )", cellInfo.row));
 
                     }
 
@@ -267,9 +267,9 @@ public class CanonicalReferenceParser {
                 if(cellInfo.row > 1 && cellInfo.col == 1){
 
                     if(fragment.getBody().equals(""))
-                        return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.INFO, "Ignoring empty definition", cellInfo.row));
+                        return(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Ignoring empty definition", cellInfo.row));
 
-                    return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ERROR, "Not implemented definition description. Use canonical reference", cellInfo.row));
+                    return(new ParseFeedbackItem(ParseFeedbackItem.Severity.ERROR, "Not implemented definition description. Use canonical reference", cellInfo.row));
 
                 }
 
@@ -286,14 +286,14 @@ public class CanonicalReferenceParser {
 
             PukkaLogger.log( e );
             abortCurrentChecklist();
-            return(new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "Internal Error:" + e.getLocalizedMessage(), 0));
+            return(new ParseFeedbackItem(ParseFeedbackItem.Severity.ABORT, "Internal Error:" + e.getLocalizedMessage(), 0));
 
         }
         return feedback;
     }
 
 
-    public AnalysisFeedbackItem storeDefinition(int row){
+    public ParseFeedbackItem storeDefinition(int row){
 
         try{
             PukkaLogger.log(PukkaLogger.Level.INFO, "Canonical Reference Parser: Storing a definition " + currentItem.getName());
@@ -302,12 +302,12 @@ public class CanonicalReferenceParser {
             if(currentSourceText != null)
                 sourceMap.add(new SourceMap(currentItem.getKey(), currentSourceText, currentItem.getName()));
 
-            return new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.INFO, "Created definition "+ currentItem.getName(), row);
+            return new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Created definition "+ currentItem.getName(), row);
 
         }catch(BackOfficeException e){
 
             abortCurrentChecklist();
-            return new AnalysisFeedbackItem(AnalysisFeedbackItem.Severity.ABORT, "FAILED to create definition "+ currentItem.getName(), row);
+            return new ParseFeedbackItem(ParseFeedbackItem.Severity.ABORT, "FAILED to create definition "+ currentItem.getName(), row);
 
         }
     }

@@ -1,9 +1,12 @@
 package actions;
 
 
+import classification.ClassificationOverviewNode;
+import classification.ClassificationOverviewTree;
 import classification.ClassificationStatistics;
 import classification.FragmentClassification;
 import databaseLayer.DBKeyInterface;
+import featureTypes.FeatureTypeInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -50,6 +53,9 @@ public class ChecklistManager {
         JSONObject checklistJSON = getChecklistOverview();
         JSONArray checklistItemsJSON = new JSONArray();
 
+        updateWithIndirectHits(ClassificationOverviewTree.root, statisticsMap);
+
+
         for(ChecklistItem item : items){
 
             JSONObject checklistItemJSON = createItemJSON(item);
@@ -62,6 +68,44 @@ public class ChecklistManager {
 
     }
 
+
+    /******************************************************************************
+     *
+     *          Traverse through the tree to get all the indirect hits found from the children.
+     *
+     *
+     * @param node
+     * @param statisticsMap
+     * @return
+     */
+
+
+    private int updateWithIndirectHits(ClassificationOverviewNode node, Map<String, ClassificationStatistics> statisticsMap) {
+
+        int childHits = 0;
+
+        for (ClassificationOverviewNode child : node.children) {
+
+            childHits += updateWithIndirectHits(child, statisticsMap);
+
+        }
+
+        ClassificationStatistics statForNode = statisticsMap.get(node.type.getName());
+
+        if(statForNode == null)
+            statForNode = new ClassificationStatistics();
+
+        statForNode.indirect += childHits;
+        statisticsMap.put(node.type.getName(), statForNode);
+
+        int allHits = statForNode.direct + childHits;
+
+        return allHits;
+
+
+    }
+
+
     private JSONObject createItemJSON(ChecklistItem item) {
 
         int classificationCount = 0;
@@ -71,11 +115,11 @@ public class ChecklistManager {
             ClassificationStatistics statisticsForTag = statisticsMap.get(item.getTagReference());
             if(statisticsForTag != null){
 
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Getting statistics for tag \"#" + item.getTagReference()+"\"");
-                classificationCount = statisticsForTag.direct;
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Getting statistics for tag \"" + item.getTagReference()+"\"");
+                classificationCount = statisticsForTag.direct + statisticsForTag.indirect;
             }else{
 
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Ignoring unknown tag \"#" + item.getTagReference()+"\" when retrieving statistics");
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Ignoring unknown tag \"" + item.getTagReference()+"\" when retrieving statistics");
             }
         }else{
 
@@ -121,19 +165,6 @@ public class ChecklistManager {
     }
 
 
-
-    private void updateStatistics(FragmentClassification classification) {
-
-        ClassificationStatistics statForClassification = statisticsMap.get(classification.getClassTag());
-
-        if(statForClassification == null)
-            statForClassification = new ClassificationStatistics();
-
-        statForClassification.updateHit();
-        statisticsMap.put(classification.getClassTag(), statForClassification);
-
-
-    }
 
     public JSONObject getChecklistOverview() {
 

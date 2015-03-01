@@ -40,6 +40,7 @@ public class SessionManagement {
             internalIPAccess.allow("23.251.128.*");
             internalIPAccess.allow("107.167.160.*");
             internalIPAccess.allow("107.178.192.*");
+            internalIPAccess.allow("107.178.200.*");
             internalIPAccess.allow("108.170.192.*");
             internalIPAccess.allow("108.170.208.*");
             internalIPAccess.allow("108.170.216.*");

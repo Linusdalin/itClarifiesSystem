@@ -11,7 +11,7 @@ import net.sf.json.JSONObject;
  * Time: 15:28
  * To change this template use File | Settings | File Templates.
  */
-public class AnalysisFeedbackItem {
+public class ParseFeedbackItem {
 
     public final Severity severity;
     public final String message;
@@ -26,7 +26,7 @@ public class AnalysisFeedbackItem {
         HIDE
     }
 
-    public AnalysisFeedbackItem(Severity severity, String message, int row){
+    public ParseFeedbackItem(Severity severity, String message, int row){
 
         this.severity = severity;
         this.message = message;

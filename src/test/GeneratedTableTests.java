@@ -1377,7 +1377,7 @@ public class GeneratedTableTests{
      
              try{
      
-                 crossReference.Reference table1 = new crossReference.Reference("text 1", dummyKey, dummyKey, dummyKey, dummyKey, new crossReference.ReferenceTypeTable().getDummyConstantValue( ), "text 7", 8);
+                 crossReference.Reference table1 = new crossReference.Reference("text 1", dummyKey, dummyKey, dummyKey, dummyKey, new crossReference.ReferenceTypeTable().getDummyConstantValue( ), "text 7", 8, dummyKey);
 
                  assertThat(table1.getName(), is("text 1"));
                  assertThat(table1.getFromId(), is(dummyKey));
@@ -1391,6 +1391,8 @@ public class GeneratedTableTests{
                  assertThat(table1.getType(), is(new crossReference.ReferenceTypeTable().getDummyConstantValue( )));
                  assertThat(table1.getPattern(), is("text 7"));
                  assertThat(table1.getPatternPos(), is((long)8));
+                 assertThat(table1.getCreatorId(), is(dummyKey));
+                 assertThat(table1.getCreator().exists(), is(false));
 
                  table1.store();
                  crossReference.Reference table2 = new crossReference.Reference();
@@ -1408,6 +1410,8 @@ public class GeneratedTableTests{
                  assertThat(table2.getType(), is(new crossReference.ReferenceTypeTable().getDummyConstantValue( )));
                  assertThat(table2.getPattern(), is("text 7"));
                  assertThat(table2.getPatternPos(), is((long)8));
+                 assertThat(table2.getCreatorId(), is(dummyKey));
+                 assertThat(table2.getCreator().exists(), is(false));
 
                  table1.setName("text 11");
                  table1.setFrom( dummyKey);
@@ -1417,6 +1421,7 @@ public class GeneratedTableTests{
                  table1.setType(new crossReference.ReferenceTypeTable().getDummyConstantValue( ));
                  table1.setPattern("text 17");
                  table1.setPatternPos(18);
+                 table1.setCreator( dummyKey);
                  assertThat(table1.getName(), is("text 11"));
                  assertThat(table1.getFromId(), is(dummyKey));
                  assertThat(table1.getFrom().exists(), is(false));
@@ -1429,6 +1434,8 @@ public class GeneratedTableTests{
                  assertThat(table1.getType(), is(new crossReference.ReferenceTypeTable().getDummyConstantValue( )));
                  assertThat(table1.getPattern(), is("text 17"));
                  assertThat(table1.getPatternPos(), is((long)18));
+                 assertThat(table1.getCreatorId(), is(dummyKey));
+                 assertThat(table1.getCreator().exists(), is(false));
 
              }catch(BackOfficeException e){
      

@@ -12,6 +12,7 @@ import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
 import services.Formatter;
 import services.ItClarifiesService;
+import system.Analyser;
 import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
@@ -92,7 +93,7 @@ public class SearchServlet extends ItClarifiesService {
                 instant = true;
             }
 
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Got search: " + searchText);
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Searching for: " + searchText);
 
             // Now select the appropriate search manager and retrieve the results
 
@@ -100,7 +101,7 @@ public class SearchServlet extends ItClarifiesService {
 
                 PortalUser user = sessionManagement.getUser();
                 SearchManager2 filter = new SearchManager2(project, user);
-                JSONArray resultJSON = filter.search(searchText);
+                JSONArray resultJSON = filter.search(searchText, defaultLanguage);
                 JSONObject json = new JSONObject().put("fragments", resultJSON);
 
                 sendJSONResponse(json, formatter, resp);

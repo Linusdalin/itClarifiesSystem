@@ -69,13 +69,11 @@ public class ReferenceTest extends ServletTests {
         helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
         helper.setUp();
 
-
         bo = new ItClarifies();
         bo.createDb();
         bo.populateValues(true);
 
         PukkaLogger.setLogLevel(PukkaLogger.Level.DEBUG);
-
 
 
         try {
@@ -166,9 +164,11 @@ public class ReferenceTest extends ServletTests {
         try{
 
 
+
             Project project = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), "Demo")));
             Contract cannon = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Cannon")));
             ContractFragment firstFragmentInCannonDoc = new ContractFragment(new LookupItem().addFilter(new ColumnFilter(ContractFragmentTable.Columns.Name.name(), "first fragment")));
+            PortalUser user = PortalUser.getSystemUser();
 
             int referencesBefore =  project.getOpenReferences().size();
 
@@ -180,7 +180,8 @@ public class ReferenceTest extends ServletTests {
                     project.getKey(),
                     ReferenceType.getOpen(),
                     "pattern",
-                    0                          //TODO: Anchor position not implemented
+                    0,
+                    user.getKey()
             );
             newOpen.store();
 
@@ -192,7 +193,8 @@ public class ReferenceTest extends ServletTests {
                     project.getKey(),
                     ReferenceType.getExplicit(),
                     "pattern",
-                    0                          //TODO: Anchor position not implemented
+                    0,
+                    user.getKey()
                     );
 
             newExplicit.store();

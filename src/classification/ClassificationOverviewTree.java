@@ -178,4 +178,42 @@ public class ClassificationOverviewTree {
 
             });
 
+
+    /*************************************************************************
+     *
+     *          Lookup traversal
+     *
+     * @param tag
+     * @return
+     *
+     *          //TODO: Create iterator to loop over
+     *          //TODO: Optimization: look over this lookup. It is quite inefficient
+     */
+
+
+    public static ClassificationOverviewNode getNodeForTag(String tag){
+
+        return getNodeForTag(root, tag);
+
+    }
+
+
+    public static ClassificationOverviewNode getNodeForTag(ClassificationOverviewNode node,  String tag){
+
+        if(node.type.getName().equals(tag))
+            return node;
+
+        for (ClassificationOverviewNode child : node.children) {
+
+            ClassificationOverviewNode found = getNodeForTag(child, tag);
+            if(found != null)
+                return found;
+
+        }
+
+        return null;
+
+
+    }
+
 }

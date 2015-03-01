@@ -12,7 +12,7 @@ import net.sf.json.JSONObject;
 public class ClassificationStatistics {
 
     public int direct;
-    private int indirect;
+    public int indirect;
 
     public ClassificationStatistics(){
 
@@ -42,4 +42,10 @@ public class ClassificationStatistics {
 
         return direct + indirect == 0;
     }
+
+    public String toString(){
+
+        return toJSON().toString();
+    }
+
 }

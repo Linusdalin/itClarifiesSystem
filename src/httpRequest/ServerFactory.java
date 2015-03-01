@@ -45,7 +45,7 @@ public class ServerFactory {
     public static String getLocalSystem(){
 
         String serviceAccountName = AppIdentityServiceFactory.getAppIdentityService().getServiceAccountName();
-        System.out.println("serviceAccountName = " + serviceAccountName);
+        //System.out.println("serviceAccountName = " + serviceAccountName);
 
         String applicationID = getApplicationID();
 
@@ -62,7 +62,7 @@ public class ServerFactory {
     public static String getApplicationID(){
 
         String ID = SystemProperty.applicationId.get();
-        System.out.println("ID = " + ID);
+        //System.out.println("ID = " + ID);
 
         return ID;
     }

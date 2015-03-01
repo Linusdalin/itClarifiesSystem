@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
-  <application>itclarifiesapistage</application>
-   <version>1-13-1</version>
+  <application>itclarifiesapi2</application>
+   <version>2-0-0</version>
   <threadsafe>true</threadsafe>
 
     <system-properties>
@@ -42,6 +42,8 @@
                     1-12-4:         New session mem-cache, canonical definition, remove def in BO, class tree
                     1-13-0:         Updated the fragment data model with table width
                     1-13-1:         Chapter name, analysis feedback fixes
+                    1-13-2:         Cross referencing
+                    2-0-0           First release candidate for Release-1
       -->
 
 </appengine-web-app>

@@ -4,6 +4,8 @@ import analysis.AnalysisServlet;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import contractManagement.ContractVersionInstance;
+import contractManagement.Project;
+import crossReference.CrossReferenceInternalServlet;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
 
@@ -75,5 +77,31 @@ public class AsynchAnalysis {
         }
     }
 
+    /***************************************************************
+     *
+     */
+
+
+    public void crossReference(Project project){
+
+        if(USE_SCHEDULING){
+
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Cross Referencing project");
+
+                queue.add(withUrl("/CrossReferenceInternal")
+                        .param("session", sessionToken)
+                        .param("project", project.getKey().toString()));
+
+        }
+        else{
+
+                CrossReferenceInternalServlet servlet = new CrossReferenceInternalServlet();
+                servlet.deleteAll(project);
+                servlet.addCrossReference(project);
+
+        }
+
+    }
 
 }
