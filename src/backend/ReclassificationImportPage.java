@@ -268,14 +268,7 @@ public class ReclassificationImportPage extends NarrowPage {
         }
 
         LanguageCode documentLanguage = new LanguageCode(document.getLanguage());
-        LanguageInterface languageForDocument = null;
-        try {
-            languageForDocument = new LanguageAnalyser().getLanguage(documentLanguage);
-        } catch (AnalysisException e) {
-
-            PukkaLogger.log(PukkaLogger.Level.WARNING, "Could not get language for document. Using english as default");
-            languageForDocument = defaultLanguage;
-        }
+        LanguageInterface languageForDocument = new LanguageAnalyser().getLanguage(documentLanguage);
 
         // Lookup the tag. Either in the static tree or custom tags in the database
 

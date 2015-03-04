@@ -92,6 +92,10 @@ public class FragmentComparator {
      * @param activeFragment    - one
      * @param referenceFragment - the other
      * @return - true if we are below the threshold
+     *
+     *              //TODO: Improve with stripping html tags. (With small distance)
+     *              //TODO: Improve with toLowerCase()
+     *
      */
 
 

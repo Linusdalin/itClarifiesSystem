@@ -19,6 +19,7 @@ import pukkaBO.exceptions.BackOfficeException;
 public class SessionManagement {
 
     private static final int SESSION_TIME = 60;    // Default session time
+    public static final String AnyIP = "*.*.*.*";
 
     private PortalUser sessionUser = null;          // The user
     private String sessionToken = null;
@@ -205,13 +206,16 @@ public class SessionManagement {
         System.out.println(" *** Access details: (" + sessionCacheKey.getUser().getName() + ", " +sessionCacheKey.getTs().getSQLTime().toString() + ", " + sessionCacheKey.getIpAddress() + ")" );
 
 
-        if(!internal(ipAddress) && !sessionCacheKey.getIpAddress().equals(ipAddress)){
+
+        if(!internal(ipAddress) && !ipAddress.equals(AnyIP) && !sessionCacheKey.getIpAddress().equals(ipAddress)){
 
             PukkaLogger.log(PukkaLogger.Level.WARNING, "Access attempt on "+ sessionCacheKey.getUser().getName()+" account from another IP address. (Login: " + sessionCacheKey.getIpAddress() +
                     " access: " + ipAddress + ")");
             return false;
 
         }
+
+
 
 
         // Check if the session is open and not expired

@@ -11,6 +11,7 @@ import org.apache.xmlgraphics.image.loader.impl.DefaultImageContext;
 import pukkaBO.condition.LookupByKey;
 import pukkaBO.exceptions.BackOfficeException;
 import userManagement.PortalUser;
+import userManagement.SessionManagement;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -67,9 +68,9 @@ public class ImageServlet extends ItClarifiesService{
             //      This is a bit more serious as it could be a sign on hacking
 
             String sessionToken  = getMandatoryString("session", req);
-            String ipAddress = getIPAddress(req);
 
-            if(!sessionManagement.validate(sessionToken, ipAddress)){
+
+            if(!sessionManagement.validate(sessionToken, SessionManagement.AnyIP)){
 
                 PukkaLogger.log(PukkaLogger.Level.INFO, "Access Error. Could not validate session "+ sessionToken+" for user. Serving default image");
                 imageFileName = DefaultImage;

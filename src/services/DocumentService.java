@@ -368,8 +368,12 @@ public class DocumentService extends ItClarifiesService{
 
         if(isChecklist)
             checklistParser.endCurrentChecklist();
-        if(isCanonicalDefinitionTable)
-            canonicalReferenceParser.endCurrentTable();
+        if(isCanonicalDefinitionTable){
+
+            feedback =  canonicalReferenceParser.endCurrentTable();
+            PukkaLogger.log(PukkaLogger.Level.INFO, feedback.severity.name()+ ": " + feedback.message);
+
+        }
 
 
         PukkaLogger.log(PukkaLogger.Level.INFO, "Storing " + fragmentsToStore.getCount() + " fragments for the analysis of the document " + document);

@@ -6,7 +6,9 @@ import analysis2.AnalysisException;
 import classification.FragmentClassification;
 import contractManagement.*;
 import databaseLayer.DBKeyInterface;
+import language.English;
 import language.LanguageAnalyser;
+import language.LanguageInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -186,10 +188,11 @@ public class SearchManager {
                 // ********************** 2. Go through classifications
 
                 List<FragmentClassification> classifications = head.getFragmentClassificationsForVersion();    // Get all the classifications in the document
+                LanguageInterface languageForTags = new English();
 
                 PukkaLogger.log(PukkaLogger.Level.INFO , "***************** Found " + classifications.size() + " classifications");
 
-                textmatcher.prepareSearchString(searchText).caseInsensitive().useHashTags();
+                textmatcher.prepareSearchString(searchText).caseInsensitive().useHashTags( languageForTags );
 
                 for(FragmentClassification classification : classifications){
 
@@ -299,7 +302,7 @@ public class SearchManager {
                 List<RiskClassification> risks = head.getRiskClassificationsForVersion();
 
 
-                textmatcher.prepareSearchString(strippedSearch).caseInsensitive().useHashTags();
+                textmatcher.prepareSearchString(strippedSearch).caseInsensitive().useHashTags( languageForTags );
 
                 PukkaLogger.log(PukkaLogger.Level.INFO , "***************** Found " + classifications.size() + " risks");
 

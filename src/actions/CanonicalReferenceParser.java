@@ -2,15 +2,26 @@ package actions;
 
 import analysis.ParseFeedback;
 import analysis.ParseFeedbackItem;
+import classification.FragmentClassification;
+import classification.FragmentClassificationTable;
+import classifiers.Classification;
 import contractManagement.Contract;
 import contractManagement.ContractFragment;
 import contractManagement.Project;
 import crossReference.Definition;
+import crossReference.DefinitionTable;
+import diff.FragmentComparator;
 import document.AbstractFragment;
 import document.CellInfo;
 import document.FragmentSplitterInterface;
+import featureTypes.FeatureType;
+import featureTypes.FeatureTypeTerm;
+import featureTypes.FeatureTypeTree;
 import log.PukkaLogger;
+import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupByKey;
+import pukkaBO.condition.LookupList;
+import pukkaBO.condition.ReferenceFilter;
 import pukkaBO.exceptions.BackOfficeException;
 
 import java.util.List;
@@ -44,11 +55,15 @@ import java.util.List;
 
 public class CanonicalReferenceParser {
 
-    private static final String[] checklistHeadlines = {"Name", "Description", "Source",};
+    private static final String[] checklistHeadlines = {"Name", "Action", "Source",};
+
+    //Create a definition or delete
+    private enum Action { CREATE, DELETE}
 
     private FragmentSplitterInterface doc;
-    private Definition currentItem;     // The current item that we are building up
-    private String currentSourceText;   // The source text for the current item
+    private Definition  currentItem;     // The current item that we are building up
+    private Action      currentAction;
+    private String      currentSourceText;   // The source text for the current item
 
     private boolean isInCanonicalReferenceList = false;
 
@@ -85,10 +100,17 @@ public class CanonicalReferenceParser {
 
     }
 
-    public void endCurrentTable(){
+    public ParseFeedbackItem endCurrentTable(){
 
-        storeDefinition(0);
         isInCanonicalReferenceList = false;
+
+        if(currentAction == Action.CREATE )
+            return  storeDefinition( 0 );
+        if(currentAction == Action.DELETE )
+            return deleteDefinition( 0 );
+
+        return(new ParseFeedbackItem(ParseFeedbackItem.Severity.ERROR, "No action defined. No definition defined or removed.", 0));
+
     }
 
     /*********************************************************************
@@ -99,13 +121,15 @@ public class CanonicalReferenceParser {
      * @param project       - current project
      */
 
-    public void mapItemSources(Project project){
+    public ParseFeedbackItem  mapItemSources(Project project){
 
+        FragmentComparator comparator = new FragmentComparator();
 
         if(sourceMap.isEmpty())
-            return;
+            return new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "No definitions found to generate.", 0);
 
         List<ContractFragment> fragments = project.getContractFragmentsForProject();
+        int hitCount = 0;
 
         for (SourceMap map : sourceMap) {
 
@@ -118,7 +142,9 @@ public class CanonicalReferenceParser {
 
                 System.out.println(" * Cpr: " + map.sourceText.toLowerCase() + " with " + documentFragment.getText().toLowerCase());
 
-                if(documentFragment.getText().toLowerCase().contains(map.sourceText.toLowerCase())){
+                if(comparator.isSame(documentFragment.getText(), map.sourceText.toLowerCase())){
+
+                    PukkaLogger.log(PukkaLogger.Level.DEBUG, " --- Match!: " + map.sourceText + " with " + documentFragment.getText());
 
                     try {
 
@@ -137,9 +163,13 @@ public class CanonicalReferenceParser {
 
             }
 
-            if(!hit)
+            if(hit)
+                hitCount++;
+            else
                 PukkaLogger.log(PukkaLogger.Level.INFO, "Could not find " + map.itemName + "(" + map.sourceText + ") in project " + project.getName());
         }
+
+        return new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Mapped " + hitCount + " definitions out of " + sourceMap, 0);
 
     }
 
@@ -245,7 +275,12 @@ public class CanonicalReferenceParser {
 
                     // New row, store the old row
 
-                    feedback = storeDefinition(cellInfo.row);
+                    if(currentAction == Action.CREATE )
+                        feedback =  storeDefinition(cellInfo.row);
+                    else if(currentAction == Action.DELETE )
+                        feedback = deleteDefinition(cellInfo.row);
+                    else
+                        feedback = new ParseFeedbackItem(ParseFeedbackItem.Severity.ERROR, "No action defined. No definition defined or removed.", cellInfo.row);
 
                 }
 
@@ -266,10 +301,20 @@ public class CanonicalReferenceParser {
 
                 if(cellInfo.row > 1 && cellInfo.col == 1){
 
-                    if(fragment.getBody().equals(""))
-                        return(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Ignoring empty definition", cellInfo.row));
+                    if(fragment.getBody().equals(Action.CREATE.name())){
 
-                    return(new ParseFeedbackItem(ParseFeedbackItem.Severity.ERROR, "Not implemented definition description. Use canonical reference", cellInfo.row));
+                        currentAction = Action.CREATE;
+                        return(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Found action: " + currentAction.name(), cellInfo.row));
+                    }
+
+                    if(fragment.getBody().equals(Action.DELETE.name())){
+
+                        currentAction = Action.DELETE;
+                        return(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Found action: " + currentAction.name(), cellInfo.row));
+                    }
+
+                    return(new ParseFeedbackItem(ParseFeedbackItem.Severity.ABORT, "Unknown action + \""+ fragment.getBody()+"\". Aborting!", cellInfo.row));
+
 
                 }
 
@@ -311,6 +356,75 @@ public class CanonicalReferenceParser {
 
         }
     }
+
+    public ParseFeedbackItem deleteDefinition(int row){
+
+        try{
+
+            FragmentComparator comparator = new FragmentComparator();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Canonical Reference Parser: Deleting a definition " + currentItem.getName());
+
+            // Get ALL definitions with the name
+
+            List<Definition> definitions = currentItem.getProject().getDefinitionsForProject(
+                    new LookupList().addFilter(new ColumnFilter(DefinitionTable.Columns.Name.name(), currentItem.getName()))
+            );
+
+            // Find the definition usage classifications and remove the appropriate classificaitons
+
+            List<FragmentClassification> classifications = currentItem.getProject().getFragmentClassificationsForProject(
+                    new LookupList().addFilter(new ColumnFilter(FragmentClassificationTable.Columns.ClassTag.name(), FeatureTypeTree.DefinitionDef.getName()))
+                    // .addFilter(new ColumnFilter(FragmentClassificationTable.Columns.Pattern.name(), currentItem.getName()))
+
+            );
+
+            System.out.println("Canonical Reference Parser: Found " + classifications.size() + " definition source classifications"); // named \"" + currentItem.getName() + "\".");
+
+            for (FragmentClassification classification : classifications) {
+
+                //System.out.println(" --- Found classification: " + currentItem.getName());
+
+
+                if(comparator.isSame(classification.getPattern(), currentItem.getName())){
+
+                    ContractFragment fragment = classification.getFragment();
+
+                    if(fragment.getText().contains(currentSourceText)){
+
+                        // The definition source classification is in a fragment that matches the source text in the table. Delete
+
+                        classification.delete();
+                        PukkaLogger.log(PukkaLogger.Level.INFO, "Deleted definition source for " + currentItem.getName() + " in fragment " + fragment.getName() + "...");
+                    }
+                }
+            }
+
+            System.out.println("Canonical Reference Parser: Found " + definitions.size() + " definitions named \"" + currentItem.getName() + "\".");
+
+            for (Definition definition : definitions) {
+
+                ContractFragment fragment = definition.getDefinedIn();
+                if(comparator.isSame(fragment.getText(), currentSourceText)){
+
+                    // The definition is defined in a fragment that matches the source text in the table. Delete
+
+                    definition.delete();
+                    return new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Deleted definition "+ currentItem.getName() + " from fragment no " + fragment.getOrdinal() + ".", row);
+
+                }
+            }
+
+
+            return new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Created definition "+ currentItem.getName(), row);
+
+        }catch(Exception e){
+
+            abortCurrentChecklist();
+            return new ParseFeedbackItem(ParseFeedbackItem.Severity.ABORT, "FAILED to create definition "+ currentItem.getName(), row);
+
+        }
+    }
+
 
     private void abortCurrentChecklist() {
         isInCanonicalReferenceList = false;
