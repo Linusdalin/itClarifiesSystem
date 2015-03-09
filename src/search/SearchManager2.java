@@ -337,9 +337,11 @@ public class SearchManager2 {
             }
         }
 
-        classifiers = language.getDefinitionUsageClassifiers();
+        classifiers = language.getPostProcessClassifiers();
 
         for (ClassifierInterface classifier : classifiers) {
+
+            System.out.println("  --- Comparing: " + classifier.getClassificationName() + " with " + localizedTag);
 
             if(classifier.getClassificationName().equalsIgnoreCase(localizedTag)){
 

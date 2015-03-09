@@ -82,7 +82,7 @@ public class AsynchAnalysis {
      */
 
 
-    public void crossReference(Project project){
+    public void crossReference(Project project) throws BackOfficeException{
 
         if(USE_SCHEDULING){
 

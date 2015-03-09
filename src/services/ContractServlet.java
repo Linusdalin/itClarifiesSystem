@@ -153,10 +153,12 @@ public class ContractServlet extends DocumentService{
 
                        JSONObject document = new JSONObject()
                             .put("id", contract.getKey().toString())
+                            .put("file", encodeToJSON(contract.getFile()))
                             .put("name", encodeToJSON(contract.getName()))
                             .put("project", contract.getProject().getName())
                             .put("status", contract.getStatus().getName())
                             .put("message", contract.getMessage())
+                            .put("description", contract.getMessage())               // TODO: This should be a separate analysis feedback
                             .put("owner", contract.getOwnerId().toString())
                             .put("creation", contract.getCreation().getSQLTime().toString())
                             .put("visibility", "org")

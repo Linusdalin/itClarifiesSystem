@@ -547,7 +547,7 @@ public class DocumentService extends ItClarifiesService{
             }
         }
 
-        classifiers = language.getDefinitionUsageClassifiers();
+        classifiers = language.getPostProcessClassifiers();
 
         for (ClassifierInterface classifier : classifiers) {
 
@@ -599,7 +599,7 @@ public class DocumentService extends ItClarifiesService{
             }
         }
 
-        classifiers = language.getDefinitionUsageClassifiers();
+        classifiers = language.getPostProcessClassifiers();
 
         for (ClassifierInterface classifier : classifiers) {
 

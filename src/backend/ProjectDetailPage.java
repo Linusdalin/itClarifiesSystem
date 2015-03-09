@@ -1,38 +1,39 @@
 package backend;
 
+import actions.Checklist;
+import actions.ChecklistItem;
+import actions.ChecklistItemTable;
 import classification.ClassificationOverviewManager;
-import classification.ClassificationOverviewServlet;
+import contractManagement.ContractFragment;
+import contractManagement.ContractVersionInstance;
 import contractManagement.Project;
 import crossReference.Definition;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
-import pukkaAnalysis.TransactionTable;
-import pukkaAnalysis.UserTable;
 import pukkaBO.GenericPage.NarrowPage;
 import pukkaBO.GenericPage.PageTab;
 import pukkaBO.GenericPage.PageTabInterface;
-import pukkaBO.accordion.Accordion;
-import pukkaBO.acs.ACS_LoginMethod;
-import pukkaBO.acs.ACS_User;
-import pukkaBO.acs.AccessControlSystem;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.LookupList;
+import pukkaBO.condition.Ordering;
+import pukkaBO.condition.Sorting;
 import pukkaBO.exceptions.BackOfficeException;
-import pukkaBO.statisticsBox.StatisticsBox;
 import pukkaBO.style.Html;
-import pukkaBO.style.StyleWidth;
+import risk.RiskClassification;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-/**
+/**********************************************************************************
  *
- * Created with IntelliJ IDEA.
- * User: Linus
- * Date: 2015-01-21
- * Time: 15:04
- * To change this template use File | Settings | File Templates.
+ *
+ *              Back-office page for information on a project
+ *
+ *
+ *              The page has different tabs for different information on the project
+ *
+ *
  */
 
 public class ProjectDetailPage extends NarrowPage {
@@ -46,8 +47,10 @@ public class ProjectDetailPage extends NarrowPage {
         setSection("Organizations and Projects");
         setList("ProjectList");
 
-        addTab(new ClassificationTab ("Classifications", "Classifications for Project", project));
-        addTab(new DefinitionsTab    ("Definitions",     "Definitions for Project",     project));
+        addTab(new ClassificationTab ("Classifications","Classifications for Project", project));
+        addTab(new DefinitionsTab    ("Definitions",    "Definitions for Project",     project));
+        addTab(new RisksTab          ("Risks",          "Risks for Project",           project));
+        addTab(new ChecklistTab      ("Checklists",     "Checklists for Project",      project));
 
     }
 
@@ -158,8 +161,22 @@ public class ProjectDetailPage extends NarrowPage {
 
             for (Definition definition : definitionsForProject) {
 
+                String documentName = "- deleted -";
+                String fragmentBody = "- no fragment -";
+                ContractFragment definedIn = definition.getDefinedIn();
+
+                if(definedIn.exists()){
+
+                    fragmentBody = definedIn.getText();
+                    ContractVersionInstance documentVersion = definedIn.getVersion();
+                    if(documentVersion.exists()){
+
+                        documentName = documentVersion.getDocument().getName();
+                    }
+                }
+
                 html.append("<tr>");
-                html.append("<td>"+ definition.getName()+"</td><td>"+ definition.getDefinedIn().getText()+"</td><td>"+definition.getVersion().getDocument().getName()+"</td><td>"+ definition.getDefinedInId()+"</td>");
+                html.append("<td>"+ definition.getName()+"</td><td>"+ fragmentBody +"</td><td>" + documentName+"</td><td>"+ definition.getDefinedInId()+"</td>");
                 html.append("</tr>");
             }
 
@@ -172,16 +189,96 @@ public class ProjectDetailPage extends NarrowPage {
 
     }
 
-    private class DashboardTab2 extends PageTab implements PageTabInterface {
+    private class RisksTab extends PageTab implements PageTabInterface {
 
-        DashboardTab2(String title, String headline){
+        private Project project;
+
+        RisksTab(String title, String headline, Project project){
 
             super(title, headline);
+            this.project = project;
         }
 
-        public String getBody(String page, int tabId, BackOfficeInterface backOffice, String[] parameters, ACS_User adminUser, AccessControlSystem acs, ACS_LoginMethod loginMethod) throws BackOfficeException {
+        @Override
+        public String getBody(String page, int tabId, BackOfficeInterface backOffice, HttpServletRequest req) throws BackOfficeException {
 
-            return "Body for test tab "+(tabId+1)+" on page "+ page+"... Add information here.";
+            StringBuffer html = new StringBuffer();
+
+            html.append(Html.paragraph("Risk overview of the project " + project.getName()) + Html.newLine() + Html.newLine());
+
+            List<RiskClassification> risksForProject = project.getRiskClassificationsForProject();
+
+            html.append("<table class=\"minimalist\" id=\"\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">");
+            html.append("<thead><th width=\"100px\">Risk</th> <th width=\"300px\">Fragment Text</th> <th width=\"100px\">Document</th> <th width=\"100px\">Pattern</th></thead>");
+            html.append("<tbody>");
+
+            for (RiskClassification riskClassification : risksForProject) {
+
+
+                html.append("<tr>");
+                html.append("<td>"+ riskClassification.getRisk().getName()+"</td><td>"+ riskClassification.getFragment().getText()
+                        +"</td><td>" + riskClassification.getVersion().getDocument().getName()+"</td><td>"+ riskClassification.getPattern()+"</td>");
+                html.append("</tr>");
+            }
+
+
+            html.append("</tbody>");
+            html.append("</table>" + Html.newLine()  + Html.newLine() + Html.newLine());
+
+            return html.toString();
+        }
+
+    }
+
+
+    private class ChecklistTab extends PageTab implements PageTabInterface {
+
+        private Project project;
+
+        ChecklistTab(String title, String headline, Project project){
+
+            super(title, headline);
+            this.project = project;
+        }
+
+        @Override
+        public String getBody(String page, int tabId, BackOfficeInterface backOffice, HttpServletRequest req) throws BackOfficeException {
+
+            StringBuffer html = new StringBuffer();
+
+            html.append(Html.paragraph("Checklist overview of the project " + project.getName()) + Html.newLine() + Html.newLine());
+
+            List<Checklist> checklistListsForProject = project.getChecklistsForProject();
+
+            html.append("<table class=\"minimalist\" id=\"\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">");
+            html.append("<thead><th width=\"100px\">Checklist</th> <th width=\"30px\"></th><th width=\"500px\">Items</th> <th width=\"100px\"></th> <th width=\"100px\">Tag</th></thead>");
+            html.append("<tbody>");
+
+            for (Checklist checklist : checklistListsForProject) {
+
+                html.append("<tr>");
+                html.append("<td>"+ checklist.getName()+"</td><td>" +"</td><td>"
+                        +"</td><td>" +"</td><td>"+ "</td>");
+                html.append("</tr>");
+
+                List<ChecklistItem> items = checklist.getChecklistItemsForChecklist(new LookupList().addSorting(new Sorting(ChecklistItemTable.Columns.Identifier.name(), Ordering.FIRST)));
+
+                for (ChecklistItem item : items) {
+
+                    html.append("<tr>");
+                    html.append("<td>"+"</td><td>"+ item.getIdentifier()+ "</td><td>" + item.getDescription()
+                            +"</td><td>" +item.getTagReference() +"</td><td>"+ "</td>");
+                    html.append("</tr>");
+
+                }
+
+            }
+
+
+            html.append("</tbody>");
+            html.append("</table>" + Html.newLine()  + Html.newLine() + Html.newLine());
+
+            return html.toString();
         }
 
     }

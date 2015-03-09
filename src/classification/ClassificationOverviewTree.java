@@ -81,7 +81,6 @@ public class ClassificationOverviewTree {
                                             new ClassificationOverviewNode(FeatureTypeTree.Expenses, LEAF),
                                             new ClassificationOverviewNode(FeatureTypeTree.Payment, LEAF),
                                             new ClassificationOverviewNode(FeatureTypeTree.Invoicing, LEAF),
-                                            new ClassificationOverviewNode(FeatureTypeTree.Penalties, LEAF),
 
 
                                     }),

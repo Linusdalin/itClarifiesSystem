@@ -1,9 +1,8 @@
 package contractManagement;
 
-import risk.*;
-import contractManagement.*;
 import classification.*;
-import userManagement.*;
+import risk.RiskClassification;
+import risk.RiskClassificationTable;
 import versioning.*;
 import actions.*;
 import search.*;
@@ -11,14 +10,9 @@ import crossReference.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
 import pukkaBO.condition.*;
-import pukkaBO.database.*;
-
-import pukkaBO.acs.*;
 
 /********************************************************
  *
@@ -421,6 +415,27 @@ public class Project extends DataObject implements DataObjectInterface{
 
         return getChecklistItemsForProject(new LookupList());
     }
+
+
+
+    public List<RiskClassification> getRiskClassificationsForProject(ConditionInterface condition){
+
+        condition.addFilter(new ReferenceFilter(RiskClassificationTable.Columns.Project.name(), getKey()));
+
+        List<DataObjectInterface> objects = new RiskClassificationTable(condition).getValues();
+
+        List<RiskClassification> list = (List<RiskClassification>)(List<?>) objects;
+
+        return list;
+    }
+
+    // No condition retrieves all items
+
+    public List<RiskClassification> getRiskClassificationsForProject(){
+
+        return getRiskClassificationsForProject(new LookupList());
+    }
+
 
 
 

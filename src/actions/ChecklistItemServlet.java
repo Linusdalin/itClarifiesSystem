@@ -3,6 +3,7 @@ package actions;
 import classification.ClassificationOverviewManager;
 import contractManagement.ContractFragment;
 import contractManagement.Project;
+import databaseLayer.AppEngine.AppEngineKey;
 import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
@@ -238,12 +239,51 @@ public class ChecklistItemServlet extends DocumentService {
 
                 if(_source != null){
 
+                    if(_source == AppEngineKey.emptyKey){
+
+                        // Passed an empty key. Get the old value (if exists)
+
+                        ContractFragment oldFragment = item.getSource();
+                        if(oldFragment.exists()){
+
+                            invalidateFragmentCache(oldFragment.getVersion());
+
+                        }
                         item.setSource(_source);
+
+                    }
+                    else{
+
+                        item.setSource(_source);
+                        ContractFragment fragment = new ContractFragment(new LookupByKey(_source));
+                        invalidateFragmentCache(fragment.getVersion());
+                    }
+
                 }
 
                 if(_comply != null){
 
-                    item.setCompletion(_comply);
+                    if(_comply == AppEngineKey.emptyKey){
+
+                        // Passed an empty key. Get the old value (if exists)
+
+                        ContractFragment oldFragment = item.getSource();
+                        if(oldFragment.exists()){
+
+                            invalidateFragmentCache(oldFragment.getVersion());
+
+                        }
+                        item.setCompletion(_comply);
+                        System.out.println("Setting comply to empty");
+
+                    }
+                    else{
+
+                        item.setCompletion(_comply);
+                        ContractFragment fragment = new ContractFragment(new LookupByKey(_comply));
+                        invalidateFragmentCache(fragment.getVersion());
+                    }
+
                 }
 
                 if(_status != -1){

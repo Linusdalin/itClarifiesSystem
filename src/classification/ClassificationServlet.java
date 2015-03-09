@@ -286,7 +286,7 @@ public class ClassificationServlet extends DocumentService {
 
             }
 
-            classifiers = defaultLanguage.getDefinitionUsageClassifiers();
+            classifiers = defaultLanguage.getPostProcessClassifiers();
 
             for (ClassifierInterface classifier : classifiers) {
 

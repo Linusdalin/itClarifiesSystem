@@ -111,7 +111,7 @@ public class ImageServlet extends ItClarifiesService{
 
 
             // Get the MIME type of the image
-            String mimeType = sc.getMimeType(imageFileName);
+            String mimeType = getMimeType(imageFileName);
 
             if (mimeType == null) {
 
@@ -209,7 +209,7 @@ public class ImageServlet extends ItClarifiesService{
 
     /**********************************************************************
      *
-     *      Deleting an annotation
+     *      Deleting not implemented
      *
      * @param req
      * @param resp
@@ -227,33 +227,33 @@ public class ImageServlet extends ItClarifiesService{
     }
 
 
-    // convert InputStream to String
-    	private static String getStringFromInputStream(InputStream is) {
+    /*******************************************************************************
+     *
+     *          Detect the mime type from the file
+     *
+     *
+     * @param fileName          - the file to analyse
+     * @return
+     *
+     *          Either from the ServletContext or overriding with special cases
+     */
 
-    		BufferedReader br = null;
-    		StringBuilder sb = new StringBuilder();
 
-    		String line;
-    		try {
+    private String getMimeType(String fileName){
 
-    			br = new BufferedReader(new InputStreamReader(is));
-    			while ((line = br.readLine()) != null) {
-    				sb.append(line);
-    			}
+        ServletContext sc = getServletContext();
+        String mimeType = sc.getMimeType(fileName);
 
-    		} catch (IOException e) {
-    			e.printStackTrace();
-    		} finally {
-    			if (br != null) {
-    				try {
-    					br.close();
-    				} catch (IOException e) {
-    					e.printStackTrace();
-    				}
-    			}
-    		}
+        if(mimeType != null)
+            return mimeType;
 
-    		return sb.toString();
+        // Special case, not supported by ServletContext
 
-    	}
+        if(fileName.endsWith(".emf"))
+            return("application/emf");
+
+        return null;
+
+    }
+
 }
