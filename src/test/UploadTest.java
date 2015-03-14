@@ -7,6 +7,7 @@ import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestC
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import contractManagement.*;
 import fileHandling.BlobRepository;
+import fileHandling.FileUploadServlet;
 import log.PukkaLogger;
 import net.sf.json.JSONObject;
 import org.junit.AfterClass;
@@ -15,7 +16,6 @@ import org.junit.Test;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupItem;
-import analysis.UploadServlet;
 
 import risk.RiskClassification;
 import userManagement.AccessRight;
@@ -109,8 +109,8 @@ public class UploadTest extends ServletTests {
 
                 // TODO: Store document in blob store here
 
-                ContractVersionInstance newVersion = new UploadServlet().handleUpload(testDocumentTitle, new BlobRepository().getEmptyFileHandler(),
-                        null, project, user, mockAccessRight, mockVisibility, "DummyAdminToken");
+                ContractVersionInstance newVersion = new FileUploadServlet().handleUploadDocument(testDocumentTitle, new BlobRepository().getEmptyFileHandler(),
+                        null, project, user, mockAccessRight, mockVisibility);
 
                 assertThat("Version should exist", newVersion.exists(), is(true));
                 assertThat("Document name from uploaded file",  newVersion.getDocument().getName(), is(testDocumentTitle));
@@ -191,7 +191,6 @@ public class UploadTest extends ServletTests {
                 assertTrue(false);
             }
         }
-
 
 
 

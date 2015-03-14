@@ -188,7 +188,7 @@ public class SearchManager2 {
             PukkaLogger.log(PukkaLogger.Level.DEBUG, "Got access level " + document.getAccess() + " for document " + document.getName() + " setting PRIVATE access for fragment");
             return IndexManager.PRIVATE;
         }
-        PukkaLogger.log(PukkaLogger.Level.DEBUG, "Got access level " + document.getAccess() + " for document " + document.getName() + " setting PUBLIC access for fragment");
+        //PukkaLogger.log(PukkaLogger.Level.DEBUG, "Got access level " + document.getAccess() + " for document " + document.getName() + " setting PUBLIC access for fragment");
         return IndexManager.PUBLIC;
 
     }
@@ -235,8 +235,6 @@ public class SearchManager2 {
                 }
             }
             PukkaLogger.log(PukkaLogger.Level.INFO, "Got  " + fragmentList.length() + " search hits");
-
-
 
         } catch (BackOfficeException e) {
 

@@ -1059,7 +1059,7 @@ public class GeneratedTableTests{
      
              try{
      
-                 contractManagement.ContractFragment table1 = new contractManagement.ContractFragment("text 1", dummyKey, dummyKey, 4, 5, "text 6", 7, "text 8", new risk.ContractRiskTable().getDummyConstantValue( ), 10, 11, 12, 13, 14, 15, 16, "text 17");
+                 contractManagement.ContractFragment table1 = new contractManagement.ContractFragment("text 1", dummyKey, dummyKey, 4, 5, "text 6", 7, "text 8", new risk.ContractRiskTable().getDummyConstantValue( ), 10, 11, 12, 13, 14, 15, 16, "text 17", "text 18");
 
                  assertThat(table1.getName(), is("text 1"));
                  assertThat(table1.getVersionId(), is(dummyKey));
@@ -1080,6 +1080,7 @@ public class GeneratedTableTests{
                  assertThat(table1.getyPos(), is((long)15));
                  assertThat(table1.getwidth(), is((long)16));
                  assertThat(table1.getdisplay(), is("text 17"));
+                 assertThat(table1.getImage(), is("text 18"));
 
                  table1.store();
                  contractManagement.ContractFragment table2 = new contractManagement.ContractFragment();
@@ -1104,6 +1105,7 @@ public class GeneratedTableTests{
                  assertThat(table2.getyPos(), is((long)15));
                  assertThat(table2.getwidth(), is((long)16));
                  assertThat(table2.getdisplay(), is("text 17"));
+                 assertThat(table2.getImage(), is("text 18"));
 
                  table1.setName("text 11");
                  table1.setVersion( dummyKey);
@@ -1122,6 +1124,7 @@ public class GeneratedTableTests{
                  table1.setyPos(25);
                  table1.setwidth(26);
                  table1.setdisplay("text 27");
+                 table1.setImage("text 28");
                  assertThat(table1.getName(), is("text 11"));
                  assertThat(table1.getVersionId(), is(dummyKey));
                  assertThat(table1.getVersion().exists(), is(false));
@@ -1141,6 +1144,7 @@ public class GeneratedTableTests{
                  assertThat(table1.getyPos(), is((long)25));
                  assertThat(table1.getwidth(), is((long)26));
                  assertThat(table1.getdisplay(), is("text 27"));
+                 assertThat(table1.getImage(), is("text 28"));
 
              }catch(BackOfficeException e){
      

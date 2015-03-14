@@ -40,11 +40,6 @@ import static org.mockito.Mockito.when;
 public class AnnotationServiceTest extends ServletTests {
 
 
-    private static LocalServiceTestHelper helper;
-    private static HttpServletRequest request;
-    private static HttpServletResponse response;
-
-
     @AfterClass
     public static void tearDown() {
 
@@ -58,22 +53,7 @@ public class AnnotationServiceTest extends ServletTests {
         helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
         helper.setUp();
 
-
-        PukkaLogger.setLogLevel(PukkaLogger.Level.DEBUG);
-
-        try {
-
-            request = mock(HttpServletRequest.class);
-            response = mock(HttpServletResponse.class);
-
-            PukkaLogger.setLogLevel(PukkaLogger.Level.DEBUG);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            assertTrue(false);
-        }
-
+        init();
     }
 
 

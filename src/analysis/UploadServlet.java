@@ -199,6 +199,12 @@ public class UploadServlet extends DocumentService {
 
                         }
 
+                        if(fi.getFieldName().equals("suppress")){
+
+                            String suppress = new String(fi.get());
+                            System.out.println("Got suppress = " + suppress);
+
+                        }
 
                     }
                      else{
@@ -255,11 +261,11 @@ public class UploadServlet extends DocumentService {
                         RepositoryInterface repository = new BlobRepository();
                         RepositoryFileHandler fileHandler = repository.saveFile(title, stream);
 
-                        ContractVersionInstance newVersion = handleUpload(title, fileHandler, document, project, portalUser, accessRight, visibility, sessionToken);
+                        ContractVersionInstance newVersion = handleUpload(title, fileHandler, document, project, portalUser, accessRight, visibility);
 
                         PukkaLogger.log(PukkaLogger.Level.INFO, "Analysing");
                         AsynchAnalysis analysisQueue = new AsynchAnalysis(sessionToken);
-                        analysisQueue.analyseDocument(newVersion, oldVersion);
+                        analysisQueue.analyseDocument(newVersion, true, oldVersion);
 
 
                         json.put("uploaded", newVersion.getDocument().getKey().toString());
@@ -315,20 +321,24 @@ public class UploadServlet extends DocumentService {
      *
      * @param fileName
      * @param fileHandler
-     *@param document
+     * @param document
      * @param project
      * @param portalUser
      * @param accessRight
      * @param visibility
-     * @param sessionToken
+
      * @return
      * @throws BackOfficeException
      * @throws AnalysisException
      * @throws IOException
+     *
+     *          //TODO: Check: Is fileHandler needed here? How is it stored?
      */
 
 
-    public ContractVersionInstance handleUpload(String fileName, RepositoryFileHandler fileHandler, Contract document, Project project, PortalUser portalUser, AccessRight accessRight, Visibility visibility, String sessionToken) throws BackOfficeException, AnalysisException, IOException{
+    public ContractVersionInstance handleUpload(String fileName, RepositoryFileHandler fileHandler, Contract document,
+                                                Project project, PortalUser portalUser,
+                                                AccessRight accessRight, Visibility visibility) throws BackOfficeException, AnalysisException, IOException{
 
         ContractVersionInstance version;
 

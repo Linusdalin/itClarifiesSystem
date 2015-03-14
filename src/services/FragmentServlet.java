@@ -405,6 +405,7 @@ public class FragmentServlet extends ItClarifiesService{
                     .put("risk",            "" + fragment.getRisk().getId())
                     .put("display",         getDisplayInfo(fragment))
                     .put("checklist",       getChecklistReferences(fragment, checklistItemsInProject))
+                    .put("images",           fragment.getImage())
                 ;
 
 

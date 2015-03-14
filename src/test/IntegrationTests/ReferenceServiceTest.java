@@ -40,18 +40,12 @@ import static org.mockito.Mockito.when;
  *          Testing the service with mocked request and response messages
  *
  *
- *          //TODO: Test get and delete
+ *          //TODO: Test: get and delete
  */
 
 
 public class ReferenceServiceTest extends ServletTests {
 
-
-    private static LocalServiceTestHelper helper;
-    private static HttpServletRequest request;
-    private static HttpServletResponse response;
-
-    private static BackOfficeInterface bo;
 
 
     @AfterClass
@@ -67,27 +61,7 @@ public class ReferenceServiceTest extends ServletTests {
         helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
         helper.setUp();
 
-
-
-        try {
-
-
-            bo = new ItClarifies();
-            bo.createDb();
-            bo.populateValues(true);
-
-
-            request = mock(HttpServletRequest.class);
-            response = mock(HttpServletResponse.class);
-
-            PukkaLogger.setLogLevel(PukkaLogger.Level.DEBUG);
-
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            assertTrue(false);
-        }
+        init();
 
     }
 

@@ -601,9 +601,12 @@ public class Contract extends DataObject implements DataObjectInterface{
             StringBuffer body = null;
             StringBuffer comments = null;
 
+
+            // Loop over all table fragments
+
             for(ContractFragment fragment : fragmentsForDocument){
 
-                System.out.println(" *** Displaying fragment (" + fragment.getType() + ") "+ fragment.getName());
+                System.out.println(" *** Displaying fragment (" + fragment.getType() + ") "+ fragment.getText());
 
                 if(!tableMode){
 
@@ -625,6 +628,7 @@ public class Contract extends DataObject implements DataObjectInterface{
                 }else if(!fragment.getType().equals("TABLE") && tableMode){
 
                     // Leaving table mode. Create the (multi) line
+
                     System.out.println(" *** Found fragment type: " + fragment.getType()+ "Leaving table mode!");
 
                     if(editable)
@@ -643,7 +647,7 @@ public class Contract extends DataObject implements DataObjectInterface{
                 }else if(fragment.getxPos() == 0 && !body.toString().equals("")){
 
                     // Leaving table mode. Create the (multi) line
-                    System.out.println(" *** Found new line. Writing table content");
+                    System.out.println(" *** Found new line. Writing table content: " + body);
 
                     if(editable)
                         html.append(createLine(this, fragment, style, body , comments));
@@ -881,7 +885,7 @@ public class Contract extends DataObject implements DataObjectInterface{
                 //styleForm += fragment.getType();
                 styleForm += "</FORM>";
 
-                fragmentBody = fragment.getText();
+                fragmentBody = fragmentText.toString();
                 fragmentBody = fragmentBody.replace("$(_SESSION)", "DummyAdminToken");
 
             }

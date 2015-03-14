@@ -83,6 +83,8 @@ public class FileUploadServlet extends DocumentService {
             PortalUser owner = null;
             Contract document = null;
             String title = null;
+            boolean performAnalysis = true;
+
             UploadType uploadType = UploadType.DOCUMENT;    // Default if no parameter is given is to treat the upload as a regular document
 
             String _project = null;
@@ -234,6 +236,16 @@ public class FileUploadServlet extends DocumentService {
 
                         }
 
+                        if(fi.getFieldName().equals("suppress")){
+
+                            if(new String(fi.get()).equals("on")){
+                                performAnalysis = false;
+                                PukkaLogger.log(PukkaLogger.Level.INFO, "Suppressing Analysis");
+                            }
+
+                        }
+
+
                     }
                      else{
 
@@ -297,7 +309,7 @@ public class FileUploadServlet extends DocumentService {
 
                                 // Start the asynchronous parsing and analysis
 
-                                analysisQueue.analyseDocument(newVersion, oldVersion);
+                                analysisQueue.analyseDocument(newVersion, performAnalysis, oldVersion);
 
                                 json.put("uploaded", newVersion.getDocument().getKey().toString());
 
@@ -319,8 +331,6 @@ public class FileUploadServlet extends DocumentService {
                                 returnError("Internal error trying to parse upload type " + uploadType, ErrorType.GENERAL, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
                                 return;
                         }
-
-
 
                     }
 

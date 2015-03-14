@@ -56,12 +56,11 @@ public class AnalysisServlet extends DocumentService {
 
     public static final String DataServletName = "Analysis";
 
+    private String modelDirectory = MODEL_DIRECTORY; // Default value
 
     public void doGet(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
         returnError("Get not supported in " + DataServletName, HttpServletResponse.SC_METHOD_NOT_ALLOWED, resp);
-        resp.flushBuffer();
-
 
      }
 
@@ -260,7 +259,7 @@ public class AnalysisServlet extends DocumentService {
 
         try {
 
-            Analyser analyser = new Analyser(documentLanguage, MODEL_DIRECTORY);
+            Analyser analyser = new Analyser(documentLanguage, modelDirectory);
 
             if(oldVersion != null){
 
@@ -365,7 +364,7 @@ public class AnalysisServlet extends DocumentService {
 
         try {
 
-            Analyser analyser = new Analyser(documentLanguage, MODEL_DIRECTORY);
+            Analyser analyser = new Analyser(documentLanguage, modelDirectory);
 
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Deleting old keywords and attributes");
@@ -434,13 +433,14 @@ public class AnalysisServlet extends DocumentService {
         for (AbstractDocument abstractDocument : aProject.documents) {
             System.out.println(" *** Document " + abstractDocument.name + " has " + abstractDocument.definitions.size() + " definitions for the analysis.");
 
+            /*
             for (String definition : abstractDocument.definitions) {
 
                 System.out.print( definition + ", ");
 
             }
             System.out.println(" *** ");
-
+              */
         }
 
         int risks = 0;
@@ -545,6 +545,7 @@ public class AnalysisServlet extends DocumentService {
      * @param project
      */
 
+    /*
     private void closeReferences(Analyser analyser, Project project) throws BackOfficeException{
 
         AbstractProject aProject = project.createAbstractProject();
@@ -588,7 +589,7 @@ public class AnalysisServlet extends DocumentService {
 
     }
 
-
+      */
 
     /******************************************************************************************
      *
@@ -624,13 +625,6 @@ public class AnalysisServlet extends DocumentService {
 
         if(!firstFragment.exists()){
 
-            List<ContractFragment> fragmentList = versionInstance.getFragmentsForVersion();
-
-            System.out.println("These are the fragments:");
-            for(ContractFragment fragment : fragmentList){
-
-                System.out.println("Fragment: " + fragment.getName() + " " + fragment.getOrdinal());
-            }
 
             PukkaLogger.log(PukkaLogger.Level.WARNING, "The document " + currentDocument.getName() + " does not have a first fragment to direct references to");
         }
@@ -697,6 +691,7 @@ public class AnalysisServlet extends DocumentService {
 
     }
 
+    /*
 
     private void postProcessAnalysis(Analyser analyser, List<OutcomeMap> outcomeList, AbstractDocument aDocument, PortalUser owner,
                                      ContractVersionInstance version, Project project, AbstractProject aProject, DBTimeStamp analysisTime,
@@ -717,6 +712,8 @@ public class AnalysisServlet extends DocumentService {
         }
 
     }
+
+    */
 
     /**************************************************************
      *
@@ -914,6 +911,7 @@ public class AnalysisServlet extends DocumentService {
      *
      */
 
+    /*
 
     private ContractFragment getDefinitionSource(String definition, ContractFragment fragment, List<Definition> projectDefinitions) {
 
@@ -927,7 +925,7 @@ public class AnalysisServlet extends DocumentService {
         return null;
     }
 
-
+      */
 
 
     /******************************************************************************************
@@ -1022,6 +1020,11 @@ public class AnalysisServlet extends DocumentService {
 
     }
 
+
+    public void setModelDirectory(String modelDirectory){
+
+        this.modelDirectory = modelDirectory;
+    }
 
 
 }

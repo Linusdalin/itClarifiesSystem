@@ -1537,6 +1537,9 @@
             <p>	<label for="upload_title">Title</label>
                 <input type="text" id="upload_title" name="title" value="" size="50"></p>
 
+            <p>	<label for="upload_analyse">Suppress Analysis</label>
+                <input type="checkbox" id="upload_analyse" name="suppress"><br/></p>
+
             <p>	<label for="upload_type">Type</label>
                 <% out.print(Html.dropDown("type", new String[] {"Document", "Checklist"}, "Document", "", "upload_type")); %>
             </p>

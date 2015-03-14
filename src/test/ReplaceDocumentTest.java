@@ -261,9 +261,9 @@ public class ReplaceDocumentTest extends ServletTests{
 
 
         new ContractFragment("F1", version.getKey(), project.getKey(), c.getNumber(), 1, "The First fragment",
-                0, "Text", ContractRisk.getUnknown(), annotationcount, referencecount, classificationCount, actionCount, 0, 0, 0, "{ }").store();
+                0, "Text", ContractRisk.getUnknown(), annotationcount, referencecount, classificationCount, actionCount, 0, 0, 0, "{}", "{}").store();
         new ContractFragment("F2", version.getKey(), project.getKey(), c.getNumber(), 2, "Some other fragment",
-                0, "Text", ContractRisk.getUnknown(), annotationcount, referencecount, classificationCount, actionCount, 0, 0, 0, "{ }").store();
+                0, "Text", ContractRisk.getUnknown(), annotationcount, referencecount, classificationCount, actionCount, 0, 0, 0, "{}", "{}").store();
     }
 
 

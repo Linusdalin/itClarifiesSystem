@@ -30,6 +30,7 @@ public class IndexManager {
 
     private static SearchService searchService = SearchServiceFactory.getSearchService();
     private Index index;
+    private String projectName;
 
     // The spsecific Field names
 
@@ -70,6 +71,9 @@ public class IndexManager {
                 .replaceAll("å", "aa")
                 .replaceAll("ä", "ae")
                 .replaceAll("ö", "oe");
+
+
+        this.projectName = indexName;
 
         PukkaLogger.log(PukkaLogger.Level.DEBUG, "Creating index manager " + indexName);
         IndexSpec indexSpec = IndexSpec.newBuilder().setName(indexName).build();
@@ -186,10 +190,13 @@ public class IndexManager {
                     retries--;
                 }
                 else retries = 0;
+            }catch (SearchQueryException e){
+
+                PukkaLogger.log(e, "Fail to search (" + searchString + ", " + projectName + ")");
+
+
             }
-
         }
-
 
         throw new BackOfficeException(BackOfficeException.General, "Could not search");
     }

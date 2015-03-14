@@ -42,13 +42,13 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public ContractFragment(String name, DataObjectInterface version, DataObjectInterface project, long structureno, long ordinal, String text, long indentation, String type, DataObjectInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, long width, String display) throws BackOfficeException{
+    public ContractFragment(String name, DataObjectInterface version, DataObjectInterface project, long structureno, long ordinal, String text, long indentation, String type, DataObjectInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, long width, String display, String image) throws BackOfficeException{
 
-        this(name, version.getKey(), project.getKey(), structureno, ordinal, text, indentation, type, risk, annotationcount, referencecount, classificatoncount, actioncount, xpos, ypos, width, display);
+        this(name, version.getKey(), project.getKey(), structureno, ordinal, text, indentation, type, risk, annotationcount, referencecount, classificatoncount, actioncount, xpos, ypos, width, display, image);
     }
 
 
-    public ContractFragment(String name, DBKeyInterface version, DBKeyInterface project, long structureno, long ordinal, String text, long indentation, String type, DataObjectInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, long width, String display){
+    public ContractFragment(String name, DBKeyInterface version, DBKeyInterface project, long structureno, long ordinal, String text, long indentation, String type, DataObjectInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, long width, String display, String image){
 
         this();
         try{
@@ -74,6 +74,7 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
            data[14] = new IntData(ypos);
            data[15] = new IntData(width);
            data[16] = new StringData(display);
+           data[17] = new StringData(image);
 
            exists = true;
         }catch(BackOfficeException e){
@@ -360,6 +361,20 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
         StringData data = (StringData) this.data[16];
         data.setStringValue(display);
+    }
+
+
+
+    public String getImage(){
+
+        StringData data = (StringData) this.data[17];
+        return data.getStringValue();
+    }
+
+    public void setImage(String image){
+
+        StringData data = (StringData) this.data[17];
+        data.setStringValue(image);
     }
 
 

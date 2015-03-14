@@ -38,12 +38,6 @@ import static org.mockito.Mockito.when;
 
 public class AccessRightsTest extends ServletTests {
 
-
-    private static LocalServiceTestHelper helper;
-    private static HttpServletRequest request;
-    private static HttpServletResponse response;
-
-
     @AfterClass
     public static void tearDown() {
 
@@ -54,30 +48,14 @@ public class AccessRightsTest extends ServletTests {
     @BeforeClass
     public static void preAmble(){
 
+        // Setup test env for database
+
         helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
         helper.setUp();
 
+        // Init database, sessions and test values
 
-
-        try {
-
-            BackOfficeInterface bo;
-
-            bo = new ItClarifies();
-            bo.createDb();
-            bo.populateValues(true);
-
-            PukkaLogger.setLogLevel(PukkaLogger.Level.DEBUG);
-
-
-            request = mock(HttpServletRequest.class);
-            response = mock(HttpServletResponse.class);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            assertTrue(false);
-        }
+        init();
 
     }
 

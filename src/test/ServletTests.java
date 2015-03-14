@@ -1,6 +1,11 @@
 package test;
 
+import backend.ItClarifies;
+import cache.ServiceCache;
+import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
+import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import contractManagement.Project;
+import contractManagement.ProjectTable;
 import language.English;
 import language.LanguageInterface;
 import language.Swedish;
@@ -9,8 +14,14 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
+import pukkaBO.backOffice.BackOfficeInterface;
+import pukkaBO.condition.ColumnFilter;
+import pukkaBO.condition.LookupItem;
+import pukkaBO.exceptions.BackOfficeException;
 import services.ContractServlet;
 import services.ItClarifiesService;
+import userManagement.PortalUser;
+import userManagement.PortalUserTable;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,6 +44,14 @@ public class ServletTests extends PukkaTest{
     protected static final LanguageInterface English = new English();
     protected static final LanguageInterface Swedish = new Swedish();
 
+    protected static Project demoProject;
+    protected static PortalUser adminUser, demoUser;
+
+    protected static LocalServiceTestHelper helper;
+    protected static HttpServletRequest request;
+    protected static HttpServletResponse response;
+
+
     protected void isKey(String key){
 
         assertNotNull( key );
@@ -42,6 +61,48 @@ public class ServletTests extends PukkaTest{
         assertFalse(key.contains("}"));
         assertFalse(key.contains("["));
         assertFalse(key.contains("}"));
+    }
+
+    protected static void init(){
+
+
+        // Setup database
+
+        try {
+
+            BackOfficeInterface bo;
+
+            bo = new ItClarifies();
+            bo.createDb();
+            bo.populateValues(true);
+
+            PukkaLogger.setLogLevel(PukkaLogger.Level.DEBUG);
+
+            // Demo values from the database
+
+            demoProject = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), "Demo")));
+            adminUser = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "admin")));
+            demoUser = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "demo")));
+
+            // Request mock items
+
+            request = mock(HttpServletRequest.class);
+            response = mock(HttpServletResponse.class);
+
+            ServiceCache cache = new ServiceCache("Token");
+
+            cache.store("DummyAdminToken",      "admin@2020-01-01 00:00:00#127.0.0.1", "");
+            cache.store("DummySessionToken",    "demo@2020-01-01 00:00:00#127.0.0.1", "");
+            cache.store("DummyEveToken",        "eve@2020-01-01 00:00:00#127.0.0.1", "");
+
+        } catch (BackOfficeException e) {
+
+            e.printStackTrace();
+            assertTrue(false);
+        }
+
+
+
     }
 
 
@@ -76,14 +137,13 @@ public class ServletTests extends PukkaTest{
 
             new ContractServlet().doGet(request, response);
 
-
             String output = mockWriter.getOutput();
             PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
 
             JSONObject json = new JSONObject(output);
             JSONArray documents = json.getJSONArray("Document");
 
-            assertThat(documents.length(), CoreMatchers.is(2));
+            assertVerbose("Expecting to find 2 documents", documents.length(), is(2));
 
             JSONObject doc1 = (JSONObject)documents.get( 0 );
             JSONObject doc2 = (JSONObject)documents.get( 1 );

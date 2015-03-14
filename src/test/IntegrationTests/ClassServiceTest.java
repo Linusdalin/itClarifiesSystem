@@ -41,12 +41,6 @@ import static org.mockito.Mockito.when;
 public class ClassServiceTest extends ServletTests {
 
 
-    private static LocalServiceTestHelper helper;
-    private static HttpServletRequest request;
-    private static HttpServletResponse response;
-
-    private static BackOfficeInterface bo;
-
     @AfterClass
     public static void tearDown() {
 
@@ -61,25 +55,7 @@ public class ClassServiceTest extends ServletTests {
         helper.setUp();
 
 
-        bo = new ItClarifies();
-        bo.createDb();
-        bo.populateValues(true);
-
-        PukkaLogger.setLogLevel(PukkaLogger.Level.DEBUG);
-
-
-
-        try {
-
-            request = mock(HttpServletRequest.class);
-            response = mock(HttpServletResponse.class);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            assertTrue(false);
-        }
-
+        init();
     }
 
     /**********************************************************************************

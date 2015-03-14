@@ -25,6 +25,7 @@ import featureTypes.FeatureTypeInterface;
 import featureTypes.FeatureTypeTree;
 import language.LanguageInterface;
 import log.PukkaLogger;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
@@ -178,14 +179,17 @@ public class DocumentService extends ItClarifiesService{
 
                 //String bodyText = testAddingHeadlineNumber(aFragment, autoNumberer);
                 String bodyText = aFragment.getBody();
+                JSONArray imageJSON = new JSONArray();
 
                 if(aFragment.getStyle() == StructureType.IMAGE){
 
                     bodyText = "";
-                    aFragment.setStyle(StructureType.TEXT); // Set it to text, the image will be represented as a text URL
+                    //aFragment.setStyle(StructureType.TEXT); // Set it to text, the image will be represented as a text URL
                     for (AbstractImage abstractImage : aFragment.getImages()) {
 
+
                         bodyText += abstractImage.getRetrievalTag(imageServer, versionInstance.getKey().toString());
+                        imageJSON.put(abstractImage.toJSON());
 
                     }
 
@@ -223,7 +227,7 @@ public class DocumentService extends ItClarifiesService{
 
                         PukkaLogger.log(PukkaLogger.Level.ACTION, "Detected a Checklist in document. Creating checklist");
                         isChecklist = true;
-                        bodyText = "";      // Remove the tag. We do not want it in the uploaded table it ws just to trigger the extraction of the checklist
+                        bodyText = "";      // Remove the tag. We do not want it in the uploaded table it was just to trigger the extraction of the checklist
 
                     }
 
@@ -341,7 +345,8 @@ public class DocumentService extends ItClarifiesService{
                             cellinfo.col,
                             cellinfo.row,
                             cellinfo.rowWidth,
-                            toJSON(cellinfo)
+                            cellinfo.toJSON(),
+                            imageJSON.toString()
 
                     );
 

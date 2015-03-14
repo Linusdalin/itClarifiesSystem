@@ -33,18 +33,12 @@ import static org.mockito.Mockito.when;
  *          Testing the service with mocked request and response messages
  *
  *
- *          //TODO: Add more tests by freezing the project and then change fragments
+ *          //TODO: Test: tests by freezing the project and then change fragments
  */
 
 
 public class SnapshotServiceTest extends ServletTests {
 
-
-    private static LocalServiceTestHelper helper;
-    private static HttpServletRequest request;
-    private static HttpServletResponse response;
-
-    private static BackOfficeInterface bo;
 
     @AfterClass
     public static void tearDown() {
@@ -59,24 +53,7 @@ public class SnapshotServiceTest extends ServletTests {
         helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
         helper.setUp();
 
-
-        bo = new ItClarifies();
-        bo.createDb();
-        bo.populateValues(true);
-
-        PukkaLogger.setLogLevel(PukkaLogger.Level.DEBUG);
-
-
-        try {
-
-            request = mock(HttpServletRequest.class);
-            response = mock(HttpServletResponse.class);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            assertTrue(false);
-        }
+        init();
 
     }
 

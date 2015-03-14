@@ -304,14 +304,14 @@ public class SearchManager {
 
                 textmatcher.prepareSearchString(strippedSearch).caseInsensitive().useHashTags( languageForTags );
 
-                PukkaLogger.log(PukkaLogger.Level.INFO , "***************** Found " + classifications.size() + " risks");
+                PukkaLogger.log(PukkaLogger.Level.INFO , "***************** Found " + risks.size() + " risks");
 
                 for(RiskClassification classification : risks){
 
                     String riskName = classification.getRisk().getName();
 
-                    String matchPatternForClassification = "#" + riskName + " " + classification.getComment() + " " + classification.getKeywords();
-                    PukkaLogger.log(PukkaLogger.Level.INFO, "*** Trying to match classification: \"" + matchPatternForClassification + "\"");
+                    String matchPatternForClassification = riskName +  " #" + riskName + " " + classification.getComment() + " " + classification.getKeywords();
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "*** Trying to match \""+ strippedSearch+"\" with  risk: \"" + matchPatternForClassification + "\"");
 
                     List<String> res = textmatcher.getMatch(matchPatternForClassification);
                     if(res != null){
@@ -323,6 +323,8 @@ public class SearchManager {
                                 .withRisk(riskName));
 
                     }
+                    else
+                        PukkaLogger.log(PukkaLogger.Level.DEBUG, " --- Result is null");
 
                 }
 

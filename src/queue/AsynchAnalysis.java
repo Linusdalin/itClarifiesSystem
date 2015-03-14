@@ -3,6 +3,7 @@ package queue;
 import analysis.AnalysisServlet;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
+import contractManagement.Contract;
 import contractManagement.ContractVersionInstance;
 import contractManagement.Project;
 import crossReference.CrossReferenceInternalServlet;
@@ -35,14 +36,25 @@ public class AsynchAnalysis {
      */
 
 
-    public void analyseDocument(ContractVersionInstance version) throws BackOfficeException{
+    public void analyseDocument(ContractVersionInstance version, boolean performAnalysis) throws BackOfficeException{
 
-        analyseDocument(version, null);
+        analyseDocument(version, performAnalysis, null);
 
     }
 
+    /*****************************************************************
+     *
+     *              Perform the analysis of a document
+     *
+     *
+     * @param version              - document version to analyse
+     * @param performAnalysis      - shall we actually perform classification analysis (or only parse file)
+     * @param oldVersion           - optional old version that shall be wiped
+     * @throws BackOfficeException
+     */
 
-    public void analyseDocument(ContractVersionInstance version, ContractVersionInstance oldVersion) throws BackOfficeException {
+
+    public void analyseDocument(ContractVersionInstance version, boolean performAnalysis, ContractVersionInstance oldVersion) throws BackOfficeException {
 
         if(USE_SCHEDULING){
 
@@ -70,9 +82,15 @@ public class AsynchAnalysis {
         }
         else{
 
+            Contract document = version.getDocument();
+
                 AnalysisServlet servlet = new AnalysisServlet();
-                servlet.parseFile(version.getDocument(), version);
+                servlet.parseFile(document, version);
+
+            if(performAnalysis)
                 servlet.analyse(version, oldVersion);
+            else
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Suppressing analysis for document " + document.getName() );
 
         }
     }

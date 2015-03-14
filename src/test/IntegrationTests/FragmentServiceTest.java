@@ -38,11 +38,6 @@ import static org.mockito.Mockito.when;
 public class FragmentServiceTest extends ServletTests {
 
 
-    private static LocalServiceTestHelper helper;
-    private static HttpServletRequest request;
-    private static HttpServletResponse response;
-    private static BackOfficeInterface bo;
-
     @AfterClass
     public static void tearDown() {
 
@@ -56,24 +51,7 @@ public class FragmentServiceTest extends ServletTests {
         helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
         helper.setUp();
 
-
-
-        try {
-
-            bo = new ItClarifies();
-            bo.createDb();
-            bo.populateValues(true);
-
-
-            PukkaLogger.setLogLevel(PukkaLogger.Level.DEBUG);
-
-
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            assertTrue(false);
-        }
+        init();
 
     }
 
