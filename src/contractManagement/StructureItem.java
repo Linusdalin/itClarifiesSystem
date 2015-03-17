@@ -264,8 +264,9 @@ public class StructureItem extends DataObject implements DataObjectInterface{
                 return fragment;
         }
 
-        throw new BackOfficeException(BackOfficeException.General, "Cant find fragment for structure item " + this.getName());
+        PukkaLogger.log(PukkaLogger.Level.WARNING, " There is no top element for structure item " + this.getName() + " in document " + getVersion().getDocument().getName());
 
+        return new ContractFragment();
 
     }
 

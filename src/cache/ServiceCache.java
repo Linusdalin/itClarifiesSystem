@@ -29,6 +29,7 @@ public class ServiceCache {
     private String serviceQualifier;
     private String serviceName;
 
+    List<DataObjectInterface> allUsers = null;
 
     public ServiceCache(String serviceName) throws BackOfficeException{
 
@@ -166,10 +167,11 @@ public class ServiceCache {
 
     public void clearKeyForAllQualifiers(String key) {
 
+        if(allUsers == null)
+            allUsers = new PortalUserTable(new LookupList()).getValues();
 
-        List<DataObjectInterface> all = new PortalUserTable(new LookupList()).getValues();
 
-        for(DataObjectInterface object : all){
+        for(DataObjectInterface object : allUsers){
 
             PortalUser user = (PortalUser)object;
             String cacheObjectKey = createKey(getServiceQualifier(serviceName, user), key);

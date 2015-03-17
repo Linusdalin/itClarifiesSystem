@@ -1330,11 +1330,12 @@ public class GeneratedTableTests{
      
              try{
      
-                 crossReference.Definition table1 = new crossReference.Definition("text 1", dummyKey, dummyKey, dummyKey);
+                 crossReference.Definition table1 = new crossReference.Definition("text 1", dummyKey, 3, dummyKey, dummyKey);
 
                  assertThat(table1.getName(), is("text 1"));
                  assertThat(table1.getDefinedInId(), is(dummyKey));
                  assertThat(table1.getDefinedIn().exists(), is(false));
+                 assertThat(table1.getFragmentNo(), is((long)3));
                  assertThat(table1.getVersionId(), is(dummyKey));
                  assertThat(table1.getVersion().exists(), is(false));
                  assertThat(table1.getProjectId(), is(dummyKey));
@@ -1347,6 +1348,7 @@ public class GeneratedTableTests{
                  assertThat(table2.getName(), is("text 1"));
                  assertThat(table2.getDefinedInId(), is(dummyKey));
                  assertThat(table2.getDefinedIn().exists(), is(false));
+                 assertThat(table2.getFragmentNo(), is((long)3));
                  assertThat(table2.getVersionId(), is(dummyKey));
                  assertThat(table2.getVersion().exists(), is(false));
                  assertThat(table2.getProjectId(), is(dummyKey));
@@ -1354,11 +1356,13 @@ public class GeneratedTableTests{
 
                  table1.setName("text 11");
                  table1.setDefinedIn( dummyKey);
+                 table1.setFragmentNo(13);
                  table1.setVersion( dummyKey);
                  table1.setProject( dummyKey);
                  assertThat(table1.getName(), is("text 11"));
                  assertThat(table1.getDefinedInId(), is(dummyKey));
                  assertThat(table1.getDefinedIn().exists(), is(false));
+                 assertThat(table1.getFragmentNo(), is((long)13));
                  assertThat(table1.getVersionId(), is(dummyKey));
                  assertThat(table1.getVersion().exists(), is(false));
                  assertThat(table1.getProjectId(), is(dummyKey));

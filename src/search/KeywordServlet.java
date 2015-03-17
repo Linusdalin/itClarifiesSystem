@@ -217,13 +217,13 @@ public class KeywordServlet extends ItClarifiesService {
 
         }catch(BackOfficeException e){
 
-           returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            e.printStackTrace();
+            PukkaLogger.log( e );
+            returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
 
         } catch ( Exception e) {
 
-           returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            e.printStackTrace();
+            PukkaLogger.log( e );
+            returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
         }
     }
 

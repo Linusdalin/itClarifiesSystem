@@ -4,7 +4,6 @@ import analysis.ParseFeedback;
 import analysis.ParseFeedbackItem;
 import classification.FragmentClassification;
 import classification.FragmentClassificationTable;
-import classifiers.Classification;
 import contractManagement.Contract;
 import contractManagement.ContractFragment;
 import contractManagement.Project;
@@ -14,14 +13,11 @@ import diff.FragmentComparator;
 import document.AbstractFragment;
 import document.CellInfo;
 import document.FragmentSplitterInterface;
-import featureTypes.FeatureType;
-import featureTypes.FeatureTypeTerm;
 import featureTypes.FeatureTypeTree;
 import log.PukkaLogger;
 import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupByKey;
 import pukkaBO.condition.LookupList;
-import pukkaBO.condition.ReferenceFilter;
 import pukkaBO.exceptions.BackOfficeException;
 
 import java.util.List;
@@ -221,7 +217,7 @@ public class CanonicalReferenceParser {
 
         currentSourceText = null;
 
-        return new Definition("undefined", null,  document.getKey(), project.getKey());
+        return new Definition("undefined", null, 0,  document.getKey(), project.getKey());
 
     }
 

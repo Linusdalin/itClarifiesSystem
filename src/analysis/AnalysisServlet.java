@@ -3,17 +3,15 @@ package analysis;
 import actions.Action;
 import actions.ActionStatus;
 import actions.ActionTable;
+import analysis.deferrance.DeferenceHandler;
 import analysis2.AnalysisException;
 import analysis2.NewAnalysisOutcome;
 import classification.FragmentClassificationTable;
-import classifiers.Classification;
 import contractManagement.*;
 import crossReference.*;
 import dataRepresentation.DBTimeStamp;
 import databaseLayer.DBKeyInterface;
-import databaseLayer.DatabaseAbstractionFactory;
 import document.*;
-import featureTypes.FeatureTypeTree;
 import fileHandling.BlobRepository;
 import fileHandling.RepositoryFileHandler;
 import fileHandling.RepositoryInterface;
@@ -243,10 +241,12 @@ public class AnalysisServlet extends DocumentService {
         Project project = document.getProject();
         Organization organization = project.getOrganization();
         AbstractProject aProject = project.createAbstractProject();
-        AbstractDocument aDocument = newVersion.createAbstractDocumentVersion(aProject);
+        AbstractDocument aDocument = newVersion.createAbstractDocumentVersion(aProject, new LanguageCode(document.getLanguage()));
         List<Definition> definitions = project.getDefinitionsForProject();
         LanguageCode documentLanguage = new LanguageCode(document.getLanguage());
-        List<ContractFragment> fragments = newVersion.getFragmentsForVersion();
+        List<ContractFragment> fragments = newVersion.getFragmentsForVersion(
+                new LookupList().addSorting(new Sorting(ContractFragmentTable.Columns.Ordinal.name(), Ordering.FIRST))
+        );
         PortalUser owner = document.getOwner();
         SearchManager2 searchManager = new SearchManager2(project, owner);
 
@@ -349,10 +349,12 @@ public class AnalysisServlet extends DocumentService {
         Project project = document.getProject();
         Organization organization = project.getOrganization();
         AbstractProject aProject = project.createAbstractProject();
-        AbstractDocument aDocument = documentVersion.createAbstractDocumentVersion(aProject);
+        AbstractDocument aDocument = documentVersion.createAbstractDocumentVersion(aProject, new LanguageCode(document.getLanguage()));
         List<Definition> definitions = project.getDefinitionsForProject();
         LanguageCode documentLanguage = new LanguageCode(document.getLanguage());
-        List<ContractFragment> fragments = documentVersion.getFragmentsForVersion();
+        List<ContractFragment> fragments = documentVersion.getFragmentsForVersion(
+                new LookupList().addSorting(new Sorting(ContractFragmentTable.Columns.Ordinal.name(), Ordering.FIRST))
+        );
         PortalUser owner = document.getOwner();
         SearchManager2 searchManager = new SearchManager2(project, owner);
 
@@ -431,7 +433,7 @@ public class AnalysisServlet extends DocumentService {
         SearchManager2 searchManager = new SearchManager2(project, owner);
 
         for (AbstractDocument abstractDocument : aProject.documents) {
-            System.out.println(" *** Document " + abstractDocument.name + " has " + abstractDocument.definitions.size() + " definitions for the analysis.");
+            System.out.println(" *** Document " + abstractDocument.name + " has " + abstractDocument.getDefinitions().size() + " definitions for the analysis.");
 
             /*
             for (String definition : abstractDocument.definitions) {
@@ -445,7 +447,7 @@ public class AnalysisServlet extends DocumentService {
 
         int risks = 0;
         NewAnalysisOutcome analysisOutcome;
-
+        DeferenceHandler deference = new DeferenceHandler();
         for(ContractFragment fragment : fragments){
 
             try{
@@ -469,9 +471,9 @@ public class AnalysisServlet extends DocumentService {
                                           // this is additional text from surrounding parts of the document,
                                           // relevant for the analysis e.g. Lists
 
-                analysisOutcome = analyser.analyseFragment(fragment.getText(), headline, contextText, aDocument, cellInfo, aProject);
+                analysisOutcome = analyser.analyseFragment(fragment.getText(), (int)fragment.getOrdinal(), headline, contextText, aDocument, cellInfo, aProject);
 
-                NewAnalysisFeedback feedback = handleResult(analysisOutcome, fragment, project, analysisTime, searchManager, aDocument, definitionsForProject, documentVersion);
+                NewAnalysisFeedback feedback = handleResult(analysisOutcome, fragment, deference, project, analysisTime, searchManager, aDocument, definitionsForProject, documentVersion);
                 risks += feedback.risks; // Count risks for the action message
 
                 // Store it for the second pass. In that pass we dont want to redo the parsing and analysis
@@ -637,10 +639,13 @@ public class AnalysisServlet extends DocumentService {
             if(!document.equals(currentDocument)){
 
                 ContractVersionInstance latestVersion = document.getHeadVersion();
-                List<ContractFragment> fragmentsForDocument = latestVersion.getFragmentsForVersion();
+                List<ContractFragment> fragmentsForDocument = latestVersion.getFragmentsForVersion(
+                        new LookupList().addSorting(new Sorting(ContractFragmentTable.Columns.Ordinal.name(), Ordering.FIRST))
+                );
 
                 PukkaLogger.log(PukkaLogger.Level.INFO, "Reanalysing references in document " + document.getName());
 
+                DeferenceHandler deference = new DeferenceHandler();
                 for(ContractFragment fragment : fragmentsForDocument){
 
                     //Now check for occurrences of the name or the file
@@ -676,8 +681,8 @@ public class AnalysisServlet extends DocumentService {
 
 
 
-                    NewAnalysisOutcome postProcessOutcome = analyser.postProcess(fragment.getText(), aProject);
-                    handleResult(postProcessOutcome, fragment, project, analysisTime, searchManager, aDocument, definitionsForProject, latestVersion);
+                    NewAnalysisOutcome postProcessOutcome = analyser.postProcess(fragment.getText(), (int)fragment.getOrdinal(), aProject, false);
+                    handleResult(postProcessOutcome, fragment, deference, project, analysisTime, searchManager, aDocument, definitionsForProject, latestVersion);
 
 
                 }
@@ -1012,6 +1017,7 @@ public class AnalysisServlet extends DocumentService {
 
 
     }
+
 
 
     public void doDelete(HttpServletRequest req, HttpServletResponse resp)throws IOException {

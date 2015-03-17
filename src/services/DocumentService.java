@@ -6,6 +6,8 @@ import actions.ChecklistParser;
 import analysis.NewAnalysisFeedback;
 import analysis.ParseFeedbackItem;
 import analysis.Significance;
+import analysis.deferrance.DeferenceHandler;
+import analysis.deferrance.NextFragment;
 import analysis2.NewAnalysisOutcome;
 import classification.FragmentClass;
 import classification.FragmentClassification;
@@ -34,6 +36,7 @@ import risk.RiskClassification;
 import search.Keyword;
 import search.KeywordTable;
 import search.SearchManager2;
+import system.Analyser;
 import userManagement.Organization;
 import userManagement.PortalUser;
 
@@ -670,21 +673,21 @@ public class DocumentService extends ItClarifiesService{
      *
      * @param analysisResult - the feature definitions from the analysis
      * @param fragment - the data base fragment to update with classifications and references from analysis
+     * @param deference
      * @param project
      * @param analysisTime - time for the analysis
      * @param version
-     *
-     *
-     *              //TODO: Refactor: This should be broken out to a separate AnalysisManager class
+*
+*
      *
      */
 
 
     protected NewAnalysisFeedback handleResult(NewAnalysisOutcome analysisResult, ContractFragment fragment,
-                             Project project, DBTimeStamp analysisTime,
-                             SearchManager2 searchManager,
-                             AbstractDocument aDocument, List<Definition> definitionsForProject,
-                             ContractVersionInstance version) throws BackOfficeException{
+                                               DeferenceHandler deference, Project project, DBTimeStamp analysisTime,
+                                               SearchManager2 searchManager,
+                                               AbstractDocument aDocument, List<Definition> definitionsForProject,
+                                               ContractVersionInstance version) throws BackOfficeException{
 
         boolean updated = false;
 
@@ -695,6 +698,9 @@ public class DocumentService extends ItClarifiesService{
         int annotations = 0;
         int risks = 0;
 
+        // First handle any deferred actions from previous fragment
+
+        analysisResult = deference.activateDeferences(analysisResult, fragment);
 
         FragmentClassification fragmentClassification;
 
@@ -764,45 +770,61 @@ public class DocumentService extends ItClarifiesService{
                     // We create a definition and also add a definition tag. (This may be removed
                     // later when definitions are properly displayed and searchable from the frontend)
 
-                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating definition for fragment " + fragment.getName() + "(" + classification.getPattern().getText() + ")");
 
-                    Definition definition = new Definition(
-                            classification.getPattern().getText(),
-                            fragment.getKey(),
-                            version.getKey(),
-                            project.getKey());
-                    definition.store();
+                    // First we check for a definition to defer
 
-                    // Also add the definition to the active list of definitions. This will be needed for subsequent reanalyze of the project
+                    if(classification.getPass() != Analyser.DEFERENCE_PASS &&  classification.getTag().equals("LeftColumn")){
 
-                    definitionsForProject.add(definition);
+                        PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Deferring definition creation for fragment " + fragment.getName() + "(" + fragment.getOrdinal() + ") Left column");
+                        deference.defer( new NextFragment(classification, fragment) );
 
-                    fragmentClassification = new FragmentClassification(
-                            fragment.getKey(),
-                            FeatureTypeTree.DefinitionDef.getName(),
-                            0,              // requirement level not implemented
-                            0,              // applicable phase not implemented
-                            "",
-                            classification.getKeywords(),
-                            system.getKey(),
-                            version.getKey(),
-                            project.getKey(),
-                            classification.getPattern().getText(),
-                            classification.getPattern().getPos(),
-                            classification.getPattern().getLength(),
-                            classification.getSignificance(),
-                            "not specified rule",                       //TODO: This should be implemented later
-                            analysisTime.getSQLTime().toString());
+                    }
+                    else{
+
+                        PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating definition for fragment " + fragment.getName() +
+                                "(match: " + classification.getPattern().getText() + " tag: " + classification.getTag() +  ")");
+
+                        Definition definition = new Definition(
+                                classification.getPattern().getText(),
+                                fragment.getKey(),
+                                fragment.getOrdinal(),
+                                version.getKey(),
+                                project.getKey());
+                        definition.store();
+
+                        // Also add the definition to the active list of definitions. This will be needed for subsequent reanalyze of the project
+
+                        definitionsForProject.add(definition);
+
+                        fragmentClassification = new FragmentClassification(
+                                fragment.getKey(),
+                                FeatureTypeTree.DefinitionDef.getName(),
+                                0,              // requirement level not implemented
+                                0,              // applicable phase not implemented
+                                "",
+                                classification.getKeywords(),
+                                system.getKey(),
+                                version.getKey(),
+                                project.getKey(),
+                                classification.getPattern().getText(),
+                                classification.getPattern().getPos(),
+                                classification.getPattern().getLength(),
+                                classification.getSignificance(),
+                                "not specified rule",                       //TODO: This should be implemented later
+                                analysisTime.getSQLTime().toString());
 
 
-                    classificationsToStore.add(fragmentClassification);
-                    classifications++;
+                        classificationsToStore.add(fragmentClassification);
+                        classifications++;
 
-                    updated = true;
+                        updated = true;
 
-                    // Also store the definition in the abstract document to be able to detect it later
-                    if(aDocument != null)
-                        aDocument.addDefinition(definition.getName());
+                        // Also store the definition in the abstract document to be able to detect it later
+                        if(aDocument != null)
+                            aDocument.addDefinition(new AbstractDefinition(definition.getName(), (int)fragment.getOrdinal()));
+
+
+                    }
 
                     continue;
                 }

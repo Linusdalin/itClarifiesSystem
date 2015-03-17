@@ -515,7 +515,7 @@ public class Contract extends DataObject implements DataObjectInterface{
     public document.AbstractDocument createAbstractDocument(document.AbstractProject aProject) throws BackOfficeException {
 
         ContractVersionInstance latestVersion = getHeadVersion();
-        return latestVersion.createAbstractDocumentVersion(aProject);
+        return latestVersion.createAbstractDocumentVersion(aProject, new language.LanguageCode(getLanguage()));
 
 
     }

@@ -1,6 +1,7 @@
 package crossReference;
 
 import analysis.NewAnalysisFeedback;
+import analysis.deferrance.DeferenceHandler;
 import analysis2.NewAnalysisOutcome;
 import classification.FragmentClassification;
 import classification.FragmentClassificationTable;
@@ -231,14 +232,15 @@ public class CrossReferenceInternalServlet extends DocumentService {
 
             List<ContractFragment> fragmentsInDocument = latestVersion.getFragmentsForVersion();
 
+            DeferenceHandler deference = new DeferenceHandler();
             for (ContractFragment fragment : fragmentsInDocument) {
 
                 try{
 
                     //Post process for definitions
 
-                    NewAnalysisOutcome postProcessOutcome = analyser.postProcess(fragment.getText(), abstractProject);
-                    NewAnalysisFeedback feedback = handleResult(postProcessOutcome, fragment, project, analysisTime, searchManager, null, definitionsForProject, latestVersion);
+                    NewAnalysisOutcome postProcessOutcome = analyser.postProcess(fragment.getText(), (int)fragment.getOrdinal(), abstractProject, false);
+                    NewAnalysisFeedback feedback = handleResult(postProcessOutcome, fragment, deference, project, analysisTime, searchManager, null, definitionsForProject, latestVersion);
 
                     /*
 
@@ -409,7 +411,7 @@ public class CrossReferenceInternalServlet extends DocumentService {
 
         for(Reference reference : openReferencesForProject){
 
-            NewAnalysisOutcome outcome2 = analyser.analyseOpenReferences(reference.getName(), aProject);
+            NewAnalysisOutcome outcome2 = analyser.analyseOpenReferences(reference.getName(), aProject, false);
 
             System.out.println("***** analyseOpenReference delivered " + outcome2.getClassifications().size() + " classifications for reference " + reference.getName());
 

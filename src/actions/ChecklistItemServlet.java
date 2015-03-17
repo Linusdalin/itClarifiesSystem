@@ -103,13 +103,13 @@ public class ChecklistItemServlet extends DocumentService {
 
         }catch(BackOfficeException e){
 
+            PukkaLogger.log( e );
             returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            e.printStackTrace();
 
         } catch ( Exception e) {
 
+            PukkaLogger.log( e );
             returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            e.printStackTrace();
 
         }
 
@@ -320,12 +320,12 @@ public class ChecklistItemServlet extends DocumentService {
 
         }catch(BackOfficeException e){
 
-            e.printStackTrace(System.out);
+            PukkaLogger.log( e );
             returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
 
         } catch ( Exception e) {
 
-            e.printStackTrace(System.out);
+            PukkaLogger.log( e );
             returnError("Internal Error getting actions", HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
 
         }

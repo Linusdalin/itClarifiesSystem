@@ -298,47 +298,51 @@ public class ContractVersionInstance extends DataObject implements DataObjectInt
      *
      *          Converting a document in the data base to an abstract document for the analysis
      *
+     *
      * @param project
+     * @param language
      * @return
      * @throws BackOfficeException
      */
 
 
-    public document.AbstractDocument createAbstractDocumentVersion(document.AbstractProject project) throws BackOfficeException{
+    public document.AbstractDocument createAbstractDocumentVersion(document.AbstractProject project, language.LanguageCode language) throws BackOfficeException{
 
 
         List<Definition> definitions = getDefinitionsForVersion();
-        List<String> abstractDefinitions = new java.util.ArrayList<String>();
+        List<document.AbstractDefinition> abstractDefinitions = new java.util.ArrayList<document.AbstractDefinition>();
         for(Definition definition : definitions){
 
-            abstractDefinitions.add(definition.getName());
+            abstractDefinitions.add(new document.AbstractDefinition(definition.getName(), (int)definition.getFragmentNo()));
 
         }
 
         List<StructureItem> clauses = getStructureItemsForVersion();
         List<document.AbstractStructureItem> abstractStructureItem = new java.util.ArrayList<document.AbstractStructureItem>();
+        List<ContractFragment> fragmentsForVersion = getFragmentsForVersion();
 
         int i = 0;
         for(StructureItem item : clauses){
 
-            ContractFragment topElement = item.getFragmentForStructureItem();
+            ContractFragment topElement = item.getFragmentForStructureItem(fragmentsForVersion);
 
 
             document.AbstractStructureItem aStructureItem =
                     new document.AbstractStructureItem()
+                            .setLanguage(language)
                             .setTopElement(new document.AbstractFragment(item.getName())
                                                 .setStyle(document.StructureType.TEXT));
 
 
             if(topElement.exists())
-                aStructureItem.setKey(item.getFragmentForStructureItem().getKey().toString());
+                aStructureItem.setKey(item.getFragmentForStructureItem(fragmentsForVersion).getKey().toString());
 
 
             abstractStructureItem.add(aStructureItem);
 
         }
 
-        document.AbstractDocument aDocument = new document.AbstractDocument(getDocument().getName(), abstractStructureItem, abstractDefinitions, project);
+        document.AbstractDocument aDocument = new document.AbstractDocument(getDocument().getName(), abstractStructureItem, abstractDefinitions, project, language);
         return aDocument;
 
     }
