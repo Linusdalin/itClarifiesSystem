@@ -377,6 +377,9 @@ public class ReclassificationList extends GroupByList implements ListInterface{
         return html.toString();
     }
 
+
+    private static final int StringWidth = 60;
+
     public static String asSplitString(String body, int padding) {
 
         StringBuffer completeString = new StringBuffer();
@@ -386,7 +389,7 @@ public class ReclassificationList extends GroupByList implements ListInterface{
 
         while(bodyLength - index > 0){
 
-            if(index + 40 > bodyLength){
+            if(index + StringWidth > bodyLength){
 
                 completeString.append(body.substring(index));
                 index += body.length();
@@ -394,9 +397,9 @@ public class ReclassificationList extends GroupByList implements ListInterface{
             }
             else{
 
-                completeString.append(body.substring(index, index + 40));
+                completeString.append(body.substring(index, index + StringWidth));
                 completeString.append("\"+\n"+ StringUtils.leftPad(" ", padding) +"\"");
-                index+= 40;
+                index+= StringWidth;
             }
 
         }

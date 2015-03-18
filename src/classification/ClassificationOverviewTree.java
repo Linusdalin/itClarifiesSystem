@@ -38,10 +38,11 @@ public class ClassificationOverviewTree {
 
                                 }),
 
-                                    new ClassificationOverviewNode(FeatureTypeTree.RightsAndObligations, new ClassificationOverviewNode[]{
+                                    new ClassificationOverviewNode(FeatureTypeTree.RightsAndRestrictions, new ClassificationOverviewNode[]{
 
                                             new ClassificationOverviewNode(FeatureTypeTree.Right, LEAF),
                                             new ClassificationOverviewNode(FeatureTypeTree.Restriction, LEAF),
+                                            new ClassificationOverviewNode(FeatureTypeTree.Responsibility, LEAF),
 
                                     }),
 
@@ -110,9 +111,13 @@ public class ClassificationOverviewTree {
 
                                             new ClassificationOverviewNode(FeatureTypeTree.Preconditions, LEAF),
                                             new ClassificationOverviewNode(FeatureTypeTree.SupportMaint, LEAF),
-                                            new ClassificationOverviewNode(FeatureTypeTree.ReqSpec, LEAF),
+                                            new ClassificationOverviewNode(FeatureTypeTree.SolutionReq, LEAF),
+                                            new ClassificationOverviewNode(FeatureTypeTree.Delivery, LEAF),
 
                                     }),
+                                    new ClassificationOverviewNode(FeatureTypeTree.Staffing, LEAF),
+
+
                                     new ClassificationOverviewNode(FeatureTypeTree.Resources, new ClassificationOverviewNode[]{
 
                                             new ClassificationOverviewNode(FeatureTypeTree.Staffing, LEAF),
@@ -153,6 +158,7 @@ public class ClassificationOverviewTree {
 
                                             new ClassificationOverviewNode(FeatureTypeTree.DefinitionDef, LEAF),
                                             new ClassificationOverviewNode(FeatureTypeTree.DefinitionUsage, LEAF),
+                                            new ClassificationOverviewNode(FeatureTypeTree.Background, LEAF),
 
                                     }),
                             }),
