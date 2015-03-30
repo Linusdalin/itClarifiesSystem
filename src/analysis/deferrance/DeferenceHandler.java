@@ -66,7 +66,7 @@ public class DeferenceHandler {
             if(deferredAction.isActive()){
 
 
-                if(deferredAction.triggers(fragment)){
+                if(deferredAction.triggers(fragment) && fragment.getText().length() > 0){
 
                     // Add the classification to the outcome to activate
 

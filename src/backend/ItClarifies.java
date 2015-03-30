@@ -7,7 +7,8 @@ import actions.ChecklistTable;
 import cache.ServiceCache;
 import classification.FragmentClassTable;
 import classification.FragmentClassificationTable;
-import classification.ReclassificationTable;
+import reclassification.ReannotationTable;
+import reclassification.ReclassificationTable;
 import contractManagement.*;
 import crossReference.DefinitionTable;
 import crossReference.ReferenceTable;
@@ -18,6 +19,7 @@ import log.PukkaLogger;
 import pukkaBO.acs.ACS_User;
 import pukkaBO.acs.ACS_UserTable;
 import pukkaBO.password.PasswordManager;
+import reclassification.ReriskTable;
 import risk.ContractRiskTable;
 import risk.RiskClassificationTable;
 import search.KeywordTable;
@@ -156,6 +158,7 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
 
                                                          new contractManagement.ContractTypeTable( ),
                                                          new ProjectTable( ),
+                                                         new ProjectTypeTable( ),
 
                                                  }
                                              ),
@@ -279,6 +282,7 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
                                                 new ContractTable( ),
                                                 new ContractVersionInstanceTable( ),
                                                 new ContractViewTable( ),
+                                                new DocumentSectionTable( ),
 
 
                                         }
@@ -302,6 +306,8 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
                                                      new ContractRiskTable( ),
                                                      new KeywordTable( ),
                                                      new ReclassificationTable( ),
+                                                     new ReriskTable( ),
+                                                     new ReannotationTable( ),
 
 
                                              }

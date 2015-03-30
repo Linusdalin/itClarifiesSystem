@@ -30,6 +30,7 @@ public class ServiceCache {
     private String serviceName;
 
     List<DataObjectInterface> allUsers = null;
+    private static final int MAX_CACHE_SIZE = 1048503;
 
     public ServiceCache(String serviceName) throws BackOfficeException{
 
@@ -91,13 +92,20 @@ public class ServiceCache {
 
     public void store(String key, String value, String comment) throws BackOfficeException{
 
-
         try{
 
             String cacheKey = createKey(serviceQualifier, key);
 
-            cache.put(cacheKey, value);
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Store value for key (" + cacheKey + ") in cache. (keys: " + cache.size() + ")");
+            if(value.length() > MAX_CACHE_SIZE){
+
+                PukkaLogger.log(PukkaLogger.Level.WARNING, "Value too long for key (" + cacheKey + ") Ignoring caching");
+
+            }else{
+
+                cache.put(cacheKey, value);
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Store value for key (" + cacheKey + ") in cache. (keys: " + cache.size() + ")");
+
+            }
 
         }catch(Exception e){
 

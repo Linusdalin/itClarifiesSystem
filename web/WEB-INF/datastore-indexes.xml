@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <datastore-indexes autoGenerate="true">
 
+    <datastore-index kind="Definition" ancestor="false" source="manual">
+            <property name="Version" direction="asc"/>
+            <property name="Name" direction="asc"/>
+        </datastore-index>
+
     <datastore-index kind="PortalSession" ancestor="false" source="manual">
             <property name="Token" direction="asc"/>
             <property name="Latest" direction="desc"/>

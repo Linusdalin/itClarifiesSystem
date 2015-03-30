@@ -176,7 +176,7 @@ public class CrossReferenceInternalServlet extends DocumentService {
         );
 
         List<FragmentClassification> reqSpecForProject = project.getFragmentClassificationsForProject(new LookupList()
-                .addFilter(new ColumnFilter(FragmentClassificationTable.Columns.ClassTag.name(), FeatureTypeTree.ReqSpec.getName()))
+                .addFilter(new ColumnFilter(FragmentClassificationTable.Columns.ClassTag.name(), FeatureTypeTree.SolutionReq.getName()))
                 .addFilter(new ReferenceFilter(ReferenceTable.Columns.Creator.name(), systemUser.getKey()))
         );
 

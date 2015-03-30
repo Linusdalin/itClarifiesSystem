@@ -8,6 +8,7 @@ import versioning.*;
 import actions.*;
 import search.*;
 import crossReference.*;
+import reclassification.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
@@ -34,7 +35,7 @@ public class DefinitionTable extends DataTable implements DataTableInterface{
     public static final String TABLE = "Definition";
     private static final String DESCRIPTION = "A definition of a concept in the document (or project)";
 
-    public enum Columns {Name, DefinedIn, FragmentNo, Version, Project, }
+    public enum Columns {Name, DefinedIn, FragmentNo, Version, Project, Definition, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
@@ -43,6 +44,7 @@ public class DefinitionTable extends DataTable implements DataTableInterface{
             new IntColumn("FragmentNo", DataColumn.noFormatting),
             new ReferenceColumn("Version", DataColumn.noFormatting, new TableReference("ContractVersionInstance", "Version")),
             new ReferenceColumn("Project", DataColumn.noFormatting, new TableReference("Project", "Name")),
+            new TextColumn("Definition", DataColumn.noFormatting).setDefaultValue(new ImplicitValue( "null" )),
     };
 
     private static final Definition associatedObject = new Definition();

@@ -8,6 +8,7 @@ import versioning.*;
 import actions.*;
 import search.*;
 import crossReference.*;
+import reclassification.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
@@ -42,13 +43,13 @@ public class Contract extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public Contract(String name, String file, long ordinal, DataObjectInterface type, DataObjectInterface status, String message, String description, DataObjectInterface project, DataObjectInterface owner, String creation, String language, DataObjectInterface access) throws BackOfficeException{
+    public Contract(String name, String file, long ordinal, DataObjectInterface type, DataObjectInterface status, String message, String description, DataObjectInterface project, DataObjectInterface owner, String creation, String language, DataObjectInterface section, DataObjectInterface access) throws BackOfficeException{
 
-        this(name, file, ordinal, type, status, message, description, project.getKey(), owner.getKey(), creation, language, access);
+        this(name, file, ordinal, type, status, message, description, project.getKey(), owner.getKey(), creation, language, section.getKey(), access);
     }
 
 
-    public Contract(String name, String file, long ordinal, DataObjectInterface type, DataObjectInterface status, String message, String description, DBKeyInterface project, DBKeyInterface owner, String creation, String language, DataObjectInterface access){
+    public Contract(String name, String file, long ordinal, DataObjectInterface type, DataObjectInterface status, String message, String description, DBKeyInterface project, DBKeyInterface owner, String creation, String language, DBKeyInterface section, DataObjectInterface access){
 
         this();
         try{
@@ -68,7 +69,8 @@ public class Contract extends DataObject implements DataObjectInterface{
            data[8] = new ReferenceData(owner, columns[8].getTableReference());
            data[9] = new DateData(creation);
            data[10] = new StringData(language);
-           data[11] = new ConstantData(access.get__Id(), columns[11].getTableReference());
+           data[11] = new ReferenceData(section, columns[11].getTableReference());
+           data[12] = new ConstantData(access.get__Id(), columns[12].getTableReference());
 
            exists = true;
         }catch(BackOfficeException e){
@@ -276,16 +278,36 @@ public class Contract extends DataObject implements DataObjectInterface{
 
 
 
+    public DBKeyInterface getSectionId(){
+
+        ReferenceData data = (ReferenceData)this.data[11];
+        return data.value;
+    }
+
+    public DocumentSection getSection(){
+
+        ReferenceData data = (ReferenceData)this.data[11];
+        return new DocumentSection(new LookupByKey(data.value));
+    }
+
+    public void setSection(DBKeyInterface section){
+
+        ReferenceData data = (ReferenceData)this.data[11];
+        data.value = section;
+    }
+
+
+
     public userManagement.AccessRight getAccess(){
 
-        ConstantData data = (ConstantData)this.data[11];
+        ConstantData data = (ConstantData)this.data[12];
         return (userManagement.AccessRight)(new userManagement.AccessRightTable().getConstantValue(data.value));
 
     }
 
     public void setAccess(DataObjectInterface access){
 
-        ConstantData data = (ConstantData)this.data[11];
+        ConstantData data = (ConstantData)this.data[12];
         data.value = access.get__Id();
     }
 
@@ -425,7 +447,7 @@ public class Contract extends DataObject implements DataObjectInterface{
 
         services.DocumentService.invalidateDocumentCache(this, this.getProject());
 
-        return new DocumentDeleteOutcome(1, noInstances, noClauses, noFragments, noAnnotations, noClassifications, noFlags, noReferences, noKeywords, noIndices);
+        return new DocumentDeleteOutcome(1, noInstances, noClauses, noFragments, noAnnotations, noClassifications, noFlags, noReferences, noKeywords, noIndices, 0, 0);
 
     }
 

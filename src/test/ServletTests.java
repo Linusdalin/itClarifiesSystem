@@ -65,6 +65,9 @@ public class ServletTests extends PukkaTest{
 
     protected static void init(){
 
+        helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
+        helper.setUp();
+
 
         // Setup database
 
@@ -94,6 +97,9 @@ public class ServletTests extends PukkaTest{
             cache.store("DummyAdminToken",      "admin@2020-01-01 00:00:00#127.0.0.1", "");
             cache.store("DummySessionToken",    "demo@2020-01-01 00:00:00#127.0.0.1", "");
             cache.store("DummyEveToken",        "eve@2020-01-01 00:00:00#127.0.0.1", "");
+
+
+
 
         } catch (BackOfficeException e) {
 

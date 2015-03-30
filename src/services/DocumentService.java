@@ -773,13 +773,30 @@ public class DocumentService extends ItClarifiesService{
 
                     // First we check for a definition to defer
 
-                    if(classification.getPass() != Analyser.DEFERENCE_PASS &&  classification.getTag().equals("LeftColumn")){
+                    if(classification.getPass() != Analyser.DEFERENCE_PASS &&
+                            classification.getTag().equals("LeftColumn")){
 
-                        PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Deferring definition creation for fragment " + fragment.getName() + "(" + fragment.getOrdinal() + ") Left column");
-                        deference.defer( new NextFragment(classification, fragment) );
+
+                            if(isFirstRow(fragment)){
+
+                                PukkaLogger.log(PukkaLogger.Level.INFO, "*** Ignoring deferrence of definition creation for fragment " + fragment.getName() + "(" + fragment.getOrdinal() + ") First Row");
+
+                            }else{
+
+                                PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Deferring definition creation for fragment " + fragment.getName() + "(" + fragment.getOrdinal() + ") Left column");
+                                deference.defer( new NextFragment(classification, fragment) );
+
+                            }
+
 
                     }
                     else{
+
+                        // A deferred table definition should hold the definition text to recognize repeat usage.
+
+                        String definitionText = "";
+                        if(classification.getTag().equals("LeftColumn"))
+                            definitionText = fragment.getText();
 
                         PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating definition for fragment " + fragment.getName() +
                                 "(match: " + classification.getPattern().getText() + " tag: " + classification.getTag() +  ")");
@@ -789,7 +806,8 @@ public class DocumentService extends ItClarifiesService{
                                 fragment.getKey(),
                                 fragment.getOrdinal(),
                                 version.getKey(),
-                                project.getKey());
+                                project.getKey(),
+                                definitionText);
                         definition.store();
 
                         // Also add the definition to the active list of definitions. This will be needed for subsequent reanalyze of the project
@@ -1062,6 +1080,13 @@ public class DocumentService extends ItClarifiesService{
         return new NewAnalysisFeedback(classifications, references, annotations, risks);
     }
 
+    private boolean isFirstRow(ContractFragment fragment) {
+
+        if(fragment.getCellInfo() == null)
+            return false;
+
+        return(fragment.getCellInfo().row == 0);
+    }
 
 
     public static void main(String[] args){

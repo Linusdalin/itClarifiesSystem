@@ -297,7 +297,9 @@ public class FileUploadServlet extends DocumentService {
                                 if(document != null)
                                     oldVersion = document.getHeadVersion();
 
-                                ContractVersionInstance newVersion = handleUploadDocument(title, fileHandler, document, project, owner, accessRight, visibility);
+                                DocumentSection section = project.getDefaultSection();
+
+                                ContractVersionInstance newVersion = handleUploadDocument(title, fileHandler, document, project, owner, accessRight, section);
 
                                 // Document is uploaded. Update the status
 
@@ -412,12 +414,12 @@ public class FileUploadServlet extends DocumentService {
      * @param project
      * @param portalUser
      * @param accessRight
-     * @param visibility
+     * @param section
      * @throws pukkaBO.exceptions.BackOfficeException
      */
 
 
-    public ContractVersionInstance handleUploadDocument(String title, RepositoryFileHandler fileHandler, Contract document, Project project, PortalUser portalUser, AccessRight accessRight, Visibility visibility) throws BackOfficeException{
+    public ContractVersionInstance handleUploadDocument(String title, RepositoryFileHandler fileHandler, Contract document, Project project, PortalUser portalUser, AccessRight accessRight, DocumentSection section) throws BackOfficeException{
 
         ContractVersionInstance version;
 
@@ -426,7 +428,7 @@ public class FileUploadServlet extends DocumentService {
             PukkaLogger.log(PukkaLogger.Level.INFO, "Creating a new document in db: " + title);
 
             LanguageCode languageCode = new LanguageCode("unknown");
-            version = new ContractTable().addNewDocument(project, title, fileHandler, languageCode, portalUser, accessRight, visibility);
+            version = new ContractTable().addNewDocument(project, title, fileHandler, languageCode, portalUser, accessRight, section);
 
 
 

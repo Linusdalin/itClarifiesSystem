@@ -1,8 +1,13 @@
 package test.UnitTests;
 
 import backend.ReclassificationList;
+import diff.FragmentComparator;
+import log.PukkaLogger;
 import maintenance.Smokey;
+import org.apache.bcel.verifier.exc.AssertionViolatedException;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import reclassification.ReclassificationServlet;
 import test.ServletTests;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -15,6 +20,13 @@ import static org.junit.Assert.assertThat;
 
 public class ReclassificationTest extends ServletTests {
 
+
+    @BeforeClass
+    public static void preAmble(){
+
+        PukkaLogger.setLogLevel(PukkaLogger.Level.DEBUG);
+    }
+
     /******************************************************************
      *
      *
@@ -24,7 +36,7 @@ public class ReclassificationTest extends ServletTests {
 
 
     @Test
-    public void basicTest(){
+    public void splitStringTest(){
 
         String shortString      = "This is short";
         String shortStringOut      = "\"This is short\"";
@@ -49,5 +61,27 @@ public class ReclassificationTest extends ServletTests {
 
 
     }
+
+    @Test
+    public void locateFragmentMatchTest(){
+
+
+        String[][] examples = {
+                {"Lika som bär", "Lika som bär"},
+                {"Nästan samma text", "NästanSamma text"},
+                {"Escape&nbsp;chars&nbsp;are&nbsp;same", "Escape chars are same"},
+        };
+
+        FragmentComparator comparator = new FragmentComparator();
+
+
+        for(String[] example : examples){
+
+            assertVerbose("Matching: " + example[0] + " with " + example[1], comparator.isSame(example[0], example[1]), is(true));
+        }
+
+    }
+
+
 
 }

@@ -1,7 +1,6 @@
 package test.integrationTests;
 
-import backend.ItClarifies;
-import classification.ReclassificationTable;
+import reclassification.ReclassificationTable;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
@@ -14,15 +13,11 @@ import net.sf.json.JSONObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.*;
 import classification.ClassificationServlet;
 import test.MockWriter;
 import test.ServletTests;
 
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;

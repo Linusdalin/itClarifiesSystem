@@ -18,6 +18,7 @@ import org.apache.poi.POIXMLException;
 import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupByKey;
 import pukkaBO.condition.LookupItem;
+import pukkaBO.condition.ReferenceFilter;
 import pukkaBO.exceptions.BackOfficeException;
 import queue.AsynchAnalysis;
 import services.DocumentService;
@@ -261,7 +262,9 @@ public class UploadServlet extends DocumentService {
                         RepositoryInterface repository = new BlobRepository();
                         RepositoryFileHandler fileHandler = repository.saveFile(title, stream);
 
-                        ContractVersionInstance newVersion = handleUpload(title, fileHandler, document, project, portalUser, accessRight, visibility);
+                        DocumentSection section = project.getDefaultSection();
+
+                        ContractVersionInstance newVersion = handleUpload(title, fileHandler, document, project, portalUser, accessRight, section);
 
                         PukkaLogger.log(PukkaLogger.Level.INFO, "Analysing");
                         AsynchAnalysis analysisQueue = new AsynchAnalysis(sessionToken);
@@ -325,7 +328,7 @@ public class UploadServlet extends DocumentService {
      * @param project
      * @param portalUser
      * @param accessRight
-     * @param visibility
+     * @param section
 
      * @return
      * @throws BackOfficeException
@@ -338,7 +341,7 @@ public class UploadServlet extends DocumentService {
 
     public ContractVersionInstance handleUpload(String fileName, RepositoryFileHandler fileHandler, Contract document,
                                                 Project project, PortalUser portalUser,
-                                                AccessRight accessRight, Visibility visibility) throws BackOfficeException, AnalysisException, IOException{
+                                                AccessRight accessRight, DocumentSection section) throws BackOfficeException, AnalysisException, IOException{
 
         ContractVersionInstance version;
 
@@ -352,7 +355,7 @@ public class UploadServlet extends DocumentService {
             PukkaLogger.log(PukkaLogger.Level.INFO, "Adding new document in db");
 
             LanguageCode languageCode = Analyser.detectLanguage(fileName, docXManager.getBody());
-            version = new ContractTable().addNewDocument(project, fileName, fileHandler, languageCode, portalUser, accessRight, visibility);
+            version = new ContractTable().addNewDocument(project, fileName, fileHandler, languageCode, portalUser, accessRight, section);
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Fragmenting");
             fragmentDocument(fileName, version, docXManager);

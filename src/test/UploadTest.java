@@ -102,15 +102,16 @@ public class UploadTest extends ServletTests {
                 Project project = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), "Demo")));
                 PortalUser user = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "admin")));
                 AccessRight mockAccessRight = AccessRight.getro();
-                Visibility mockVisibility = Visibility.getOrg();
 
 
                 FileInputStream in = new FileInputStream(testDoc);
+                DocumentSection section = project.getDefaultSection();
+
 
                 // TODO: Store document in blob store here
 
                 ContractVersionInstance newVersion = new FileUploadServlet().handleUploadDocument(testDocumentTitle, new BlobRepository().getEmptyFileHandler(),
-                        null, project, user, mockAccessRight, mockVisibility);
+                        null, project, user, mockAccessRight, section);
 
                 assertThat("Version should exist", newVersion.exists(), is(true));
                 assertThat("Document name from uploaded file",  newVersion.getDocument().getName(), is(testDocumentTitle));

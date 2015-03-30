@@ -136,17 +136,6 @@
 
         if(table != null && (action.equals("list") || action.equals("update") || action.equals("add"))){
 
-            int totalItems = 0;
-
-            try{
-
-
-                totalItems = table.getCount(new LookupList());
-            }
-            catch(BackOfficeException e){
-
-                e.swallow("In Table Page");
-            }
 
             %>
 
@@ -165,7 +154,7 @@
 
                             // Load from database with default sorting
                             table.loadFromDatabase(new LookupList().addSorting(new Sorting(table.getColumns()[ table.getNameColumn() ].getName(), Ordering.FIRST )));
-
+                            int totalItems = table.getCount();
                             if(renderer.getTableAccess(adminUser, table, displayBrand, acsSystem, loginMethod)){
 
                                 //TODO: Not implemented Read Only. Enforce ReadOnly access to tables by using "hasEdit"

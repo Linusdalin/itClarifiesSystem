@@ -1,7 +1,7 @@
 package backend;
 
-import classification.Reclassification;
-import classification.ReclassificationTable;
+import reclassification.Reclassification;
+import reclassification.ReclassificationTable;
 import com.google.appengine.api.datastore.Query;
 import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
@@ -16,8 +16,6 @@ import pukkaBO.backOffice.Icon;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
 import pukkaBO.form.DateField;
-import pukkaBO.form.FormFieldInterface;
-import pukkaBO.form.FormInterface;
 import pukkaBO.list.*;
 import pukkaBO.renderer.GroupListRenderer;
 import pukkaBO.renderer.ListRendererInterface;
@@ -167,7 +165,7 @@ public class ReclassificationList extends GroupByList implements ListInterface{
                     reclassification.setClosed(true);
                     reclassification.update();
 
-                    return "Closed item " + reclassification.getName();
+                    return "Closed classification " + reclassification.getClassification();
 
                 case Callback_Action_Reopen:
 
@@ -176,7 +174,7 @@ public class ReclassificationList extends GroupByList implements ListInterface{
                     reclassification.update();
                     System.out.println("*** Closed");
 
-                    return "Reopened " + reclassification.getName();
+                    return "Reopened " + reclassification.getClassification();
 
             }
 
@@ -195,12 +193,11 @@ public class ReclassificationList extends GroupByList implements ListInterface{
         try {
 
             StringBuilder docView = new StringBuilder();
-            PortalUser submitter = reclassification.getUser();
-            Organization organization = submitter.getOrganization();
-            Contract document = reclassification.getDocument();
+            String submitterName = reclassification.getUser();
+            String documentName = reclassification.getDocument();
 
-            docView.append(Html.heading(2, reclassification.getName().toLowerCase()));
-            docView.append(Html.paragraph("submitted by: " + reclassification.getUser().getName() + "( " + organization.getName() + ")" ));
+            docView.append(Html.heading(2, reclassification.getClassification().toLowerCase()));
+            docView.append(Html.paragraph("submitted by: " + reclassification.getUser() ));
 
             if(reclassification.getClosed())
                 docView.append(Html.paragraph(Html.link("?id="+reclassification.getKey().toString()+"&list=" + name + "&action=Item&callbackAction=" + Callback_Action_Reopen + "&section=" + section, "Reopen")));
@@ -211,8 +208,8 @@ public class ReclassificationList extends GroupByList implements ListInterface{
 
             docView.append("<pre style=\"font:Courier;\">");
 
-            docView.append(getTestFile(document, reclassification.getClassTag()));
-            docView.append(getAllTrasposures(document, document.getProject()));
+            docView.append(getTestFile(documentName, reclassification.getClassification()));
+            //docView.append(getAllTrasposures(document, document.getProject()));
 
             docView.append("</pre>");
 
@@ -221,17 +218,20 @@ public class ReclassificationList extends GroupByList implements ListInterface{
         } catch (Exception e) {
 
             e.printStackTrace(System.out);
-            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not generate view of reclassification " + reclassification.getName());
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not generate view of reclassification " + reclassification.getClassification());
             return "No document view could be generated";
         }
 
     }
 
-    private String getTestFile(Contract document, String tag) {
+    private String getTestFile(String documentName, String tag) {
 
         StringBuilder html = new StringBuilder();
 
         html.append(Html.heading(3, "Code example for testing this:\n\n"));
+
+        Contract document = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.File.name(), documentName)));
+
 
         html.append("    /***********************************************************\n");
         html.append("     *\n");
@@ -246,12 +246,12 @@ public class ReclassificationList extends GroupByList implements ListInterface{
 
         ReclassificationTable reclassificationForDocument = new ReclassificationTable(new LookupList()
                 .addFilter(new ReferenceFilter(ReclassificationTable.Columns.Document.name(), document.getKey()))
-                .addFilter(new ColumnFilter(ReclassificationTable.Columns.ClassTag.name(), tag)));
+                .addFilter(new ColumnFilter(ReclassificationTable.Columns.Classification.name(), tag)));
 
         for (DataObjectInterface object : reclassificationForDocument.getValues()) {
 
             Reclassification reclassification = (Reclassification)object;
-            html.append(getTestcaseForExample(reclassification));
+            html.append(getTestcaseForExample(reclassification, document));
         }
 
 
@@ -268,10 +268,9 @@ public class ReclassificationList extends GroupByList implements ListInterface{
 
 
 
-    private String getTestcaseForExample(Reclassification reclassification) {
+    private String getTestcaseForExample(Reclassification reclassification, Contract document) {
 
         StringBuilder html = new StringBuilder();
-        Contract document = reclassification.getDocument();
         Project project = document.getProject();
         String languageCode = document.getLanguage();
 
@@ -283,20 +282,13 @@ public class ReclassificationList extends GroupByList implements ListInterface{
 
 
 
-        String classificationType = reclassification.getClassTag().replaceAll("#", "");
+        String classificationType = reclassification.getClassification().replaceAll("#", "");
         classificationType = classificationType.substring(0, 1) + classificationType.substring(1).toLowerCase();
 
-        String classificationDate;
 
-        try {
-            classificationDate = reclassification.getDate().getISODate();
-        } catch (BackOfficeException e) {
-            classificationDate = "unknown";
-        }
-
-        String fileName = reclassification.getDocument().getFile();
+        String fileName = reclassification.getDocument();
         String body = reclassification.getFragment().replaceAll("\n", "&#92;n").replaceAll("\"", "&#92;\"");
-        String headline = reclassification.getHeadline().replaceAll("\n", "&#92;n").replaceAll("\"", "&#92;\"");
+        //String headline = reclassification.getHeadline().replaceAll("\n", "&#92;n").replaceAll("\"", "&#92;\"");
 
         //versionName = new String(version.getVersion().getBytes(), "ISO-8859-1");
         try {
@@ -313,15 +305,16 @@ public class ReclassificationList extends GroupByList implements ListInterface{
         html.append(
                 "               new ClassificationTester("+ asSplitString(body, 45 )+")\n" +
                 "                        .withParser("+ parser +")\n" +
-                "                        .withHeadline(\""+ headline +"\")\n" +
+                "                        .withHeadline(\" add headline...\")\n" +
                 "                        .withProject(mockProject, mockDocument)\n" +
                 "                        .withClassifier(new NumberClassifier"+ languageCode+"())\n"+
                 "                        .withClassifier(new DefinitionUsageClassifier"+ languageCode+"())\n"+
                 "                        .withClassifier(new "+classificationType+ "Classifier"+ languageCode+"())\n");
-        if(reclassification.getisPositive()){
+        if(reclassification.getAdd()){
 
             html.append("                        .expectingClassification(new ClassificationAssertion(FeatureTypeTree."+ classificationType+", 1)\n");
-            html.append("                            .withTag(\""+ reclassification.getComment()+"\")\n");
+            html.append("                            .withPattern(\"...\")\n");
+            html.append("                            .withTag(\"...\")\n");
         }
         else{
 
@@ -334,47 +327,6 @@ public class ReclassificationList extends GroupByList implements ListInterface{
 
         return html.toString();
 
-    }
-
-    private String getAllTrasposures(Contract document, Project project){
-
-        StringBuilder html = new StringBuilder();
-        String fileName = document.getFile();
-
-
-
-        html.append("    /***********************************************************\n");
-        html.append("     *\n");
-        html.append("     *      Regeneration of risk, comment and annotation\n");
-        html.append("     *         Project:  "+ project.getName() +"\n");
-        html.append("     *\n");
-        html.append("     */\n");
-
-        html.append("    private static final DemoComment[] documentCommentList = {\n\n");
-
-            ReclassificationTable reclassificationForDocument = new ReclassificationTable(new LookupList()
-                    .addFilter(new ColumnFilter(ReclassificationTable.Columns.Closed.name(), false))
-                    .addFilter(new ReferenceFilter(ReclassificationTable.Columns.Document.name(), document.getKey())));
-
-            for (DataObjectInterface object : reclassificationForDocument.getValues()) {
-
-                Reclassification reclassification = (Reclassification)object;
-                String theBody = reclassification.getFragment().replaceAll("\n", "&#92;n").replaceAll("\"", "&#92;\"");
-
-                html.append(        "            new DemoComment(\""+reclassification.getClassTag()+"\", 0, 0, \""+fileName+"\", "+ reclassification.getFragmentNo()+",\n" +
-                                    "                            \""+ theBody + "\",\n" +
-                                    "                            \"" + reclassification.getRiskLevel().getName()+"\", \""+ reclassification.getPattern()+"\", \""+
-                                                                 reclassification.getComment()+"\", \""+
-                                                                 reclassification.getUser().getName()+"\"),\n\n");
-
-            }
-
-
-
-        html.append("    };\n");
-        html.append("\n");
-
-        return html.toString();
     }
 
 

@@ -46,9 +46,7 @@ import static org.mockito.Mockito.when;
 public class ClassificationOverviewTest extends ServletTests {
 
 
-    private static LocalServiceTestHelper helper;
-    private static HttpServletRequest request;
-    private static HttpServletResponse response;
+    //private static LocalServiceTestHelper helper;
 
 
     @AfterClass
@@ -61,30 +59,9 @@ public class ClassificationOverviewTest extends ServletTests {
     @BeforeClass
     public static void preAmble(){
 
-        helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
-        helper.setUp();
+        init();
 
 
-
-        try {
-
-            BackOfficeInterface bo;
-
-            bo = new ItClarifies();
-            bo.createDb();
-            bo.populateValues(true);
-
-            PukkaLogger.setLogLevel(PukkaLogger.Level.DEBUG);
-
-
-            request = mock(HttpServletRequest.class);
-            response = mock(HttpServletResponse.class);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            assertTrue(false);
-        }
 
     }
 

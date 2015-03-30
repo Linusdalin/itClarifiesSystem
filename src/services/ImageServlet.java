@@ -78,9 +78,14 @@ public class ImageServlet extends ItClarifiesService{
             else{
 
                 DBKeyInterface _document    = getMandatoryKey("document", req);
-                ContractVersionInstance version = new ContractVersionInstance(new LookupByKey(_document));
+                //ContractVersionInstance version = new ContractVersionInstance(new LookupByKey(_document));
+                Contract document = new Contract(new LookupByKey(_document));
 
-                if(!version.exists()){
+                //Changed this to document from version. Client side only has the document key
+
+
+                //if(!version.exists()){
+                if(!document.exists()){
 
                     PukkaLogger.log(PukkaLogger.Level.WARNING, "Access Error. Document version with key "+ _document + " does not exist");
                     imageFileName = DefaultImage;
@@ -88,7 +93,7 @@ public class ImageServlet extends ItClarifiesService{
                 }
                 else {
 
-                    Contract document = version.getDocument();
+                    //Contract document = version.getDocument();
                     if(!sessionManagement.getReadAccess(document)){
 
                         PukkaLogger.log(PukkaLogger.Level.WARNING, "Access Error. No read access to document "+ document.getName()+" for user. Serving default image");

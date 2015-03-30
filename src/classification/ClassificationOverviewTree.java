@@ -111,7 +111,16 @@ public class ClassificationOverviewTree {
 
                                             new ClassificationOverviewNode(FeatureTypeTree.Preconditions, LEAF),
                                             new ClassificationOverviewNode(FeatureTypeTree.SupportMaint, LEAF),
-                                            new ClassificationOverviewNode(FeatureTypeTree.SolutionReq, LEAF),
+                                            new ClassificationOverviewNode(FeatureTypeTree.SolutionReq, new ClassificationOverviewNode[]{
+
+                                                    new ClassificationOverviewNode(FeatureTypeTree.SLA, new ClassificationOverviewNode[]{
+
+                                                            new ClassificationOverviewNode(FeatureTypeTree.Delays, LEAF),
+                                                            new ClassificationOverviewNode(FeatureTypeTree.Defects, LEAF),
+                                                            new ClassificationOverviewNode(FeatureTypeTree.BusinessContinuity, LEAF),
+
+                                                    }),
+                                            }),
                                             new ClassificationOverviewNode(FeatureTypeTree.Delivery, LEAF),
 
                                     }),
@@ -124,29 +133,24 @@ public class ClassificationOverviewTree {
                                             new ClassificationOverviewNode(FeatureTypeTree.Subcontractors, LEAF),
 
                                     }),
-                                    new ClassificationOverviewNode(FeatureTypeTree.SLA, new ClassificationOverviewNode[]{
-
-                                            new ClassificationOverviewNode(FeatureTypeTree.Delays, LEAF),
-                                            new ClassificationOverviewNode(FeatureTypeTree.Defects, LEAF),
-                                            new ClassificationOverviewNode(FeatureTypeTree.BusinessContinuity, LEAF),
-
-                                    }),
                                     new ClassificationOverviewNode(FeatureTypeTree.Acceptance, new ClassificationOverviewNode[]{
 
                                             new ClassificationOverviewNode(FeatureTypeTree.AcceptanceCriteria, LEAF),
 
                                     }),
 
+                                    new ClassificationOverviewNode(FeatureTypeTree.RiskMgmnt, new ClassificationOverviewNode[]{
+
+                                            new ClassificationOverviewNode(FeatureTypeTree.Security, LEAF),
+                                    }),
+
+
+
+
                             }),
 
 
                     }),
-
-                    new ClassificationOverviewNode(FeatureTypeTree.RiskMgmnt, new ClassificationOverviewNode[]{
-
-                            new ClassificationOverviewNode(FeatureTypeTree.Security, LEAF),
-                    }),
-
 
 
 

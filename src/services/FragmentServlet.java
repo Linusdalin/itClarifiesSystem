@@ -405,7 +405,7 @@ public class FragmentServlet extends ItClarifiesService{
                     .put("risk",            "" + fragment.getRisk().getId())
                     .put("display",         getDisplayInfo(fragment))
                     .put("checklist",       getChecklistReferences(fragment, checklistItemsInProject))
-                    .put("images",           fragment.getImage())
+                    .put("images",          fragment.getImage())
                 ;
 
 
@@ -477,14 +477,22 @@ public class FragmentServlet extends ItClarifiesService{
 
         for (Reference reference : references) {
 
-            if(reference.getFromId().equals(fragment.getKey()))
+            if(reference.getFromId() != null && reference.getFromId().equals(fragment.getKey())){
+
+                String toKey = "-empty-";
+                if(reference.getToId() != null)
+                    toKey = reference.getToId().toString();
+
                 refrenceJSON.put(new JSONObject()
-                        .put("to", reference.getToId().toString())
+                        .put("to", toKey)
                         .put("pattern", reference.getPattern())
                         .put("pos", reference.getPatternPos())
                         .put("type", reference.getType().getName())
 
                 );
+
+            }
+
         }
 
 
@@ -497,7 +505,7 @@ public class FragmentServlet extends ItClarifiesService{
 
         for (Reference reference : references) {
 
-            if(reference.getToId().equals(fragment.getKey()))
+            if(reference.getToId() != null && reference.getToId().equals(fragment.getKey()))
                 refrenceJSON.put(new JSONObject()
                         .put("from", reference.getFromId().toString())
                         .put("type", reference.getType().getName())

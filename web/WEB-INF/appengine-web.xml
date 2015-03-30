@@ -1,11 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
-  <application>itclarifiesapistage</application>
-   <version>2-0-2</version>
-  <threadsafe>true</threadsafe>
+
+    <application>itclarifiesapistage</application>
+    <module>default</module>
+    <version>2-1-2</version>
+    <threadsafe>true</threadsafe>
+    <instance-class>F4</instance-class>
+    <automatic-scaling>
+        <min-idle-instances>1</min-idle-instances>
+        <!-- ‘automatic’ is the default value. -->
+        <max-idle-instances>automatic</max-idle-instances>
+        <!-- ‘automatic’ is the default value. -->
+        <min-pending-latency>automatic</min-pending-latency>
+        <max-pending-latency>200ms</max-pending-latency>
+        <max-concurrent-requests>50</max-concurrent-requests>
+    </automatic-scaling>
+
 
     <system-properties>
-      <property name="java.util.logging.config.file" value="WEB-INF/log4j.properties"/>
+        <property name="java.util.logging.config.file" value="WEB-INF/log4j.properties"/>
     </system-properties>
 
 
@@ -46,6 +59,9 @@
                     2-0-0           First release candidate for Release-1
                     2-0-1           Canonical delete definitions, analysis improvements
                     2-0-2:          Image fixes, document references, table cells (colour, span etc), text (sup/sub)
+                    2-1-0:          Analysis and cross reference improvements, Project Spring fixes
+                    2-1-1:          Fragment merge, improvements on definitions
+                    2-1-2:          Lift/sweep/back
       -->
 
 </appengine-web-app>

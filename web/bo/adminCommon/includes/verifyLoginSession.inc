@@ -2,6 +2,7 @@
 <%@ page import="pukkaBO.acs.ACS_LoginMethod" %>
 <%@ page import="pukkaBO.acs.ACS_LoginMethodTable" %>
 <%@ page import="pukkaBO.acs.SSOLoginInterface" %>
+<%@ page import="log.PukkaLogger" %>
 
 <jsp:useBean id="cookieManager" scope="session" class="pukkaBO.acs.CookieBean"/>
 <jsp:useBean id="acsSystem" scope="session" class="pukkaBO.acs.AccessControlSystem"/>
@@ -79,7 +80,18 @@
 
         String ipAddress = request.getRemoteAddr();
 
-        adminUser = acsSystem.login(loginUsername, loginPassword, ACS_LoginMethod.getPassword(), ipAddress, backOffice);
+        ACS_LoginMethod method;
+
+        try{
+
+            method = ACS_LoginMethod.getPassword();
+            adminUser = acsSystem.login(loginUsername, loginPassword, method, ipAddress, backOffice);
+
+        }catch(Exception e){
+
+            PukkaLogger.log( e );
+        }
+
 
         if(adminUser == null){
 

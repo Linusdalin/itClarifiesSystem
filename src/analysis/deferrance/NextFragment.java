@@ -33,6 +33,7 @@ public class NextFragment extends DeferredAction implements DeferenceInterface {
     public boolean triggers( ContractFragment activeFragment ) {
 
         System.out.println("*** Deference NextFragment: Testing trigger for fragment " + activeFragment.getOrdinal() + " against " + fragment.getOrdinal());
+
         return (activeFragment.getOrdinal() == fragment.getOrdinal() + 1);
     }
 }

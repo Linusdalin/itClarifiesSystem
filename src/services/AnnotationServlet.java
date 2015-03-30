@@ -8,6 +8,7 @@ import net.sf.json.JSONObject;
 import pukkaBO.condition.LookupByKey;
 
 import pukkaBO.exceptions.BackOfficeException;
+import reclassification.Reannotation;
 import userManagement.PortalUser;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -104,7 +105,13 @@ public class AnnotationServlet extends ItClarifiesService{
                 fragment.setAnnotationCount(getAnnotationCount(fragment));
                 fragment.update();
 
-                //PukkaLogger.log(PukkaLogger.Level.INFO, "Annotation count(3):" + getAnnotationCount(fragment));
+                // Store a log entry
+
+                Reannotation logEntry = new Reannotation(annotationBody, true, now.getISODate(), document.getProject().getName(),
+                        document.getName(), fragment.getOrdinal(), fragment.getText(), pattern, 0, creator.getName(),  false);
+
+                logEntry.store();
+
 
             }
             else{
@@ -214,21 +221,28 @@ public class AnnotationServlet extends ItClarifiesService{
                 return;
 
             Formatter formatter = getFormatFromParameters(req);
+            DBTimeStamp now = new DBTimeStamp();
 
             // Update the annotation count in the fragment
 
             ContractFragment fragment = annotation.getFragment();
+            ContractVersionInstance version = annotation.getVersion();
+            Contract document = version.getDocument();
             fragment.setAnnotationCount(getAnnotationCount(fragment) - 1);
             fragment.update();
+
+            // Store a log entry
+
+            Reannotation logEntry = new Reannotation(annotation.getDescription(), false, now.getISODate(), document.getProject().getName(),
+                    document.getName(), fragment.getOrdinal(), fragment.getText(), annotation.getPattern(), annotation.getPatternPos(), sessionManagement.getUser().getName(),  false);
+
+            logEntry.store();
 
             // Now delete
 
             new ContractAnnotationTable().deleteItem( annotation );
 
-
             //Clear the fragment cache
-            ContractVersionInstance version = annotation.getVersion();
-            Contract document = version.getDocument();
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Clearing cache for document " + document.getName() + " after deleting annotation");
             invalidateFragmentCache(annotation.getVersion());

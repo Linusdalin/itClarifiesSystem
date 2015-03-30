@@ -64,7 +64,7 @@ public class DefinitionList extends GroupByList implements ListInterface{
             add(new ListTableColumn( 1, table ).withNameFromTableColumn().withFormat(new DisplayFormat(DisplayFormat.SMALL)));
             add(new ListTableColumn( 2, table ).withNameFromTableColumn().withFormat(new DisplayFormat(DisplayFormat.WIDE)));
             add(new ListTableColumn( 3, table ).withNameFromTableColumn());
-            //add(new ListTableColumn( 4, table ).withNameFromTableColumn());
+            add(new ListTableColumn( 6, table ).withNameFromTableColumn());
 
         }};
 

@@ -1,19 +1,13 @@
 package classification;
 
 import analysis.Significance;
-import classification.FragmentClass;
-import classification.FragmentClassification;
-import classification.FragmentClassificationTable;
-import classification.Reclassification;
 import classifiers.ClassifierInterface;
 import com.google.appengine.api.datastore.Query;
 import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
 import databaseLayer.DBKeyInterface;
-import featureTypes.FeatureType;
 import featureTypes.FeatureTypeInterface;
 import featureTypes.FeatureTypeTree;
-import language.Language;
 import language.LanguageAnalyser;
 import language.LanguageCode;
 import language.LanguageInterface;
@@ -23,6 +17,8 @@ import net.sf.json.JSONObject;
 import pukkaBO.condition.*;
 
 import pukkaBO.exceptions.BackOfficeException;
+import reclassification.Reclassification;
+import reclassification.ReclassificationTable;
 import services.DocumentService;
 import services.Formatter;
 import userManagement.Organization;
@@ -106,6 +102,7 @@ public class ClassificationServlet extends DocumentService {
 
             Organization organization = classifier.getOrganization();
 
+            Project project = document.getProject();
 
             LanguageCode documentLanguage = new LanguageCode(document.getLanguage());
             LanguageInterface languageForDocument = new LanguageAnalyser().getLanguage(documentLanguage);
@@ -156,21 +153,18 @@ public class ClassificationServlet extends DocumentService {
             if(headline.exists())
                 headlineText = headline.getFragmentForStructureItem().getText();
 
+
             Reclassification reclassification = new Reclassification(
-                    name,
-                    isPositiveClassification,
-                    classifier.getKey(),
-                    fragment.getText(),
-                    headlineText,
-                    fragment.getOrdinal(),
-                    pattern,
-                    comment,
                     tagName,                    // Using the name here for code generation
-                    0,
-                    0,
-                    fragment.getRisk(),
-                    document.getKey(),
+                    isPositiveClassification,
                     now.getISODate(),
+                    project.getName(),
+                    document.getName(),
+                    fragment.getOrdinal(),
+                    fragment.getText(),
+                    pattern,
+                    -1,
+                    classifier.getName(),
                     false);
 
             reclassification.store();
@@ -372,29 +366,41 @@ public class ClassificationServlet extends DocumentService {
             if(!mandatoryObjectExists(classification, resp))
                 return;
 
+            Contract document = classification.getVersion().getDocument();
+
+            if(!mandatoryObjectExists(document, resp))
+                return;
+
+            Project project = document.getProject();
+
             DBTimeStamp now = new DBTimeStamp();
 
             if(classification.getCreatorId().equals(PortalUser.getSystemUser().getKey())){
 
                 // We are removing a system classification. Apparently the user did not agree
 
-                ContractFragment headline = fragment.getStructureItem().getFragmentForStructureItem();
+                //ContractFragment headline = fragment.getStructureItem().getFragmentForStructureItem();
+
+                String headlineText = "...";
+                if(fragment.getStructureItem() != null){
+
+                    headlineText = fragment.getStructureItem().getFragmentForStructureItem().getText();
+                }
 
                 Reclassification reclassification = new Reclassification(
-                        "delete@ " + now.getISODate(),
+                        classification.getClassTag(),                    // Using the name here for code generation
                         false,
-                        sessionManagement.getUser().getKey(),
-                        fragment.getText(),
-                        headline.getText(),
-                        fragment.getOrdinal(),
-                        classification.getPattern(),
-                        classification.getComment(),
-                        classification.getClassTag(),
-                        0, 0,
-                        fragment.getRisk(),
-                        fragment.getVersion().getDocumentId(),
                         now.getISODate(),
+                        project.getName(),
+                        document.getName(),
+                        fragment.getOrdinal(),
+                        fragment.getText(),
+                        classification.getPattern(),
+                        -1,
+                        sessionManagement.getUser().getName(),
                         false);
+
+
 
                 reclassification.store();
 
@@ -406,7 +412,7 @@ public class ClassificationServlet extends DocumentService {
 
                 Reclassification reclassificationToDelete = new Reclassification(new LookupItem()
                         .addFilter(new ReferenceFilter(ReclassificationTable.Columns.Document.name(), version.getDocumentId()))
-                        .addFilter(new ColumnFilter(ReclassificationTable.Columns.ClassTag.name(), classification.getClassTag()))
+                        .addFilter(new ColumnFilter(ReclassificationTable.Columns.Classification.name(), classification.getClassTag()))
                         .addFilter(new ColumnFilter(ReclassificationTable.Columns.FragmentNo.name(), fragment.getOrdinal())));
 
                 if(reclassificationToDelete.exists()){

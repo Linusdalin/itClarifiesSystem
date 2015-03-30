@@ -115,10 +115,12 @@ public class ReplaceDocumentTest extends ServletTests{
             Project project = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), "Demo")));
             PortalUser creator = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "demo")));
             AccessRight accessRight = AccessRight.getrwd();
+            DocumentSection section = project.getDefaultSection();
+
             Visibility visibility = Visibility.getPrivate();
             String name = "TestDoc";  // Replacing the existing document
 
-            ContractVersionInstance initialVersion = contractTable.addNewDocument(project, name, new BlobRepository().getEmptyFileHandler(), new LanguageCode("EN"), creator, accessRight, visibility);
+            ContractVersionInstance initialVersion = contractTable.addNewDocument(project, name, new BlobRepository().getEmptyFileHandler(), new LanguageCode("EN"), creator, accessRight, section);
 
             assertThat(initialVersion.getVersion(), is("TestDoc_v1"));
 

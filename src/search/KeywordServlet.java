@@ -203,6 +203,10 @@ public class KeywordServlet extends ItClarifiesService {
 
             for(Keyword keyword : keywordsForProject){
 
+                //TODO: Make sure these are not generated as keywords.
+                if(keyword.getKeyword().contains("{"))
+                    continue;
+
                 keywordList.put(new JSONObject()
                         .put("keyword",  keyword.getKeyword())
                         .put("document", keyword.getDocumentId().toString()));

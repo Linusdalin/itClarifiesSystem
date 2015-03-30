@@ -10,6 +10,7 @@ import net.sf.json.JSONObject;
 import pukkaBO.condition.*;
 
 import pukkaBO.exceptions.BackOfficeException;
+import reclassification.Rerisk;
 import services.DocumentService;
 import services.Formatter;
 import userManagement.PortalUser;
@@ -59,7 +60,7 @@ public class RiskFlagServlet extends DocumentService {
             Formatter formatter = getFormatFromParameters(req);
 
             DBKeyInterface key               = getMandatoryKey("fragment", req);
-            long _risk                      = getMandatorylong("risk", req);
+            long _risk                       = getMandatorylong("risk", req);
 
             String comment                   = getOptionalString("comment", req, "");
             String pattern                   = getOptionalString("pattern", req, "");
@@ -122,6 +123,23 @@ public class RiskFlagServlet extends DocumentService {
 
             fragment.setRisk(risk);
             fragment.update();
+
+            // And store the change in the log
+
+            Rerisk logEntry = new Rerisk(
+                    risk.getName(),
+                    now.getISODate(),
+                    document.getProject().getName(),
+                    document.getName(),
+                    fragment.getOrdinal(),
+                    fragment.getText(),
+                    pattern,
+                    patternPos,
+                    classifier.getName(),
+                    false);
+
+            logEntry.store();
+
 
             invalidateFragmentCache(version);
 

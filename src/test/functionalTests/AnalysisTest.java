@@ -8,6 +8,7 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import contractManagement.Contract;
 import contractManagement.ContractFragment;
 import contractManagement.ContractVersionInstance;
+import contractManagement.DocumentSection;
 import fileHandling.BlobRepository;
 import fileHandling.FileUploadServlet;
 import fileHandling.RepositoryFileHandler;
@@ -77,7 +78,6 @@ public class AnalysisTest  extends ServletTests {
             String filename = "Functional Test Test Document.docx";
             FileInputStream stream = new FileInputStream(new File(filename));
 
-            Visibility visibility = Visibility.getOrg();
             AccessRight accessRight = AccessRight.getrwd();
 
             // Create new document
@@ -89,8 +89,10 @@ public class AnalysisTest  extends ServletTests {
             RepositoryFileHandler fileHandler = repository.saveFile("Test File", stream);
 
             FileUploadServlet uploadServlet = new FileUploadServlet();
+            DocumentSection section = demoProject.getDefaultSection();
 
-            ContractVersionInstance newVersion = uploadServlet.handleUploadDocument(filename, fileHandler, document, demoProject, adminUser, accessRight, visibility);
+            ContractVersionInstance newVersion = uploadServlet.handleUploadDocument(filename, fileHandler, document, demoProject, adminUser, accessRight, section);
+
 
             AnalysisServlet servlet = new AnalysisServlet();
             servlet.setModelDirectory("web/models");

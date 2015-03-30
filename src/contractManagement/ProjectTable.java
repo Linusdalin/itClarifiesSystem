@@ -8,6 +8,7 @@ import versioning.*;
 import actions.*;
 import search.*;
 import crossReference.*;
+import reclassification.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
@@ -34,7 +35,7 @@ public class ProjectTable extends DataTable implements DataTableInterface{
     public static final String TABLE = "Project";
     private static final String DESCRIPTION = "A group of documents that are analyzed together";
 
-    public enum Columns {Name, Description, Creator, Organization, CreationTime, Access, }
+    public enum Columns {Name, Description, Creator, Organization, CreationTime, Type, Access, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
@@ -43,7 +44,8 @@ public class ProjectTable extends DataTable implements DataTableInterface{
             new ReferenceColumn("Creator", DataColumn.noFormatting, new TableReference("PortalUser", "Name")),
             new ReferenceColumn("Organization", DataColumn.noFormatting, new TableReference("Organization", "Name")),
             new TimeStampColumn("CreationTime", DataColumn.noFormatting),
-            new StringColumn("Access", DataColumn.noFormatting),
+            new ConstantColumn("Type", DataColumn.noFormatting, new TableReference("ProjectType", "Name")).setDefaultValue(new ImplicitValue( "null" )),
+            new ConstantColumn("Access", DataColumn.noFormatting, new TableReference("AccessRight", "Name")),
     };
 
     private static final Project associatedObject = new Project();
@@ -76,8 +78,8 @@ public class ProjectTable extends DataTable implements DataTableInterface{
     };
     private static final String[][] TestValues = {
 
-          {"Demo", "Test project", "admin", "demo.org", "2014-02-01", "Not used", "system"},
-          {"Evil proj", "Test project", "eve", "evil.org", "2014-02-01", "Not used", "system"},
+          {"Demo", "Test project", "admin", "demo.org", "2014-02-01", "Contracting", "rwd", "system"},
+          {"Evil proj", "Test project", "eve", "evil.org", "2014-02-01", "Generic", "rwd", "system"},
 
 
 

@@ -8,6 +8,7 @@ import versioning.*;
 import actions.*;
 import search.*;
 import crossReference.*;
+import reclassification.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
@@ -42,13 +43,13 @@ public class Definition extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public Definition(String name, DataObjectInterface definedin, long fragmentno, DataObjectInterface version, DataObjectInterface project) throws BackOfficeException{
+    public Definition(String name, DataObjectInterface definedin, long fragmentno, DataObjectInterface version, DataObjectInterface project, String definition) throws BackOfficeException{
 
-        this(name, definedin.getKey(), fragmentno, version.getKey(), project.getKey());
+        this(name, definedin.getKey(), fragmentno, version.getKey(), project.getKey(), definition);
     }
 
 
-    public Definition(String name, DBKeyInterface definedin, long fragmentno, DBKeyInterface version, DBKeyInterface project){
+    public Definition(String name, DBKeyInterface definedin, long fragmentno, DBKeyInterface version, DBKeyInterface project, String definition){
 
         this();
         try{
@@ -62,6 +63,7 @@ public class Definition extends DataObject implements DataObjectInterface{
            data[2] = new IntData(fragmentno);
            data[3] = new ReferenceData(version, columns[3].getTableReference());
            data[4] = new ReferenceData(project, columns[4].getTableReference());
+           data[5] = new TextData(definition);
 
            exists = true;
         }catch(BackOfficeException e){
@@ -185,6 +187,20 @@ public class Definition extends DataObject implements DataObjectInterface{
 
         ReferenceData data = (ReferenceData)this.data[4];
         data.value = project;
+    }
+
+
+
+    public String getDefinition(){
+
+        TextData data = (TextData) this.data[5];
+        return data.getStringValue();
+    }
+
+    public void setDefinition(String definition){
+
+        TextData data = (TextData) this.data[5];
+        data.setStringValue(definition);
     }
 
 

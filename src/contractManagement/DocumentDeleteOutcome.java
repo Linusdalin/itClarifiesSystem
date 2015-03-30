@@ -19,8 +19,10 @@ public class DocumentDeleteOutcome {
     public int references = 0;
     public int keywords = 0;
     public int indices = 0;
+    public int checklists;
+    public int checklistItems;
 
-    DocumentDeleteOutcome(int documents, int versions, int clauses, int fragments, int annotations, int classifications, int riskFlags, int references, int keywords, int indices){
+    DocumentDeleteOutcome(int documents, int versions, int clauses, int fragments, int annotations, int classifications, int riskFlags, int references, int keywords, int indices, int checklists, int checklistItems){
 
         this.documents = documents;
         this.versions = versions;
@@ -32,6 +34,8 @@ public class DocumentDeleteOutcome {
         this.references = references;
         this.keywords = keywords;
         this.indices = indices;
+        this.checklists = checklists;
+        this.checklistItems = checklistItems;
     }
 
     public DocumentDeleteOutcome() {
@@ -50,5 +54,7 @@ public class DocumentDeleteOutcome {
         references      += more.references;
         keywords        += more.keywords;
         indices         += more.indices;
+        checklists      += more.checklists;
+        checklistItems += more.checklistItems;
     }
 }

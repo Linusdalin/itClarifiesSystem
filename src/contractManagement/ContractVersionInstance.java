@@ -8,6 +8,7 @@ import versioning.*;
 import actions.*;
 import search.*;
 import crossReference.*;
+import reclassification.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
@@ -313,7 +314,14 @@ public class ContractVersionInstance extends DataObject implements DataObjectInt
         List<document.AbstractDefinition> abstractDefinitions = new java.util.ArrayList<document.AbstractDefinition>();
         for(Definition definition : definitions){
 
-            abstractDefinitions.add(new document.AbstractDefinition(definition.getName(), (int)definition.getFragmentNo()));
+            document.AbstractDefinition aDefinition = new document.AbstractDefinition(definition.getName(), (int)definition.getFragmentNo());
+
+            // If there is an actual definition text extracted for this definition, add it
+
+            if(definition.getDefinition() != null && !definition.getDefinition().equals(""))
+                aDefinition.withDefinition(definition.getDefinition());
+
+            abstractDefinitions.add(aDefinition);
 
         }
 

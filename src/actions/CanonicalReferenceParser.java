@@ -217,7 +217,7 @@ public class CanonicalReferenceParser {
 
         currentSourceText = null;
 
-        return new Definition("undefined", null, 0,  document.getKey(), project.getKey());
+        return new Definition("undefined", null, 0,  document.getKey(), project.getKey(), null);
 
     }
 

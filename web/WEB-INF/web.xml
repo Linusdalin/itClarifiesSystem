@@ -291,6 +291,16 @@
          <url-pattern>/Classification</url-pattern>
      </servlet-mapping>
 
+    <servlet>
+         <servlet-name>Reclassification</servlet-name>
+         <servlet-class>reclassification.ReclassificationServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>Reclassification</servlet-name>
+         <url-pattern>/Reclassification</url-pattern>
+     </servlet-mapping>
+
+
 
     <servlet>
          <servlet-name>Class</servlet-name>

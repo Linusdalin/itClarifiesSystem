@@ -1,7 +1,6 @@
 package test.functionalTests;
 
 import backend.*;
-import classification.Reclassification;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import log.PukkaLogger;
@@ -10,12 +9,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.ColumnFilter;
-import pukkaBO.condition.LookupItem;
 import pukkaBO.condition.LookupList;
 import pukkaBO.exceptions.BackOfficeException;
-import pukkaBO.form.FormInterface;
 import test.ServletTests;
-import userManagement.PortalUser;
 import userManagement.PortalUserTable;
 
 import javax.servlet.http.HttpServletRequest;

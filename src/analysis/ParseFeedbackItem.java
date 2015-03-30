@@ -42,4 +42,9 @@ public class ParseFeedbackItem {
         ;
     }
 
+    public String toString() {
+
+        return severity.name() + ": " + message + "(@ " + row + ")";
+    }
+
 }

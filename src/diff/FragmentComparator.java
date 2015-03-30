@@ -85,6 +85,18 @@ public class FragmentComparator {
         return diffStructure;
     }
 
+    public boolean isSame(String fragment, String text, int cutOff) {
+
+        if(fragment.length() > cutOff)
+            fragment = fragment.substring(0, cutOff);
+        if(text.length() > cutOff)
+            text = text.substring(0, cutOff);
+
+        return isSame(fragment, text);
+    }
+
+
+
     /*************************************************************************************
      *
      *          Evaluator for the distance between two fragments
@@ -101,14 +113,34 @@ public class FragmentComparator {
 
     public boolean isSame(String activeFragment, String referenceFragment) {
 
+        String washed1 = wash(activeFragment);
+        String washed2 = wash(referenceFragment);
 
-        int distance = getDistance(activeFragment, referenceFragment);
+        int distance = getDistance(washed1, washed2);
         int distancePerAvgChar = (100 * distance) / ((referenceFragment.length() + activeFragment.length()) / 2);
         PukkaLogger.log(PukkaLogger.Level.DEBUG, "Got distance " + distance + " between " + activeFragment + " and " + referenceFragment);
 
         PukkaLogger.log(PukkaLogger.Level.DEBUG, " - Distance per avg char =  " + distancePerAvgChar);
 
         return distancePerAvgChar < DISTANCE_THRESHOLD;
+    }
+
+    /***************************************************************************
+     *
+     *          Remove some tokens and simplify for matching
+     *
+     *          The idea is to be able to overlook minor changes in the text (like
+     *          spelling mistakes or formatting) between two uploads of the document
+     *
+     *
+     * @param text      - teh fragment text
+     * @return
+     */
+
+    private String wash(String text) {
+
+        return  text.toLowerCase().replaceAll("&nbsp;", " ").replaceAll("(\\{\\d+\\})", "   " );
+
     }
 
 

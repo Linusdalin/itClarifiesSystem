@@ -121,7 +121,10 @@ public class ReferenceTest extends ServletTests {
                 DBTimeStamp creationTime = new DBTimeStamp();
                 AbstractProject aProject = project.createAbstractProject();
                 AbstractDocument aDocument = null;
-                Contract newDocument = new Contract("pricelist", "Test Document.docx", 3, documentType, status,  "no message", "test document", project, user, creationTime.toString(), "EN", AccessRight.getrwd());
+                DocumentSection section = project.getDefaultSection();
+
+
+                Contract newDocument = new Contract("pricelist", "Test Document.docx", 3, documentType, status,  "no message", "test document", project, user, creationTime.toString(), "EN", section, AccessRight.getrwd());
                 newDocument.store();
 
                 // Create a new version for the document

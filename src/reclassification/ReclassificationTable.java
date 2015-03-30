@@ -1,4 +1,4 @@
-package classification;
+package reclassification;
 
 import risk.*;
 import contractManagement.*;
@@ -8,6 +8,7 @@ import versioning.*;
 import actions.*;
 import search.*;
 import crossReference.*;
+import reclassification.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
@@ -34,25 +35,21 @@ public class ReclassificationTable extends DataTable implements DataTableInterfa
     public static final String TABLE = "Reclassification";
     private static final String DESCRIPTION = "Classifications that are manually corrected  for review and automatic analysis";
 
-    public enum Columns {Name, isPositive, User, Fragment, Headline, FragmentNo, Pattern, Comment, ClassTag, RequirementLevel, ApplicablePhase, RiskLevel, Document, Date, Closed, }
+    public enum Columns {Classification, Add, Date, Project, Document, FragmentNo, Fragment, Pattern, PatternPos, User, Closed, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
-            new StringColumn("Name", DataColumn.noFormatting),
-            new BoolColumn("isPositive", DataColumn.noFormatting),
-            new ReferenceColumn("User", DataColumn.noFormatting, new TableReference("PortalUser", "Name")),
-            new BlobColumn("Fragment", DataColumn.noFormatting),
-            new BlobColumn("Headline", DataColumn.noFormatting),
-            new IntColumn("FragmentNo", DataColumn.noFormatting),
-            new TextColumn("Pattern", DataColumn.noFormatting),
-            new TextColumn("Comment", DataColumn.noFormatting),
-            new StringColumn("ClassTag", DataColumn.noFormatting),
-            new IntColumn("RequirementLevel", DataColumn.noFormatting),
-            new IntColumn("ApplicablePhase", DataColumn.noFormatting),
-            new ConstantColumn("RiskLevel", DataColumn.noFormatting, new TableReference("ContractRisk", "Name")),
-            new ReferenceColumn("Document", DataColumn.noFormatting, new TableReference("Contract", "Name")),
+            new StringColumn("Classification", DataColumn.noFormatting),
+            new BoolColumn("Add", DataColumn.narrowColumn),
             new DateColumn("Date", DataColumn.noFormatting),
-            new BoolColumn("Closed", DataColumn.noFormatting),
+            new StringColumn("Project", DataColumn.noFormatting),
+            new StringColumn("Document", DataColumn.noFormatting),
+            new IntColumn("FragmentNo", DataColumn.noFormatting),
+            new BlobColumn("Fragment", DataColumn.noFormatting),
+            new TextColumn("Pattern", DataColumn.noFormatting),
+            new IntColumn("PatternPos", DataColumn.noFormatting),
+            new StringColumn("User", DataColumn.noFormatting),
+            new BoolColumn("Closed", DataColumn.narrowColumn),
     };
 
     private static final Reclassification associatedObject = new Reclassification();

@@ -10,6 +10,7 @@ import net.sf.json.JSONObject;
 import pukkaBO.condition.*;
 import pukkaBO.export.ValuePair;
 import pukkaBO.exceptions.BackOfficeException;
+import userManagement.AccessRight;
 import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
@@ -107,13 +108,18 @@ public class ProjectServlet extends ItClarifiesService{
 
                 }
 
+                ProjectType projectType = ProjectType.getGeneric();    //TODO: Not implemented different project types. Using default
+                AccessRight projectAccess = AccessRight.getrwd();      //TODO: Not implemented access rights to project
 
+                DBTimeStamp creationTime = new DBTimeStamp();
 
                 // No project parameter given. We create a new project entry
 
-                DBTimeStamp creationTime = new DBTimeStamp();
-                project = new Project(name, description, portalUser.getKey(), portalUser.getOrganizationId(), creationTime.getISODate(), "not set");
+                project = new Project(name, description, portalUser.getKey(), portalUser.getOrganizationId(), creationTime.getISODate(), projectType,  projectAccess);
                 project.store();
+
+                // Create appropriate sections for the type of project
+                createSectionsForProject(project, projectType, portalUser, projectAccess, creationTime);
             }
 
             JSONObject json = createPostResponse(DataServletName, project);
@@ -134,6 +140,29 @@ public class ProjectServlet extends ItClarifiesService{
 
 
      }
+
+    /**********************************************************************************************************''
+     *
+     *              Create appropriate sections for a type of project
+     *
+     *
+     * @param project
+     * @param projectType
+     * @param owner
+     * @param projectAccess
+     * @param creationTime
+     * @throws BackOfficeException
+     *
+     *              //TODO: Different sections for different types is not implemented. Always use exactly one section
+     *
+     */
+
+    private void createSectionsForProject(Project project, ProjectType projectType, PortalUser owner, AccessRight projectAccess, DBTimeStamp creationTime) throws BackOfficeException {
+
+        DocumentSection section = new DocumentSection("Unsorted", (long)0, "Unsorted Documents", project, owner, projectAccess, creationTime.getISODate());
+        section.store();
+
+    }
 
     /*************************************************************************
      *
@@ -179,6 +208,10 @@ public class ProjectServlet extends ItClarifiesService{
            for(DataObjectInterface object : all.getValues()){
 
                Project project = (Project)object;
+               String projectTypeName = "Generic";
+               ProjectType type = project.getType();
+               if(type != null)
+                   projectTypeName = type.getName();
 
                int documentsForProject = project.getContractsForProject().size();
 
@@ -186,6 +219,7 @@ public class ProjectServlet extends ItClarifiesService{
                     .put("id", project.getKey().toString())
                     .put("name", project.getName())
                     .put("description", project.getDescription())
+                    .put("type", projectTypeName)
                     .put("organization", project.getOrganizationId().toString())
                     .put("owner", project.getCreatorId().toString())
                     .put("creation", project.getCreationTime().getSQLTime().toString())
@@ -227,8 +261,6 @@ public class ProjectServlet extends ItClarifiesService{
      * @param resp -
      * @throws IOException
      *
-     *          //TODO: Delete project should recursively delete all documents
-     *          //TODO: Fix return values correctly
      *
      */
 

@@ -8,6 +8,7 @@ import versioning.*;
 import actions.*;
 import search.*;
 import crossReference.*;
+import reclassification.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
@@ -42,13 +43,13 @@ public class Project extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public Project(String name, String description, DataObjectInterface creator, DataObjectInterface organization, String creationtime, String access) throws BackOfficeException{
+    public Project(String name, String description, DataObjectInterface creator, DataObjectInterface organization, String creationtime, DataObjectInterface type, DataObjectInterface access) throws BackOfficeException{
 
-        this(name, description, creator.getKey(), organization.getKey(), creationtime, access);
+        this(name, description, creator.getKey(), organization.getKey(), creationtime, type, access);
     }
 
 
-    public Project(String name, String description, DBKeyInterface creator, DBKeyInterface organization, String creationtime, String access){
+    public Project(String name, String description, DBKeyInterface creator, DBKeyInterface organization, String creationtime, DataObjectInterface type, DataObjectInterface access){
 
         this();
         try{
@@ -62,7 +63,8 @@ public class Project extends DataObject implements DataObjectInterface{
            data[2] = new ReferenceData(creator, columns[2].getTableReference());
            data[3] = new ReferenceData(organization, columns[3].getTableReference());
            data[4] = new TimeStampData(creationtime);
-           data[5] = new StringData(access);
+           data[5] = new ConstantData(type.get__Id(), columns[5].getTableReference());
+           data[6] = new ConstantData(access.get__Id(), columns[6].getTableReference());
 
            exists = true;
         }catch(BackOfficeException e){
@@ -184,16 +186,32 @@ public class Project extends DataObject implements DataObjectInterface{
 
 
 
-    public String getAccess(){
+    public ProjectType getType(){
 
-        StringData data = (StringData) this.data[5];
-        return data.getStringValue();
+        ConstantData data = (ConstantData)this.data[5];
+        return (ProjectType)(new ProjectTypeTable().getConstantValue(data.value));
+
     }
 
-    public void setAccess(String access){
+    public void setType(DataObjectInterface type){
 
-        StringData data = (StringData) this.data[5];
-        data.setStringValue(access);
+        ConstantData data = (ConstantData)this.data[5];
+        data.value = type.get__Id();
+    }
+
+
+
+    public userManagement.AccessRight getAccess(){
+
+        ConstantData data = (ConstantData)this.data[6];
+        return (userManagement.AccessRight)(new userManagement.AccessRightTable().getConstantValue(data.value));
+
+    }
+
+    public void setAccess(DataObjectInterface access){
+
+        ConstantData data = (ConstantData)this.data[6];
+        data.value = access.get__Id();
     }
 
 
@@ -237,6 +255,18 @@ public class Project extends DataObject implements DataObjectInterface{
             outcome.add(contract.recursivelyDeleteDocument());
 
         }
+
+        List<Checklist> allChecklists = getChecklistsForProject();
+
+        PukkaLogger.log(PukkaLogger.Level.DEBUG, "Found " + allChecklists.size() + " checklists for project " + getName());
+
+        for(Checklist checklist : allChecklists){
+
+            // Compile the outcome
+            outcome.add(checklist.recursivelyDelete());
+
+        }
+
 
         new ProjectTable().deleteItem(this);
 
@@ -498,5 +528,34 @@ public class Project extends DataObject implements DataObjectInterface{
 
         return getContractFragmentsForProject(new LookupList());
     }
+
+    /*************************************************************************''
+     *
+     *          This returns the default section for a project, used to upload/place
+     *          documents when no section is given
+     *
+     *          The implementation is pretty simple and it takes the section with ordinal 0
+     *
+     * @return          - the section
+     * @throws BackOfficeException
+     */
+
+
+    public DocumentSection getDefaultSection() throws BackOfficeException{
+
+        DocumentSection section = new DocumentSection(new LookupItem()
+                .addFilter(new ReferenceFilter(DocumentSectionTable.Columns.Project.name(), this.getKey()))
+                .addFilter(new ColumnFilter(DocumentSectionTable.Columns.Ordinal.name(), 0)));
+
+        if(!section.exists()){
+
+            throw new BackOfficeException(BackOfficeException.General, "No default section available in project " + this.getName());
+
+        }
+
+        return section;
+
+    }
+
 
 }
