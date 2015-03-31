@@ -120,7 +120,7 @@ public class ReplaceDocumentTest extends ServletTests{
             Visibility visibility = Visibility.getPrivate();
             String name = "TestDoc";  // Replacing the existing document
 
-            ContractVersionInstance initialVersion = contractTable.addNewDocument(project, name, new BlobRepository().getEmptyFileHandler(), new LanguageCode("EN"), creator, accessRight, section);
+            ContractVersionInstance initialVersion = contractTable.addNewDocument(project, name, new BlobRepository().getEmptyFileHandler(), new LanguageCode("EN"), creator, accessRight, section, "dummyFingerprint");
 
             assertThat(initialVersion.getVersion(), is("TestDoc_v1"));
 
@@ -162,9 +162,11 @@ public class ReplaceDocumentTest extends ServletTests{
 
 
             // Now upload a new version of the document
+            String fingerprint = "dummyUniqueHash";
 
-            ContractVersionInstance newVersion = readBack.addNewVersion(creator, new BlobRepository().getEmptyFileHandler());
+            ContractVersionInstance newVersion = readBack.addNewVersion(creator, new BlobRepository().getEmptyFileHandler(), fingerprint);
             assertThat(newVersion.getVersion(), is("TestDoc_v2"));
+            assertThat(newVersion.getFingerprint(), is(fingerprint));
 
             // This second time we upload the same document, but clone the classifications, risks and annotations.
 

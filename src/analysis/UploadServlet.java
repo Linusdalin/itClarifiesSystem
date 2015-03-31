@@ -355,7 +355,7 @@ public class UploadServlet extends DocumentService {
             PukkaLogger.log(PukkaLogger.Level.INFO, "Adding new document in db");
 
             LanguageCode languageCode = Analyser.detectLanguage(fileName, docXManager.getBody());
-            version = new ContractTable().addNewDocument(project, fileName, fileHandler, languageCode, portalUser, accessRight, section);
+            version = new ContractTable().addNewDocument(project, fileName, fileHandler, languageCode, portalUser, accessRight, section, "");
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Fragmenting");
             fragmentDocument(fileName, version, docXManager);
@@ -368,7 +368,7 @@ public class UploadServlet extends DocumentService {
             project = oldVersion.getDocument().getProject();
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "(Old) Adding new version for existing document " + document.getName());
-            version = document.addNewVersion(portalUser, fileHandler);
+            version = document.addNewVersion(portalUser, fileHandler, "");
             PukkaLogger.log(PukkaLogger.Level.INFO, "Fragmenting");
             fragmentDocument(fileName, version, docXManager);
 

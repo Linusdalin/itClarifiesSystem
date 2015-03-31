@@ -26,6 +26,7 @@ public class NewMTProject{
     private List<Reclassification>  classifications = new ArrayList<Reclassification>();
     private List<Rerisk>            risks           = new ArrayList<Rerisk>();
     private List<Reannotation>      annotations     = new ArrayList<Reannotation>();
+    public static final String MagicKey = "d1s7i55tD3bsii7NS8f";  //TODO: This is just a simple static password. Implement better solution here
 
     public NewMTProject(String name, String server){
 

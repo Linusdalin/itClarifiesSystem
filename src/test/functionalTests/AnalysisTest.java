@@ -91,7 +91,7 @@ public class AnalysisTest  extends ServletTests {
             FileUploadServlet uploadServlet = new FileUploadServlet();
             DocumentSection section = demoProject.getDefaultSection();
 
-            ContractVersionInstance newVersion = uploadServlet.handleUploadDocument(filename, fileHandler, document, demoProject, adminUser, accessRight, section);
+            ContractVersionInstance newVersion = uploadServlet.handleUploadDocument(filename, fileHandler, document, demoProject, adminUser, accessRight, section, "dummyFingerprint");
 
 
             AnalysisServlet servlet = new AnalysisServlet();

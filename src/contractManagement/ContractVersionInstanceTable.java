@@ -35,7 +35,7 @@ public class ContractVersionInstanceTable extends DataTable implements DataTable
     public static final String TABLE = "ContractVersionInstance";
     private static final String DESCRIPTION = "A specific version of a contract";
 
-    public enum Columns {Version, Document, FileHandler, Creator, Creation, }
+    public enum Columns {Version, Document, FileHandler, Creator, Creation, Fingerprint, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
@@ -44,6 +44,7 @@ public class ContractVersionInstanceTable extends DataTable implements DataTable
             new StringColumn("FileHandler", DataColumn.noFormatting),
             new ReferenceColumn("Creator", DataColumn.noFormatting, new TableReference("PortalUser", "Name")),
             new TimeStampColumn("Creation", DataColumn.noFormatting),
+            new StringColumn("Fingerprint", DataColumn.noFormatting),
     };
 
     private static final ContractVersionInstance associatedObject = new ContractVersionInstance();
@@ -76,8 +77,8 @@ public class ContractVersionInstanceTable extends DataTable implements DataTable
     };
     private static final String[][] TestValues = {
 
-          {"Cannon v1.0", "Cannon", "no file", "demo", "2014-01-01 00:09:00", "system"},
-          {"Google v1.0", "Google Analytics", "no file", "admin", "2014-01-01 00:09:00", "system"},
+          {"Cannon v1.0", "Cannon", "no file", "demo", "2014-01-01 00:09:00", "123456", "system"},
+          {"Google v1.0", "Google Analytics", "no file", "admin", "2014-01-01 00:09:00", "987654", "system"},
 
 
 

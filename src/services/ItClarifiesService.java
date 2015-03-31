@@ -739,17 +739,9 @@ public class ItClarifiesService extends GenericAdminServlet {
 
         long actionCount = 0;
 
-        try{
-
             actionCount = fragment.getActionsForFragment().size();
-            System.out.println("***** Got " + actionCount + " actions for fragment " + fragment.getName());
+        PukkaLogger.log(PukkaLogger.Level.DEBUG,"***** Got " + actionCount + " actions for fragment " + fragment.getName());
 
-
-        }catch (BackOfficeException e){
-
-            e.logError("Fail to get details for annotation for fragment " + fragment.getText());
-
-        }
 
         return actionCount;
     }
@@ -768,17 +760,8 @@ public class ItClarifiesService extends GenericAdminServlet {
 
         long annotationCount = 0;
 
-        try{
-
             annotationCount = fragment.getAnnotationsForFragment().size();
             PukkaLogger.log(PukkaLogger.Level.DEBUG, "Got " + annotationCount + " annotations for fragment " + fragment.getName());
-
-
-        }catch (BackOfficeException e){
-
-            e.logError("Fail to get details for annotation for fragment " + fragment.getText());
-
-        }
 
         return annotationCount;
     }

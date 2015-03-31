@@ -161,9 +161,9 @@ public class DocXFile {
 
             PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create comments for document");
 
-        } catch (BackOfficeException e) {
+        } catch (Exception e) {
 
-            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create comments for document " + e.narration);
+            PukkaLogger.log( e );
 
         }
 

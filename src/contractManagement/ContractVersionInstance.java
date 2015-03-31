@@ -43,13 +43,13 @@ public class ContractVersionInstance extends DataObject implements DataObjectInt
             table = TABLE;
     }
 
-    public ContractVersionInstance(String version, DataObjectInterface document, String filehandler, DataObjectInterface creator, String creation) throws BackOfficeException{
+    public ContractVersionInstance(String version, DataObjectInterface document, String filehandler, DataObjectInterface creator, String creation, String fingerprint) throws BackOfficeException{
 
-        this(version, document.getKey(), filehandler, creator.getKey(), creation);
+        this(version, document.getKey(), filehandler, creator.getKey(), creation, fingerprint);
     }
 
 
-    public ContractVersionInstance(String version, DBKeyInterface document, String filehandler, DBKeyInterface creator, String creation){
+    public ContractVersionInstance(String version, DBKeyInterface document, String filehandler, DBKeyInterface creator, String creation, String fingerprint){
 
         this();
         try{
@@ -63,6 +63,7 @@ public class ContractVersionInstance extends DataObject implements DataObjectInt
            data[2] = new StringData(filehandler);
            data[3] = new ReferenceData(creator, columns[3].getTableReference());
            data[4] = new TimeStampData(creation);
+           data[5] = new StringData(fingerprint);
 
            exists = true;
         }catch(BackOfficeException e){
@@ -184,6 +185,20 @@ public class ContractVersionInstance extends DataObject implements DataObjectInt
 
 
 
+    public String getFingerprint(){
+
+        StringData data = (StringData) this.data[5];
+        return data.getStringValue();
+    }
+
+    public void setFingerprint(String fingerprint){
+
+        StringData data = (StringData) this.data[5];
+        data.setStringValue(fingerprint);
+    }
+
+
+
 
     public static void clearConstantCache(){
 
@@ -199,7 +214,7 @@ public class ContractVersionInstance extends DataObject implements DataObjectInt
 
     //TODO: Should be automatic
 
-    public List<ContractFragment> getFragmentsForVersion(ConditionInterface condition) throws BackOfficeException{
+    public List<ContractFragment> getFragmentsForVersion(ConditionInterface condition){
 
         condition.addFilter(new ReferenceFilter(ContractFragmentTable.Columns.Version.name(), getKey()));
 
@@ -219,7 +234,7 @@ public class ContractVersionInstance extends DataObject implements DataObjectInt
 
     // No condition retrieves all items
 
-    public List<ContractFragment> getFragmentsForVersion() throws BackOfficeException{
+    public List<ContractFragment> getFragmentsForVersion(){
 
         return getFragmentsForVersion(new LookupList());
     }

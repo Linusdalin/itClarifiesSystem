@@ -108,10 +108,8 @@ public class UploadTest extends ServletTests {
                 DocumentSection section = project.getDefaultSection();
 
 
-                // TODO: Store document in blob store here
-
                 ContractVersionInstance newVersion = new FileUploadServlet().handleUploadDocument(testDocumentTitle, new BlobRepository().getEmptyFileHandler(),
-                        null, project, user, mockAccessRight, section);
+                        null, project, user, mockAccessRight, section, "dummyFingerprint");
 
                 assertThat("Version should exist", newVersion.exists(), is(true));
                 assertThat("Document name from uploaded file",  newVersion.getDocument().getName(), is(testDocumentTitle));

@@ -248,6 +248,7 @@ public class Definition extends DataObject implements DataObjectInterface{
                     classification.getPattern().equalsIgnoreCase(this.getName())){
 
                 classification.delete();
+                count++;
             }
 
             if(classification.getClassTag().equals(featureTypes.FeatureTypeTree.DefinitionDef.getName()) &&
@@ -255,6 +256,7 @@ public class Definition extends DataObject implements DataObjectInterface{
                     classification.getFragmentId().equals(currentFragment)){
 
                 classification.delete();
+                count++;
             }
 
 

@@ -70,6 +70,7 @@ public class ReclassificationTest extends ServletTests {
                 {"Lika som bär", "Lika som bär"},
                 {"Nästan samma text", "NästanSamma text"},
                 {"Escape&nbsp;chars&nbsp;are&nbsp;same", "Escape chars are same"},
+                {"Same same but different", "<i>Same</i> <b>same</b> but <ignoreTags>different</ignoreTags>"},
         };
 
         FragmentComparator comparator = new FragmentComparator();

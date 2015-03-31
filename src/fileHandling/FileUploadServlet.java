@@ -100,6 +100,7 @@ public class FileUploadServlet extends DocumentService {
 
             Visibility visibility = Visibility.getOrg();
             AccessRight accessRight = AccessRight.getrwd();
+            String fingerPrint = "";
 
             Formatter formatter = getFormatFromParameters(req);
 
@@ -183,6 +184,12 @@ public class FileUploadServlet extends DocumentService {
 
                         }
 
+                        if(fi.getFieldName().equals("fingerprint")){
+
+                            fingerPrint = new String(fi.get());
+
+                        }
+
                         if(fi.getFieldName().equals("project")){
 
                             _project = new String(fi.get());
@@ -210,11 +217,14 @@ public class FileUploadServlet extends DocumentService {
                         if(fi.getFieldName().equals("document")){
 
                             _document = new String(fi.get());
-                            PukkaLogger.log(PukkaLogger.Level.INFO, "Document key: " + _document);
-                            document = new Contract(new LookupByKey( new DatabaseAbstractionFactory().createKey(_document)));
 
-                            if(!mandatoryObjectExists(document, resp))
-                                return;
+                            if(_document != null && !_document.equals("")){
+                                PukkaLogger.log(PukkaLogger.Level.INFO, "Document key: " + _document);
+                                document = new Contract(new LookupByKey( new DatabaseAbstractionFactory().createKey(_document)));
+
+                                if(!mandatoryObjectExists(document, resp))
+                                    return;
+                            }
 
                         }
 
@@ -299,7 +309,7 @@ public class FileUploadServlet extends DocumentService {
 
                                 DocumentSection section = project.getDefaultSection();
 
-                                ContractVersionInstance newVersion = handleUploadDocument(title, fileHandler, document, project, owner, accessRight, section);
+                                ContractVersionInstance newVersion = handleUploadDocument(title, fileHandler, document, project, owner, accessRight, section, fingerPrint);
 
                                 // Document is uploaded. Update the status
 
@@ -415,11 +425,13 @@ public class FileUploadServlet extends DocumentService {
      * @param portalUser
      * @param accessRight
      * @param section
+     * @param fingerprint       - unique hash to detect if the document is changed
+
      * @throws pukkaBO.exceptions.BackOfficeException
      */
 
 
-    public ContractVersionInstance handleUploadDocument(String title, RepositoryFileHandler fileHandler, Contract document, Project project, PortalUser portalUser, AccessRight accessRight, DocumentSection section) throws BackOfficeException{
+    public ContractVersionInstance handleUploadDocument(String title, RepositoryFileHandler fileHandler, Contract document, Project project, PortalUser portalUser, AccessRight accessRight, DocumentSection section, String fingerprint) throws BackOfficeException{
 
         ContractVersionInstance version;
 
@@ -428,7 +440,7 @@ public class FileUploadServlet extends DocumentService {
             PukkaLogger.log(PukkaLogger.Level.INFO, "Creating a new document in db: " + title);
 
             LanguageCode languageCode = new LanguageCode("unknown");
-            version = new ContractTable().addNewDocument(project, title, fileHandler, languageCode, portalUser, accessRight, section);
+            version = new ContractTable().addNewDocument(project, title, fileHandler, languageCode, portalUser, accessRight, section, fingerprint);
 
 
 
@@ -439,7 +451,7 @@ public class FileUploadServlet extends DocumentService {
             project = oldVersion.getDocument().getProject();
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Adding new version for existing document " + document.getName());
-            version = document.addNewVersion(portalUser, fileHandler);
+            version = document.addNewVersion(portalUser, fileHandler, fingerprint);
             PukkaLogger.log(PukkaLogger.Level.INFO, "Fragmenting");
 
         }

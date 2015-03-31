@@ -111,22 +111,23 @@ public class ContractTable extends DataTable implements DataTableInterface{
      *
      *
      *
-     * @param document - the name of the document
+     * @param document              - the name of the document
      * @param fileHandler
-     *@param creator - the user creating the instance of the document
-     *  @return - return information for the client
+     * @param creator               - the user creating the instance of the document
+     * @param fingerprint           - unique hash to detect if the document is updated
+     * @return - return information for the client
      *
      */
 
 
-    public ContractVersionInstance createNewVersion(Contract document, fileHandling.RepositoryFileHandler fileHandler, PortalUser creator) throws BackOfficeException{
+    public ContractVersionInstance createNewVersion(Contract document, fileHandling.RepositoryFileHandler fileHandler, PortalUser creator, String fingerprint) throws BackOfficeException{
 
             String versionName = createVersionName(document);
             DBTimeStamp creationTime = new DBTimeStamp();
 
             // Create a new version instance
 
-            ContractVersionInstance newInstance = new ContractVersionInstance(versionName, document, fileHandler.toString(), creator, creationTime.getSQLTime().toString());
+            ContractVersionInstance newInstance = new ContractVersionInstance(versionName, document, fileHandler.toString(), creator, creationTime.getSQLTime().toString(), fingerprint);
             newInstance.store();
 
             return newInstance;
@@ -139,12 +140,13 @@ public class ContractTable extends DataTable implements DataTableInterface{
      *
      *
      *
-     * @param name - document name
+     * @param name              - document name
      * @param fileHandler
-     *@param creator - owner
-     * @param accessRight - access to grant
-     * @param section  - where to put it
-*    @return - The new version
+     * @param creator           - owner
+     * @param accessRight       - access to grant
+     * @param section           - where to put it (directory)
+     * @param fingerprint       - unique hash to detect if the document is changed
+     * @return - The new version
      *
      */
 
@@ -156,7 +158,8 @@ public class ContractTable extends DataTable implements DataTableInterface{
                                                   language.LanguageCode languageCode,
                                                   PortalUser creator,
                                                   AccessRight accessRight,
-                                                  DocumentSection section) {
+                                                  DocumentSection section,
+                                                  String fingerprint) {
 
         try{
 
@@ -188,7 +191,7 @@ public class ContractTable extends DataTable implements DataTableInterface{
 
             PukkaLogger.log(PukkaLogger.Level.MAJOR_EVENT, "User "+ creator.getName()+" creating a new document " + newDoc.getName() + " in project " + project.getName());
 
-            return createNewVersion(newDoc, fileHandler, creator);
+            return createNewVersion(newDoc, fileHandler, creator, fingerprint);
 
 
         } catch (BackOfficeException e) {

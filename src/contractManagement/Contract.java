@@ -527,10 +527,18 @@ public class Contract extends DataObject implements DataObjectInterface{
         return last;
     }
 
-    public ContractVersionInstance addNewVersion(PortalUser creator, fileHandling.RepositoryFileHandler fileHandler) throws BackOfficeException{
+    /*****************************************************************************************
+     *
+     * @param creator
+     * @param fileHandler
+     * @param fingerprint
+     * @return
+     * @throws BackOfficeException
+     */
 
+    public ContractVersionInstance addNewVersion(PortalUser creator, fileHandling.RepositoryFileHandler fileHandler, String fingerprint) throws BackOfficeException{
 
-                return new ContractTable().createNewVersion(this, fileHandler, creator);
+        return new ContractTable().createNewVersion(this, fileHandler, creator, fingerprint);
 
     }
 

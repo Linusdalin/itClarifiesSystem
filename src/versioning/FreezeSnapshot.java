@@ -93,7 +93,7 @@ public class FreezeSnapshot {
             // Create a new version for the document that is used for the
             // TODO: This should be a minor version update. Implement minor versions
 
-            ContractVersionInstance newVersion = document.addNewVersion(user, new RepositoryFileHandler(document.getFile()));
+            ContractVersionInstance newVersion = document.addNewVersion(user, new RepositoryFileHandler(document.getFile()), oldHeadVersion.getFingerprint());
 
             // Clone all data for the document
 

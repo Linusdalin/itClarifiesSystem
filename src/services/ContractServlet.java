@@ -141,6 +141,7 @@ public class ContractServlet extends DocumentService{
                    Contract contract = (Contract)object;
 
                    AccessRight access = sessionManagement.getAccess(contract);
+                   ContractVersionInstance version = contract.getHeadVersion();
 
                    //AccessGrant grant = sessionManagement.getGrantForDocument(contract);
                    //AccessRight right = grant.getAccessRight();
@@ -162,6 +163,7 @@ public class ContractServlet extends DocumentService{
                             .put("owner", contract.getOwnerId().toString())
                             .put("creation", contract.getCreation().getSQLTime().toString())
                             .put("visibility", "org")
+                            .put("fingerprint", version.getFingerprint())
                             .put("access", access.getName());
 
                        documentList.put(document);

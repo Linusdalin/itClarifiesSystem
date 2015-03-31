@@ -78,6 +78,7 @@ public class ReclassificationServlet extends DocumentService {
 
             //Type parameter, defining what kind of attribute we will add
             String type                  = getMandatoryString("type", req);
+            String magicKey              = getMandatoryString("key", req);
 
             //Mandatory parameters for all types
             String userName                   = getMandatoryString("user", req);
@@ -94,12 +95,18 @@ public class ReclassificationServlet extends DocumentService {
             String annotationText             = getOptionalString("text", req, null);
             boolean creating                  = getOptionalBoolean("creating", req, true);
 
+            Formatter formatter = getFormatFromParameters(req);
+
+            if(magicKey == null || !magicKey.equals(NewMTProject.MagicKey)){
+
+                sendJSONResponse(new analysis.ParseFeedbackItem(ParseFeedbackItem.Severity.ERROR,
+                        "No Access !", 0).toJSON(), formatter, resp);
+
+            }
 
             DBTimeStamp now = new DBTimeStamp();
 
             System.out.println("URL-encoded: " + encodedFragment);
-
-            Formatter formatter = getFormatFromParameters(req);
 
             Project project = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), projectName)));
 

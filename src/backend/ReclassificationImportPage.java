@@ -467,7 +467,7 @@ public class ReclassificationImportPage extends NarrowPage {
             return fragmentsForDocument.get(comment.ordinal);
 
 
-        }catch(BackOfficeException e){
+        }catch(Exception e){
 
             PukkaLogger.log(e);
         }

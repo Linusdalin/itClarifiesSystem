@@ -46,7 +46,7 @@ public class DefinitionList extends GroupByList implements ListInterface{
     public static final String Name = "DefinitionList";
     public static final String Title = "All Definitions";
     public static final String Description = "All definitions in the system grouped by project.";
-    public static final int GroupColumn = 4; // Group by Project
+    public static final int GroupColumn = 5; // Group by Project
 
     // ids for the callback actions
 
@@ -63,8 +63,9 @@ public class DefinitionList extends GroupByList implements ListInterface{
 
             add(new ListTableColumn( 1, table ).withNameFromTableColumn().withFormat(new DisplayFormat(DisplayFormat.SMALL)));
             add(new ListTableColumn( 2, table ).withNameFromTableColumn().withFormat(new DisplayFormat(DisplayFormat.WIDE)));
-            add(new ListTableColumn( 3, table ).withNameFromTableColumn());
-            add(new ListTableColumn( 6, table ).withNameFromTableColumn());
+            add(new ListTableColumn( 4, table ).withNameFromTableColumn());
+            add(new ListTableColumn( 3, table ).withNameFromTableColumn().withFormat(new DisplayFormat(DisplayFormat.SMALL)));
+            add(new ListTableColumn( 6, table ).withNameFromTableColumn().withFormat(new DisplayFormat(DisplayFormat.WIDE)));
 
         }};
 
@@ -142,7 +143,12 @@ public class DefinitionList extends GroupByList implements ListInterface{
                     //TODO: Delete both definitions and definition source & usage classifications
                     // How do we connect the definition usage with the definition?
 
-                    return ("Warning: Delete not implemented");
+                    int count = definition.deleteReferencesForDefinition();
+                    definition.delete();
+
+                    if(count > 0)
+                        return ("Success: Deleted "+ count +"references  to definition");
+                    return ("Warning: No instances found in project");
 
                 default:
 

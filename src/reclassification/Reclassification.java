@@ -380,6 +380,7 @@ public class Reclassification extends DataObject implements DataObjectInterface{
 
 
         return "&type=classification"+
+                "&key=" + NewMTProject.MagicKey +
                 "&class=" + getClassification() +
                 "&creating=" + getAdd() +
                 "&project=" + getProject() +

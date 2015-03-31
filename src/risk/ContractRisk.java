@@ -72,8 +72,6 @@ public class ContractRisk extends DataObject implements DataObjectInterface{
 
 
     }
-
-
     public DataObjectInterface createNew(ColumnDataInterface[] data ) throws BackOfficeException {
 
         ContractRisk o = new ContractRisk();

@@ -3,7 +3,8 @@ package diff;
 
 import log.PukkaLogger;
 
-/**
+/****************************************************************************
+ *
  *          A comparator will compare two versions of a document and
  *          produce a DiffStructure
  *
@@ -116,6 +117,9 @@ public class FragmentComparator {
         String washed1 = wash(activeFragment);
         String washed2 = wash(referenceFragment);
 
+        if(referenceFragment.length() == 0 && activeFragment.length() == 0)
+            return true;
+
         int distance = getDistance(washed1, washed2);
         int distancePerAvgChar = (100 * distance) / ((referenceFragment.length() + activeFragment.length()) / 2);
         PukkaLogger.log(PukkaLogger.Level.DEBUG, "Got distance " + distance + " between " + activeFragment + " and " + referenceFragment);
@@ -139,7 +143,9 @@ public class FragmentComparator {
 
     private String wash(String text) {
 
-        return  text.toLowerCase().replaceAll("&nbsp;", " ").replaceAll("(\\{\\d+\\})", "   " );
+        return  text.toLowerCase()
+                .replaceAll("&nbsp;", " ")
+                .replaceAll("(\\{\\d+\\})", "   " ).replaceAll("(<[\\/]*\\w*>?)", "");
 
     }
 

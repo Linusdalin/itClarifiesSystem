@@ -129,7 +129,7 @@ public class ReferenceTest extends ServletTests {
 
                 // Create a new version for the document
 
-                ContractVersionInstance version = new ContractVersionInstance("v0.9", newDocument, "no file", user, creationTime.toString());
+                ContractVersionInstance version = new ContractVersionInstance("v0.9", newDocument, "no file", user, creationTime.toString(), "dummyFingerprint");
                 version.store();
 
                 // Add a new fragment to the document. This is what the document reference will point to.

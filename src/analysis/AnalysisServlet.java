@@ -228,7 +228,6 @@ public class AnalysisServlet extends DocumentService {
      *
      *          //TODO: Optimization: Definitions are retreived twice.
      *
-     *          //TODO: Refactor: analyse and reanalyse are to similar NOT to refactor to one
      *
      */
 
@@ -294,22 +293,11 @@ public class AnalysisServlet extends DocumentService {
 
                 // Clone all previous annotations, reference, etc.
 
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Transposing");
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Transposing classification, risk and annotations");
                 Transposer transposer = new Transposer();
                 transposer.clone(oldVersion, newVersion);
 
             }
-
-            //**********************************'
-            // This is moved to the CrossReference servlet
-
-            // Now reanalyse project to find existing references to the new document
-
-            //reanalyseProjectForReferences(analyser, project, newVersion, aProject, aDocument, owner);
-
-            // Finally a last pass over the project to close any open references
-
-            //closeReferences(analyser, project);
 
 
             // Index all fragments in the search engine
@@ -335,7 +323,7 @@ public class AnalysisServlet extends DocumentService {
      *          A typical case is when the analysis is updated.
      *
      *
-     * @param documentVersion - document ot analyse
+     * @param documentVersion - document to analyse
      * @throws BackOfficeException
      */
 
@@ -343,77 +331,15 @@ public class AnalysisServlet extends DocumentService {
 
     public void reAnalyse(ContractVersionInstance documentVersion) throws BackOfficeException {
 
-        List<OutcomeMap> outcomeList = new ArrayList<OutcomeMap>();
-        DBTimeStamp analysisTime = new DBTimeStamp();
-        Contract document = documentVersion.getDocument();
-        Project project = document.getProject();
-        Organization organization = project.getOrganization();
-        AbstractProject aProject = project.createAbstractProject();
-        AbstractDocument aDocument = documentVersion.createAbstractDocumentVersion(aProject, new LanguageCode(document.getLanguage()));
-        List<Definition> definitions = project.getDefinitionsForProject();
-        LanguageCode documentLanguage = new LanguageCode(document.getLanguage());
-        List<ContractFragment> fragments = documentVersion.getFragmentsForVersion(
-                new LookupList().addSorting(new Sorting(ContractFragmentTable.Columns.Ordinal.name(), Ordering.FIRST))
-        );
-        PortalUser owner = document.getOwner();
-        SearchManager2 searchManager = new SearchManager2(project, owner);
+        PukkaLogger.log(PukkaLogger.Level.INFO, "Deleting old keywords and attributes");
 
-        document.setStatus(ContractStatus.getAnalysing());  // Setting the status for the document
-        document.update();
+        // Remove existing attributes. These will be regenerated in the analysis
+
+        deleteKeywords(documentVersion);
+        deleteAttributes(documentVersion);
 
 
-        // Create an analyser and detect basic principles for the document.
-
-        try {
-
-            Analyser analyser = new Analyser(documentLanguage, modelDirectory);
-
-
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Deleting old keywords and attributes");
-
-            // Remove existing auto generated values in the old version
-
-            deleteKeywords(documentVersion);
-            deleteAttributes(documentVersion);
-
-
-            // Now make a new pass over all the fragments to analyse them. At this point all fragments should have a key
-
-            analyseFragments(fragments, analyser, documentVersion, aDocument, project, document, owner, aProject, analysisTime, outcomeList, definitions);
-
-
-            // Make a second pass over all the fragments
-            // This is to handle definition references
-
-            //postProcessAnalysis(analyser, outcomeList, aDocument, owner, documentVersion, project, aProject, analysisTime, definitions);
-
-
-            // Retrieve and store all keywords
-
-            storeKeywords(documentVersion, analyser, document, project, organization);
-
-            //**********************************'
-            // This is moved to the CrossReference servlet
-
-            // Now reanalyse project to find existing references to the new document
-
-            //reanalyseProjectForReferences(analyser, project, documentVersion, aProject, aDocument, owner);
-
-            // Finally a last pass over the project to close any open references
-
-            //closeReferences(analyser, project);
-
-            // Index all fragments in the search engine
-
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Indexing" + fragments.size() + " fragments for the analysis of the document " + document);
-            searchManager.indexFragments(fragments, documentVersion, document);
-
-
-        } catch (Exception e) {
-
-            PukkaLogger.log(PukkaLogger.Level.FATAL, "Error in document analysis");
-
-        }
+        analyse(documentVersion, null);
 
     }
 
@@ -791,31 +717,14 @@ public class AnalysisServlet extends DocumentService {
      *      When re-uploading a document or rerunning the analysis, the original
      *      attributes should be removed to avoid duplicats.
      *
-     * @param versionInstance
+     * @param versionInstance              - the active document version
      * @throws BackOfficeException
      */
 
     private void deleteAttributes(ContractVersionInstance versionInstance) throws BackOfficeException {
 
-        // First remove all imported annotations
 
-        /*
-
-            Removed this. It should be part of reupload, not reanalyze which is done on existing documents
-
-        ContractAnnotationTable importedAnnotations = new ContractAnnotationTable(new LookupList()
-                .addFilter(new ReferenceFilter(ContractAnnotationTable.Columns.Version.name(), versionInstance.getKey()))
-                .addFilter(new ReferenceFilter(ContractAnnotationTable.Columns.Creator.name(), PortalUser.getExternalUser().getKey()))
-
-        );
-
-        PukkaLogger.log(PukkaLogger.Level.INFO, "**** Removed " + importedAnnotations.getCount() + " imported annotations");
-
-        importedAnnotations.delete();
-
-         */
-
-        // Also remove internally generated annotations
+        // Remove automatically generated annotations
 
         ContractAnnotationTable internalAnnotations = new ContractAnnotationTable(new LookupList()
                 .addFilter(new ReferenceFilter(ContractAnnotationTable.Columns.Version.name(), versionInstance.getKey()))
@@ -976,7 +885,7 @@ public class AnalysisServlet extends DocumentService {
         try{
 
             PukkaLogger.log(PukkaLogger.Level.ACTION, "*******************Phase I: Parsing document");
-            docXManager = new DocumentManager(document.getName(), stream);
+            docXManager = new DocumentManager(document.getFile(), stream);
 
 
         }catch (AnalysisException e){
@@ -991,6 +900,7 @@ public class AnalysisServlet extends DocumentService {
             if(remainingVersions == 0)
                 document.delete();
               */
+            e.printStackTrace(System.out);
             throw new BackOfficeException(BackOfficeException.General, "Could not parse document " + document.getFile() + "("+ e.getMessage()+")");
         }
 

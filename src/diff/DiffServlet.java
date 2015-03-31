@@ -139,7 +139,7 @@ public class DiffServlet extends ItClarifiesService {
         FragmentComparator comparator = new FragmentComparator();
         DiffStructure diffStructure = comparator.diff(asTextArray(activeFragments), asTextArray(initialFragments));
 
-        PukkaLogger.log(PukkaLogger.Level.INFO, "Got diff structure: " + diffStructure.toString());
+        PukkaLogger.log(PukkaLogger.Level.DEBUG, "Got diff structure: " + diffStructure.toString());
 
         for(Match match : diffStructure.getMatches()){
 

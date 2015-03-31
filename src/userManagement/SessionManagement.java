@@ -243,7 +243,7 @@ public class SessionManagement {
 
         if(system == null){
             system = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "itClarifies")));
-            System.out.println("Validatecreate system user");
+            System.out.println("Validate create system user");
 
         }
         return isActive;

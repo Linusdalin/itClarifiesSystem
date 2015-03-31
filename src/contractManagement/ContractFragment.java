@@ -409,7 +409,7 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
      * @throws BackOfficeException
      */
 
-    public List<FragmentClassification> getClassificationsForFragment(ConditionInterface condition) throws BackOfficeException{
+    public List<FragmentClassification> getClassificationsForFragment(ConditionInterface condition){
 
         condition.addFilter(new ReferenceFilter(FragmentClassificationTable.Columns.Fragment.name(), getKey()));
 
@@ -423,13 +423,13 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     // No condition retrieves all items
 
-    public List<RiskClassification> getRiskClassificationsForFragment() throws BackOfficeException{
+    public List<RiskClassification> getRiskClassificationsForFragment(){
 
         return getRiskClassificationsForFragment(new LookupList());
     }
 
 
-    public List<RiskClassification> getRiskClassificationsForFragment(ConditionInterface condition) throws BackOfficeException{
+    public List<RiskClassification> getRiskClassificationsForFragment(ConditionInterface condition){
 
         condition.addFilter(new ReferenceFilter(RiskClassificationTable.Columns.Fragment.name(), getKey()));
 
@@ -440,7 +440,7 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
         return classifications;
     }
 
-    public RiskClassification getFirstRiskClassificationForFragment() throws BackOfficeException{
+    public RiskClassification getFirstRiskClassificationForFragment()throws BackOfficeException{
 
         List<RiskClassification> classifications = getRiskClassificationsForFragment(new LookupList(new Sorting(RiskClassificationTable.Columns.Time.name(), Ordering.FIRST)));
         if(classifications.size() == 0)
@@ -468,7 +468,7 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     //TODO: Should be automatic
 
-    public List<ContractAnnotation> getAnnotationsForFragment(ConditionInterface condition) throws BackOfficeException{
+    public List<ContractAnnotation> getAnnotationsForFragment(ConditionInterface condition){
 
         condition.addFilter(new ReferenceFilter(ContractAnnotationTable.Columns.Fragment.name(), getKey()));
 
@@ -484,7 +484,7 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     // No condition retrieves all items
 
-    public List<ContractAnnotation> getAnnotationsForFragment() throws BackOfficeException{
+    public List<ContractAnnotation> getAnnotationsForFragment(){
 
         return getAnnotationsForFragment(new LookupList());
     }
@@ -493,7 +493,7 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     //TODO: Should be automatic
 
-    public List<Action> getActionsForFragment(ConditionInterface condition) throws BackOfficeException{
+    public List<Action> getActionsForFragment(ConditionInterface condition){
 
         condition.addFilter(new ReferenceFilter(ActionTable.Columns.Fragment.name(), getKey()));
 
@@ -509,7 +509,7 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     // No condition retrieves all items
 
-    public List<Action> getActionsForFragment() throws BackOfficeException{
+    public List<Action> getActionsForFragment(){
 
         return getActionsForFragment(new LookupList());
     }
@@ -517,7 +517,7 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
 
 
-    public List<Definition> getDefinitionsForFragment(ConditionInterface condition) throws BackOfficeException{
+    public List<Definition> getDefinitionsForFragment(ConditionInterface condition){
 
         condition.addFilter(new ReferenceFilter(DefinitionTable.Columns.DefinedIn.name(), getKey()));
 

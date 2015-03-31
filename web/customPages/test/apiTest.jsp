@@ -1528,17 +1528,24 @@
 
     <form action="<% out.print(host); %>/Upload" method="post" enctype="multipart/form-data" accept-charset="UTF-8">
 
-        <fieldset style="height:400px">
+        <fieldset style="height:440px">
             <h3>Upload a .docx document into a project</h3>
 
             <p>	<label for="upload_project">Project</label>
                 <input type="text" id="upload_project" name="project" value="<% out.print(demoProjectKey);%>" size="50"></p>
 
+            <p>	<label for="upload_document">Doc (replace)</label>
+                <input type="text" id="upload_document" name="document" value="" size="50"></p>
+
             <p>	<label for="upload_title">Title</label>
                 <input type="text" id="upload_title" name="title" value="" size="50"></p>
 
+            <p>	<label for="upload_fp">Fingerprint</label>
+                <input type="text" id="upload_fp" name="fingerprint" value="" size="50"></p>
+
             <p>	<label for="upload_analyse">Suppress Analysis</label>
-                <input type="checkbox" id="upload_analyse" name="suppress"><br/></p>
+                <input type="checkbox" id="upload_analyse" name="suppress"></p>
+
 
             <p>	<label for="upload_type">Type</label>
                 <% out.print(Html.dropDown("type", new String[] {"Document", "Checklist"}, "Document", "", "upload_type")); %>
@@ -1562,43 +1569,18 @@
 
 </div>
 
-
 <div style="float:left; width:33%">
 
-    <form action="<% out.print(host); %>/Upload" method="post" enctype="multipart/form-data" accept-charset="UTF-8">
-
-        <fieldset style="height:400px">
-            <h3>Replace an existing .docx document</h3>
-
-            <!-- NOTE: The token must come before the document. Otherwise we cant validate the read access of the document-->
-
-            <% out.print(getTokenParameter(useRealToken, "upload"));%>
-
-            <p>	<label for="upload_document">Document</label>
-                <input type="text" id="upload_document" name="document" value="<% out.print(demoDocumentKey);%>" size="50"></p>
-
-            <input type="hidden" name="html" value="on">
-            <p>
-                <label for="replace_file">File</label>
-                <input type="file" id="replace_file" name="file" size="50" /></p>
-
-            <input type="submit" value="Upload File" />
-
-
-        <h3>Response json:</h3>
-
-            <p>The response:
-                <p><span class="code">{ "document" : "&lt;file name&gt;" )</span></p>
-        </fieldset>
-    </form>
+    <!--  Empty -->
 
 </div>
+
 
 <div style="float:left; width:33%">
 
     <form action="<% out.print(host); %>/Ping" method="post" enctype="multipart/form-data">
 
-        <fieldset style="height:400px">
+        <fieldset style="height:440px">
             <h3>Send a quick ping</h3>
 
 

@@ -626,7 +626,7 @@ public class GeneratedTableTests{
      
              try{
      
-                 contractManagement.ContractVersionInstance table1 = new contractManagement.ContractVersionInstance("text 1", dummyKey, "text 3", dummyKey, "2012-01-05 00:00:00.0");
+                 contractManagement.ContractVersionInstance table1 = new contractManagement.ContractVersionInstance("text 1", dummyKey, "text 3", dummyKey, "2012-01-05 00:00:00.0", "text 6");
 
                  assertThat(table1.getVersion(), is("text 1"));
                  assertThat(table1.getDocumentId(), is(dummyKey));
@@ -635,6 +635,7 @@ public class GeneratedTableTests{
                  assertThat(table1.getCreatorId(), is(dummyKey));
                  assertThat(table1.getCreator().exists(), is(false));
                  assertThat(table1.getCreation().getSQLTime().toString(), is("2012-01-05 00:00:00.0"));
+                 assertThat(table1.getFingerprint(), is("text 6"));
 
                  table1.store();
                  contractManagement.ContractVersionInstance table2 = new contractManagement.ContractVersionInstance();
@@ -647,12 +648,14 @@ public class GeneratedTableTests{
                  assertThat(table2.getCreatorId(), is(dummyKey));
                  assertThat(table2.getCreator().exists(), is(false));
                  assertThat(table2.getCreation().getSQLTime().toString(), is("2012-01-05 00:00:00.0"));
+                 assertThat(table2.getFingerprint(), is("text 6"));
 
                  table1.setVersion("text 11");
                  table1.setDocument( dummyKey);
                  table1.setFileHandler("text 13");
                  table1.setCreator( dummyKey);
                  table1.setCreation(new DBTimeStamp(DBTimeStamp.SQL_TIMESTAMP, "2012-01-15 00:00:00.0"));
+                 table1.setFingerprint("text 16");
                  assertThat(table1.getVersion(), is("text 11"));
                  assertThat(table1.getDocumentId(), is(dummyKey));
                  assertThat(table1.getDocument().exists(), is(false));
@@ -660,6 +663,7 @@ public class GeneratedTableTests{
                  assertThat(table1.getCreatorId(), is(dummyKey));
                  assertThat(table1.getCreator().exists(), is(false));
                  assertThat(table1.getCreation().getSQLTime().toString(), is("2012-01-15 00:00:00.0"));
+                 assertThat(table1.getFingerprint(), is("text 16"));
 
              }catch(BackOfficeException e){
      

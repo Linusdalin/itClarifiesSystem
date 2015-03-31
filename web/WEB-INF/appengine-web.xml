@@ -3,7 +3,7 @@
 
     <application>itclarifiesapistage</application>
     <module>default</module>
-    <version>2-1-2</version>
+    <version>2-2-0</version>
     <threadsafe>true</threadsafe>
     <instance-class>F4</instance-class>
     <automatic-scaling>
@@ -62,6 +62,7 @@
                     2-1-0:          Analysis and cross reference improvements, Project Spring fixes
                     2-1-1:          Fragment merge, improvements on definitions
                     2-1-2:          Lift/sweep/back
+                    2-2-0:          Fingerprint
       -->
 
 </appengine-web-app>
