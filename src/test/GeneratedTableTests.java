@@ -1919,6 +1919,60 @@ public class GeneratedTableTests{
           }
 
          @Test
+         public void testRedefinition(){
+     
+             try{
+     
+                 reclassification.Redefinition table1 = new reclassification.Redefinition("text 1", false, "text 3", "text 4", 5, "text 6", true);
+
+                 assertThat(table1.getName(), is("text 1"));
+                 assertThat(table1.getAdd(), is(false));
+                 assertThat(table1.getProject(), is("text 3"));
+                 assertThat(table1.getDocument(), is("text 4"));
+                 assertThat(table1.getFragmentNo(), is((long)5));
+                 assertThat(table1.getFragment(), is("text 6"));
+                 assertThat(table1.getClosed(), is(true));
+
+                 table1.store();
+                 reclassification.Redefinition table2 = new reclassification.Redefinition();
+                 table2.load(new LookupByKey(table1.getKey()));
+
+                 assertThat(table2.getName(), is("text 1"));
+                 assertThat(table2.getAdd(), is(false));
+                 assertThat(table2.getProject(), is("text 3"));
+                 assertThat(table2.getDocument(), is("text 4"));
+                 assertThat(table2.getFragmentNo(), is((long)5));
+                 assertThat(table2.getFragment(), is("text 6"));
+                 assertThat(table2.getClosed(), is(true));
+
+                 table1.setName("text 11");
+                 table1.setAdd(false);
+                 table1.setProject("text 13");
+                 table1.setDocument("text 14");
+                 table1.setFragmentNo(15);
+                 table1.setFragment("text 16");
+                 table1.setClosed(true);
+                 assertThat(table1.getName(), is("text 11"));
+                 assertThat(table1.getAdd(), is(false));
+                 assertThat(table1.getProject(), is("text 13"));
+                 assertThat(table1.getDocument(), is("text 14"));
+                 assertThat(table1.getFragmentNo(), is((long)15));
+                 assertThat(table1.getFragment(), is("text 16"));
+                 assertThat(table1.getClosed(), is(true));
+
+             }catch(BackOfficeException e){
+     
+                 e.logError("Error creating table Redefinition");
+                 assertTrue(false);
+                 
+             }catch(Exception e){
+
+                 e.printStackTrace();
+                 assertTrue(false);
+             }
+          }
+
+         @Test
          public void testContractSelection(){
      
              try{

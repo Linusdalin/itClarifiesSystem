@@ -19,6 +19,7 @@ import log.PukkaLogger;
 import pukkaBO.acs.ACS_User;
 import pukkaBO.acs.ACS_UserTable;
 import pukkaBO.password.PasswordManager;
+import reclassification.RedefinitionTable;
 import reclassification.ReriskTable;
 import risk.ContractRiskTable;
 import risk.RiskClassificationTable;
@@ -336,6 +337,7 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
                                                      new ReclassificationTable( ),
                                                      new ReriskTable( ),
                                                      new ReannotationTable( ),
+                                                     new RedefinitionTable( ),
 
 
                                              }
@@ -450,11 +452,7 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
 
                 new LoginForm(),
                 new EditFragmentDetailsForm( this, ""),
-                //new contractManagement.FilterForm( this, "", null, null),
-
-          //new ExampleForm(this),
-          //new ExampleForm2(this),
-          //new NewAccessObjectForm(this),
+                new AddDefinitionForm( this, ""),
 
         };
 

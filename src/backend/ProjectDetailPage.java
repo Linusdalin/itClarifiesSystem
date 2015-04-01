@@ -468,6 +468,44 @@ public class ProjectDetailPage extends NarrowPage {
             totalCount += reAnnotationsForDocument.getValues().size();
 
 
+
+            // Handle Definitions
+
+            RedefinitionTable reDefinitionsForDocument = new RedefinitionTable(new LookupList()
+                    .addFilter(new ColumnFilter(RedefinitionTable.Columns.Project.name(), project.getName()))
+                    .addFilter(new ColumnFilter(RedefinitionTable.Columns.Document.name(), document.getName())));
+
+
+            try {
+                System.out.println("Found " + reDefinitionsForDocument.getCount() + " definitions.");
+            } catch (BackOfficeException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+
+            for (DataObjectInterface object : reDefinitionsForDocument.getValues()) {
+
+                Redefinition reDefinition = (Redefinition)object;
+                String theBody = reDefinition.getFragment().replaceAll("\n", " ").replaceAll("\"", "&#92;\"");
+
+                // Cap the size to optimize the communication. 500 chars should be sufficient to detect virtually all texts
+
+                if(theBody.length() > 500){
+                    theBody = theBody.substring(0, 500);
+                }
+
+                try {
+                    html.append(        "            addDefinition(new Redefinition("+"" +
+                                                            "\""+reDefinition.getName()+"\", "+ reDefinition.getAdd() +", \""+project.getName()+"\", \""+fileName+"\", "+ reDefinition.getFragmentNo()+",\n" +
+                                        "                            \""+ theBody + "\", false));\n\n");
+                } catch (Exception e) {
+                    PukkaLogger.log(e);
+                }
+
+            }
+            totalCount += reDefinitionsForDocument.getValues().size();
+
+
+
             if(totalCount == 0){
 
                 // There were no reclassification for the document. Just add a comment

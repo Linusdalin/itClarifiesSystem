@@ -62,7 +62,7 @@
                     2-1-0:          Analysis and cross reference improvements, Project Spring fixes
                     2-1-1:          Fragment merge, improvements on definitions
                     2-1-2:          Lift/sweep/back
-                    2-2-0:          Fingerprint
+                    2-2-0:          Fingerprint, reupload, reanalyze
       -->
 
 </appengine-web-app>

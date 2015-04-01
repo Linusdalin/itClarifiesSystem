@@ -26,6 +26,7 @@ public class NewMTProject{
     private List<Reclassification>  classifications = new ArrayList<Reclassification>();
     private List<Rerisk>            risks           = new ArrayList<Rerisk>();
     private List<Reannotation>      annotations     = new ArrayList<Reannotation>();
+    private List<Redefinition>      definitions = new ArrayList<Redefinition>();
     public static final String MagicKey = "d1s7i55tD3bsii7NS8f";  //TODO: This is just a simple static password. Implement better solution here
 
     public NewMTProject(String name, String server){
@@ -54,6 +55,12 @@ public class NewMTProject{
 
         classifications.add(classification);
     }
+
+    protected void addDefinition(Redefinition definition){
+
+        definitions.add(definition);
+    }
+
 
     protected void addRisk(Rerisk risk){
 
@@ -133,6 +140,28 @@ public class NewMTProject{
             }
 
         }
+
+        for (Redefinition definition : definitions) {
+
+            try {
+
+                String urlEncoded = definition.getPostRequest();
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Trying to inject definition \"" + definition.getName() + "\"");
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Request: " + server + "/Reclassification"+ urlEncoded);
+
+                String responseString = requestHandler.excutePost(urlEncoded);
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Got response from "+ server+": " + responseString);
+                JSONObject response = new JSONObject(responseString);
+
+            } catch (BackOfficeException e) {
+                e.printStackTrace();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+
+        }
+
 
     }
 }

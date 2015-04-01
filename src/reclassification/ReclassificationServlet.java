@@ -158,6 +158,20 @@ public class ReclassificationServlet extends DocumentService {
                 else
                     feedback = classification.remove(project, latestVersion, user, fragment);
 
+            }else if(type.equalsIgnoreCase("definition")){
+
+                //String fragmentBody = URLDecoder.decode(encodedFragment, "UTF-8");
+                String fragmentBody = encodedFragment;
+
+                Redefinition redefinition = new Redefinition(pattern, true, project.getName(), document.getName(), (int)ordinal, fragmentBody, false);
+
+                ContractFragment fragment = locateFragment(fragmentBody, (int)ordinal, fragmentsForDocument);
+
+                if(creating)
+                    feedback = redefinition.generate(project, latestVersion, user, fragment);
+                else
+                    feedback = redefinition.remove(project, latestVersion, user, fragment);
+
             }
 
             else if(type.equalsIgnoreCase("risk")){

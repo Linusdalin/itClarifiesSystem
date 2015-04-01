@@ -714,11 +714,15 @@ public class AnalysisServlet extends DocumentService {
 
     /************************************************************************************************
      *
+     *      Delete Attributes
+     *
      *      When re-uploading a document or rerunning the analysis, the original
-     *      attributes should be removed to avoid duplicats.
+     *      attributes should be removed to avoid duplicates.
      *
      * @param versionInstance              - the active document version
      * @throws BackOfficeException
+     *
+     *
      */
 
     private void deleteAttributes(ContractVersionInstance versionInstance) throws BackOfficeException {
