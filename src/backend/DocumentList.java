@@ -290,9 +290,12 @@ public class DocumentList extends GroupByList implements ListInterface{
         try {
 
             StringBuffer docView = new StringBuffer();
+            ContractVersionInstance headVersion = document.getHeadVersion();
 
             docView.append(Html.heading(2, document.getName().toLowerCase()));
+            docView.append(Html.paragraph("Latest Version: " + headVersion.getVersion() + " Uploaded at:" + headVersion.getCreation().getSQLTime().toString()));
             docView.append(Html.paragraph("id: " + document.getKey().toString()));
+            docView.append(Html.paragraph(""));
             docView.append(Html.paragraph(Html.link("?id="+document.getKey().toString()+"&list=" + name + "&action=Item&callbackAction=" + Callback_Action_ClearCache + "&section=" + section, "Clear cache for document")));
             docView.append(Html.paragraph(Html.link("?id="+document.getKey().toString()+"&list=" + name + "&action=Item&callbackAction=" + Callback_Action_Analyse + "&section=" + section, "Re-analyse")));
             docView.append(Html.paragraph(Html.link("/Export?document="+document.getKey().toString()+"&session=SystemSessionToken", "Download Document")));

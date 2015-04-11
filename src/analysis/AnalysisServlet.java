@@ -155,6 +155,18 @@ public class AnalysisServlet extends DocumentService {
 
                 returnError(e.narration, HttpServletResponse.SC_OK, resp);
                 return;
+            } catch (Exception e) {
+
+                PukkaLogger.log( e );
+
+                document.setMessage("Failed to parse document: Internal Error");
+                document.setStatus(ContractStatus.getFailed());
+                document.update();
+
+                invalidateDocumentCache(document, project);
+
+                returnError("Internal Error", HttpServletResponse.SC_OK, resp);
+                return;
             }
 
             // Update the status of the document

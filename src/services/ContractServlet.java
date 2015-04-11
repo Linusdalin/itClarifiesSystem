@@ -162,6 +162,7 @@ public class ContractServlet extends DocumentService{
                             .put("description", contract.getMessage())               // TODO: This should be a separate analysis feedback
                             .put("owner", contract.getOwnerId().toString())
                             .put("creation", contract.getCreation().getSQLTime().toString())
+                            .put("updated", version.getCreation().getSQLTime().toString())
                             .put("visibility", "org")
                             .put("fingerprint", version.getFingerprint())
                             .put("access", access.getName());

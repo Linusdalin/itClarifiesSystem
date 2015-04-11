@@ -42,7 +42,7 @@ import java.util.List;
  *
  *
  *          // TODO: Add more document types and detect type by extension
- *          // TODO: The order of the parameters should not matter
+ *          // TODO: The order of the parameters should not matter. This implementation expects the document content to come last
  *
  */
 
@@ -143,6 +143,9 @@ public class FileUploadServlet extends DocumentService {
 
                     if ( fi.isFormField () ){
 
+
+                        System.out.println("Got form field " + fi.getName());
+
                         if(fi.getFieldName().equals("session")){
 
                             sessionToken = new String(fi.get());
@@ -151,6 +154,8 @@ public class FileUploadServlet extends DocumentService {
                                 returnError("No Session", ErrorType.SESSION, HttpServletResponse.SC_FORBIDDEN, resp);
                                 return;
                             }
+
+                            PukkaLogger.log(PukkaLogger.Level.INFO, "Validating session key " + sessionToken);
 
                         }
 
@@ -222,8 +227,6 @@ public class FileUploadServlet extends DocumentService {
                                 PukkaLogger.log(PukkaLogger.Level.INFO, "Document key: " + _document);
                                 document = new Contract(new LookupByKey( new DatabaseAbstractionFactory().createKey(_document)));
 
-                                if(!mandatoryObjectExists(document, resp))
-                                    return;
                             }
 
                         }
@@ -260,6 +263,28 @@ public class FileUploadServlet extends DocumentService {
                      else{
 
                         owner = sessionManagement.getUser();
+
+                        if(document != null && !mandatoryObjectExists(document, resp))
+                            return;
+
+                        if(project == null){
+
+                            // There was no project passed in the request
+
+                            returnError("No project given", ErrorType.DATA, HttpServletResponse.SC_BAD_REQUEST, resp);
+                            return;
+
+                        }
+
+                        if(owner == null){
+
+                            // There was no project passed in the request
+
+                            returnError("No owner in session", ErrorType.DATA, HttpServletResponse.SC_FORBIDDEN, resp);
+                            return;
+
+                        }
+
 
                         //TODO; This should be more relaxed. Within a team more than the owner must be able to contribute. Fix this with team access rights
 

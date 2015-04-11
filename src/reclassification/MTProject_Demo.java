@@ -1,5 +1,7 @@
 package reclassification;
 
+import dataRepresentation.DBTimeStamp;
+
 /**
  * Created with IntelliJ IDEA.
  * User: Linus
@@ -35,6 +37,7 @@ public class MTProject_Demo extends NewMTProject {
            */
                setProjectName("Demo");
                setTargetServer("http://localhost:8080");
+                DBTimeStamp now = new DBTimeStamp();
 
 
           /***********************************************************
@@ -71,10 +74,10 @@ public class MTProject_Demo extends NewMTProject {
                                   "Introduction", 0, "itClarifies", false));
 
                   addDefinition(new Redefinition("Introduction", true, "Demo", "Test document.docx", 1,
-                                  "Introduction is normal, but this should be detected 2014-06-01 in analysis. This contains an internal link to a later chapter. Date is not a tag", false));
+                                  "Introduction is normal, but this should be detected 2014-06-01 in analysis. This contains an internal link to a later chapter. Date is not a tag", false, now.getISODate()));
 
                   addDefinition(new Redefinition("Introduction", true, "Demo", "Test document.docx", 1,
-                                  "Introduction is normal, but this should be detected 2014-06-01 in analysis. This contains an internal link to a later chapter. Date is not a tag", false));
+                                  "Introduction is normal, but this should be detected 2014-06-01 in analysis. This contains an internal link to a later chapter. Date is not a tag", false, now.getISODate()));
 
     }
 }

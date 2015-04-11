@@ -332,6 +332,7 @@ public class ProjectDetailPage extends NarrowPage {
             html.append("     *      Generate the correct name and target server\n");
             html.append("     */\n");
 
+            html.append("         DBTimestamp now = new DBTimestamp();\n");
             html.append("         setProjectName(\""+project.getName()+"\");\n");
             html.append("         setTargetServer(\""+ serverName+"\");\n\n\n");
 
@@ -395,7 +396,7 @@ public class ProjectDetailPage extends NarrowPage {
                                         "                            \""+ theBody + "\",\n" +
                                         "                            \"" +reclassification.getPattern()+"\", "+
                                                                      reclassification.getPatternPos()+", \""+
-                                                                     reclassification.getUser()+"\", false));\n\n");
+                                                                     reclassification.getUser()+"\", false, now.getISODate()));\n\n");
                 } catch (BackOfficeException e) {
                     PukkaLogger.log(e);
                 }

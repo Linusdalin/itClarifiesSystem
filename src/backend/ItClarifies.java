@@ -453,6 +453,7 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
                 new LoginForm(),
                 new EditFragmentDetailsForm( this, ""),
                 new AddDefinitionForm( this, ""),
+                new AddReferenceForm( this, ""),
 
         };
 

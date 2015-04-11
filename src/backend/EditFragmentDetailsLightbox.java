@@ -7,7 +7,9 @@ import contractManagement.ContractVersionInstance;
 import contractManagement.Project;
 import crossReference.Definition;
 import crossReference.Reference;
+import crossReference.ReferenceType;
 import dataRepresentation.DBTimeStamp;
+import dataRepresentation.DataObjectInterface;
 import databaseLayer.DatabaseAbstractionFactory;
 import featureTypes.FeatureTypeTree;
 import log.PukkaLogger;
@@ -20,6 +22,7 @@ import pukkaBO.form.*;
 import pukkaBO.style.Html;
 import reclassification.Reclassification;
 import reclassification.Redefinition;
+import reclassification.Rereference;
 import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
@@ -63,9 +66,16 @@ public class EditFragmentDetailsLightbox extends Lightbox {
             html.append(new AddDefinitionForm(backOffice, fromKey).renderForm());
 
         }
+        if(add != null && add.equals("reference")){
+
+            html.append("<h1> New Reference </h1>");
+            html.append(new AddReferenceForm(backOffice, fromKey).renderForm());
+
+        }
         else if(formAction == null){
 
             html.append("<a href=\"?add=definition&page="+getName()+ "&fragment="+ fromKey +"\">new Definition</a>");
+            html.append(" <a href=\"?add=reference&page="+getName()+ "&fragment="+ fromKey +"\">new Reference</a>");
             html.append(new EditFragmentDetailsForm(backOffice, fromKey).renderForm());
         }
         else{
@@ -136,7 +146,7 @@ class EditFragmentDetailsForm extends Form implements FormInterface {
             for (Reference reference : referencesFromFragment) {
 
                 elements.add(new TextField(reference.getPattern())
-                        .setSize(0, 30, 20)
+                        .setSize(0, 100, 30)
                         .withPlaceholder("user name")
                         .withValue(reference.getTo().getKey().toString())
                         .withTooltip("Fragment reference TO")
@@ -160,7 +170,7 @@ class EditFragmentDetailsForm extends Form implements FormInterface {
             //TODO: make this hidden
 
             elements.add(new TextField("fragment")
-                    .setSize(0, 30, 20)
+                    .setSize(0, 100, 30)
                     .withValue(fragmentKey)
             );
 
@@ -179,6 +189,17 @@ class EditFragmentDetailsForm extends Form implements FormInterface {
             PukkaLogger.log( e );
         }
     }
+
+    /***********************************************************************
+     *
+     *          Callback for the edit details form
+     *
+     *
+     * @param request
+     * @param backOffice
+     * @return
+     * @throws BackOfficeException
+     */
 
     public String submitCallBack(HttpServletRequest request, BackOfficeInterface backOffice) throws BackOfficeException {
 
@@ -215,7 +236,10 @@ class EditFragmentDetailsForm extends Form implements FormInterface {
 
                 for (Reference reference : referencesFromFragment) {
 
+                    // Todo set toFragment for reference here
+
                     message.append(Html.paragraph("Update of reference " + reference.getName() + " NOT implemented!"));
+
                 }
 
                 for (Definition definition : definitionsForFragment) {
@@ -345,7 +369,7 @@ class AddDefinitionForm extends Form implements FormInterface {
             }
 
             String pattern = request.getParameter("pattern");
-            if(fragmentKey == null){
+            if(pattern == null){
 
                 System.out.println("No pattern given");
                 message.append(Html.paragraph("No pattern given. Can't create definition."));
@@ -384,7 +408,7 @@ class AddDefinitionForm extends Form implements FormInterface {
                 Definition definition = new Definition(pattern, fragment, fragment.getOrdinal(), version, project, definitionText);
                 definition.store();
 
-                Redefinition redefinition = new Redefinition(pattern, true, project.getName(), document.getName(),fragment.getOrdinal(), fragment.getText(), false);
+                Redefinition redefinition = new Redefinition(pattern, true, project.getName(), document.getName(),fragment.getOrdinal(), fragment.getText(), false, now.getISODate());
                 redefinition.store();
 
                 FragmentClassification definitionSource = new FragmentClassification(fragment, tag, 80, 0, "", "", user, version, project, pattern, patternPos, pattern.length(), 100, keyWords, now.getISODate());
@@ -408,5 +432,173 @@ class AddDefinitionForm extends Form implements FormInterface {
         return message.toString();
 
      }
+
+}
+
+    /*****************************************************************'
+     *
+     *
+     *      Form for editing the details
+     *
+     */
+
+
+    class AddReferenceForm extends Form implements FormInterface {
+
+        private ContractFragment fragment = null;
+
+
+        public AddReferenceForm(BackOfficeInterface bo, String fragmentKey){
+
+            this.name = "addReferenceForm";
+            title = "Add Reference for Fragment";
+
+            try{
+
+                List<FormFieldInterface> elements = new ArrayList<FormFieldInterface>();
+
+                if(fragmentKey != null && !fragmentKey.equals("")){
+
+                    fragment = new ContractFragment(new LookupByKey(new DatabaseAbstractionFactory().createKey(fragmentKey)));
+
+                    elements.add(new DescriptionText(fragment.getText() + "\n\n"));
+                }
+
+
+                //TODO: make this hidden
+
+                elements.add(new TextField("fragment")
+                        .setSize(0, 100, 20)
+                        .withValue(fragmentKey)
+                );
+
+                elements.add(new TextField("toFragment")
+                        .setSize(0, 100, 20)
+                        .withPlaceholder("frgment key...")
+                );
+
+
+                elements.add(new TextField("pattern")
+                        .setSize(0, 50, 20)
+                        .withPlaceholder("Definition...")
+                );
+
+
+                elements.add(new Button("Create", FormPlacement.NEW_LINE, false));
+
+                setElements(elements);
+                setRenderer(new StarlightFormRenderer());
+                setBackOfficeLocation(new BackOfficeLocation(bo, "Documents", ""));
+
+
+                setActionURL("?page=editFragmentLightbox", "Create", true);
+
+            } catch (Exception e) {
+
+                PukkaLogger.log( e );
+            }
+        }
+
+        /**************************************************************************'
+         *
+         *          Callback for creating a definition
+         *
+         *
+         * @param request
+         * @param backOffice
+         * @return
+         * @throws BackOfficeException
+         */
+
+        public String submitCallBack(HttpServletRequest request, BackOfficeInterface backOffice) throws BackOfficeException {
+
+            StringBuffer message = new StringBuffer();
+
+            System.out.println(" *** New Reference callback!");
+            ContractFragment destinationFragment = null;
+            ReferenceType referenceType = ReferenceType.getExplicit();
+            try {
+
+                String fragmentKey = request.getParameter("fragment");
+                if(fragmentKey == null){
+
+                    System.out.println("No fragment");
+                    message.append(Html.paragraph("No fragment given. Can't create definition."));
+                    return message.toString();
+                }
+
+                String pattern = request.getParameter("pattern");
+                if(pattern == null){
+
+                    System.out.println("No pattern given");
+                    message.append(Html.paragraph("No pattern given. Can't create definition."));
+                    return message.toString();
+                }
+
+                fragment = new ContractFragment(new LookupByKey(new DatabaseAbstractionFactory().createKey(fragmentKey)));
+                int patternPos = fragment.getText().indexOf(pattern);
+
+                String destinationFragmentKey = request.getParameter("toFragment");
+                if(destinationFragmentKey == null){
+
+                    System.out.println("No destination fragment");
+                    message.append(Html.paragraph("No destination fragment given. Creating an open reference"));
+                    destinationFragment = fragment; // Use same key when the type is external
+                    referenceType = ReferenceType.getOpen();
+
+                }else{
+
+                    destinationFragment = new ContractFragment(new LookupByKey(new DatabaseAbstractionFactory().createKey(destinationFragmentKey)));
+
+                }
+
+                if(!fragment.exists()){
+
+                    System.out.println("No fragment found");
+                    message.append(Html.paragraph("No fragment found for key " + fragmentKey));
+                    return message.toString();
+                }
+
+                if(patternPos < 0){
+
+                    System.out.println("Pattern not found");
+                    message.append(Html.paragraph("Could not find the pattern" + pattern + " in the fragment text \""+ fragment.getText()+"\""));
+                    return message.toString();
+                }
+
+
+                // Create the new reference
+
+                DBTimeStamp now = new DBTimeStamp();
+
+                ContractVersionInstance version = fragment.getVersion();
+                Contract document = version.getDocument();
+                Project project = document.getProject();
+                PortalUser user = PortalUser.getSystemUser();
+                String tag = FeatureTypeTree.DefinitionDef.getName();
+                String keyWords = FeatureTypeTree.DefinitionDef.getHierarchy();
+
+                Reference reference = new Reference(pattern, fragment.getKey(), destinationFragment.getKey(), version.getKey(), project.getKey(), referenceType, pattern, patternPos,  user.getKey());
+                reference.store();
+
+                Rereference reReference = new Rereference(pattern, true, project.getName(), document.getName(),fragment.getOrdinal(), fragment.getText(), fragment.getText(), referenceType.getName(), false, now.getISODate());
+                reReference.store();
+
+                message.append(Html.paragraph("Stored a new reference for" + pattern + ". (Using default type " + referenceType.getName() + ")"));
+
+
+
+            } catch (Exception e) {
+
+                PukkaLogger.log( e );
+                return "Internal error when trying to add a reference";
+            }
+
+
+            return message.toString();
+
+         }
+
+
 
 }

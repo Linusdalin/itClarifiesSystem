@@ -115,7 +115,7 @@ public class GeneratedTableTests{
      
              try{
      
-                 contractManagement.DocumentSection table1 = new contractManagement.DocumentSection("text 1", 2, "text 3", dummyKey, dummyKey, new userManagement.AccessRightTable().getDummyConstantValue( ), "2012-01-07");
+                 contractManagement.DocumentSection table1 = new contractManagement.DocumentSection("text 1", 2, "text 3", dummyKey, dummyKey, new userManagement.AccessRightTable().getDummyConstantValue( ), dummyKey, "2012-01-08");
 
                  assertThat(table1.getName(), is("text 1"));
                  assertThat(table1.getOrdinal(), is((long)2));
@@ -125,7 +125,9 @@ public class GeneratedTableTests{
                  assertThat(table1.getOwnerId(), is(dummyKey));
                  assertThat(table1.getOwner().exists(), is(false));
                  assertThat(table1.getAccess(), is(new userManagement.AccessRightTable().getDummyConstantValue( )));
-                 assertThat(table1.getCreation().getISODate(), is("2012-01-07"));
+                 assertThat(table1.getParentId(), is(dummyKey));
+                 assertThat(table1.getParent().exists(), is(false));
+                 assertThat(table1.getCreation().getISODate(), is("2012-01-08"));
 
                  table1.store();
                  contractManagement.DocumentSection table2 = new contractManagement.DocumentSection();
@@ -139,7 +141,9 @@ public class GeneratedTableTests{
                  assertThat(table2.getOwnerId(), is(dummyKey));
                  assertThat(table2.getOwner().exists(), is(false));
                  assertThat(table2.getAccess(), is(new userManagement.AccessRightTable().getDummyConstantValue( )));
-                 assertThat(table2.getCreation().getISODate(), is("2012-01-07"));
+                 assertThat(table2.getParentId(), is(dummyKey));
+                 assertThat(table2.getParent().exists(), is(false));
+                 assertThat(table2.getCreation().getISODate(), is("2012-01-08"));
 
                  table1.setName("text 11");
                  table1.setOrdinal(12);
@@ -147,7 +151,8 @@ public class GeneratedTableTests{
                  table1.setProject( dummyKey);
                  table1.setOwner( dummyKey);
                  table1.setAccess(new userManagement.AccessRightTable().getDummyConstantValue( ));
-                 table1.setCreation(new DBTimeStamp(DBTimeStamp.ISO_DATE, "2012-01-17"));
+                 table1.setParent( dummyKey);
+                 table1.setCreation(new DBTimeStamp(DBTimeStamp.ISO_DATE, "2012-01-18"));
                  assertThat(table1.getName(), is("text 11"));
                  assertThat(table1.getOrdinal(), is((long)12));
                  assertThat(table1.getDescription(), is("text 13"));
@@ -156,7 +161,9 @@ public class GeneratedTableTests{
                  assertThat(table1.getOwnerId(), is(dummyKey));
                  assertThat(table1.getOwner().exists(), is(false));
                  assertThat(table1.getAccess(), is(new userManagement.AccessRightTable().getDummyConstantValue( )));
-                 assertThat(table1.getCreation().getISODate(), is("2012-01-17"));
+                 assertThat(table1.getParentId(), is(dummyKey));
+                 assertThat(table1.getParent().exists(), is(false));
+                 assertThat(table1.getCreation().getISODate(), is("2012-01-18"));
 
              }catch(BackOfficeException e){
      
@@ -1923,7 +1930,7 @@ public class GeneratedTableTests{
      
              try{
      
-                 reclassification.Redefinition table1 = new reclassification.Redefinition("text 1", false, "text 3", "text 4", 5, "text 6", true);
+                 reclassification.Redefinition table1 = new reclassification.Redefinition("text 1", false, "text 3", "text 4", 5, "text 6", true, "2012-01-08");
 
                  assertThat(table1.getName(), is("text 1"));
                  assertThat(table1.getAdd(), is(false));
@@ -1932,6 +1939,7 @@ public class GeneratedTableTests{
                  assertThat(table1.getFragmentNo(), is((long)5));
                  assertThat(table1.getFragment(), is("text 6"));
                  assertThat(table1.getClosed(), is(true));
+                 assertThat(table1.getDate().getISODate(), is("2012-01-08"));
 
                  table1.store();
                  reclassification.Redefinition table2 = new reclassification.Redefinition();
@@ -1944,6 +1952,7 @@ public class GeneratedTableTests{
                  assertThat(table2.getFragmentNo(), is((long)5));
                  assertThat(table2.getFragment(), is("text 6"));
                  assertThat(table2.getClosed(), is(true));
+                 assertThat(table2.getDate().getISODate(), is("2012-01-08"));
 
                  table1.setName("text 11");
                  table1.setAdd(false);
@@ -1952,6 +1961,7 @@ public class GeneratedTableTests{
                  table1.setFragmentNo(15);
                  table1.setFragment("text 16");
                  table1.setClosed(true);
+                 table1.setDate(new DBTimeStamp(DBTimeStamp.ISO_DATE, "2012-01-18"));
                  assertThat(table1.getName(), is("text 11"));
                  assertThat(table1.getAdd(), is(false));
                  assertThat(table1.getProject(), is("text 13"));
@@ -1959,10 +1969,77 @@ public class GeneratedTableTests{
                  assertThat(table1.getFragmentNo(), is((long)15));
                  assertThat(table1.getFragment(), is("text 16"));
                  assertThat(table1.getClosed(), is(true));
+                 assertThat(table1.getDate().getISODate(), is("2012-01-18"));
 
              }catch(BackOfficeException e){
      
                  e.logError("Error creating table Redefinition");
+                 assertTrue(false);
+                 
+             }catch(Exception e){
+
+                 e.printStackTrace();
+                 assertTrue(false);
+             }
+          }
+
+         @Test
+         public void testRereference(){
+     
+             try{
+     
+                 reclassification.Rereference table1 = new reclassification.Rereference("text 1", false, "text 3", "text 4", 5, "text 6", "text 7", "text 8", true, "2012-01-10");
+
+                 assertThat(table1.getName(), is("text 1"));
+                 assertThat(table1.getAdd(), is(false));
+                 assertThat(table1.getProject(), is("text 3"));
+                 assertThat(table1.getDocument(), is("text 4"));
+                 assertThat(table1.getFragmentNo(), is((long)5));
+                 assertThat(table1.getFragment(), is("text 6"));
+                 assertThat(table1.getToFragment(), is("text 7"));
+                 assertThat(table1.getType(), is("text 8"));
+                 assertThat(table1.getClosed(), is(true));
+                 assertThat(table1.getDate().getISODate(), is("2012-01-10"));
+
+                 table1.store();
+                 reclassification.Rereference table2 = new reclassification.Rereference();
+                 table2.load(new LookupByKey(table1.getKey()));
+
+                 assertThat(table2.getName(), is("text 1"));
+                 assertThat(table2.getAdd(), is(false));
+                 assertThat(table2.getProject(), is("text 3"));
+                 assertThat(table2.getDocument(), is("text 4"));
+                 assertThat(table2.getFragmentNo(), is((long)5));
+                 assertThat(table2.getFragment(), is("text 6"));
+                 assertThat(table2.getToFragment(), is("text 7"));
+                 assertThat(table2.getType(), is("text 8"));
+                 assertThat(table2.getClosed(), is(true));
+                 assertThat(table2.getDate().getISODate(), is("2012-01-10"));
+
+                 table1.setName("text 11");
+                 table1.setAdd(false);
+                 table1.setProject("text 13");
+                 table1.setDocument("text 14");
+                 table1.setFragmentNo(15);
+                 table1.setFragment("text 16");
+                 table1.setToFragment("text 17");
+                 table1.setType("text 18");
+                 table1.setClosed(true);
+                 table1.setDate(new DBTimeStamp(DBTimeStamp.ISO_DATE, "2012-01-20"));
+                 assertThat(table1.getName(), is("text 11"));
+                 assertThat(table1.getAdd(), is(false));
+                 assertThat(table1.getProject(), is("text 13"));
+                 assertThat(table1.getDocument(), is("text 14"));
+                 assertThat(table1.getFragmentNo(), is((long)15));
+                 assertThat(table1.getFragment(), is("text 16"));
+                 assertThat(table1.getToFragment(), is("text 17"));
+                 assertThat(table1.getType(), is("text 18"));
+                 assertThat(table1.getClosed(), is(true));
+                 assertThat(table1.getDate().getISODate(), is("2012-01-20"));
+
+             }catch(BackOfficeException e){
+     
+                 e.logError("Error creating table Rereference");
                  assertTrue(false);
                  
              }catch(Exception e){

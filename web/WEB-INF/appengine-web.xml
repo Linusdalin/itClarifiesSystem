@@ -51,7 +51,7 @@
                     1-12-0:         Checklist, classification count issue, definitions left col
                     1-12-1:         Image service, checklist name, second pass analysis, definition/use/def fixes
                     1-12-2:         Fixes to double generation, fixes to uploading checklist
-                    1-12-3:         Upload Compliance Document, Setting source, checklistitemservlet update
+                    1-12-3:         Upload Compliance Document, Setting source, checklistitem servlet update
                     1-12-4:         New session mem-cache, canonical definition, remove def in BO, class tree
                     1-13-0:         Updated the fragment data model with table width
                     1-13-1:         Chapter name, analysis feedback fixes
@@ -62,7 +62,7 @@
                     2-1-0:          Analysis and cross reference improvements, Project Spring fixes
                     2-1-1:          Fragment merge, improvements on definitions
                     2-1-2:          Lift/sweep/back
-                    2-2-0:          Fingerprint, reupload, reanalyze
+                    2-2-0:          Fingerprint, re-upload, reanalyze, transpose, doc in BO, doc modify date, export, pare improve
       -->
 
 </appengine-web-app>

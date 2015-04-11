@@ -26,7 +26,7 @@ public class ExportServlet extends ItClarifiesService{
 
     /*************************************************************************
      *
-     *          Get projects matching the request criteria
+     *          Get a document matching the request criteria
      *
      *          Parameters:
      *
@@ -117,8 +117,7 @@ public class ExportServlet extends ItClarifiesService{
 
     public void doPost(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
-        returnError("Post not supported in " + DataServletName, HttpServletResponse.SC_METHOD_NOT_ALLOWED, resp);
-        resp.flushBuffer();
+        doGet(req, resp);
 
      }
 

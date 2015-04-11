@@ -130,7 +130,7 @@
         <li><a href="#AnnotationLink">Annotations, Classifications and Risk</a></li>
         <li><a href="#ActionLink">Actions and Checklists</a></li>
         <li><a href="#SearchLink">Search</a></li>
-        <li><a href="#UploadLink">Upload</a></li>
+        <li><a href="#UploadLink">Upload & Download</a></li>
         <li><a href="#ReferencesLink">References</a></li>
 
     </ul>
@@ -1520,7 +1520,7 @@
 <div style="width:100%">
 
     <a id="UploadLink"></a>
-    <h1>Upload</h1>
+    <h1>Upload & Download</h1>
     <p>Upload documents in a project</p>
 </div>
 
@@ -1571,10 +1571,32 @@
 
 <div style="float:left; width:33%">
 
-    <!--  Empty -->
+    <FORM METHOD=POST action="<% out.print(host); %>/Export" id="exportForm" name="exportForm" accept-charset="UTF-8">
+
+        <fieldset style="height:440px">
+            <h3>Download/Export</h3>
+
+            <p>	<label for="export_document">Document Key</label>
+                <input type="text" id="export_document" name="document" value="" size="50"></p>
+
+
+            <p>	<label for="export_inject">Inject Attributes</label>
+                <input type="checkbox" id="export_inject" name="export"></p>
+
+
+            <% out.print(getTokenParameter(useRealToken, "export"));%>
+
+            <input type="submit" value="Download File" />
+
+
+        <h3>Response json:</h3>
+
+            <p>The response:
+                <p><span class="code">The document</span></p>
+        </fieldset>
+    </form>
 
 </div>
-
 
 <div style="float:left; width:33%">
 

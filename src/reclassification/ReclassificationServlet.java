@@ -61,6 +61,7 @@ public class ReclassificationServlet extends DocumentService {
      * @param resp -
      * @throws java.io.IOException -
      *
+     * //TODO: Pass time as a parameter here to keep the original time  in the new attributes
      *
      */
 
@@ -163,7 +164,7 @@ public class ReclassificationServlet extends DocumentService {
                 //String fragmentBody = URLDecoder.decode(encodedFragment, "UTF-8");
                 String fragmentBody = encodedFragment;
 
-                Redefinition redefinition = new Redefinition(pattern, true, project.getName(), document.getName(), (int)ordinal, fragmentBody, false);
+                Redefinition redefinition = new Redefinition(pattern, true, project.getName(), document.getName(), (int)ordinal, fragmentBody, false, now.getISODate());
 
                 ContractFragment fragment = locateFragment(fragmentBody, (int)ordinal, fragmentsForDocument);
 

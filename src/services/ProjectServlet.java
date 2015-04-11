@@ -153,13 +153,13 @@ public class ProjectServlet extends ItClarifiesService{
      * @param creationTime
      * @throws BackOfficeException
      *
-     *              //TODO: Different sections for different types is not implemented. Always use exactly one section
+     *              //TODO: Different sections for different types of projects is not implemented. Always use exactly one section
      *
      */
 
     private void createSectionsForProject(Project project, ProjectType projectType, PortalUser owner, AccessRight projectAccess, DBTimeStamp creationTime) throws BackOfficeException {
 
-        DocumentSection section = new DocumentSection("Unsorted", (long)0, "Unsorted Documents", project, owner, projectAccess, creationTime.getISODate());
+        DocumentSection section = new DocumentSection("Unsorted", (long)0, "Unsorted Documents", project, owner, projectAccess, null, creationTime.getISODate());
         section.store();
 
     }
