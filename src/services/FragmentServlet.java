@@ -183,13 +183,13 @@ public class FragmentServlet extends ItClarifiesService{
 
         }catch(BackOfficeException e){
 
+            PukkaLogger.log(e);
             returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            e.printStackTrace();
 
         } catch ( Exception e) {
 
+            PukkaLogger.log(e);
             returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            e.printStackTrace();
 
         }
 

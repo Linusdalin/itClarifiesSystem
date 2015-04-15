@@ -480,7 +480,7 @@ public class ProjectDetailPage extends NarrowPage {
             try {
                 System.out.println("Found " + reDefinitionsForDocument.getCount() + " definitions.");
             } catch (BackOfficeException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                PukkaLogger.log(e);
             }
 
             for (DataObjectInterface object : reDefinitionsForDocument.getValues()) {

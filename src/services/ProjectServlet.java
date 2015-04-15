@@ -159,7 +159,7 @@ public class ProjectServlet extends ItClarifiesService{
 
     private void createSectionsForProject(Project project, ProjectType projectType, PortalUser owner, AccessRight projectAccess, DBTimeStamp creationTime) throws BackOfficeException {
 
-        DocumentSection section = new DocumentSection("Unsorted", (long)0, "Unsorted Documents", project, owner, projectAccess, null, creationTime.getISODate());
+        DocumentSection section = new DocumentSection("Unsorted", (long)0, "Unsorted Documents", project.getKey(), owner.getKey(), projectAccess, null, creationTime.getISODate());
         section.store();
 
     }

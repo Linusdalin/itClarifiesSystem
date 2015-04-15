@@ -7,6 +7,7 @@ import dataRepresentation.DataObjectInterface;
 import dataRepresentation.DataTableInterface;
 import dataRepresentation.DisplayFormat;
 import databaseLayer.DBKeyInterface;
+import log.PukkaLogger;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.backOffice.BackOfficeLocation;
 import pukkaBO.backOffice.Icon;
@@ -215,8 +216,8 @@ public class ProjectList extends GroupByList implements ListInterface{
         }
         catch(BackOfficeException e){
 
-            System.out.println("Error: Error adding element " + e.narration);
-            e.printStackTrace();
+            PukkaLogger.log(e, "Error: Error adding element " + e.narration);
+
         }
 
         return "Error: Could not create Item...";

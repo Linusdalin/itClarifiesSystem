@@ -6,6 +6,7 @@ import com.google.appengine.api.datastore.KeyFactory;
 import contractManagement.*;
 import databaseLayer.AppEngine.AppEngineKey;
 import databaseLayer.DBKeyInterface;
+import log.PukkaLogger;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -185,7 +186,7 @@ public class PreviewServlet extends DocumentService{
 
           } catch (FileUploadException e) {
 
-                e.printStackTrace();
+                e.printStackTrace(System.out);
         }
     }
 
@@ -242,8 +243,8 @@ public class PreviewServlet extends DocumentService{
 
 
         } catch (BackOfficeException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
 
+            PukkaLogger.log(e);
             returnError("Error in get Preview", HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
             resp.flushBuffer();
         }

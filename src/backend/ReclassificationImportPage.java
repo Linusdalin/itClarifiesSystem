@@ -171,7 +171,8 @@ public class ReclassificationImportPage extends NarrowPage {
 
 
         } catch (BackOfficeException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+
+            PukkaLogger.log(e);
         }
 
         return feedback.toString();
@@ -342,7 +343,7 @@ public class ReclassificationImportPage extends NarrowPage {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                PukkaLogger.log(e);
             }
 
             System.out.println("RiskClassification: " + riskClassification.getKey().toString());

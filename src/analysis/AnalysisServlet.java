@@ -426,7 +426,7 @@ public class AnalysisServlet extends DocumentService {
 
             }catch(NullPointerException e){
 
-                e.printStackTrace();
+                e.printStackTrace(System.out);
                 String message = "Internal Error analysing fragment " + fragment.getText() + PukkaLogger.getMessage(e);
                 errorMessages.append(message);
                 PukkaLogger.log( PukkaLogger.Level.WARNING, message );

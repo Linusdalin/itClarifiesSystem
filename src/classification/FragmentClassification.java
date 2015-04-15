@@ -98,8 +98,8 @@ public class FragmentClassification extends DataObject implements DataObjectInte
 
         }catch(BackOfficeException e){
 
+            PukkaLogger.log(e);
             System.out.println("Error loading object from database" + e.narration);
-            e.printStackTrace();
         }
 
     }

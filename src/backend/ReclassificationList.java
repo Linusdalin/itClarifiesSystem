@@ -257,7 +257,7 @@ public class ReclassificationList extends GroupByList implements ListInterface{
 
         html.append(
                 "           } catch (Exception e) {\n" +
-                "                e.printStackTrace();\n" +
+                "                e.printStackTrace(System.out);\n" +
                 "                assertTrue(false);\n" +
                 "           }\n" +
                 "        }\n\n");

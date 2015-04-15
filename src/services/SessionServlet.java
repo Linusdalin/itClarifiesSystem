@@ -106,8 +106,8 @@ public class SessionServlet extends ItClarifiesService{
 
         } catch (BackOfficeException e) {
 
+            PukkaLogger.log(e);
             returnError(e.narration, HttpServletResponse.SC_BAD_REQUEST, resp);
-            e.printStackTrace();
 
         }
 

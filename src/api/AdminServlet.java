@@ -3,6 +3,7 @@ package api;
 import adminServices.GenericAdminServlet;
 import com.google.appengine.api.appidentity.AppIdentityServiceFactory;
 import com.google.appengine.api.utils.SystemProperty;
+import log.PukkaLogger;
 import maintenance.Smokey;
 import pukkaBO.api.PukkaServlet;
 
@@ -110,7 +111,7 @@ public class AdminServlet extends GenericAdminServlet {
 
         }catch(Exception e){
 
-            e.printStackTrace();
+            PukkaLogger.log(e);
             resp.getWriter().println("Service not available");
         }
 

@@ -132,13 +132,13 @@ public class FragmentDetailServlet extends ItClarifiesService{
 
        }catch(BackOfficeException e){
 
+           PukkaLogger.log(e);
            returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-           e.printStackTrace();
 
        } catch ( Exception e) {
 
+           PukkaLogger.log(e);
            returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-           e.printStackTrace();
 
        }
     }
@@ -257,8 +257,13 @@ public class FragmentDetailServlet extends ItClarifiesService{
 
             for(Reference reference : referenceList){
 
+                String toKey = "- empty -";
+
+                if(reference.getToId() != null)
+                    toKey = reference.getToId().toString();
+
                 JSONObject referenceJSON = new JSONObject()
-                        .put("id", reference.getToId().toString())
+                        .put("id", toKey)
                         .put("pattern",    reference.getPattern())
                         .put("patternPos", reference.getPatternPos())
                         .put("type", reference.getType().getName());

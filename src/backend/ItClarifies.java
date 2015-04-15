@@ -541,8 +541,8 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
 
         } catch (Exception e) {
 
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Failed to generate passwords for test users");
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            PukkaLogger.log(PukkaLogger.Level.ERROR, "Failed to generate passwords for test users");
+            e.printStackTrace(System.out);  //To change body of catch statement use File | Settings | File Templates.
         }
 
 

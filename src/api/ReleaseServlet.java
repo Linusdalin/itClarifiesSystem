@@ -4,6 +4,7 @@ import adminServices.GenericAdminServlet;
 import cache.ServiceCache;
 import com.google.appengine.api.appidentity.AppIdentityServiceFactory;
 import com.google.appengine.api.utils.SystemProperty;
+import log.PukkaLogger;
 import maintenance.Smokey;
 import pukkaBO.exceptions.BackOfficeException;
 
@@ -63,7 +64,7 @@ public class ReleaseServlet extends GenericAdminServlet {
 
             } catch (BackOfficeException e) {
 
-                e.printStackTrace();
+                PukkaLogger.log(e);
                 message = "Could not access cache...";
             }
 

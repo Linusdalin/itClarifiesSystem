@@ -3,6 +3,7 @@ package classification;
 import classification.FragmentClass;
 import classification.FragmentClassTable;
 import databaseLayer.DBKeyInterface;
+import log.PukkaLogger;
 import net.sf.json.JSONObject;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
@@ -81,13 +82,13 @@ public class ClassServlet extends DocumentService {
 
         }catch(BackOfficeException e){
 
+            PukkaLogger.log(e);
             returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            e.printStackTrace();
 
         } catch ( Exception e) {
 
+            PukkaLogger.log(e);
             returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            e.printStackTrace();
 
         }
 
@@ -170,13 +171,13 @@ public class ClassServlet extends DocumentService {
 
         }catch(BackOfficeException e){
 
+            PukkaLogger.log(e);
             returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            e.printStackTrace();
 
         } catch ( Exception e) {
 
+            PukkaLogger.log(e);
             returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            e.printStackTrace();
 
         }
 

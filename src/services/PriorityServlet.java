@@ -5,6 +5,7 @@ import contractManagement.Contract;
 import contractManagement.Project;
 import databaseLayer.DBKeyInterface;
 import databaseLayer.DatabaseAbstractionFactory;
+import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
@@ -78,18 +79,18 @@ public class PriorityServlet extends DocumentService{
 
         }catch(BackOfficeException e){
 
+            PukkaLogger.log(e);
             returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            e.printStackTrace();
 
         } catch ( JSONException e) {
 
+            PukkaLogger.log(e);
             returnError(e.getMessage(), HttpServletResponse.SC_BAD_REQUEST, resp);
-            e.printStackTrace();
 
         } catch ( Exception e) {
 
+            PukkaLogger.log(e);
             returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-            e.printStackTrace();
 
         }
 

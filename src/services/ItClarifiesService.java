@@ -201,7 +201,7 @@ public class ItClarifiesService extends GenericAdminServlet {
 
         } catch (JSONException e) {
 
-            e.printStackTrace();
+            PukkaLogger.log(e);
             return new JSONObject();
         }
 

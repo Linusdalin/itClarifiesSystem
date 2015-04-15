@@ -380,8 +380,8 @@ public class DocumentList extends GroupByList implements ListInterface{
         }
         catch(BackOfficeException e){
 
+            PukkaLogger.log(e);
             System.out.println("Error: Error adding element " + e.narration);
-            e.printStackTrace();
         }
 
         return "Error: Could not create Item...";

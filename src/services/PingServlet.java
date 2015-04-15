@@ -1,5 +1,6 @@
 package services;
 
+import log.PukkaLogger;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import userManagement.SessionCacheKey;
@@ -58,13 +59,13 @@ public class PingServlet extends ItClarifiesService {
 
         } catch (JSONException e) {
 
+            PukkaLogger.log(e);
             returnError(e.getMessage(), HttpServletResponse.SC_BAD_REQUEST, resp);
-            e.printStackTrace();
 
         } catch (Exception e) {
 
+            PukkaLogger.log(e);
             returnError("Internal Error", HttpServletResponse.SC_BAD_REQUEST, resp);
-            e.printStackTrace();
 
         }
 

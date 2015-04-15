@@ -91,8 +91,8 @@ public class FragmentClass extends DataObject implements DataObjectInterface{
 
         }catch(BackOfficeException e){
 
+            PukkaLogger.log(e);
             System.out.println("Error loading object from database" + e.narration);
-            e.printStackTrace();
         }
 
     }

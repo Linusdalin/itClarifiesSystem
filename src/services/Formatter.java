@@ -50,7 +50,7 @@ public class Formatter {
     }
 
     // The format of the output
-    public enum OutputFormat    {JSON, XML, CSV, HTML, DOCX}
+    public enum OutputFormat    {JSON, XML, CSV, HTML, DOCX, XLSX}
     private OutputFormat format;
 
     private String newLine = "";        //How newline shall be handled by the different formats
@@ -152,6 +152,9 @@ public class Formatter {
 
             case DOCX:
                 return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+            case XLSX:
+                return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
             default:
                 throw new BackOfficeException(BackOfficeException.Usage, "Unknown Export format " + format.name() + "!");
