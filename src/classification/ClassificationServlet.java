@@ -19,6 +19,7 @@ import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
 import reclassification.Reclassification;
 import reclassification.ReclassificationTable;
+import search.SearchManager2;
 import services.DocumentService;
 import services.Formatter;
 import userManagement.Organization;
@@ -97,10 +98,10 @@ public class ClassificationServlet extends DocumentService {
 
              // Calculate the non-submitted data
 
-            PortalUser classifier = sessionManagement.getUser();
+            PortalUser currentUser = sessionManagement.getUser();
             DBTimeStamp now = new DBTimeStamp();
 
-            Organization organization = classifier.getOrganization();
+            Organization organization = currentUser.getOrganization();
 
             Project project = document.getProject();
 
@@ -132,7 +133,7 @@ public class ClassificationServlet extends DocumentService {
                     0,              // applicable phase not implemented
                     comment,
                     keyword,
-                    classifier.getKey(),
+                    currentUser.getKey(),
                     version.getKey(),
                     document.getProjectId(),
                     pattern,
@@ -145,7 +146,7 @@ public class ClassificationServlet extends DocumentService {
 
             // Store the reclassification for future analysis and improvement of the rule
 
-            String name = classifier.getName() + "@ " + now.getISODate();
+            String name = currentUser.getName() + "@ " + now.getISODate();
             boolean isPositiveClassification = true;
             StructureItem headline = fragment.getStructureItem();
             String headlineText = "";
@@ -164,7 +165,7 @@ public class ClassificationServlet extends DocumentService {
                     fragment.getText(),
                     pattern,
                     -1,
-                    classifier.getName(),
+                    currentUser.getName(),
                     false);
 
             reclassification.store();
@@ -187,8 +188,10 @@ public class ClassificationServlet extends DocumentService {
                 PukkaLogger.log(PukkaLogger.Level.WARNING, "Got (real) count of " + newCount + " classifications in the fragment but expected " + (oldCount + 1) );
 
 
+            //Reindex the fragment
 
-
+            SearchManager2 searchManager = new SearchManager2(project, currentUser);
+            searchManager.updateIndexWithClassification(fragment, classification);
 
 
             // Invalidate the cache. The document overview is changed.

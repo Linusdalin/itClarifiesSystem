@@ -90,11 +90,12 @@ public class AnnotationServlet extends ItClarifiesService{
 
                 annotation = new ContractAnnotation(
                         creator.getName() + "@" + now.getSQLTime().toString(),
-                        fragment,
+                        fragment.getKey(),
                         annotationNumber,
                         annotationBody,
-                        creator,
-                        version,
+                        creator.getKey(),
+                        version.getKey(),
+                        document.getProjectId(),
                         pattern,
                         0,                          //TODO: Anchor position not implemented
                         now.getSQLTime().toString());

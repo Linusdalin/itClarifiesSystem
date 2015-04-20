@@ -1290,7 +1290,7 @@ public class GeneratedTableTests{
      
              try{
      
-                 contractManagement.ContractAnnotation table1 = new contractManagement.ContractAnnotation("text 1", dummyKey, 3, "text 4", dummyKey, dummyKey, "text 7", 8, "2012-01-09 00:00:00.0");
+                 contractManagement.ContractAnnotation table1 = new contractManagement.ContractAnnotation("text 1", dummyKey, 3, "text 4", dummyKey, dummyKey, dummyKey, "text 8", 9, "2012-01-10 00:00:00.0");
 
                  assertThat(table1.getName(), is("text 1"));
                  assertThat(table1.getFragmentId(), is(dummyKey));
@@ -1301,9 +1301,11 @@ public class GeneratedTableTests{
                  assertThat(table1.getCreator().exists(), is(false));
                  assertThat(table1.getVersionId(), is(dummyKey));
                  assertThat(table1.getVersion().exists(), is(false));
-                 assertThat(table1.getPattern(), is("text 7"));
-                 assertThat(table1.getPatternPos(), is((long)8));
-                 assertThat(table1.getTime().getSQLTime().toString(), is("2012-01-09 00:00:00.0"));
+                 assertThat(table1.getProjectId(), is(dummyKey));
+                 assertThat(table1.getProject().exists(), is(false));
+                 assertThat(table1.getPattern(), is("text 8"));
+                 assertThat(table1.getPatternPos(), is((long)9));
+                 assertThat(table1.getTime().getSQLTime().toString(), is("2012-01-10 00:00:00.0"));
 
                  table1.store();
                  contractManagement.ContractAnnotation table2 = new contractManagement.ContractAnnotation();
@@ -1318,9 +1320,11 @@ public class GeneratedTableTests{
                  assertThat(table2.getCreator().exists(), is(false));
                  assertThat(table2.getVersionId(), is(dummyKey));
                  assertThat(table2.getVersion().exists(), is(false));
-                 assertThat(table2.getPattern(), is("text 7"));
-                 assertThat(table2.getPatternPos(), is((long)8));
-                 assertThat(table2.getTime().getSQLTime().toString(), is("2012-01-09 00:00:00.0"));
+                 assertThat(table2.getProjectId(), is(dummyKey));
+                 assertThat(table2.getProject().exists(), is(false));
+                 assertThat(table2.getPattern(), is("text 8"));
+                 assertThat(table2.getPatternPos(), is((long)9));
+                 assertThat(table2.getTime().getSQLTime().toString(), is("2012-01-10 00:00:00.0"));
 
                  table1.setName("text 11");
                  table1.setFragment( dummyKey);
@@ -1328,9 +1332,10 @@ public class GeneratedTableTests{
                  table1.setDescription("text 14");
                  table1.setCreator( dummyKey);
                  table1.setVersion( dummyKey);
-                 table1.setPattern("text 17");
-                 table1.setPatternPos(18);
-                 table1.setTime(new DBTimeStamp(DBTimeStamp.SQL_TIMESTAMP, "2012-01-19 00:00:00.0"));
+                 table1.setProject( dummyKey);
+                 table1.setPattern("text 18");
+                 table1.setPatternPos(19);
+                 table1.setTime(new DBTimeStamp(DBTimeStamp.SQL_TIMESTAMP, "2012-01-20 00:00:00.0"));
                  assertThat(table1.getName(), is("text 11"));
                  assertThat(table1.getFragmentId(), is(dummyKey));
                  assertThat(table1.getFragment().exists(), is(false));
@@ -1340,9 +1345,11 @@ public class GeneratedTableTests{
                  assertThat(table1.getCreator().exists(), is(false));
                  assertThat(table1.getVersionId(), is(dummyKey));
                  assertThat(table1.getVersion().exists(), is(false));
-                 assertThat(table1.getPattern(), is("text 17"));
-                 assertThat(table1.getPatternPos(), is((long)18));
-                 assertThat(table1.getTime().getSQLTime().toString(), is("2012-01-19 00:00:00.0"));
+                 assertThat(table1.getProjectId(), is(dummyKey));
+                 assertThat(table1.getProject().exists(), is(false));
+                 assertThat(table1.getPattern(), is("text 18"));
+                 assertThat(table1.getPatternPos(), is((long)19));
+                 assertThat(table1.getTime().getSQLTime().toString(), is("2012-01-20 00:00:00.0"));
 
              }catch(BackOfficeException e){
      

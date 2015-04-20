@@ -1,5 +1,6 @@
 package overviewExport;
 
+import analysis.ParseFeedback;
 import contractManagement.Project;
 import databaseLayer.DBKeyInterface;
 import document.AbstractImage;
@@ -80,10 +81,14 @@ public class OverviewExportServlet extends ItClarifiesService{
 
            XSSFWorkbook overview = getExcelTemplate();
            OverviewGenerator populator = new OverviewGenerator(overview, project);
-           populator.populate();
+           ParseFeedback feedback = populator.populate();
 
            //OutputStream os = new WriterOutputStream(resp.getWriter());
            //PrintStream ps = new PrintStream(os);
+
+           //TODO: This information should be passed to the user. For now we are just logging
+
+           PukkaLogger.log(PukkaLogger.Level.INFO, feedback.toJSON().toString());
 
            OutputStream os = resp.getOutputStream();
 

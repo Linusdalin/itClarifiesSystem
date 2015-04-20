@@ -346,12 +346,33 @@ public class Project extends DataObject implements DataObjectInterface{
         return versions;
     }
 
-    // No condition retrieves all items
+        // No condition retrieves all items
 
     public List<Snapshot> getSnapshotsForProject(){
 
         return getSnapshotsForProject(new LookupList());
     }
+
+    // No condition retrieves all items
+
+    public List<ContractAnnotation> getContractAnnotationsForProject(){
+
+        return getContractAnnotationsForProject(new LookupList());
+    }
+
+
+    public List<ContractAnnotation> getContractAnnotationsForProject(ConditionInterface condition){
+
+        condition.addFilter(new ReferenceFilter(ContractAnnotationTable.Columns.Project.name(), getKey()));
+
+        List<DataObjectInterface> objects = new ContractAnnotationTable(condition).getValues();
+
+        List<ContractAnnotation> annotations = (List<ContractAnnotation>)(List<?>) objects;
+
+        return annotations;
+    }
+
+
 
     public List<Keyword> getKeywordsForProject(ConditionInterface condition) throws BackOfficeException{
 

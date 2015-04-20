@@ -43,13 +43,13 @@ public class ContractAnnotation extends DataObject implements DataObjectInterfac
             table = TABLE;
     }
 
-    public ContractAnnotation(String name, DataObjectInterface fragment, long ordinal, String description, DataObjectInterface creator, DataObjectInterface version, String pattern, long patternpos, String time) throws BackOfficeException{
+    public ContractAnnotation(String name, DataObjectInterface fragment, long ordinal, String description, DataObjectInterface creator, DataObjectInterface version, DataObjectInterface project, String pattern, long patternpos, String time) throws BackOfficeException{
 
-        this(name, fragment.getKey(), ordinal, description, creator.getKey(), version.getKey(), pattern, patternpos, time);
+        this(name, fragment.getKey(), ordinal, description, creator.getKey(), version.getKey(), project.getKey(), pattern, patternpos, time);
     }
 
 
-    public ContractAnnotation(String name, DBKeyInterface fragment, long ordinal, String description, DBKeyInterface creator, DBKeyInterface version, String pattern, long patternpos, String time){
+    public ContractAnnotation(String name, DBKeyInterface fragment, long ordinal, String description, DBKeyInterface creator, DBKeyInterface version, DBKeyInterface project, String pattern, long patternpos, String time){
 
         this();
         try{
@@ -64,9 +64,10 @@ public class ContractAnnotation extends DataObject implements DataObjectInterfac
            data[3] = new TextData(description);
            data[4] = new ReferenceData(creator, columns[4].getTableReference());
            data[5] = new ReferenceData(version, columns[5].getTableReference());
-           data[6] = new TextData(pattern);
-           data[7] = new IntData(patternpos);
-           data[8] = new TimeStampData(time);
+           data[6] = new ReferenceData(project, columns[6].getTableReference());
+           data[7] = new TextData(pattern);
+           data[8] = new IntData(patternpos);
+           data[9] = new TimeStampData(time);
 
            exists = true;
         }catch(BackOfficeException e){
@@ -208,15 +209,35 @@ public class ContractAnnotation extends DataObject implements DataObjectInterfac
 
 
 
+    public DBKeyInterface getProjectId(){
+
+        ReferenceData data = (ReferenceData)this.data[6];
+        return data.value;
+    }
+
+    public Project getProject(){
+
+        ReferenceData data = (ReferenceData)this.data[6];
+        return new Project(new LookupByKey(data.value));
+    }
+
+    public void setProject(DBKeyInterface project){
+
+        ReferenceData data = (ReferenceData)this.data[6];
+        data.value = project;
+    }
+
+
+
     public String getPattern(){
 
-        TextData data = (TextData) this.data[6];
+        TextData data = (TextData) this.data[7];
         return data.getStringValue();
     }
 
     public void setPattern(String pattern){
 
-        TextData data = (TextData) this.data[6];
+        TextData data = (TextData) this.data[7];
         data.setStringValue(pattern);
     }
 
@@ -224,13 +245,13 @@ public class ContractAnnotation extends DataObject implements DataObjectInterfac
 
     public long getPatternPos(){
 
-        IntData data = (IntData) this.data[7];
+        IntData data = (IntData) this.data[8];
         return data.value;
     }
 
     public void setPatternPos(long patternpos){
 
-        IntData data = (IntData) this.data[7];
+        IntData data = (IntData) this.data[8];
         data.value = patternpos;
     }
 
@@ -238,13 +259,13 @@ public class ContractAnnotation extends DataObject implements DataObjectInterfac
 
     public DBTimeStamp getTime()throws BackOfficeException{
 
-        TimeStampData data = (TimeStampData) this.data[8];
+        TimeStampData data = (TimeStampData) this.data[9];
         return new DBTimeStamp(DBTimeStamp.SQL_TIMESTAMP, data.value);
     }
 
     public void setTime(DBTimeStamp time){
 
-        TimeStampData data = (TimeStampData) this.data[8];
+        TimeStampData data = (TimeStampData) this.data[9];
         data.value = time.getSQLTime().toString();
     }
 

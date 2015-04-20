@@ -429,6 +429,7 @@ public class DocumentService extends ItClarifiesService{
                         aComment.getComment(),
                         PortalUser.getExternalUser(),
                         versionInstance,
+                        project,
                         aComment.getAnchor(),
                         0,                          //TODO: Anchor position not implemented
                         analysisTime.getSQLTime().toString());
@@ -887,6 +888,7 @@ public class DocumentService extends ItClarifiesService{
                             riskDescription,
                             system.getKey(),
                             version.getKey(),
+                            project.getKey(),
                             classification.getPattern().getText(),
                             0,                          //TODO: Anchor position not implemented
                             analysisTime.getSQLTime().toString()

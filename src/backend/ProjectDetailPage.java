@@ -50,6 +50,7 @@ public class ProjectDetailPage extends NarrowPage {
         setSection("Organizations and Projects");
         setList("ProjectList");
 
+        addTab(new DetailsTab        ("Details",           "Project Details",                  project));
         addTab(new ClassificationTab  ("Classifications",   "Classifications for Project",      project));
         addTab(new DefinitionsTab     ("Definitions",       "Definitions for Project",          project));
         addTab(new RisksTab           ("Risks",             "Risks for Project",                project));
@@ -523,13 +524,37 @@ public class ProjectDetailPage extends NarrowPage {
             return html.toString();
         }
 
-
-
     }
 
 
 
 
+    private class DetailsTab extends PageTab implements PageTabInterface {
+
+            private Project project;
+
+            DetailsTab(String title, String headline, Project project){
+
+                super(title, headline);
+                this.project = project;
+            }
+
+            @Override
+            public String getBody(String page, int tabId, BackOfficeInterface backOffice, HttpServletRequest req) throws BackOfficeException {
+
+                StringBuffer html = new StringBuffer();
+
+                String sessionToken = req.getParameter("session");
+
+                html.append(Html.paragraph("Details for the project " + project.getName() + Html.newLine() + Html.newLine()));
+
+                html.append(Html.link("/Export?project="+ project.getKey().toString()+"&session=SystemSessionToken", "Export Project"));
+
+                return html.toString();
+
+            }
+
+        }
 
 }
 

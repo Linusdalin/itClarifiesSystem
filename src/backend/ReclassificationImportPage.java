@@ -363,6 +363,7 @@ public class ReclassificationImportPage extends NarrowPage {
                 comment.comment,
                 user.getKey(),
                 version.getKey(),
+                project.getKey(),
                 comment.pattern,
                 0,                          //TODO: Anchor position not implemented
                 analysisTime.getISODate());

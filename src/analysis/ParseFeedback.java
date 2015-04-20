@@ -33,6 +33,21 @@ public class ParseFeedback {
         list.add(item);
     }
 
+    /*********************************************************************
+     *
+     *              Merge two lists of feedback
+     *
+     *
+     * @param f    - the other feedback list
+     */
+
+    public void add(ParseFeedback f){
+
+
+        list.addAll(f.list);
+
+    }
+
     /******************************************************************
      *
      *          Convert the feedback to a JSON object to be able to send to the frontend/user

@@ -19,13 +19,15 @@ public class ExtractionFragment {
     enum Style {Title, Heading, Text}
 
     private String text;
+    private String key;
     private int ordinal;
     private Style style;
 
-    ExtractionFragment(String text, int ordinal){
+    ExtractionFragment(String text, String key, int ordinal){
 
         this.text = stripHtml(text);
         this.ordinal = ordinal;
+        this.key = key;
         this.style = Style.Text;  //Default
     }
 
@@ -50,6 +52,10 @@ public class ExtractionFragment {
 
     public String getText() {
         return text;
+    }
+
+    public String getKey() {
+        return key;
     }
 
     public Style getStyle() {

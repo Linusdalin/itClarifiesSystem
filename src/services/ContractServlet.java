@@ -91,13 +91,14 @@ public class ContractServlet extends DocumentService{
            PortalUser user = sessionManagement.getUser();
 
            DBKeyInterface key                = getOptionalKey("key", req);
-           DBKeyInterface _project           = getOptionalKey("project", req);
+           DBKeyInterface _project           = getMandatoryKey("project", req);
 
 
            if(key == null)
                condition = new LookupList();
            else
                condition = new LookupByKey(key);
+
 
            Project project = null;
 
