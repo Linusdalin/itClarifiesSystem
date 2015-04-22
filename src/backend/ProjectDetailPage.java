@@ -333,7 +333,7 @@ public class ProjectDetailPage extends NarrowPage {
             html.append("     *      Generate the correct name and target server\n");
             html.append("     */\n");
 
-            html.append("         DBTimestamp now = new DBTimestamp();\n");
+            html.append("         DBTimeStamp now = new DBTimeStamp();\n");
             html.append("         setProjectName(\""+project.getName()+"\");\n");
             html.append("         setTargetServer(\""+ serverName+"\");\n\n\n");
 
@@ -391,13 +391,15 @@ public class ProjectDetailPage extends NarrowPage {
                     theBody = theBody.substring(0, 500);
                 }
 
+                theBody = ReclassificationList.asSplitString(theBody, 45);  // Split in lines for copy paste
+
                 try {
                     html.append(        "            addClassification(new Reclassification("+"" +
                                                             "\""+reclassification.getClassification()+"\", "+ reclassification.getAdd()+", \""+ reclassification.getDate().getISODate()+"\", \""+project.getName()+"\", \""+fileName+"\", "+ reclassification.getFragmentNo()+",\n" +
-                                        "                            \""+ theBody + "\",\n" +
+                                        "                            "+ theBody + ",\n" +
                                         "                            \"" +reclassification.getPattern()+"\", "+
                                                                      reclassification.getPatternPos()+", \""+
-                                                                     reclassification.getUser()+"\", false, now.getISODate()));\n\n");
+                                                                     reclassification.getUser()+"\", false));\n\n");
                 } catch (BackOfficeException e) {
                     PukkaLogger.log(e);
                 }
@@ -426,7 +428,7 @@ public class ProjectDetailPage extends NarrowPage {
                 try {
                     html.append(        "            addRisk(new Rerisk("+"" +
                                                             "\""+rerisk.getRiskLevel()+"\", \""+ rerisk.getDate().getISODate()+"\", \""+project.getName()+"\", \""+fileName+"\", "+ rerisk.getFragmentNo()+",\n" +
-                                        "                            \""+ theBody + "\",\n" +
+                                        "                            "+ theBody + ",\n" +
                                         "                            \"" +rerisk.getPattern()+"\", "+
                                                                      rerisk.getPatternPos()+", \""+
                                                                      rerisk.getUser()+"\", false));\n\n");
@@ -458,7 +460,7 @@ public class ProjectDetailPage extends NarrowPage {
                 try {
                     html.append(        "            addAnnotation(new Reannotation("+"" +
                                                             "\""+reAnnotation.getText()+"\", "+ reAnnotation.getAdd() +", \""+ reAnnotation.getDate().getISODate()+"\", \""+project.getName()+"\", \""+fileName+"\", "+ reAnnotation.getFragmentNo()+",\n" +
-                                        "                            \""+ theBody + "\",\n" +
+                                        "                            "+ theBody + ",\n" +
                                         "                            \"" +reAnnotation.getPattern()+"\", "+
                                                                      reAnnotation.getPatternPos()+", \""+
                                                                      reAnnotation.getUser()+"\", false));\n\n");
@@ -498,7 +500,8 @@ public class ProjectDetailPage extends NarrowPage {
                 try {
                     html.append(        "            addDefinition(new Redefinition("+"" +
                                                             "\""+reDefinition.getName()+"\", "+ reDefinition.getAdd() +", \""+project.getName()+"\", \""+fileName+"\", "+ reDefinition.getFragmentNo()+",\n" +
-                                        "                            \""+ theBody + "\", false));\n\n");
+                                        "                            "+ theBody + ",\n" +
+                                        "                            false));\n\n");
                 } catch (Exception e) {
                     PukkaLogger.log(e);
                 }
