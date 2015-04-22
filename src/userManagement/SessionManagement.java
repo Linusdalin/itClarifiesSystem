@@ -27,6 +27,10 @@ public class SessionManagement {
     private static PortalUser system = null;
     private static IPAccessList internalIPAccess = null;
 
+    public static final String MagicKey = "d1s7i55tD3bsii7NS8f";  //TODO: This is just a simple static password. Implement better solution here
+    private boolean allowMagicKeyAccess;
+
+
     public SessionManagement(){
 
 
@@ -250,6 +254,48 @@ public class SessionManagement {
 
 
     }
+
+    public void allowBOAccess(){
+
+        allowMagicKeyAccess = true;
+    }
+
+
+
+    // Todo: Add IP restriction on magic key access
+
+
+    public boolean validateMagicKey(String magicKey, String ipAddress) throws BackOfficeException {
+
+        if(!allowMagicKeyAccess){
+
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Unauthorized magic key access attempt" + magicKey + " from " + ipAddress);
+            return false;
+
+        }
+
+
+        if(!magicKey.equals(MagicKey)){
+
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Wrong magic key" + magicKey);
+            return false;
+
+        }
+
+
+       this.sessionUser = PortalUser.getSystemUser();
+       PukkaLogger.log(PukkaLogger.Level.INFO, "Validated magic key access. user = " + this.sessionUser.getName());
+
+       // Store the system user
+
+        if(system == null){
+            system = PortalUser.getSystemUser();
+
+        }
+
+        return true;
+    }
+
 
 
     private boolean internal(String ip) {

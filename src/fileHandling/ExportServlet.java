@@ -44,6 +44,8 @@ public class ExportServlet extends ItClarifiesService{
        try{
            logRequest(req);
 
+           sessionManagement.allowBOAccess();  // For internal access
+
            if(!validateSession(req, resp))
                return;
 

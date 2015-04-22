@@ -24,6 +24,7 @@ import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
 import pukkaBO.style.Html;
 import risk.RiskClassification;
+import userManagement.SessionManagement;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -380,18 +381,10 @@ public class ProjectDetailPage extends NarrowPage {
             for (DataObjectInterface object : reclassificationForDocument.getValues()) {
 
                 Reclassification reclassification = (Reclassification)object;
-                String theBody = reclassification.getFragment()
-                        .replaceAll("\n", " ")
-                        .replaceAll("%", "")
-                        .replaceAll("\"", "&#92;\"");
 
-                // Cap the size to optimize the communication. 500 chars should be sufficient to detect virtually all texts
+                String theBody = trim(reclassification.getFragment());
 
-                if(theBody.length() > 500){
-                    theBody = theBody.substring(0, 500);
-                }
-
-                theBody = ReclassificationList.asSplitString(theBody, 45);  // Split in lines for copy paste
+                System.out.println("The body:\n\n" + theBody);
 
                 try {
                     html.append(        "            addClassification(new Reclassification("+"" +
@@ -417,13 +410,7 @@ public class ProjectDetailPage extends NarrowPage {
             for (DataObjectInterface object : reRiskForDocument.getValues()) {
 
                 Rerisk rerisk = (Rerisk)object;
-                String theBody = rerisk.getFragment().replaceAll("\n", " ").replaceAll("\"", "&#92;\"");
-
-                // Cap the size to optimize the communication. 500 chars should be sufficient to detect virtually all texts
-
-                if(theBody.length() > 500){
-                    theBody = theBody.substring(0, 500);
-                }
+                String theBody = trim(rerisk.getFragment());
 
                 try {
                     html.append(        "            addRisk(new Rerisk("+"" +
@@ -449,13 +436,7 @@ public class ProjectDetailPage extends NarrowPage {
             for (DataObjectInterface object : reAnnotationsForDocument.getValues()) {
 
                 Reannotation reAnnotation = (Reannotation)object;
-                String theBody = reAnnotation.getFragment().replaceAll("\n", " ").replaceAll("\"", "&#92;\"");
-
-                // Cap the size to optimize the communication. 500 chars should be sufficient to detect virtually all texts
-
-                if(theBody.length() > 500){
-                    theBody = theBody.substring(0, 500);
-                }
+                String theBody = trim(reAnnotation.getFragment());
 
                 try {
                     html.append(        "            addAnnotation(new Reannotation("+"" +
@@ -489,13 +470,7 @@ public class ProjectDetailPage extends NarrowPage {
             for (DataObjectInterface object : reDefinitionsForDocument.getValues()) {
 
                 Redefinition reDefinition = (Redefinition)object;
-                String theBody = reDefinition.getFragment().replaceAll("\n", " ").replaceAll("\"", "&#92;\"");
-
-                // Cap the size to optimize the communication. 500 chars should be sufficient to detect virtually all texts
-
-                if(theBody.length() > 500){
-                    theBody = theBody.substring(0, 500);
-                }
+                String theBody = trim(reDefinition.getFragment());
 
                 try {
                     html.append(        "            addDefinition(new Redefinition("+"" +
@@ -509,8 +484,6 @@ public class ProjectDetailPage extends NarrowPage {
             }
             totalCount += reDefinitionsForDocument.getValues().size();
 
-
-
             if(totalCount == 0){
 
                 // There were no reclassification for the document. Just add a comment
@@ -519,12 +492,27 @@ public class ProjectDetailPage extends NarrowPage {
 
             }
 
-
-
             html.append("\n\n");
-
-
             return html.toString();
+        }
+
+        private String trim(String original) {
+
+            String theBody = original
+                    .replaceAll("\n", " ")
+                    .replaceAll("%", "")
+                    .replaceAll("\"", "&#92;\"")
+                    .replaceAll("<br/>", "");               //TODO: All html style tags should be omitted
+
+            // Cap the size to optimize the communication. 500 chars should be sufficient to detect virtually all texts
+
+            if(theBody.length() > 500){
+                theBody = theBody.substring(0, 500);
+            }
+
+            theBody = ReclassificationList.asSplitString(theBody, 25, 100);  // Split in lines for copy paste
+
+            return theBody;
         }
 
     }
@@ -551,7 +539,7 @@ public class ProjectDetailPage extends NarrowPage {
 
                 html.append(Html.paragraph("Details for the project " + project.getName() + Html.newLine() + Html.newLine()));
 
-                html.append(Html.link("/Export?project="+ project.getKey().toString()+"&session=SystemSessionToken", "Export Project"));
+                html.append(Html.link("/Overview?project="+ project.getKey().toString()+"&magicKey=" + SessionManagement.MagicKey, "Export Project"));
 
                 return html.toString();
 

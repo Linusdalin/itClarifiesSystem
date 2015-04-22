@@ -82,7 +82,7 @@ public class OverviewGenerator {
         this.sheets[ 5] = template.getSheet("Risks");
         this.sheets[ 6] = template.getSheet("Background");
         this.sheets[ 7] = template.getSheet("Terms");
-        this.sheets[ 8] = template.getSheet("Schedule");
+        this.sheets[ 8] = template.getSheet("Deadlines");
         this.sheets[ 9] = template.getSheet("Acceptance");
         this.sheets[10] = template.getSheet("Delivery");
         this.sheets[11] = template.getSheet("Responsibility");
@@ -124,6 +124,7 @@ public class OverviewGenerator {
         feedback.add(addRisks(sheets[5]));
         feedback.add(addSearchSelection(sheets[6], project, "#Background"));
         feedback.add(addSearchSelection(sheets[7], project, "#Terms"));
+        feedback.add(addSearchSelection(sheets[8], project, "#Deadline"));
         feedback.add(addSearchSelection(sheets[9], project, "#Acceptance"));
         feedback.add(addSearchSelection(sheets[10], project, "#Delivery"));
         //feedback.add(addSearchSelection(sheets[11], project, "#Responsibility"));

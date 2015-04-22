@@ -47,15 +47,15 @@ public class ReclassificationTest extends ServletTests {
         String veryLongStringOut   = "\"This is a much longer string. It should \"+\n  \"be over more than two lines (multiple li\"+\n  \"nes) This is a much longer string. It sh\"+\n  \"ould be over multiple lines\"";
 
 
-        String output = ReclassificationList.asSplitString(shortString, 11);
+        String output = ReclassificationList.asSplitString(shortString, 11, 40);
         System.out.println("Output:" + output);
         assertVerbose("Short String test", output, is(shortStringOut));
 
-        output = ReclassificationList.asSplitString(longerString, 4);
+        output = ReclassificationList.asSplitString(longerString, 4, 40);
         System.out.println("Output:" + output);
         assertVerbose("Longer String test", output, is(longerStringOut));
 
-        output = ReclassificationList.asSplitString(veryLongString, 2);
+        output = ReclassificationList.asSplitString(veryLongString, 2, 40);
         System.out.println("Output:" + output);
         assertVerbose("Very long String test", output, is(veryLongStringOut));
 

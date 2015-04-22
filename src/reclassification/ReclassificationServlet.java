@@ -33,6 +33,7 @@ import services.ItClarifiesService;
 import userManagement.Organization;
 import userManagement.PortalUser;
 import userManagement.PortalUserTable;
+import userManagement.SessionManagement;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -79,7 +80,7 @@ public class ReclassificationServlet extends DocumentService {
 
             //Type parameter, defining what kind of attribute we will add
             String type                  = getMandatoryString("type", req);
-            String magicKey              = getMandatoryString("key", req);
+            String magicKey              = getMandatoryString("magicKey", req);
 
             //Mandatory parameters for all types
             String userName                   = getMandatoryString("user", req);
@@ -98,7 +99,7 @@ public class ReclassificationServlet extends DocumentService {
 
             Formatter formatter = getFormatFromParameters(req);
 
-            if(magicKey == null || !magicKey.equals(NewMTProject.MagicKey)){
+            if(magicKey == null || !magicKey.equals(SessionManagement.MagicKey)){
 
                 sendJSONResponse(new analysis.ParseFeedbackItem(ParseFeedbackItem.Severity.ERROR,
                         "No Access !", 0).toJSON(), formatter, resp);

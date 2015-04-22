@@ -21,6 +21,7 @@ import pukkaBO.style.Html;
 import services.ItClarifiesService;
 import userManagement.AccessGrant;
 import userManagement.AccessGrantTable;
+import userManagement.SessionManagement;
 import userManagement.Visibility;
 
 import javax.servlet.http.HttpServletRequest;
@@ -298,8 +299,8 @@ public class DocumentList extends GroupByList implements ListInterface{
             docView.append(Html.paragraph(""));
             docView.append(Html.paragraph(Html.link("?id="+document.getKey().toString()+"&list=" + name + "&action=Item&callbackAction=" + Callback_Action_ClearCache + "&section=" + section, "Clear cache for document")));
             docView.append(Html.paragraph(Html.link("?id="+document.getKey().toString()+"&list=" + name + "&action=Item&callbackAction=" + Callback_Action_Analyse + "&section=" + section, "Re-analyse")));
-            docView.append(Html.paragraph(Html.link("/Export?document="+document.getKey().toString()+"&session=SystemSessionToken", "Download Document")));
-            docView.append(Html.paragraph(Html.link("/Export?document="+document.getKey().toString()+"&inject=true&session=SystemSessionToken", "Export Document")));
+            docView.append(Html.paragraph(Html.link("/Export?document="+document.getKey().toString()+"&magicKey="+ SessionManagement.MagicKey, "Download Document")));
+            docView.append(Html.paragraph(Html.link("/Export?document="+document.getKey().toString()+"&inject=true&magicKey=" + SessionManagement.MagicKey, "Export Document")));
             docView.append(getAccessOptions(document, section));
             docView.append(Html.paragraph(Html.link("?id=" + document.getKey().toString() + "&list=" + name + "&action=Item&callbackAction=" + Callback_Action_ViewDoc + "&section=" + section, "View Content")));
 

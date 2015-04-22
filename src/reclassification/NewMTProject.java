@@ -27,7 +27,6 @@ public class NewMTProject{
     private List<Rerisk>            risks           = new ArrayList<Rerisk>();
     private List<Reannotation>      annotations     = new ArrayList<Reannotation>();
     private List<Redefinition>      definitions = new ArrayList<Redefinition>();
-    public static final String MagicKey = "d1s7i55tD3bsii7NS8f";  //TODO: This is just a simple static password. Implement better solution here
 
     public NewMTProject(String name, String server){
 
@@ -89,6 +88,8 @@ public class NewMTProject{
                 String responseString = requestHandler.excutePost(urlEncoded);
                 PukkaLogger.log(PukkaLogger.Level.INFO, "Got response from "+ server+": " + responseString);
                 JSONObject response = new JSONObject(responseString);
+
+                //TODO: Handle response here
 
             } catch (BackOfficeException e) {
                 e.printStackTrace();

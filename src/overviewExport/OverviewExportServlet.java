@@ -3,7 +3,6 @@ package overviewExport;
 import analysis.ParseFeedback;
 import contractManagement.Project;
 import databaseLayer.DBKeyInterface;
-import document.AbstractImage;
 import log.PukkaLogger;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -45,6 +44,8 @@ public class OverviewExportServlet extends ItClarifiesService{
 
        try{
            logRequest(req);
+
+           sessionManagement.allowBOAccess();
 
            if(!validateSession(req, resp))
                return;

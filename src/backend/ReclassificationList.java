@@ -303,7 +303,7 @@ public class ReclassificationList extends GroupByList implements ListInterface{
 
 
         html.append(
-                "               new ClassificationTester("+ asSplitString(body, 45 )+")\n" +
+                "               new ClassificationTester("+ asSplitString(body, 35, 70 )+")\n" +
                 "                        .withParser("+ parser +")\n" +
                 "                        .withHeadline(\" add headline...\")\n" +
                 "                        .withProject(mockProject, mockDocument)\n" +
@@ -330,9 +330,27 @@ public class ReclassificationList extends GroupByList implements ListInterface{
     }
 
 
-    private static final int StringWidth = 60;
+    /*******************************************************************************
+     *
+     *          Splitting a string into code text.
+     *
+     *          Example:
+     *
+     *              asSplitString("This is an example string that is too long", 5, 20)  ->
+     *
+     *                   "This is an example "+
+     *                   "string that is too "+
+     *                   "long"
+     *
+     *
+     *
+     * @param body      - the text
+     * @param padding   - indentation for each line
+     * @param width     - the line width
+     * @return          - string with concatenated text strings
+     */
 
-    public static String asSplitString(String body, int padding) {
+    public static String asSplitString(String body, int padding, int width) {
 
         StringBuffer completeString = new StringBuffer();
         completeString.append("\"");
@@ -341,7 +359,7 @@ public class ReclassificationList extends GroupByList implements ListInterface{
 
         while(bodyLength - index > 0){
 
-            if(index + StringWidth > bodyLength){
+            if(index + width > bodyLength){
 
                 completeString.append(body.substring(index));
                 index += body.length();
@@ -349,9 +367,9 @@ public class ReclassificationList extends GroupByList implements ListInterface{
             }
             else{
 
-                completeString.append(body.substring(index, index + StringWidth));
+                completeString.append(body.substring(index, index + width));
                 completeString.append("\"+\n"+ StringUtils.leftPad(" ", padding) +"\"");
-                index+= StringWidth;
+                index+= width;
             }
 
         }

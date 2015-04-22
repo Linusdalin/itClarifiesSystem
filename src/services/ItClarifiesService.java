@@ -13,7 +13,6 @@ import maintenance.Smokey;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-import pukkaBO.api.PukkaServlet;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
 import userManagement.*;
@@ -38,7 +37,6 @@ public class ItClarifiesService extends GenericAdminServlet {
     // When implementing language support, this should be taken from the user settings
 
     protected static final LanguageInterface defaultLanguage = new English();
-
 
 
     /********************************************************************************
@@ -229,10 +227,38 @@ public class ItClarifiesService extends GenericAdminServlet {
 
     }
 
+
+    /*************************************************************************************'
+     *
+     *                  Validate the session and get the active session user
+     *
+     *
+     * @param req
+     * @param resp
+     * @param errorCode
+     * @return
+     * @throws BackOfficeException
+     * @throws IOException
+     */
+
     protected boolean validateSession(HttpServletRequest req, HttpServletResponse resp, int errorCode) throws BackOfficeException, IOException {
 
-        String sessionToken  = getMandatoryString("session", req);
+        String magicKey  = getOptionalString("magicKey", req);
         String ipAddress = getIPAddress(req);
+
+        if(magicKey != null){
+
+            if(!sessionManagement.validateMagicKey(magicKey, ipAddress)){
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Access Error. Could not validate internal session "+ magicKey+".");
+                returnError("No session", ErrorType.SESSION, errorCode, resp);
+                resp.flushBuffer();
+                return false;
+            }
+            return true;
+        }
+
+        String sessionToken  = getMandatoryString("session", req);
 
         if(!sessionManagement.validate(sessionToken, ipAddress)){
 
@@ -245,7 +271,6 @@ public class ItClarifiesService extends GenericAdminServlet {
         return true;
 
     }
-
 
 
 
