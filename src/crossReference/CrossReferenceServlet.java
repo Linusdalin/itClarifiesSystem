@@ -97,25 +97,39 @@ public class CrossReferenceServlet extends DocumentService {
         }
 
 
-     }
+    }
+
+    /********************************************************************************
+     *
+     *          Set status to cross referencing so that it is updated in the document
+     *          call in the frontend
+     *
+     *
+     * @param project         - the project to cross reference
+     */
+
 
     private void setStatusToCrossReferencing(Project project) {
 
         List<Contract> documentsInProject = project.getContractsForProject();
 
-        for (Contract contract : documentsInProject) {
+        for (Contract document : documentsInProject) {
 
             try {
 
-                contract.setStatus(ContractStatus.getAnalysing());
-                contract.setMessage("Cross Referencing project...");
-                contract.update();
+                document.setStatus(ContractStatus.getAnalysing());
+                document.setMessage("Cross Referencing project...");
+                document.update();
+
+                invalidateDocumentCache(document.getKey(), project.getKey());
 
             } catch (BackOfficeException e) {
 
                 PukkaLogger.log( e );
             }
         }
+
+
 
 
     }

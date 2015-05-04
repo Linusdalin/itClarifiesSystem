@@ -1581,7 +1581,7 @@
 
 
             <p>	<label for="export_inject">Inject Attributes</label>
-                <input type="checkbox" id="export_inject" name="export"></p>
+                <input type="checkbox" id="export_inject" name="inject"></p>
 
 
             <% out.print(getTokenParameter(useRealToken, "export"));%>

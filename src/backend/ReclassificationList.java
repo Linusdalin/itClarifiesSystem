@@ -45,7 +45,8 @@ public class ReclassificationList extends GroupByList implements ListInterface{
     public static final String Name = "ReclassificationList";
     public static final String Title = "Reclassifications";
     public static final String Description = "All reclassifications grouped by class";
-    public static final int GroupColumn = 13;   // Group by Document
+
+    public static final int GroupColumn = 5;   // Group by Document
 
     // ids for the callback actions
 
@@ -64,7 +65,7 @@ public class ReclassificationList extends GroupByList implements ListInterface{
 
             add(new ListTableColumn( 1, table ).withNameFromTableColumn( ).withFormat(new DisplayFormat(DisplayFormat.SMALL)));
             add(new ListTableColumn( 2, table ).withName("Set"));
-            add(new ListTableColumn( 3, table ).withNameFromTableColumn( ).withConstantMap());
+            //add(new ListTableColumn( 3, table ).withNameFromTableColumn( ).withConstantMap());
             add(new ListTableColumn( 4, table ).withNameFromTableColumn( ).withFormat(new DisplayFormat(DisplayFormat.EXTRA_WIDE)));
             add(new ListTableColumn( 6, table ).withName("Frg"));
             add(new ListTableColumn( 7, table ).withNameFromTableColumn( ));
@@ -209,7 +210,6 @@ public class ReclassificationList extends GroupByList implements ListInterface{
             docView.append("<pre style=\"font:Courier;\">");
 
             docView.append(getTestFile(documentName, reclassification.getClassification()));
-            //docView.append(getAllTrasposures(document, document.getProject()));
 
             docView.append("</pre>");
 
@@ -232,21 +232,30 @@ public class ReclassificationList extends GroupByList implements ListInterface{
 
         Contract document = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.File.name(), documentName)));
 
+        String language = "unknown";
+
+        if(document.exists()){
+
+            language = document.getLanguage();
+        }
 
         html.append("    /***********************************************************\n");
         html.append("     *\n");
         html.append("     *      Testing Classification by examples for tag "+ tag+"\n");
-        html.append("     *      Document:   \""+ document.getName()+"\"\n");
-        html.append("     *      Language:   \""+ document.getLanguage()+"\"\n");
+        html.append("     *      Document:   \""+ documentName+"\"\n");
+        html.append("     *      Language:   \""+ language+"\"\n");
         html.append("     *\n");
         html.append("     */\n\n\n");
         html.append("    @Test\n");
-        html.append("    public void test"+ document.getName() +"Examples(){\n");
+        html.append("    public void test"+ documentName +"Examples(){\n");
         html.append("        try {\n");
 
         ReclassificationTable reclassificationForDocument = new ReclassificationTable(new LookupList()
-                .addFilter(new ReferenceFilter(ReclassificationTable.Columns.Document.name(), document.getKey()))
+                .addFilter(new ColumnFilter(ReclassificationTable.Columns.Document.name(), documentName))
                 .addFilter(new ColumnFilter(ReclassificationTable.Columns.Classification.name(), tag)));
+
+        html.append("           // Found " + reclassificationForDocument.getValues().size() + " re-classifications\n\n");
+
 
         for (DataObjectInterface object : reclassificationForDocument.getValues()) {
 
@@ -271,8 +280,10 @@ public class ReclassificationList extends GroupByList implements ListInterface{
     private String getTestcaseForExample(Reclassification reclassification, Contract document) {
 
         StringBuilder html = new StringBuilder();
-        Project project = document.getProject();
-        String languageCode = document.getLanguage();
+        String languageCode = "XX";
+
+        if(document.exists())
+            languageCode = document.getLanguage();
 
         // Select the appropriate parser. Add more parsers when implemented
 

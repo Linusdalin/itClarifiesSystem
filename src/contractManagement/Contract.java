@@ -352,6 +352,7 @@ public class Contract extends DataObject implements DataObjectInterface{
         int noKeywords = 0;
         int noFlags = 0;
         int noIndices = 0;
+        int noDefinitions = 0;
 
         SearchManager2 searchManager = new SearchManager2(this.getProject(), this.getOwner());
 
@@ -432,6 +433,18 @@ public class Contract extends DataObject implements DataObjectInterface{
 
            allRiskClassifications.delete();
 
+           // Definitions
+
+           DefinitionTable allDefinitions = new DefinitionTable(new LookupItem()
+                   .addFilter(new ReferenceFilter(DefinitionTable.Columns.Version.name(), version.getKey())));
+
+
+           noDefinitions += allDefinitions.getCount();
+           System.out.println("Found " + noDefinitions + " definitions to delete for document" + getName() + "(version " + version.getVersion() + ")");
+
+           allDefinitions.delete();
+
+
            // Delete the version
 
            services.DocumentService.invalidateFragmentCache(version);
@@ -447,7 +460,7 @@ public class Contract extends DataObject implements DataObjectInterface{
 
         services.DocumentService.invalidateDocumentCache(this, this.getProject());
 
-        return new DocumentDeleteOutcome(1, noInstances, noClauses, noFragments, noAnnotations, noClassifications, noFlags, noReferences, noKeywords, noIndices, 0, 0);
+        return new DocumentDeleteOutcome(1, noInstances, noClauses, noFragments, noAnnotations, noClassifications, noFlags, noReferences, noKeywords, noDefinitions, noIndices, 0, 0);
 
     }
 

@@ -1419,47 +1419,51 @@ public class GeneratedTableTests{
      
              try{
      
-                 crossReference.Definition table1 = new crossReference.Definition("text 1", dummyKey, 3, dummyKey, dummyKey, "text 6");
+                 crossReference.Definition table1 = new crossReference.Definition("text 1", "text 2", dummyKey, 4, dummyKey, dummyKey, "text 7");
 
                  assertThat(table1.getName(), is("text 1"));
+                 assertThat(table1.getType(), is("text 2"));
                  assertThat(table1.getDefinedInId(), is(dummyKey));
                  assertThat(table1.getDefinedIn().exists(), is(false));
-                 assertThat(table1.getFragmentNo(), is((long)3));
+                 assertThat(table1.getFragmentNo(), is((long)4));
                  assertThat(table1.getVersionId(), is(dummyKey));
                  assertThat(table1.getVersion().exists(), is(false));
                  assertThat(table1.getProjectId(), is(dummyKey));
                  assertThat(table1.getProject().exists(), is(false));
-                 assertThat(table1.getDefinition(), is("text 6"));
+                 assertThat(table1.getDefinition(), is("text 7"));
 
                  table1.store();
                  crossReference.Definition table2 = new crossReference.Definition();
                  table2.load(new LookupByKey(table1.getKey()));
 
                  assertThat(table2.getName(), is("text 1"));
+                 assertThat(table2.getType(), is("text 2"));
                  assertThat(table2.getDefinedInId(), is(dummyKey));
                  assertThat(table2.getDefinedIn().exists(), is(false));
-                 assertThat(table2.getFragmentNo(), is((long)3));
+                 assertThat(table2.getFragmentNo(), is((long)4));
                  assertThat(table2.getVersionId(), is(dummyKey));
                  assertThat(table2.getVersion().exists(), is(false));
                  assertThat(table2.getProjectId(), is(dummyKey));
                  assertThat(table2.getProject().exists(), is(false));
-                 assertThat(table2.getDefinition(), is("text 6"));
+                 assertThat(table2.getDefinition(), is("text 7"));
 
                  table1.setName("text 11");
+                 table1.setType("text 12");
                  table1.setDefinedIn( dummyKey);
-                 table1.setFragmentNo(13);
+                 table1.setFragmentNo(14);
                  table1.setVersion( dummyKey);
                  table1.setProject( dummyKey);
-                 table1.setDefinition("text 16");
+                 table1.setDefinition("text 17");
                  assertThat(table1.getName(), is("text 11"));
+                 assertThat(table1.getType(), is("text 12"));
                  assertThat(table1.getDefinedInId(), is(dummyKey));
                  assertThat(table1.getDefinedIn().exists(), is(false));
-                 assertThat(table1.getFragmentNo(), is((long)13));
+                 assertThat(table1.getFragmentNo(), is((long)14));
                  assertThat(table1.getVersionId(), is(dummyKey));
                  assertThat(table1.getVersion().exists(), is(false));
                  assertThat(table1.getProjectId(), is(dummyKey));
                  assertThat(table1.getProject().exists(), is(false));
-                 assertThat(table1.getDefinition(), is("text 16"));
+                 assertThat(table1.getDefinition(), is("text 17"));
 
              }catch(BackOfficeException e){
      

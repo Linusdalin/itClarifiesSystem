@@ -934,6 +934,8 @@ public class AnalysisServlet extends DocumentService {
 
             //Fail to detect Language
 
+            PukkaLogger.log( e );
+
             throw new BackOfficeException(BackOfficeException.General, "Could not detect language");
         }
 

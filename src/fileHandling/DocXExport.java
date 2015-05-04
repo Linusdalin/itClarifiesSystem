@@ -1,9 +1,5 @@
 package fileHandling;
 
-import com.google.appengine.api.files.AppEngineFile;
-import com.google.appengine.api.files.FileService;
-import com.google.appengine.api.files.FileServiceFactory;
-import com.google.appengine.api.files.FileWriteChannel;
 import com.google.appengine.tools.cloudstorage.*;
 import contractManagement.ContractFragment;
 import contractManagement.ContractFragmentTable;
@@ -16,11 +12,11 @@ import org.docx4j.openpackaging.exceptions.InvalidFormatException;
 import org.docx4j.openpackaging.io.SaveToZipFile;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 import org.docx4j.openpackaging.parts.WordprocessingML.CommentsPart;
-import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.docx4j.wml.*;
 import pukkaBO.condition.LookupList;
 import pukkaBO.condition.Ordering;
 import pukkaBO.exceptions.BackOfficeException;
+import reclassification.ReclassificationServlet;
 
 import javax.xml.bind.JAXBElement;
 import java.io.*;
@@ -39,7 +35,7 @@ import java.util.List;
  */
 
 
-public class DocXFile {
+public class DocXExport {
 
     WordprocessingMLPackage document = null;
     static ObjectFactory factory = Context.getWmlObjectFactory();  // Factory to create objects
@@ -57,7 +53,7 @@ public class DocXFile {
      */
 
 
-    public DocXFile(RepositoryFileHandler fileHandler) throws BackOfficeException{
+    public DocXExport(RepositoryFileHandler fileHandler) throws BackOfficeException{
 
 
 
@@ -198,39 +194,40 @@ public class DocXFile {
         Comments comments = getCommentsPartForDocument(document);
         List<Object> paragraphs = getAllElementFromObject(document.getMainDocumentPart(), P.class);
 
-        PukkaLogger.log(PukkaLogger.Level.DEBUG, "***** Found " + paragraphs.size() + " paragraphs!");
+        PukkaLogger.log(PukkaLogger.Level.INFO, "Adding comments to document!");
+        PukkaLogger.log(PukkaLogger.Level.INFO, "***** Found " + paragraphs.size() + " paragraphs and " + fragments.size() + " fragments.");
 
         int paragraphNo = 0;  // The paragraph counter, used to match the comment paragraphs
+        int fragmentNo = 0;
 
         for (Object o : paragraphs) {
 
             P paragraph = (P)o;
 
-            // There are implicit paragraphs generated in the parsing. These are not present in the
-            // document so we need to increment the counter
+            ContractFragment matchingFragment = ReclassificationServlet.locateFragment(paragraph.toString(), fragmentNo, fragments);
 
+            if(!matchingFragment.exists()){
 
-            while(paragraphNo < fragments.size() && fragments.get(paragraphNo).getType().equalsIgnoreCase("IMPLICIT")){
-                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring implicit fragment " + paragraphNo);
-                paragraphNo++;
-            }
+                System.out.println(" --- paragraph " + paragraphNo + " " + paragraph.toString() + " not found!");
 
+            }else{
 
-            List<AbstractComment> commentsForParagraph = getCommentsForParagraph(paragraphNo, commentsForDocument);
+                // Update the paragraph number with the ordinal of the actual fragment
 
-            // Get all elements. We are interested in the runs and the comment ranges
+                System.out.println(" --- matched paragraph " + paragraphNo + " " + paragraph.toString() + " with fragment " + matchingFragment.getOrdinal() + " " + matchingFragment.getName());
+                fragmentNo = (int)matchingFragment.getOrdinal();
 
-            List<Object> paragraphObjects = getAllElementForParagraph(paragraph);
+                List<AbstractComment> commentsForParagraph = getCommentsForParagraph(fragmentNo, commentsForDocument);
 
-            // Paragraphs without any content are not generated in the parsing, so we should ignore them here.
+                // Get all elements. We are interested in the runs and the comment ranges
 
-            if(paragraphObjects.size() > 0){
+                List<Object> paragraphObjects = getAllElementForParagraph(paragraph);
 
                 BigInteger commentId = BigInteger.valueOf(comments.getComment().size());  // Start numbering from the number of existing comments
 
                 for (AbstractComment abstractComment : commentsForParagraph) {
 
-                    Comments.Comment theComment = createComment(commentId, "Author", null, abstractComment.getComment() + ": " + abstractComment.getAnchor());
+                    Comments.Comment theComment = createComment(commentId, "Author", null, abstractComment.getComment());
            		    comments.getComment().add(theComment);
 
                     System.out.println(" ! Replacing "+ abstractComment.getAnchor()+"("+abstractComment.getStart() + ", " + abstractComment.getLength() +") for paragraph " + paragraphNo);
@@ -303,8 +300,6 @@ public class DocXFile {
 
                 paragraphNo++;
             }
-            else
-                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring empty run");
 
         }
 

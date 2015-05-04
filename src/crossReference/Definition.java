@@ -43,13 +43,13 @@ public class Definition extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public Definition(String name, DataObjectInterface definedin, long fragmentno, DataObjectInterface version, DataObjectInterface project, String definition) throws BackOfficeException{
+    public Definition(String name, String type, DataObjectInterface definedin, long fragmentno, DataObjectInterface version, DataObjectInterface project, String definition) throws BackOfficeException{
 
-        this(name, definedin.getKey(), fragmentno, version.getKey(), project.getKey(), definition);
+        this(name, type, definedin.getKey(), fragmentno, version.getKey(), project.getKey(), definition);
     }
 
 
-    public Definition(String name, DBKeyInterface definedin, long fragmentno, DBKeyInterface version, DBKeyInterface project, String definition){
+    public Definition(String name, String type, DBKeyInterface definedin, long fragmentno, DBKeyInterface version, DBKeyInterface project, String definition){
 
         this();
         try{
@@ -59,11 +59,12 @@ public class Definition extends DataObject implements DataObjectInterface{
            data = new ColumnDataInterface[columns.length];
 
            data[0] = new StringData(name);
-           data[1] = new ReferenceData(definedin, columns[1].getTableReference());
-           data[2] = new IntData(fragmentno);
-           data[3] = new ReferenceData(version, columns[3].getTableReference());
-           data[4] = new ReferenceData(project, columns[4].getTableReference());
-           data[5] = new TextData(definition);
+           data[1] = new StringData(type);
+           data[2] = new ReferenceData(definedin, columns[2].getTableReference());
+           data[3] = new IntData(fragmentno);
+           data[4] = new ReferenceData(version, columns[4].getTableReference());
+           data[5] = new ReferenceData(project, columns[5].getTableReference());
+           data[6] = new TextData(definition);
 
            exists = true;
         }catch(BackOfficeException e){
@@ -117,21 +118,35 @@ public class Definition extends DataObject implements DataObjectInterface{
 
 
 
+    public String getType(){
+
+        StringData data = (StringData) this.data[1];
+        return data.getStringValue();
+    }
+
+    public void setType(String type){
+
+        StringData data = (StringData) this.data[1];
+        data.setStringValue(type);
+    }
+
+
+
     public DBKeyInterface getDefinedInId(){
 
-        ReferenceData data = (ReferenceData)this.data[1];
+        ReferenceData data = (ReferenceData)this.data[2];
         return data.value;
     }
 
     public ContractFragment getDefinedIn(){
 
-        ReferenceData data = (ReferenceData)this.data[1];
+        ReferenceData data = (ReferenceData)this.data[2];
         return new ContractFragment(new LookupByKey(data.value));
     }
 
     public void setDefinedIn(DBKeyInterface definedin){
 
-        ReferenceData data = (ReferenceData)this.data[1];
+        ReferenceData data = (ReferenceData)this.data[2];
         data.value = definedin;
     }
 
@@ -139,13 +154,13 @@ public class Definition extends DataObject implements DataObjectInterface{
 
     public long getFragmentNo(){
 
-        IntData data = (IntData) this.data[2];
+        IntData data = (IntData) this.data[3];
         return data.value;
     }
 
     public void setFragmentNo(long fragmentno){
 
-        IntData data = (IntData) this.data[2];
+        IntData data = (IntData) this.data[3];
         data.value = fragmentno;
     }
 
@@ -153,19 +168,19 @@ public class Definition extends DataObject implements DataObjectInterface{
 
     public DBKeyInterface getVersionId(){
 
-        ReferenceData data = (ReferenceData)this.data[3];
+        ReferenceData data = (ReferenceData)this.data[4];
         return data.value;
     }
 
     public ContractVersionInstance getVersion(){
 
-        ReferenceData data = (ReferenceData)this.data[3];
+        ReferenceData data = (ReferenceData)this.data[4];
         return new ContractVersionInstance(new LookupByKey(data.value));
     }
 
     public void setVersion(DBKeyInterface version){
 
-        ReferenceData data = (ReferenceData)this.data[3];
+        ReferenceData data = (ReferenceData)this.data[4];
         data.value = version;
     }
 
@@ -173,19 +188,19 @@ public class Definition extends DataObject implements DataObjectInterface{
 
     public DBKeyInterface getProjectId(){
 
-        ReferenceData data = (ReferenceData)this.data[4];
+        ReferenceData data = (ReferenceData)this.data[5];
         return data.value;
     }
 
     public Project getProject(){
 
-        ReferenceData data = (ReferenceData)this.data[4];
+        ReferenceData data = (ReferenceData)this.data[5];
         return new Project(new LookupByKey(data.value));
     }
 
     public void setProject(DBKeyInterface project){
 
-        ReferenceData data = (ReferenceData)this.data[4];
+        ReferenceData data = (ReferenceData)this.data[5];
         data.value = project;
     }
 
@@ -193,13 +208,13 @@ public class Definition extends DataObject implements DataObjectInterface{
 
     public String getDefinition(){
 
-        TextData data = (TextData) this.data[5];
+        TextData data = (TextData) this.data[6];
         return data.getStringValue();
     }
 
     public void setDefinition(String definition){
 
-        TextData data = (TextData) this.data[5];
+        TextData data = (TextData) this.data[6];
         data.setStringValue(definition);
     }
 

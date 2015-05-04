@@ -5,6 +5,7 @@ import org.apache.poi.xssf.usermodel.*;
 /*****
  *
  *          Cell styling and content for export
+ *          //TODO: Handle numeric values and write them as numeric in the excel sheet
  *
  */
 public class CellValue {
@@ -16,6 +17,14 @@ public class CellValue {
     CellValue(String text){
 
         this.text = text;
+        this.fontSize = 12;  //Default value
+        this.bold = false;
+        this.italics = false;
+    }
+
+    public CellValue(int v) {
+
+        this.text = "" + v;
         this.fontSize = 12;  //Default value
         this.bold = false;
         this.italics = false;
@@ -47,6 +56,13 @@ public class CellValue {
 
         XSSFCellStyle style = sheet.getWorkbook().createCellStyle();
         XSSFFont font = sheet.getWorkbook().createFont();
+
+        if(bold || italics){
+
+            //System.out.println(" --- Setting style " + (bold ? "bold " : "") + (italics ? "italics " : ""));
+
+        }
+
 
         font.setFontHeightInPoints((short)fontSize);
         font.setBold(bold);

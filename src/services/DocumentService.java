@@ -9,6 +9,7 @@ import analysis.Significance;
 import analysis.deferrance.DeferenceHandler;
 import analysis.deferrance.NextFragment;
 import analysis2.NewAnalysisOutcome;
+import classification.Classifier;
 import classification.FragmentClass;
 import classification.FragmentClassification;
 import classification.FragmentClassificationTable;
@@ -25,6 +26,7 @@ import databaseLayer.DBKeyInterface;
 import document.*;
 import featureTypes.FeatureTypeInterface;
 import featureTypes.FeatureTypeTree;
+import language.English;
 import language.LanguageInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
@@ -403,32 +405,108 @@ public class DocumentService extends ItClarifiesService{
         // so left to do is to find the corresponding fragment.
 
         PukkaLogger.log(PukkaLogger.Level.INFO, "** Found " + fragmenter.getComments().size() + " comments in the document" );
+        handleComments(fragmenter.getComments(), project, versionInstance, analysisTime);
 
-        for(AbstractComment aComment : fragmenter.getComments()){
 
-            ContractFragment fragment = new ContractFragment(new LookupItem()
-                    .addFilter(new ColumnFilter   (ContractFragmentTable.Columns.Ordinal.name(), aComment.getFragmentId() - 1))
-                    .addFilter(new ReferenceFilter(ContractFragmentTable.Columns.Version.name(), versionInstance.getKey())));
+    }
 
-            if(!fragment.exists()){
+    /********************************************************************************************
+     *
+     *          Handle comments. For a comment in the document there are a number of actions to take:
+     *
+     *          #TAG            - will result in creating an action here
+     *          #RISK:status    - will set the status of a risk (overriding any existing status
+     *          other           - Create an annotation
+     *
+     * @param comments          - list of all comments in the document
+     * @param project           - Current project
+     * @param documentVersion   - The document
+     * @param analysisTime      - The time of analysis
+     *
+     *
+     *        //TODO: Future: Allow fro import in different languages
+     */
 
-                // Debugging only
-                for(ContractFragment f : versionInstance.getFragmentsForVersion()){
-                    System.out.println("Fragment: " + f.getName() + "id" + f.getOrdinal());
+
+    private void handleComments(List<AbstractComment> comments, Project project, ContractVersionInstance documentVersion, DBTimeStamp analysisTime) throws BackOfficeException{
+
+        PortalUser user = PortalUser.getExternalUser();
+        LanguageInterface languageForImport = new English();
+
+        for(AbstractComment aComment : comments){
+
+            try{
+
+                ContractFragment fragment = new ContractFragment(new LookupItem()
+                        .addFilter(new ColumnFilter(ContractFragmentTable.Columns.Ordinal.name(), aComment.getFragmentId()))
+                        .addFilter(new ReferenceFilter(ContractFragmentTable.Columns.Version.name(), documentVersion.getKey())));
+
+                if(!fragment.exists()){
+
+                    // Debugging only
+                    for(ContractFragment f : documentVersion.getFragmentsForVersion()){
+                        System.out.println("Fragment: " + f.getName() + "id" + f.getOrdinal());
+                    }
+
+                    PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not find fragment for comment. Fragment id: " + aComment.getFragmentId() + "("+ aComment.getComment()+")");
+                    continue;
                 }
 
-                PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not find fragment for comment. Fragment id: " + aComment.getFragmentId() + "("+ aComment.getComment()+")");
 
-            }
-            else{
+                if(isClassification(aComment)){
+
+                    String classificationTag = firstWord(aComment.getComment());
+                    FeatureTypeInterface featureType = getFeatureTypeByName(classificationTag, languageForImport);
+
+                    if(featureType == null){
+
+                        PukkaLogger.log(PukkaLogger.Level.ERROR, "Could not find feature type named " + classificationTag + " for language " + languageForImport.getLanguageCode().code);
+                        continue;
+                    }
+
+                    String keywords = featureType.getHierarchy();
+
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "Found a classification "+ aComment.getComment()+" in document comment.");
+
+
+                    FragmentClassification classification = new FragmentClassification(
+                            fragment.getKey(),
+                            featureType.getName(),
+                            0,              // requirement level not implemented
+                            0,              // applicable phase not implemented
+                            "",
+                            keywords,
+                            user.getKey(),
+                            documentVersion.getKey(),
+                            project.getKey(),
+                            aComment.getAnchor(),
+                            -1,
+                            0,
+                            Significance.MATCH_SIGNIFICANCE,
+                            "external import",
+                            analysisTime.getSQLTime().toString());
+
+                    Classifier classifier = new Classifier(project, documentVersion);
+                    classifier.addClassification(classification, fragment);
+                    classifier.store();
+
+
+
+                    continue;
+                }
+
+
+                //Else it is a regular annotation to import
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Found a classification "+ aComment.getComment()+" in document comment.");
 
                 ContractAnnotation annotation = new ContractAnnotation(
-                        PortalUser.getExternalUser() + "@" + analysisTime.getSQLTime().toString(),
+                        user + "@" + analysisTime.getSQLTime().toString(),
                         fragment,
                         (long)1,
                         aComment.getComment(),
                         PortalUser.getExternalUser(),
-                        versionInstance,
+                        documentVersion,
                         project,
                         aComment.getAnchor(),
                         0,                          //TODO: Anchor position not implemented
@@ -440,12 +518,37 @@ public class DocumentService extends ItClarifiesService{
                 fragment.update();
 
 
+
+
+
+            }catch(BackOfficeException e){
+
+                PukkaLogger.log( e );
             }
+
 
         }
 
     }
 
+    private String firstWord(String comment) {
+
+        comment = comment.trim();
+        comment = comment.substring(1);
+
+        int firstSpace = comment.indexOf(" ");
+        if(firstSpace < 0)
+            return comment;
+
+        return comment.substring(0, firstSpace);
+
+    }
+
+    private boolean isClassification(AbstractComment aComment) {
+
+        return aComment.getComment().startsWith("#");
+
+    }
 
 
     /*****************************************************************************************
@@ -537,7 +640,6 @@ public class DocumentService extends ItClarifiesService{
      * @return
      *
      *
-     *          //TODO: Refactor: Should not need duplicate lookups here.
      *
      */
 
@@ -545,20 +647,11 @@ public class DocumentService extends ItClarifiesService{
 
         //String classTag = languageInterface.getClassificationForName(className);
 
-        ClassifierInterface[] classifiers = language.getSupportedClassifiers();
+        ClassifierInterface[] classifiers = language.getAllClassifiers();
 
         for (ClassifierInterface classifier : classifiers) {
 
-            if(classifier.getType().getName().equals(className)){
-
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Found static classTag " + className);
-                return classifier.getType().getName();   // This should be the #TAG as this is the key to the frontend
-            }
-        }
-
-        classifiers = language.getPostProcessClassifiers();
-
-        for (ClassifierInterface classifier : classifiers) {
+            System.out.println(" --- Comparing classes " + classifier.getType().getName() + " and " + className);
 
             if(classifier.getType().getName().equals(className)){
 
@@ -597,18 +690,7 @@ public class DocumentService extends ItClarifiesService{
 
         //String classTag = languageInterface.getClassificationForName(className);
 
-        ClassifierInterface[] classifiers = language.getSupportedClassifiers();
-
-        for (ClassifierInterface classifier : classifiers) {
-
-            if(classifier.getType().getName().equals(className)){
-
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Found static classTag " + className);
-                return className;
-            }
-        }
-
-        classifiers = language.getPostProcessClassifiers();
+        ClassifierInterface[] classifiers = language.getAllClassifiers();
 
         for (ClassifierInterface classifier : classifiers) {
 
@@ -648,11 +730,11 @@ public class DocumentService extends ItClarifiesService{
     }
 
 
-    protected FeatureTypeInterface getFeatureType(String className, LanguageInterface languageForDocument) {
+    public static FeatureTypeInterface getFeatureTypeByTag(String className, LanguageInterface languageForDocument) {
 
 
 
-        ClassifierInterface[] classifiers = languageForDocument.getSupportedClassifiers();
+        ClassifierInterface[] classifiers = languageForDocument.getAllClassifiers();
 
         for (ClassifierInterface classifier : classifiers) {
 
@@ -666,6 +748,25 @@ public class DocumentService extends ItClarifiesService{
         return null;
     }
 
+    public static FeatureTypeInterface getFeatureTypeByName(String className, LanguageInterface languageForDocument) {
+
+
+
+        ClassifierInterface[] classifiers = languageForDocument.getAllClassifiers();
+
+        for (ClassifierInterface classifier : classifiers) {
+
+            System.out.println("  --- matching " + classifier.getClassificationName() + " and " + className);
+
+            if(classifier.getClassificationName().equals(className)){
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Found static classTag " + className);
+                return classifier.getType();
+            }
+        }
+
+        return null;
+    }
 
 
     /***************************************************************************
@@ -804,6 +905,7 @@ public class DocumentService extends ItClarifiesService{
 
                         Definition definition = new Definition(
                                 classification.getPattern().getText(),
+                                DefinitionType.REGULAR.name(),
                                 fragment.getKey(),
                                 fragment.getOrdinal(),
                                 version.getKey(),
@@ -890,7 +992,7 @@ public class DocumentService extends ItClarifiesService{
                             version.getKey(),
                             project.getKey(),
                             classification.getPattern().getText(),
-                            0,                          //TODO: Anchor position not implemented
+                            classification.getPattern().getPos(),
                             analysisTime.getSQLTime().toString()
 
                     );
@@ -991,8 +1093,6 @@ public class DocumentService extends ItClarifiesService{
 
 
 
-
-
                 if(classification.getRelevance() < RELEVANCE_THRESHOLD){
 
                     PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Ignoring classification " + fragment.getName() + "( relevance "+ classification.getRelevance()+" below threshold)");
@@ -1000,6 +1100,11 @@ public class DocumentService extends ItClarifiesService{
                 else{
 
                     PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Classifying fragment " + fragment.getName() + " with tag "+ classification.getType()+". Pattern(" + classification.getPattern().getText() + ")" + "Relevance: " + classification.getRelevance());
+
+                    // If the classification is a legal reference, we add a link
+                    extractLinkForLegalReference(fragment, classification);
+                    extractLinkForURL(fragment, classification);
+
 
                     //System.out.println(classification.getType().getName() + " " + classification.getTag());
 
@@ -1081,6 +1186,45 @@ public class DocumentService extends ItClarifiesService{
 
         return new NewAnalysisFeedback(classifications, references, annotations, risks);
     }
+
+    private void extractLinkForLegalReference(ContractFragment fragment, Classification classification) {
+
+        if(classification.getType().getName().equals(FeatureTypeTree.LegalReference.getName())){
+
+            if(classification.getTag().equals("SFS-Reference")){
+
+                String pattern = classification.getPattern().getText();
+                String fragmentText = fragment.getText();
+                String link = "<a href=\"http://lagen.nu/"+pattern+"\" target=\"_blank\">" + pattern + "</a>";
+
+
+                fragment.setText(fragmentText.replaceAll(pattern, link));
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Replacing an SFS reference "+ pattern +"with a link " + link);
+
+            }
+        }
+    }
+
+    private void extractLinkForURL(ContractFragment fragment, Classification classification) {
+
+        if(classification.getType().getName().equals(FeatureTypeTree.URL.getName())){
+
+            if(classification.getTag().equals("URL")){
+
+                String pattern = classification.getPattern().getText();
+                String fragmentText = fragment.getText();
+                String link = "<a href=\""+pattern+"\" target=\"_blank\">" + pattern + "</a>";
+
+
+                fragment.setText(fragmentText.replaceAll(pattern, link));
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Replacing an SFS reference "+ pattern +"with a link " + link);
+
+            }
+        }
+    }
+
 
     private boolean isFirstRow(ContractFragment fragment) {
 

@@ -3,7 +3,12 @@ package fileHandling;
 import classification.FragmentClassification;
 import contractManagement.*;
 import document.AbstractComment;
+import featureTypes.FeatureType;
+import featureTypes.FeatureTypeTree;
 import log.PukkaLogger;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import pukkaBO.exceptions.BackOfficeException;
 import risk.RiskClassification;
 import userManagement.PortalUser;
@@ -42,10 +47,10 @@ public class Exporter {
 
 
 
-    public DocXFile getFileToExport(ContractVersionInstance documentVersion) throws BackOfficeException{
+    public DocXExport enhanceFile(ContractVersionInstance documentVersion) throws BackOfficeException{
 
         String fileName = documentVersion.getDocument().getFile();
-        DocXFile docXDocument = new DocXFile(new RepositoryFileHandler(fileName));
+        DocXExport docXDocument = new DocXExport(new RepositoryFileHandler(fileName));
 
         addComments(docXDocument, documentVersion);
 
@@ -90,37 +95,34 @@ public class Exporter {
      *
      *
      *
-     * @param document - the DocX file to generate to
-     * @param documentVersion - current version of the internal document
+     * @param document              - the DocX file to generate to
+     * @param documentVersion       - current version of the internal document
      */
 
-    private void addComments(DocXFile document, ContractVersionInstance documentVersion) {
+    private void addComments(DocXExport document, ContractVersionInstance documentVersion) {
 
         try {
 
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Adding comments");
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Adding comments for all attributes");
             List<FragmentClassification> classificationsForDocument = documentVersion.getFragmentClassificationsForVersion();
+
             List<RiskClassification> risksForDocument = documentVersion.getRiskClassificationsForVersion();
             List<ContractAnnotation> annotationsForDocument = documentVersion.getContractAnnotationsForVersion();
 
             List<AbstractComment> commentList = new ArrayList<AbstractComment>();
 
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Adding all classification comments");
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Adding "+ classificationsForDocument.size()+" classification comments");
+
             commentList.addAll(createCommentsFromClassifications(classificationsForDocument));
-
-            /*
-                Removing risk from the export. The risk has an associated risk description annotation.
-                //TODO: When the risk annotation is integrated into the risk, this should be changed back
-
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Adding all risk comments");
-                commentList.addAll(createCommentsFromRisks(risksForDocument));
-
-            */
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Adding all annotation comments");
             commentList.addAll(createCommentsFromAnnotations(annotationsForDocument));
 
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Adding comments to docX file");
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Adding all risk comments");
+            commentList.addAll(createCommentsFromRisks(risksForDocument));
+
+
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Adding "+ commentList.size()+" comments to docX file");
             document.annotateFile(commentList, documentVersion);
             PukkaLogger.log(PukkaLogger.Level.INFO, "Done");
 
@@ -139,7 +141,7 @@ public class Exporter {
      *
      *
      *
-     * @param classificationsForDocument
+     * @param classificationsForDocument          - all classifications
      * @return - list of abstract comments of the type "Classification"
      */
 
@@ -149,11 +151,48 @@ public class Exporter {
 
         for(FragmentClassification classification : classificationsForDocument){
 
-            list.add(new AbstractComment("Classification", classification.getPattern(), classification.getClassTag(),
-                    (int)classification.getFragment().getOrdinal(), (int)classification.getPos(), (int)classification.getLength()));
+            if(isRelevantForExport(classification)){
+
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "  -- Found a classification " + classification.getClassTag() + " for " + classification.getPattern());
+
+                list.add(new AbstractComment("Classification", classification.getPattern(), classification.getClassTag(),
+                        (int)classification.getFragment().getOrdinal(), (int)classification.getPos(), (int)classification.getLength()));
+            }
+            else{
+
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "  -- Ignoring classification " + classification.getClassTag() + " as irrelevant for export." );
+
+            }
+
         }
 
+
+        System.out.println("  -- Extracted " + list.size() + " comments for classifications ");
+
         return list;
+
+    }
+
+    /***************************************************************************************'
+     *
+     *              Filter classifications
+     *
+     *
+     * @param classification     - the potential classification
+     * @return                   - is it relevant to export or not?
+     */
+
+    private boolean isRelevantForExport(FragmentClassification classification) {
+
+        if(     classification.getClassTag().equals(FeatureTypeTree.DefinitionRepetition.getName()) ||
+                classification.getClassTag().equals(FeatureTypeTree.DefinitionDef.getName()) ||
+                classification.getClassTag().equals(FeatureTypeTree.DefinitionUsage.getName())
+        ){
+
+            return false;
+        }
+
+        return true;
 
     }
 
@@ -172,7 +211,13 @@ public class Exporter {
 
         for(RiskClassification risk : risksForDocument){
 
-            list.add(new AbstractComment("Risk", risk.getPattern(), "Risk(" + risk.getRisk().getName() + ")", (int)risk.getFragment().getOrdinal(), -1, -1));
+            ContractFragment fragment = risk.getFragment();
+
+            int anchorStart = (int)risk.getPatternPos();
+            int anchorLength = risk.getPattern().length();
+
+            list.add(new AbstractComment("Risk", risk.getPattern(), "Risk(" + risk.getRisk().getName() + ")", (int)risk.getFragment().getOrdinal(), anchorStart, anchorLength));
+            System.out.println("**** Risk " + risk.getDescription() + "(" + risk.getPattern() + ") for fragment " + fragment.getName() + " with id " + fragment.getOrdinal());
         }
 
         return list;
@@ -196,25 +241,38 @@ public class Exporter {
 
         for(ContractAnnotation annotation : annotationsForDocument){
 
-
             try {
 
                 // Annotations made by external users are already in the document, so we don't need to add them back
 
                 if(!annotation.getCreatorId().equals(PortalUser.getExternalUser().getKey())){
 
-                    list.add(new AbstractComment("Annotation", annotation.getPattern(), annotation.getDescription(), (int)annotation.getFragment().getOrdinal(), -1, -1));
-                    System.out.println("**** Annotation " + annotation.getDescription() + " for fragment " + annotation.getFragment().getName() + " with id " + annotation.getFragment().getOrdinal());
+                    int anchorStart = (int)annotation.getPatternPos();
+                    int anchorLength = annotation.getPattern().length();
+
+                    ContractFragment fragment = annotation.getFragment();
+                    if(annotation.getPatternPos() < 0){
+
+                        // The pattern is empty. Set the entire fragment as an anchor
+                        anchorStart = 0;
+                        anchorLength = fragment.getText().length();
+
+                    }
+
+                    list.add(new AbstractComment("Annotation", annotation.getPattern(), annotation.getDescription(), (int)fragment.getOrdinal(), anchorStart, anchorLength));
+                    System.out.println("**** Annotation " + annotation.getDescription() + "("+ annotation.getPattern()+") for fragment " + fragment.getName() + " with id " + fragment.getOrdinal());
                 }
 
             } catch (BackOfficeException e) {
 
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                PukkaLogger.log( e );
+
             }
         }
 
         return list;
 
     }
+
 
 }

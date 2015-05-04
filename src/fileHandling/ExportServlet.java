@@ -80,7 +80,7 @@ public class ExportServlet extends ItClarifiesService{
            if(inject){
 
                Exporter exporter = new Exporter();
-               DocXFile exportFile = exporter.getFileToExport(version);
+               DocXExport exportFile = exporter.enhanceFile(version);
                filename = exporter.getOutputName(fileHandler.getFileName());
                fileHandler = exportFile.saveToRepository(filename);
 

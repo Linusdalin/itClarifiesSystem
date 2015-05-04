@@ -12,6 +12,7 @@ import crossReference.DefinitionTable;
 import diff.FragmentComparator;
 import document.AbstractFragment;
 import document.CellInfo;
+import document.DefinitionType;
 import document.FragmentSplitterInterface;
 import featureTypes.FeatureTypeTree;
 import log.PukkaLogger;
@@ -217,7 +218,7 @@ public class CanonicalReferenceParser {
 
         currentSourceText = null;
 
-        return new Definition("undefined", null, 0,  document.getKey(), project.getKey(), null);
+        return new Definition("undefined", DefinitionType.REGULAR.name(), null, 0,  document.getKey(), project.getKey(), null);
 
     }
 

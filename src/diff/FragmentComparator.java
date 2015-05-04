@@ -117,14 +117,16 @@ public class FragmentComparator {
         String washed1 = wash(activeFragment);
         String washed2 = wash(referenceFragment);
 
-        if(referenceFragment.length() == 0 && activeFragment.length() == 0)
-            return true;
+        if(referenceFragment.length() == 0)
+            return(activeFragment.length() == 0);
+
+        int averageLength = (referenceFragment.length() + activeFragment.length());
+        if(averageLength < 2)
+            averageLength = 2;
 
         int distance = getDistance(washed1, washed2);
-        int distancePerAvgChar = (100 * distance) / ((referenceFragment.length() + activeFragment.length()) / 2);
-        PukkaLogger.log(PukkaLogger.Level.DEBUG, "Got distance " + distance + " between " + activeFragment + " and " + referenceFragment);
-
-        PukkaLogger.log(PukkaLogger.Level.DEBUG, " - Distance per avg char =  " + distancePerAvgChar);
+        int distancePerAvgChar = (100 * distance) / ( averageLength / 2);
+        PukkaLogger.log(PukkaLogger.Level.DEBUG, " - Got distance " + distance + "(avg: "+distancePerAvgChar+") between " + activeFragment + " and " + referenceFragment);
 
         return distancePerAvgChar < DISTANCE_THRESHOLD;
     }

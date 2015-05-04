@@ -112,7 +112,7 @@ public class ClassificationServlet extends DocumentService {
 
             String localizedClass = getTag(classTag, organization, languageForDocument);
             String tagName = getTagName(classTag, organization, languageForDocument);
-            FeatureTypeInterface featureType = getFeatureType(classTag, languageForDocument);
+            FeatureTypeInterface featureType = getFeatureTypeByTag(classTag, languageForDocument);
 
             if(localizedClass == null){
 

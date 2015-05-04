@@ -2,6 +2,7 @@ package overviewExport;
 
 import analysis.ParseFeedback;
 import analysis.ParseFeedbackItem;
+import classification.ClassificationOverviewManager;
 import classification.FragmentClassification;
 import contractManagement.*;
 import crossReference.Definition;
@@ -14,6 +15,7 @@ import language.LanguageInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -127,11 +129,53 @@ public class OverviewGenerator {
         feedback.add(addSearchSelection(sheets[8], project, "#Deadline"));
         feedback.add(addSearchSelection(sheets[9], project, "#Acceptance"));
         feedback.add(addSearchSelection(sheets[10], project, "#Delivery"));
-        //feedback.add(addSearchSelection(sheets[11], project, "#Responsibility"));
-        feedback.add(addSearchSelection(sheets[11], project, "#Percentage"));             //TODO: Change back to #Responsibility. This is just for testing
+        feedback.add(addSearchSelection(sheets[11], project, "#Responsibility"));
+        //feedback.add(addSearchSelection(sheets[11], project, "#Percentage"));             //TODO: Change back to #Responsibility. This is just for testing
+        feedback.add(addClassifications(sheets[13], project));
 
         return feedback;
     }
+
+    private ParseFeedbackItem addClassifications(XSSFSheet sheet, Project project) {
+
+        ClassificationOverviewManager overview = new ClassificationOverviewManager();
+        overview.compileClassificationsForProject(project, null);
+        JSONObject json = overview.getStatistics();
+
+        ParseFeedbackItem feedback = traverseOverviewJson(sheet, json, 3, 5);
+
+        return feedback;
+
+    }
+
+
+    private ParseFeedbackItem traverseOverviewJson(XSSFSheet sheet, JSONObject node, int level, int currentRow){
+
+        String name = node.getString("classification");
+        JSONObject statistics = node.getJSONObject("statistics");
+        JSONArray children = node.getJSONArray("subClassifications");
+        int hits = statistics.getInt("direct") + statistics.getInt("indirect");
+
+        CellValue elements[] = new CellValue[20];
+
+        elements[level] = new CellValue(name);
+        elements[11] =    new CellValue(hits);
+
+        addRow(sheet, currentRow++, elements);
+
+
+        for(int i = 0; i < children.length(); i++){
+
+            ParseFeedbackItem feedback = traverseOverviewJson(sheet, children.getJSONObject( i ), level+1, currentRow);
+            currentRow = feedback.row;
+
+        }
+
+        return new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Created classification structure", currentRow);
+
+    }
+
+
 
 
     /******************************************************************************
@@ -399,6 +443,11 @@ public class OverviewGenerator {
 
             XSSFCell actualCell = row.getCell(column);
 
+            if(value == null){
+                column++;
+                continue;
+            }
+
             if(actualCell == null){
                 actualCell = row.createCell(column);
                 System.out.println("Created new cell for Sheet=\""+sheet.getSheetName()+"\" Column = " + column + " row = " + rowNo);
@@ -575,6 +624,15 @@ public class OverviewGenerator {
             }
 
             ExtractionFragment extractionFragment = new ExtractionFragment(fragment.getText(), fragment.getKey().toString(), (int)fragment.getOrdinal());
+
+            StructureItem structureItem = fragment.getStructureItem();
+
+            if(fragment.getOrdinal() == structureItem.getTopElement()){
+
+                extractionFragment.asHeadline((int) structureItem.getIndentation());
+
+            }
+
             searchResult.add(extractionFragment);
 
 
@@ -626,11 +684,27 @@ public class OverviewGenerator {
                 elements[6] = new CellValue(getRisksForFragment(fragment, risks));
                 elements[7] = new CellValue(getAnnotationsForFragment(fragment, annotations));
 
+                switch (fragment.getStyle()) {
+
+                    case Title:
+                        //System.out.println(" --- Setting bold and italics for style Title");
+                        elements[4].withFont(20).bold().italics();
+                        break;
+                    case Heading:
+                        //System.out.println(" --- Setting bold and italics for style Heading");
+                        elements[4].withFont(20).bold().italics();
+                        break;
+                    case Text:
+                        //System.out.println(" --- Setting font for text");
+                        elements[4].withFont(12);
+
+                        break;
+                }
+
                 if(fragment.getStyle() == ExtractionFragment.Style.Heading){
 
-                    elements[4].withFont(20).bold().italics();
-                    System.out.println("  -- Setting font size for headline");
                 }
+
 
                 addRow(sheet, startingRow++, elements, 0);
             }

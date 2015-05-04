@@ -559,7 +559,7 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
         return getReferencesForFragment(new LookupList());
     }
 
-    public StructureItem getStructureItem() throws BackOfficeException{
+    public StructureItem getStructureItem(){
 
         StructureItem item = new StructureItem(new LookupItem()
                 .addFilter(new ReferenceFilter(StructureItemTable.Columns.Version.name(), this.getVersionId() ))
@@ -608,7 +608,7 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
                 }
 
             }
-        } catch (BackOfficeException e) {
+        } catch (Exception e) {
 
             PukkaLogger.log(e, "Error getting structure item for fragment \"" + getDescription() + "\" in document " + this.getVersion().getDocument().getName());
         }

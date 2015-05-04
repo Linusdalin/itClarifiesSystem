@@ -11,6 +11,7 @@ import crossReference.ReferenceType;
 import dataRepresentation.DBTimeStamp;
 import dataRepresentation.DataObjectInterface;
 import databaseLayer.DatabaseAbstractionFactory;
+import document.DefinitionType;
 import featureTypes.FeatureTypeTree;
 import log.PukkaLogger;
 import pukkaBO.GenericPage.Lightbox;
@@ -145,12 +146,20 @@ class EditFragmentDetailsForm extends Form implements FormInterface {
 
             for (Reference reference : referencesFromFragment) {
 
-                elements.add(new TextField(reference.getPattern())
-                        .setSize(0, 100, 30)
-                        .withPlaceholder("user name")
-                        .withValue(reference.getTo().getKey().toString())
-                        .withTooltip("Fragment reference TO")
-                );
+                FormFieldInterface field =
+                        new TextField(reference.getPattern())
+                                        .setSize(0, 100, 30)
+                                        .withPlaceholder("to fragment")
+                                        .withValue(reference.getTo().getKey().toString())
+                                        .withTooltip("Fragment reference TO");
+
+                // Potentially add a "to fragment"-key if it exists
+
+                if(reference.getTo().exists())
+                    field.withValue(reference.getTo().getKey().toString());
+
+
+                elements.add(field);
                 count++;
 
             }
@@ -350,6 +359,9 @@ class AddDefinitionForm extends Form implements FormInterface {
      * @param backOffice
      * @return
      * @throws BackOfficeException
+     *
+     *          //TODO: Definition Type not implemented
+     *
      */
 
     public String submitCallBack(HttpServletRequest request, BackOfficeInterface backOffice) throws BackOfficeException {
@@ -405,7 +417,9 @@ class AddDefinitionForm extends Form implements FormInterface {
                 String tag = FeatureTypeTree.DefinitionDef.getName();
                 String keyWords = FeatureTypeTree.DefinitionDef.getHierarchy();
 
-                Definition definition = new Definition(pattern, fragment, fragment.getOrdinal(), version, project, definitionText);
+                Definition definition = new Definition(pattern,
+                        DefinitionType.REGULAR.name(),
+                        fragment, fragment.getOrdinal(), version, project, definitionText);
                 definition.store();
 
                 Redefinition redefinition = new Redefinition(pattern, true, project.getName(), document.getName(),fragment.getOrdinal(), fragment.getText(), false, now.getISODate());

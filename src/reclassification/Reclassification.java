@@ -292,6 +292,8 @@ public class Reclassification extends DataObject implements DataObjectInterface{
         System.out.println("Body: " + getFragment());
         System.out.println("Located fragment: " + fragment.getOrdinal() + "(" + fragment.getName() + ")");
 
+        language.LanguageInterface languageForImport = new language.English();
+
         FragmentClassificationTable existingClassifications = new FragmentClassificationTable(new LookupList()
                 .addFilter(new ReferenceFilter(FragmentClassificationTable.Columns.Fragment.name(), fragment.getKey()))
                 .addFilter(new ColumnFilter(FragmentClassificationTable.Columns.ClassTag.name(), getClassification())));
@@ -307,6 +309,20 @@ public class Reclassification extends DataObject implements DataObjectInterface{
         }
 
 
+        featureTypes.FeatureTypeInterface featureType = services.DocumentService.getFeatureTypeByTag(getClassification(), languageForImport);
+
+        String keywords = "";
+        if(featureType == null){
+
+            return new analysis.ParseFeedbackItem(analysis.ParseFeedbackItem.Severity.WARNING,
+                    "Could not find feature type for classification of type " + getClassification() + ". Aborting!", 0);
+
+        }else{
+
+            keywords = featureType.getHierarchy();
+        }
+
+
 
 
         FragmentClassification classification = new FragmentClassification(
@@ -315,7 +331,7 @@ public class Reclassification extends DataObject implements DataObjectInterface{
                 0,
                 0,
                 "regenerated",
-                "",
+                keywords,
                 user.getKey(),
                 version.getKey(),
                 project.getKey(),

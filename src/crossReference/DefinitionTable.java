@@ -35,11 +35,12 @@ public class DefinitionTable extends DataTable implements DataTableInterface{
     public static final String TABLE = "Definition";
     private static final String DESCRIPTION = "A definition of a concept in the document (or project)";
 
-    public enum Columns {Name, DefinedIn, FragmentNo, Version, Project, Definition, }
+    public enum Columns {Name, Type, DefinedIn, FragmentNo, Version, Project, Definition, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
             new StringColumn("Name", DataColumn.noFormatting),
+            new StringColumn("Type", DataColumn.noFormatting).setDefaultValue(new ImplicitValue( "USAGE" )),
             new ReferenceColumn("DefinedIn", DataColumn.noFormatting, new TableReference("ContractFragment", "Name")),
             new IntColumn("FragmentNo", DataColumn.noFormatting),
             new ReferenceColumn("Version", DataColumn.noFormatting, new TableReference("ContractVersionInstance", "Version")),

@@ -45,7 +45,7 @@ import java.util.List;
 
 /********************************************************
  *
- *          Contract Servlet returning one contract
+ *          Injecting reclassifications
  *
  */
 
@@ -496,20 +496,22 @@ public class ReclassificationServlet extends DocumentService {
         return feedback.toString();
     }
 
-    /********************************************************************************
+    /********************************************************************************'
      *
      *          Locate fragment will find the closest matching fragment between the ordinal
      *          number in the comment and the fragments in the list
      *
      *
-     * @param comment
-     * @param version
+     * @param fragmentText
+     * @param fragmentNo
+     * @param fragmentsForDocument
      * @return
      *
      *          It will look 20 steps up and down in the list
+     *
      */
 
-    private ContractFragment locateFragment(String fragmentText, int fragmentNo, List<ContractFragment> fragmentsForDocument)  {
+    public static ContractFragment locateFragment(String fragmentText, int fragmentNo, List<ContractFragment> fragmentsForDocument)  {
 
         try{
 
@@ -541,7 +543,7 @@ public class ReclassificationServlet extends DocumentService {
                     if(comparator.isSame(fragmentText, fragment.getText(), 500)){
 
                         // Found. Log and return
-                        PukkaLogger.log(PukkaLogger.Level.INFO, "Matching fragment " + fragment.getName() + " at " + (fragmentNo + offset) + "(" + offset + " off)");
+                        PukkaLogger.log(PukkaLogger.Level.DEBUG, "Matching fragment " + fragment.getName() + " at " + (fragmentNo + offset) + "(" + offset + " off)");
                         return fragment;
                     }
                 }
@@ -555,7 +557,7 @@ public class ReclassificationServlet extends DocumentService {
                     if(comparator.isSame(fragmentText, fragment.getText())){
 
                         // Found. Log and return
-                        PukkaLogger.log(PukkaLogger.Level.INFO, "Matching fragment " + fragment.getName() + " at " + (fragmentNo - offset) + "(" + -offset + " off)");
+                        PukkaLogger.log(PukkaLogger.Level.DEBUG, "Matching fragment " + fragment.getName() + " at " + (fragmentNo - offset) + "(" + -offset + " off)");
                         return fragment;
                     }
 
@@ -579,7 +581,8 @@ public class ReclassificationServlet extends DocumentService {
 
     }
 
-    protected FeatureTypeInterface getFeatureType(String className, LanguageInterface languageForDocument) {
+    /*
+    public FeatureTypeInterface getFeatureType(String className, LanguageInterface languageForDocument) {
 
 
 
@@ -596,7 +599,7 @@ public class ReclassificationServlet extends DocumentService {
 
         return null;
     }
-
+      */
 
 
 }
