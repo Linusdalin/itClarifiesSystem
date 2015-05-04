@@ -1,5 +1,6 @@
 package contractManagement;
 
+import document.DefinitionType;
 import risk.*;
 import contractManagement.*;
 import classification.*;
@@ -329,7 +330,9 @@ public class ContractVersionInstance extends DataObject implements DataObjectInt
         List<document.AbstractDefinition> abstractDefinitions = new java.util.ArrayList<document.AbstractDefinition>();
         for(Definition definition : definitions){
 
-            document.AbstractDefinition aDefinition = new document.AbstractDefinition(definition.getName(), (int)definition.getFragmentNo());
+            DefinitionType type = DefinitionType.getTypeByName(definition.getType());
+
+            document.AbstractDefinition aDefinition = new document.AbstractDefinition(definition.getName(), (int)definition.getFragmentNo(), type);
 
             // If there is an actual definition text extracted for this definition, add it
 
