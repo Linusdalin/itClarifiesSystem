@@ -633,4 +633,22 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
         document.CellInfo cellInfo = new document.CellInfo((int)this.getxPos(), (int)this.getyPos(), "#FFFFFF", 0, 0, tableSpan , 1, true, (int)this.getwidth());
         return cellInfo;
     }
+
+    /************************************************************************
+     *
+     *          Remove all the html encoding generated
+     *
+     * @return
+     */
+
+    public String htmlDecode(){
+
+        return getText()
+                .replaceAll("<([a-z]+)([^<]+)*(?:>(.*)<\\/\\1>|\\s+\\/>)", "")
+                .replaceAll("&nbsp;", " ")
+
+                ;
+
+    }
+
 }

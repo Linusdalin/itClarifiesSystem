@@ -28,12 +28,36 @@ public class Classifier {
     private List<Definition>              definitionsToStore = new ArrayList<Definition>();
     private List<ContractFragment>        fragmentsToUpdate = new ArrayList<ContractFragment>();
 
+
+    /*****************************************************************************'
+     *
+     *      Create a classifier for a document in a project
+     *
+     *
+     * @param project
+     * @param version
+     */
+
+
+
     public Classifier(Project project, ContractVersionInstance version){
 
         this.version = version;
         this.project = project;
     }
 
+
+    /**************************************************************************
+     *
+     *          Add a classification (and handle side effects) to a fragment
+     *
+     *          This method stores the classifications (and other attributes) in
+     *          the lists pending the store command.
+     *
+     *
+     * @param classification
+     * @param fragment
+     */
 
 
     public void addClassification(FragmentClassification classification, ContractFragment fragment) {
@@ -80,11 +104,21 @@ public class Classifier {
 
     }
 
+    /***************************************************************************
+     *
+     *          Some classifications has side effects. Handle these and store the
+     *          attributes in the appropriate lists pending store
+     *
+     *
+     * @param classification
+     * @param fragment
+     */
+
+
     private void handleSideEffects(FragmentClassification classification, ContractFragment fragment) {
 
         // If the classification is a #Party, we shall also create a definition
         // for this with the type party
-
 
         if(classification.getClassTag().equals(FeatureTypeTree.Parts.getName())){
 

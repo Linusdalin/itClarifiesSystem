@@ -12,7 +12,8 @@ public class CellValue {
 
     private String text;
     private int fontSize;
-    private boolean bold, italics;
+    private boolean bold, italics, wrap;
+
 
     CellValue(String text){
 
@@ -20,6 +21,7 @@ public class CellValue {
         this.fontSize = 12;  //Default value
         this.bold = false;
         this.italics = false;
+        this.wrap = true;       //Default is wrap cell
     }
 
     public CellValue(int v) {
@@ -46,6 +48,13 @@ public class CellValue {
         return this;
     }
 
+    public CellValue noWrap(){
+
+        this.wrap = false;
+        return this;
+    }
+
+
     public CellValue italics(){
 
         this.italics = true;
@@ -68,6 +77,9 @@ public class CellValue {
         font.setBold(bold);
         font.setItalic(italics);
         style.setFont(font);
+        style.setWrapText(wrap);
+
+        style.setVerticalAlignment(XSSFCellStyle.VERTICAL_TOP);
 
 
         return style;
