@@ -464,9 +464,9 @@ public class DocumentService extends ItClarifiesService{
                         continue;
                     }
 
-                    String keywords = featureType.getHierarchy();
+                    String keywords = featureType.createKeywordString("External");
 
-                    PukkaLogger.log(PukkaLogger.Level.INFO, "Found a classification "+ aComment.getComment()+" in document comment.");
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "Found a classification "+ aComment.getComment()+" in document comment. for fragment " + fragment.getName());
 
 
                     FragmentClassification classification = new FragmentClassification(
@@ -486,7 +486,7 @@ public class DocumentService extends ItClarifiesService{
                             "external import",
                             analysisTime.getSQLTime().toString());
 
-                    Classifier classifier = new Classifier(project, documentVersion);
+                    Classifier classifier = new Classifier(project, documentVersion, analysisTime);
                     classifier.addClassification(classification, fragment);
                     classifier.store();
 
@@ -750,13 +750,11 @@ public class DocumentService extends ItClarifiesService{
 
     public static FeatureTypeInterface getFeatureTypeByName(String className, LanguageInterface languageForDocument) {
 
-
-
         ClassifierInterface[] classifiers = languageForDocument.getAllClassifiers();
 
         for (ClassifierInterface classifier : classifiers) {
 
-            System.out.println("  --- matching " + classifier.getClassificationName() + " and " + className);
+            //System.out.println("  --- matching " + classifier.getClassificationName() + " and " + className);
 
             if(classifier.getClassificationName().equals(className)){
 
@@ -767,6 +765,7 @@ public class DocumentService extends ItClarifiesService{
 
         return null;
     }
+
 
 
     /***************************************************************************
@@ -805,6 +804,8 @@ public class DocumentService extends ItClarifiesService{
         analysisResult = deference.activateDeferences(analysisResult, fragment);
 
         FragmentClassification fragmentClassification;
+        Classifier classifier = new Classifier(project, version, analysisTime);
+
 
         ContractRisk defaultRisk = ContractRisk.getUnknown();
         PortalUser system = PortalUser.getSystemUser();
@@ -1115,7 +1116,7 @@ public class DocumentService extends ItClarifiesService{
                             classification.getType().getName(),
                             0,              // requirement level not implemented
                             0,              // applicable phase not implemented
-                            "",
+                            classification.getTag(),
                             classification.getKeywords(),
                             system.getKey(),
                             version.getKey(),
@@ -1128,7 +1129,10 @@ public class DocumentService extends ItClarifiesService{
                             analysisTime.getSQLTime().toString());
 
                     classificationsToStore.add(fragmentClassification);
-                    //fragmentClassification.store();
+
+                    // The classification may also render a risk
+
+                    classifier.extractRiskForClassification(fragment, fragmentClassification, classification.getPattern());
 
                     fragment.keywordString =  searchManager.getUpdatedKeywords(fragment, fragmentClassification);
 
@@ -1156,9 +1160,10 @@ public class DocumentService extends ItClarifiesService{
 
         }
 
-        // Store all classifications
+        // Store all classifications. //TODO: Move all classifications to classifier
 
         classificationsToStore.store();
+        classifier.store();
 
         if(classifications != 0){
 

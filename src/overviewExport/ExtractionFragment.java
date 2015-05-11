@@ -25,7 +25,7 @@ public class ExtractionFragment {
 
     ExtractionFragment(String text, String key, int ordinal){
 
-        this.text = stripHtml(text);
+        this.text = text;
         this.ordinal = ordinal;
         this.key = key;
         this.style = Style.Text;  //Default

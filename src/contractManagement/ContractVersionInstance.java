@@ -460,4 +460,12 @@ public class ContractVersionInstance extends DataObject implements DataObjectInt
         return fragmentsForDocument.get( 0 );
 
     }
+
+    public String getVersionDescription() {
+        String version = getVersion();
+        int pos = version.lastIndexOf("_");
+        if(pos > 0)
+            version = version.substring(pos);
+        return version;
+    }
 }

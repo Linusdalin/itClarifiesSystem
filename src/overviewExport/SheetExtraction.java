@@ -12,6 +12,7 @@ import java.util.List;
  */
 public class SheetExtraction {
 
-    public List<ExtractionFragment> fragments = new ArrayList<ExtractionFragment>();
+    public List<ExtractionFragment> fragments = new ArrayList<ExtractionFragment>(500);
+    public boolean hasFragmentsForDocument = false;
 
 }

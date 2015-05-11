@@ -52,9 +52,10 @@ public class ClassificationOverviewTree {
                             new ClassificationOverviewNode(FeatureTypeTree.Legal, new ClassificationOverviewNode[]{
 
                                     new ClassificationOverviewNode(FeatureTypeTree.IPR, LEAF),
-                                    new ClassificationOverviewNode(FeatureTypeTree.Parts, new ClassificationOverviewNode[]{
+                                    new ClassificationOverviewNode(FeatureTypeTree.LegalEntity, new ClassificationOverviewNode[]{
 
-                                            new ClassificationOverviewNode(FeatureTypeTree.Entity, LEAF),
+                                            new ClassificationOverviewNode(FeatureTypeTree.Parts, LEAF),
+                                            //new ClassificationOverviewNode(FeatureTypeTree.PartyUsage, LEAF),
 
                                     }),
                                     new ClassificationOverviewNode(FeatureTypeTree.GeneralProvisions, new ClassificationOverviewNode[]{

@@ -306,8 +306,12 @@ public class FragmentServlet extends ItClarifiesService{
 
                json = new JSONObject()
                        .put(DataServletName, getFragmentsForDocumentVersion(document, activeVersion, sessionManagement, formatter));
-               PukkaLogger.log(PukkaLogger.Level.INFO, "Caching response");
-               cache.store(activeVersion.getKey().toString(), json.toString(), "Document " + document.getName());
+
+               PukkaLogger.log(PukkaLogger.Level.INFO, "Skipping Caching response. This is temporarily removed");
+
+
+               //PukkaLogger.log(PukkaLogger.Level.INFO, "Caching response");
+               //cache.store(activeVersion.getKey().toString(), json.toString(), "Document " + document.getName());
            }
 
            PukkaLogger.log(PukkaLogger.Level.INFO, "Sending response");

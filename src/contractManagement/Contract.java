@@ -955,6 +955,25 @@ public class Contract extends DataObject implements DataObjectInterface{
     }
 
 
+    public static String htmlDecode(String text){
+
+        return text
+                .replaceAll("<[^>]*>", "")
+                .replaceAll("&nbsp;", " ")
+
+                ;
+
+    }
+
+
+
+    public String htmlDecode(){
+
+        return htmlDecode(getName());
+
+    }
+
+
 
 
 }

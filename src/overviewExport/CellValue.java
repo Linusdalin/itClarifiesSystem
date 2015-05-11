@@ -1,39 +1,81 @@
 package overviewExport;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.xssf.usermodel.*;
 
 /*****
  *
  *          Cell styling and content for export
- *          //TODO: Handle numeric values and write them as numeric in the excel sheet
  *
  */
+
 public class CellValue {
 
-    private String text;
-    private int fontSize;
-    private boolean bold, italics, wrap;
 
+    public CellValue() {
+
+        this.type = Type.EMPTY;
+        setDefaultStyle();
+    }
+
+    public enum Type {STRING, VALUE, EMPTY}
+
+    private String text = "";
+    private int value = 0;
+    private Type type;
+
+    private int fontSize;
+    private boolean bold, italics, wrap, udBorder,lrBorder, center;
+
+    private static final byte[] borderColour = {(byte)0x33, (byte)0x33, (byte)0x33};
 
     CellValue(String text){
 
         this.text = text;
-        this.fontSize = 12;  //Default value
-        this.bold = false;
-        this.italics = false;
-        this.wrap = true;       //Default is wrap cell
+        this.type = Type.STRING;
+        setDefaultStyle();
+
     }
 
     public CellValue(int v) {
 
-        this.text = "" + v;
-        this.fontSize = 12;  //Default value
+        this.value = v;
+        this.type = Type.VALUE;
+        setDefaultStyle();
+        this.center = true;     // Default is to center all number cells
+    }
+
+    private void setDefaultStyle(){
+
+        this.fontSize = 12;     // Default value
         this.bold = false;
         this.italics = false;
+        this.wrap = true;       // Default is wrap cell
+        this.lrBorder = false;
+        this.udBorder = false;
+        this.center = false;
     }
 
     public String getStringValue() {
         return text;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public CellValue asBox() {
+
+        lrBorder = true;
+        udBorder = true;
+        return this;
+    }
+
+    public CellValue asRow() {
+
+        udBorder = true;
+        return this;
     }
 
     public CellValue withFont(int fontSize){
@@ -79,11 +121,37 @@ public class CellValue {
         style.setFont(font);
         style.setWrapText(wrap);
 
+        if(lrBorder){
+            style.setBorderLeft(BorderStyle.THIN);
+            style.setLeftBorderColor(new XSSFColor(borderColour));
+
+            style.setBorderRight(BorderStyle.THIN);
+            style.setRightBorderColor(new XSSFColor(borderColour));
+        }
+        if(udBorder){
+
+            style.setBorderTop(BorderStyle.THIN);
+            style.setTopBorderColor(new XSSFColor(borderColour));
+
+            style.setBorderBottom(BorderStyle.THIN);
+            style.setTopBorderColor(new XSSFColor(borderColour));
+
+
+        }
+
         style.setVerticalAlignment(XSSFCellStyle.VERTICAL_TOP);
+
+        if(center)
+            style.setAlignment(HorizontalAlignment.CENTER);
 
 
         return style;
     }
+
+    public Type getType() {
+        return type;
+    }
+
 
 /*
 public class CellStyle

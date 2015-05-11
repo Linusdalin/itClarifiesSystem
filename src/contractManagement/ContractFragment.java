@@ -643,12 +643,20 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     public String htmlDecode(){
 
-        return getText()
-                .replaceAll("<([a-z]+)([^<]+)*(?:>(.*)<\\/\\1>|\\s+\\/>)", "")
+        return htmlDecode(getText());
+
+    }
+
+    public static String htmlDecode(String text){
+
+        return text
+                .replaceAll("<[^>]*>", "")
                 .replaceAll("&nbsp;", " ")
 
                 ;
 
     }
+
+
 
 }

@@ -2,6 +2,7 @@ package overviewExport;
 
 import analysis.ParseFeedback;
 import analysis.ParseFeedbackItem;
+import analysis.Significance;
 import classification.ClassificationOverviewManager;
 import classification.FragmentClassification;
 import contractManagement.*;
@@ -9,6 +10,7 @@ import crossReference.Definition;
 import dataRepresentation.DBTimeStamp;
 import databaseLayer.DBKeyInterface;
 import databaseLayer.DatabaseAbstractionFactory;
+import featureTypes.FeatureTypeInterface;
 import featureTypes.FeatureTypeTree;
 import language.English;
 import language.LanguageInterface;
@@ -28,40 +30,56 @@ import pukkaBO.condition.Sorting;
 import pukkaBO.exceptions.BackOfficeException;
 import risk.RiskClassification;
 import search.SearchManager2;
+import services.DocumentService;
 import userManagement.PortalUser;
 
 import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
-/**
+/******************************************************************************************
  *              Generate the project overview from a template
  *
+ *              // TODO: Refactor all sheets types into separate classes
  *              // TODO: Add error handling for the template if it is changing
  *              // TODO: Write numbers as numbers, not text
  *              // TODO: External reference links
- *              // TODO: add classifications, risk and annotations in search filter output
- *              //TODO: Look info using XSSFRichTextString
+ *              // TODO: Look info using XSSFRichTextString
  */
 public class OverviewGenerator {
 
-    // Queues for the substitution
+    private static final boolean AddPeers = false;
 
-    private static final String SUBSTITUTE_PROJECT = "$(PROJECT)";
-    private static final String SUBSTITUTE_DATE = "$(TIME)";
-    private static final String SUBSTITUTE_TAG = "$(TAG)";
+    // Queues for the substitution in sheets
+
+    private static final String SUBSTITUTE_PROJECT =     "$(PROJECT)";
+    private static final String SUBSTITUTE_DATE =        "$(TIME)";
+    private static final String SUBSTITUTE_TAG =         "$(TAG)";
+    private static final String SUBSTITUTE_DESCRIPTION = "$(DESCRIPTION)";
+    private static final String SUBSTITUTE_DEFINITION =  "$(DEFINITION)";
+
+    // The hardcoded list of tags for the extraction
+    // TODO: This should be replaced with parameters in the request
 
     private static final String[] tagExtractions = {
 
-            "#PARTY",
-            "#BACKGROUND",
-            "#TERMS",
-            "#TERMINATION",
-            "#DEADLINE",
-            "#ACCEPTANCE",
-            "#DELIVERY",
-            "#RESPONSIBILITY",
-            "#DATE",
+
+
+            //"#PARTY",
+            //"#BACKGROUND",
+            "#TERM_AND_TERMINATION",
+            //"#RIGHTS_AND_OBLIGATIONS",
+            //"#DEADLINE",
+            //"#ACCEPTANCE",
+            //"#DELIVERY",
+            //"#GOVERNANCE",
+            //"#DATE",
+
 
     };
+
+    private static final int SEARCH_LIMIT = 1000;  // Max number of cells to search before failing replace
 
 
     private final Project project; // The actual project we are exporting
@@ -71,6 +89,12 @@ public class OverviewGenerator {
 
     XSSFSheet[] sheets;
 
+    // Count rows for the sheets
+
+    private int riskCount = 0;
+    private int definitionCount = 0;
+
+
     /**********************************************************************'
      *
      *          Initiate the generator
@@ -78,6 +102,8 @@ public class OverviewGenerator {
      *
      * @param template      - the excel template file
      * @param project       - the project to export
+     *
+     *       //TODO: Handle dynamic creation of sheets given the tag list as parameters.
      */
 
 
@@ -88,7 +114,7 @@ public class OverviewGenerator {
 
         sheets = new XSSFSheet[noSheets];
 
-        // Get the right sheets (regardless of order in document
+        // Get the Standard sheets
 
         this.sheets[ 0] = template.getSheet("Report Overview");
         this.sheets[ 1] = template.getSheet("Documents");
@@ -97,33 +123,21 @@ public class OverviewGenerator {
         this.sheets[ 4] = template.getSheet("External Ref");
         this.sheets[ 5] = template.getSheet("Risks");
 
+        // Loop over the rest of the sheets to get the predefined sheets
+
         for(int i = 6; i < template.getNumberOfSheets(); i++){
 
             this.sheets[ i ] = template.getSheetAt( i );
-            System.out.println(" --- Located sheet " + i + " named " +this.sheets[ i ].getSheetName());
+            PukkaLogger.log(PukkaLogger.Level.DEBUG, " --- Located sheet " + i + " named " +this.sheets[ i ].getSheetName());
 
         }
 
-
-        /*
-
-        this.sheets[ 6] = template.getSheet("Parties");
-        this.sheets[ 7] = template.getSheet("Background");
-        this.sheets[ 8] = template.getSheet("Terms");
-        this.sheets[ 9] = template.getSheet("Termination");
-        this.sheets[ 9] = template.getSheet("Deadlines");
-        this.sheets[10] = template.getSheet("Acceptance");
-        this.sheets[11] = template.getSheet("Delivery");
-        this.sheets[12] = template.getSheet("Responsibility");
-        this.sheets[13] = template.getSheet("Contract Checklist");
-        this.sheets[14] = template.getSheet("Classifications");
-
-        */
     }
 
     /************************************************************************'
      *
-     *          Populate the sheet
+     *          Populate the sheet by going through the sheets
+     *
      *
      *
      *
@@ -141,7 +155,8 @@ public class OverviewGenerator {
         List<FragmentClassification> allClassifications = project.getFragmentClassificationsForProject();
         List<ContractAnnotation> allAnnotations = project.getContractAnnotationsForProject();
         List<RiskClassification> allRisks = project.getRiskClassificationsForProject();
-        List<Contract> allDocuments = project.getContractsForProject();
+        List<Definition> allDefinitions = project.getDefinitionsForProject();
+        List<Contract> allDocuments = project.getContractsForProject(new LookupList().addSorting(new Sorting(ContractTable.Columns.Ordinal.name(), Ordering.FIRST)));
 
 
         for (int sheetNo = 0; sheetNo < sheets.length; sheetNo++) {
@@ -157,15 +172,174 @@ public class OverviewGenerator {
         }
 
 
-        feedback.add(addDocumentList(sheets[1]));
-        feedback.add(addDefinitions(sheets[2]));
-        feedback.add(addClassifications(sheets[3], project));
+        feedback.add(addDocumentList(sheets[1], allDocuments));
+        //feedback.add(addDefinitionsOld(sheets[2]));
+        //feedback.add(addClassifications(sheets[3], project));    // TODO: Put this back!
         feedback.add(addReferences(sheets[4]));
-        feedback.add(addRisks(sheets[5]));
+        //feedback.add(addRisksOld(sheets[5], project));
 
-        // Go through all the fragments of all the documents and write them to the correct sheet
+        System.out.println("Found " + allClassifications.size() + " classifications in project");
+
+        feedback.add(handleClassificationExtraction(allDocuments, allClassifications, allAnnotations, allRisks, allDefinitions));
+
+        return feedback;
+    }
+
+    /***************************************************************************************************
+     *
+     *       Go through all the fragments of all the documents and write them to the correct sheet.
+     *       We do it in this order to avoid having to parse the entire fragment list multiple times
+     *
+     *       The extraction is done in two steps.
+     *          - First creating a SheetExtraction for each sheet with a list of ExtractionFragment
+     *          - Then the ExtractionFragments are put into the fragment with the appropriate styling and additional attributes.
+     *
+     *
+     *
+     * @param allDocuments
+     * @param allClassifications
+     * @param allAnnotations
+     * @param allRisks
+     * @param allDefinitions
+     * @return
+     */
+
+    private ParseFeedback handleClassificationExtraction(List<Contract> allDocuments,
+                                                         List<FragmentClassification> allClassifications,
+                                                         List<ContractAnnotation> allAnnotations,
+                                                         List<RiskClassification> allRisks,
+                                                         List<Definition> allDefinitions) {
 
         SheetExtraction[] extractionPerSheet = new SheetExtraction[tagExtractions.length];
+
+        for(int i = 0; i < extractionPerSheet.length; i++)
+            extractionPerSheet[ i ] = new SheetExtraction();
+
+
+
+        ParseFeedback feedback = new ParseFeedback();
+        ExtractionFragment emptyLine = new ExtractionFragment("", null, 0);
+
+        for (Contract document : allDocuments) {
+
+            try{
+
+                ContractVersionInstance head = document.getHeadVersion();
+                for(int j = 0; j < extractionPerSheet.length; j++)
+                    extractionPerSheet[ j ].hasFragmentsForDocument = false;
+
+                List<ContractFragment> fragmentsForDocument = head.getFragmentsForVersion(new LookupList().addSorting(new Sorting(ContractFragmentTable.Columns.Ordinal.name(), Ordering.FIRST)));
+
+                System.out.println("Found " + fragmentsForDocument.size() + " fragments in document " + document.getName());
+
+                for (ContractFragment fragment : fragmentsForDocument) {
+
+                    // Skip going through fragments that do not have a classification count
+
+                    if(fragment.getClassificatonCount() == 0)
+                        continue;
+
+                    for (FragmentClassification classification : allClassifications) {
+
+                        try{
+
+                            if(classification.getFragmentId().equals(fragment.getKey())){
+
+                                // We found a classification that match the fragment we look at.
+
+                                for(int i = 0; i < tagExtractions.length; i++){
+
+                                    String match = tagExtractions[i] + " ";  // Make sure we only match the full word
+
+                                    if(classification.getKeywords().contains(match)){
+
+                                        // First check if this is the first fragment. If that is the case we add a headline
+
+                                        if(!extractionPerSheet[i].hasFragmentsForDocument){
+
+                                            extractionPerSheet[i].hasFragmentsForDocument = true;
+                                            extractionPerSheet[i].fragments.add(emptyLine);
+                                            ExtractionFragment documentHeadline = new ExtractionFragment(document.htmlDecode(), null, 0).asTitle();
+                                            extractionPerSheet[i].fragments.add(documentHeadline);
+                                        }
+
+
+                                        // Create an extraction fragment
+                                        ExtractionFragment body = new ExtractionFragment(fragment.htmlDecode(), fragment.getKey().toString(), 0);
+
+                                        //System.out.println(" !!brk3");
+
+                                        if(fragment.getType().equals("HEADING")){
+                                            body.asHeadline((int)fragment.getIndentation());
+                                            extractionPerSheet[i].fragments.add(emptyLine);
+                                            extractionPerSheet[i].fragments.add(body);
+                                            if(AddPeers)
+                                                extractionPerSheet[i].fragments.addAll(findPeers(fragment, fragmentsForDocument, false));
+                                        }
+                                        else if(fragment.getType().equals("LIST")){
+
+                                            if(AddPeers)
+                                                extractionPerSheet[i].fragments.addAll(findPeers(fragment, fragmentsForDocument, true));
+                                        }
+                                        else{
+                                            System.out.println("Adding '" + body.getText() + "'");
+                                            extractionPerSheet[i].fragments.add(body);
+
+                                        }
+                                        System.out.println("Done..");
+
+                                    }
+                                }
+
+                            }
+
+
+                        }catch(Exception e){
+
+                            PukkaLogger.log( e );
+
+                        }
+
+
+                    }
+
+                }
+
+                feedback.add(addRisksForDocument(sheets[5], allRisks, fragmentsForDocument, document));
+                feedback.add(addDefinitionsForDocument(sheets[2], allDefinitions, fragmentsForDocument, document));
+
+
+            }catch(Exception e){
+
+                PukkaLogger.log( e );
+            }
+        }
+
+        // Add all the collected fragments to the respective sheet
+
+        for(int i = 0; i < tagExtractions.length; i++){
+
+            System.out.println("Add to sheet " + (i + 7) + "("+tagExtractions[i]+")" + extractionPerSheet[i].fragments.size());
+            feedback.add(addToSheet(sheets[i + 7], extractionPerSheet[i], tagExtractions[i], allClassifications, allAnnotations, allRisks));
+            System.out.println("Done!");
+
+        }
+
+        System.out.println("Done All!");
+
+        return feedback;
+    }
+
+
+    private ParseFeedback handleClassificationExtractionOld(List<Contract> allDocuments,
+                                                         List<FragmentClassification> allClassifications,
+                                                         List<ContractAnnotation> allAnnotations,
+                                                         List<RiskClassification> allRisks,
+                                                         List<Definition> allDefinitions) {
+
+        SheetExtraction[] extractionPerSheet = new SheetExtraction[tagExtractions.length];
+
+        ParseFeedback feedback = new ParseFeedback();
 
         for (Contract document : allDocuments) {
 
@@ -173,7 +347,7 @@ public class OverviewGenerator {
 
                 ContractVersionInstance head = document.getHeadVersion();
 
-                List<ContractFragment> fragmentsForDocument = head.getFragmentsForVersion();
+                List<ContractFragment> fragmentsForDocument = head.getFragmentsForVersion(new LookupList().addSorting(new Sorting(ContractFragmentTable.Columns.Ordinal.name(), Ordering.FIRST)));
 
                 System.out.println("Found " + fragmentsForDocument.size() + " fragments in document " + document.getName());
 
@@ -184,88 +358,147 @@ public class OverviewGenerator {
                     if(extractionPerSheet[i] == null)
                         extractionPerSheet[i] = new SheetExtraction();
 
-                    feedback.add(extractRelevantFragments(tagExtractions[i], document, extractionPerSheet[i], fragmentsForDocument, allClassifications));
-
+                    feedback.add(getFragmentsForClassification(tagExtractions[i], document, extractionPerSheet[i], fragmentsForDocument, allClassifications));
 
                 }
+
+                for(int i = 0; i< tagExtractions.length; i++){
+
+                        System.out.println(" - After document "+ document.getName()+": "+ extractionPerSheet[i].fragments.size() +" Extractions for: "+ tagExtractions[i] );
+
+                }
+
+                feedback.add(addRisksForDocument(sheets[5], allRisks, fragmentsForDocument, document));
+                feedback.add(addDefinitionsForDocument(sheets[2], allDefinitions, fragmentsForDocument, document));
+
 
             }catch(Exception e){
 
                 PukkaLogger.log( e );
             }
         }
+
+        // Add all the collected fragments to the respective sheet
+
         for(int i = 0; i < tagExtractions.length; i++){
 
+            System.out.println("Add to sheet " + (i + 7) + "("+tagExtractions[i]+")" + extractionPerSheet[i].fragments.size());
             feedback.add(addToSheet(sheets[i + 7], extractionPerSheet[i], tagExtractions[i], allClassifications, allAnnotations, allRisks));
+            System.out.println("Done!");
 
         }
 
+        System.out.println("Done All!");
 
         return feedback;
     }
 
 
-    private ParseFeedbackItem extractRelevantFragments(String tagExtraction, Contract document, SheetExtraction sheetExtraction,
-                                                       List<ContractFragment> fragmentsForDocument,
-                                                       List<FragmentClassification> allClassifications) {
+
+    /*******************************************************************************************************'
+     *
+     *              Extract the relevant fragments according to the classification
+     *
+     *              The outcome is put in the Sheet extraction
+     *
+     * @param tagExtraction            - the classification
+     * @param document                 - the current document (for title)
+     * @param sheetExtraction          - output
+     * @param fragmentsForDocument     - All fragments for this specific document
+     * @param allClassifications       - all classifications in the project
+     * @return                         - feedback for passing to the user
+     */
+
+
+
+    private ParseFeedbackItem getFragmentsForClassification(String tagExtraction, Contract document, SheetExtraction sheetExtraction,
+                                                            List<ContractFragment> fragmentsForDocument,
+                                                            List<FragmentClassification> allClassifications) {
 
 
         List<ExtractionFragment> extractionsForThisDocument = new ArrayList<ExtractionFragment>();
         ExtractionFragment emptyLine = new ExtractionFragment("", null, 0);
+        String match = tagExtraction + " ";  // Make sure we only match the full word
 
         for (ContractFragment fragment : fragmentsForDocument) {
 
+            //if(tagExtraction.equals("#DEADLINE"))
+            //    System.out.println("Checking fragment " + fragment.getText());
+
             for (FragmentClassification classification : allClassifications) {
 
-                //System.out.println("  -- matching " + classification.getClassTag() + " against " + tagExtraction);
+                //System.out.println("   --- Matching " + tagExtraction + " against" + classification.getKeywords() + " for fragment " + fragment.getName());
 
-                if(classification.getClassTag().equals(tagExtraction)){
+                // Compare the tag and all the ancestors in the tree
+                if(classification.getFragmentId().equals(fragment.getKey())){
 
-                    if(classification.getFragmentId().equals(fragment.getKey())){
+                    //if(tagExtraction.equals("#DEADLINE"))
+                    //    System.out.println("  ! Correct fragment");
 
+                    if(classification.getKeywords().contains(match)){
+
+                        if(tagExtraction.equals("#DEADLINE"))
+                            System.out.println("   -- match in " + fragment.getText() + " for " + classification.getClassTag());
+
+
+                        // Create an extraction fragment
                         ExtractionFragment body = new ExtractionFragment(fragment.htmlDecode(), fragment.getKey().toString(), 0);
+
+                        //System.out.println(" !!brk3");
 
                         if(fragment.getType().equals("HEADING")){
                             body.asHeadline((int)fragment.getIndentation());
                             extractionsForThisDocument.add(emptyLine);
                             extractionsForThisDocument.add(body);
-                            extractionsForThisDocument.addAll(findPeers(fragment, fragmentsForDocument, false));
+                            if(AddPeers)
+                                extractionsForThisDocument.addAll(findPeers(fragment, fragmentsForDocument, false));
                         }
                         else if(fragment.getType().equals("LIST")){
 
                             extractionsForThisDocument.addAll(findPeers(fragment, fragmentsForDocument, true));
                         }
                         else{
+                            System.out.println("Adding '" + body.getText() + "'");
                             extractionsForThisDocument.add(body);
 
                         }
+                        System.out.println("Done..");
 
                     }
-
-
+                    System.out.println("Brk1");
                 }
+                System.out.println("Brk2");
             }
+            System.out.println("Brk3");
 
         }
+
+        // If there are fragments, att the document headline
+
+        System.out.println(" Adding headline");
 
         if(extractionsForThisDocument.size() > 0){
 
             sheetExtraction.fragments.add(emptyLine);
-            ExtractionFragment documentHeadline = new ExtractionFragment(document.getName(), null, 0).asTitle();
+            ExtractionFragment documentHeadline = new ExtractionFragment(document.htmlDecode(), null, 0).asTitle();
             sheetExtraction.fragments.add(documentHeadline);
 
         }
 
+        // Finally add all the fragments too.
+
+        System.out.println(" Add All: ");
+
+
         sheetExtraction.fragments.addAll(extractionsForThisDocument);
-
-
-
-        return new ParseFeedbackItem(ParseFeedbackItem.Severity.ERROR, "Not implemented extract", 0);
+        return new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Extracted fragments", 0);
     }
 
-    //TODO: Recursively go through the structure. This will skip subsections
+    //TODO: Recursively go through the structure. This method will skip subsections
 
     private List<ExtractionFragment> findPeers(ContractFragment fragment, List<ContractFragment> fragmentsForDocument, boolean includeSelf) {
+
+        System.out.println("Find peers");
 
         List<ExtractionFragment> children = new ArrayList<ExtractionFragment>();
 
@@ -273,7 +506,9 @@ public class OverviewGenerator {
 
             // Find all other fragments with the same structure number but not is the actual text
 
+            //System.out.println(" Checking Peer: fragment " + otherFragment.getName());
             if(otherFragment.getStructureNo() == fragment.getStructureNo()){
+
 
                 if(includeSelf || otherFragment.getOrdinal() != fragment.getOrdinal()){
 
@@ -284,10 +519,24 @@ public class OverviewGenerator {
 
         }
 
+        System.out.println("Found "+ children.size()+"peers");
+
         return children;
 
 
     }
+
+
+    /******************************************************************
+     *
+     *          Add classifications in the classifications tab
+     *
+     *          It uses the JSON object from the ClassificationOverview manager
+     *
+     * @param sheet         - the sheet to write to
+     * @param project       - the current project
+     * @return              - feedback
+     */
 
 
     private ParseFeedbackItem addClassifications(XSSFSheet sheet, Project project) {
@@ -296,11 +545,22 @@ public class OverviewGenerator {
         overview.compileClassificationsForProject(project, null);
         JSONObject json = overview.getStatistics();
 
-        ParseFeedbackItem feedback = traverseOverviewJson(sheet, json, 3, 5);
-
-        return feedback;
+        return traverseOverviewJson(sheet, json, 3, 5);
 
     }
+
+    /**************************************************************************
+     *
+     *          Traverse the JSON and insert it in the sheet, a row at a time
+     *          The level is used to create indentation levels in sheet
+     *
+     * @param sheet                - current sheet
+     * @param node                 - The node in the generated tree
+     * @param level                - indentation level
+     * @param currentRow           - The current row for output
+     *
+     * @return                     - feedback
+     */
 
 
     private ParseFeedbackItem traverseOverviewJson(XSSFSheet sheet, JSONObject node, int level, int currentRow){
@@ -313,9 +573,18 @@ public class OverviewGenerator {
 
         CellValue elements[] = new CellValue[20];
 
-        elements[level] = new CellValue(name).noWrap();
-        elements[ 9] =    new CellValue(description);
-        elements[11] =    new CellValue(hits);
+        elements[ 2] =    new CellValue().asRow();
+        elements[ 3] =    new CellValue().asRow();
+        elements[ 4] =    new CellValue().asRow();
+        elements[ 5] =    new CellValue().asRow();
+        elements[ 6] =    new CellValue().asRow();
+        elements[ 7] =    new CellValue().asRow();
+        elements[ 8] =    new CellValue().asRow();
+
+        elements[level] = new CellValue(name).noWrap().asRow();
+        elements[ 9] =    new CellValue(description).asRow();
+        elements[10] =   new CellValue().asRow();
+        elements[11] =    new CellValue(hits).asBox();
 
         addRow(sheet, currentRow++, elements);
 
@@ -332,6 +601,69 @@ public class OverviewGenerator {
     }
 
 
+    private ParseFeedback addDefinitionsForDocument(XSSFSheet sheet, List<Definition> allDefinitions, List<ContractFragment> fragmentsForDocument, Contract document) {
+
+        ParseFeedback feedback = new ParseFeedback();
+        int existingDefinitions = definitionCount;
+        CellValue[] elements;
+
+        // Loop over the fragments to get all risks in the same order as fragments
+
+        for (ContractFragment fragment : fragmentsForDocument) {
+
+            for (Definition definition : allDefinitions) {
+
+                if(definition.getDefinedInId().equals(fragment.getKey())){
+
+                    // Found a risk. Add it to the correct row
+                    try{
+
+                        elements = new CellValue[4];
+                        String documentName = "unknown";
+
+                        String definitionText = "";
+
+                        if(definition.getDescription() == null || definition.getDefinition().equals("")){
+
+                            ContractFragment sourceFragment = definition.getDefinedIn();
+
+                            if(sourceFragment.exists()){
+                                definitionText = sourceFragment.htmlDecode();
+                                documentName = sourceFragment.getVersion().getDocument().getName();
+
+                            }
+                        }
+                        else
+                            definitionText = definition.getDescription();
+
+                        elements[0] = new CellValue(definitionCount).asBox();
+                        elements[1] = new CellValue(definition.getName()).asBox();
+                        elements[2] = new CellValue(definitionText).asBox();
+                        elements[3] = new CellValue(documentName).asBox();
+
+                        addRow(sheet, (definitionCount + 6), elements, 1);
+
+                        definitionCount++;
+
+                    }catch(Exception e){
+
+                        PukkaLogger.log( e );
+                        feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.ABORT, "Internal error adding risk in sheet " + sheet.getSheetName(), 0));
+
+                    }
+
+                }
+
+            }
+
+
+        }
+
+        feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Adding " + (definitionCount-existingDefinitions) + " definitions in sheet " + sheet.getSheetName(), 0));
+        return feedback;
+
+    }
+
 
 
     /******************************************************************************
@@ -341,10 +673,10 @@ public class OverviewGenerator {
      *
      * @param sheet    - sheet to put definitions on
      *
-     *                 //TODO: Add feedback
+     *          //TODO: Optimization: Use allDocuments and fragments fro document for this
      */
 
-    private ParseFeedback addDefinitions(XSSFSheet sheet) {
+    private ParseFeedback addDefinitionsOld(XSSFSheet sheet) {
 
         ParseFeedback feedback = new ParseFeedback();
 
@@ -356,7 +688,7 @@ public class OverviewGenerator {
 
             for (Definition definition : definitions) {
 
-                CellValue[] elements = new CellValue[9];
+                CellValue[] elements = new CellValue[4];
                 String documentName = "unknown";
 
                 String definitionText = "";
@@ -366,7 +698,7 @@ public class OverviewGenerator {
                     ContractFragment sourceFragment = definition.getDefinedIn();
 
                     if(sourceFragment.exists()){
-                        definitionText = sourceFragment.getText();
+                        definitionText = sourceFragment.htmlDecode();
                         documentName = sourceFragment.getVersion().getDocument().getName();
 
                     }
@@ -374,13 +706,10 @@ public class OverviewGenerator {
                 else
                     definitionText = definition.getDescription();
 
-                elements[0] = new CellValue("" + id++);
-                elements[1] = new CellValue(definition.getName());
-                elements[2] = new CellValue(definitionText);
-                elements[3] = new CellValue("");
-                elements[4] = new CellValue("");
-                elements[7] = new CellValue(documentName);
-                elements[8] = new CellValue("");
+                elements[0] = new CellValue(id++).asBox();
+                elements[1] = new CellValue(definition.getName()).asBox();
+                elements[2] = new CellValue(definitionText).asBox();
+                elements[3] = new CellValue(documentName).asBox();
 
                 addRow(sheet, startingRow++, elements, 1);
 
@@ -410,37 +739,38 @@ public class OverviewGenerator {
      *
      *
      * @param sheet    - sheet to put definitions on
+     * @param allDocuments
      *
 
      */
 
-    private ParseFeedback addDocumentList(XSSFSheet sheet) {
+    private ParseFeedback addDocumentList(XSSFSheet sheet, List<Contract> allDocuments) {
 
         ParseFeedback feedback = new ParseFeedback();
 
         try{
 
-            List<Contract> documents = project.getContractsForProject();
             int startingRow = 6;
             int id = 1;
 
-            for (Contract document : documents) {
+            for (Contract document : allDocuments) {
 
                 CellValue[] elements = new CellValue[4];
 
                 ContractVersionInstance head = document.getHeadVersion();
+                String versionName = head.getVersionDescription();
 
 
-                elements[0] = new CellValue(document.getName());                    //title
-                elements[1] = new CellValue(document.getFile());                    //filename
-                elements[2] = new CellValue(document.getCreation().getISODate());   //uploaded
-                elements[3] = new CellValue(head.getVersion());                     //version
+                elements[0] = new CellValue(document.getName()).asBox();                    //title
+                elements[1] = new CellValue(document.getFile()).asBox();                    //filename
+                elements[2] = new CellValue(document.getCreation().getISODate()).asBox();   //uploaded
+                elements[3] = new CellValue(versionName).asBox();                     //version
 
                 addRow(sheet, startingRow++, elements, 1);
 
             }
 
-            feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Adding " + documents.size() + " documents in sheet " + sheet.getSheetName(), 0));
+            feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Adding " + allDocuments.size() + " documents in sheet " + sheet.getSheetName(), 0));
 
 
         }catch(Exception e){
@@ -476,7 +806,7 @@ public class OverviewGenerator {
         try{
 
             List<FragmentClassification> classifications = project.getFragmentClassificationsForProject();
-            int startingRow = 6;
+            int startingRow = 5;
             int id = 1;
 
             for (FragmentClassification classification : classifications) {
@@ -485,12 +815,12 @@ public class OverviewGenerator {
 
                     CellValue[] elements = new CellValue[6];
 
-                    elements[0] = new CellValue("" + id++);
-                    elements[1] = new CellValue(classification.getPattern());
-                    elements[2] = new CellValue(classification.getFragment().htmlDecode());
-                    elements[3] = new CellValue("Standards Compliance");
-                    elements[4] = new CellValue(classification.getComment());
-                    elements[5] = new CellValue(classification.getVersion().getDocument().getName());
+                    elements[0] = new CellValue(id++).asRow();
+                    elements[1] = new CellValue(classification.getPattern()).asRow();
+                    elements[2] = new CellValue(classification.getFragment().htmlDecode()).asRow();
+                    elements[3] = new CellValue("Standards Compliance").asRow();
+                    elements[4] = new CellValue(classification.getComment()).asRow();
+                    elements[5] = new CellValue(classification.getVersion().getDocument().getName()).asRow();
 
                     addRow(sheet, startingRow++, elements, 1);
                 }
@@ -521,15 +851,72 @@ public class OverviewGenerator {
      *
      *             //TODO: Set colour coding and frame of cell
      *             //TODO: Add feedback
+     * @param document
      */
 
-    private ParseFeedback addRisks(XSSFSheet sheet) {
+    private ParseFeedback addRisksForDocument(XSSFSheet sheet, List<RiskClassification> allRisks, List<ContractFragment> fragmentsForDocument, Contract document) {
+
+        ParseFeedback feedback = new ParseFeedback();
+        int existingRisks = riskCount;
+        CellValue[] elements;
+
+        System.out.println("Adding risks for document " + document.getName());
+
+
+        // Loop over the fragments to get all risks in the same order as fragments
+
+        for (ContractFragment fragment : fragmentsForDocument) {
+
+            for (RiskClassification risk : allRisks) {
+
+                if(risk.getFragmentId().equals(fragment.getKey())){
+
+                    // Found a risk. Add it to the correct row
+                    try{
+
+                        elements = new CellValue[5];
+
+                        System.out.println("Fragment: " + fragment.getText());
+                        System.out.println("HTML decode: " + fragment.htmlDecode());
+
+                        elements[0] = new CellValue(riskCount).asRow();
+                        elements[1] = new CellValue(fragment.htmlDecode()).asRow();
+
+                        System.out.println("Check!: ");
+
+                        elements[2] = new CellValue(risk.getRisk().getName()).asRow();
+                        elements[3] = new CellValue(risk.getComment()).asRow();
+                        elements[4] = new CellValue(document.getName()).asRow();
+
+                        addRow(sheet, riskCount + 6, elements, 1);
+
+                        riskCount++;
+
+                    }catch(Exception e){
+
+                        PukkaLogger.log( e );
+                        feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.ABORT, "Internal error adding risk in sheet " + sheet.getSheetName(), 0));
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Adding " + (riskCount-existingRisks) + " risks in sheet " + sheet.getSheetName(), 0));
+        return feedback;
+
+    }
+
+    private ParseFeedback addRisksOld(XSSFSheet sheet, Project project) {
 
         ParseFeedback feedback = new ParseFeedback();
 
         try{
 
-            List<RiskClassification> risks = project.getRiskClassificationsForProject();
+            List<RiskClassification> risks = this.project.getRiskClassificationsForProject();
             int startingRow = 6;  // Row 7 in the excel sheet
             int ordinal = 1;
 
@@ -538,11 +925,11 @@ public class OverviewGenerator {
                 CellValue[] elements = new CellValue[5];
                 ContractFragment fragment = risk.getFragment();
 
-                elements[0] = new CellValue("" + ordinal);
-                elements[1] = new CellValue(fragment.htmlDecode());
-                elements[2] = new CellValue(risk.getRisk().getName());
-                elements[3] = new CellValue("");   //Risk description not implemented
-                elements[4] = new CellValue(risk.getVersion().getDocument().getName());
+                elements[0] = new CellValue(ordinal).asRow();
+                elements[1] = new CellValue(fragment.htmlDecode()).asRow();
+                elements[2] = new CellValue(risk.getRisk().getName()).asRow();
+                elements[3] = new CellValue(risk.getComment()).asRow();
+                elements[4] = new CellValue(risk.getVersion().getDocument().getName()).asRow();
 
                 addRow(sheet, startingRow++, elements, 1);
 
@@ -561,6 +948,8 @@ public class OverviewGenerator {
         return feedback;
 
     }
+
+
 
     /************************************************************************************
      *
@@ -585,8 +974,9 @@ public class OverviewGenerator {
         try{
 
             int replacements = 0;
+            int searchedCells = 0;
 
-            while(ite.hasNext()){
+            while(ite.hasNext() && searchedCells++ < SEARCH_LIMIT){
 
                 Row row = (Row)ite.next();
                 Iterator<Cell> cite = row.cellIterator();
@@ -648,6 +1038,8 @@ public class OverviewGenerator {
             System.out.println("Created new row for Sheet=\"" + sheet.getSheetName() + "\" row = " + rowNo);
         }
 
+        System.out.println(" ! Adding row " + rowNo + " to sheet " + sheet.getSheetName());
+
 
         for (CellValue value : values) {
 
@@ -660,10 +1052,22 @@ public class OverviewGenerator {
 
             if(actualCell == null){
                 actualCell = row.createCell(column);
-                //System.out.println("Created new cell for Sheet=\""+sheet.getSheetName()+"\" Column = " + column + " row = " + rowNo);
             }
 
-            actualCell.setCellValue(value.getStringValue());
+            // Get the value with the correct type
+
+            switch (value.getType()) {
+
+                case STRING:
+                    actualCell.setCellValue(value.getStringValue());
+                    break;
+                case VALUE:
+                    actualCell.setCellValue(value.getValue());
+                    break;
+                case EMPTY:
+                    break;
+            }
+
             actualCell.setCellStyle(value.getStyle(sheet));
             column++;
 
@@ -875,7 +1279,7 @@ public class OverviewGenerator {
 
             for (ExtractionFragment fragment : fragmentsForTags) {
 
-                System.out.println("Adding fragment: " + fragment.getText());
+                //System.out.println("Adding fragment: " + fragment.getText());
 
                 CellValue[] elements = new CellValue[8];
 
@@ -931,16 +1335,46 @@ public class OverviewGenerator {
         int startingRow = 7;
         ParseFeedback feedback = new ParseFeedback();
 
+        List<String> keys = new ArrayList<String>();  // Store the used keys to avoid duplicates
+
         try{
 
-            System.out.println(" -- In search extraction.");
+            String description = "";
+            String definition = tag;
+
+            LanguageInterface language = new English();
+            FeatureTypeInterface featureType = DocumentService.getFeatureTypeByTag(tag, language);
+
+            if(featureType != null){
+
+                description = featureType.getDescription();
+                definition  = featureType.getDefinition();
+            }
+
+            System.out.println("Find and replace " + tag);
 
             feedback.add(findAndReplace(sheet, SUBSTITUTE_TAG, tag));
+            feedback.add(findAndReplace(sheet, SUBSTITUTE_DEFINITION, definition));
+            feedback.add(findAndReplace(sheet, SUBSTITUTE_DESCRIPTION, description));
+
+            System.out.println("Find and replace DONE!");
 
 
             for (ExtractionFragment fragment : extraction.fragments) {
 
-                System.out.println("Adding fragment: " + fragment.getText());
+                // Check for duplicates
+
+                if(fragment.getKey() != null){
+
+                    if(keys.contains(fragment.getKey())){
+
+                        System.out.println("Ignoring duplicate fragment "+ fragment.getText()+"in sheet " + sheet.getSheetName());
+                        continue;
+                    }
+                    keys.add(fragment.getKey());
+                }
+
+                //System.out.println("Adding fragment: " + fragment.getText());
 
                 CellValue[] elements = new CellValue[8];
 
@@ -1052,7 +1486,8 @@ public class OverviewGenerator {
 
         for (FragmentClassification classification : classifications) {
 
-            if(classification.getFragmentId().toString().equals(fragment.getKey())){
+            if(classification.getFragmentId().toString().equals(fragment.getKey()) &&
+                    classification.getSignificance() > Significance.DISPLAY_SIGNIFICANCE){
 
                 classificationText.append(classification.getClassTag());
                 classificationText.append("\n");
