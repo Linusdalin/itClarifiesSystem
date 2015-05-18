@@ -15,7 +15,7 @@ import java.io.IOException;
 
 /********************************************************
  *
- *          Project Servlet will return one or a list of projects.
+ *
  *
  */
 

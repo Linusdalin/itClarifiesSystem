@@ -6,6 +6,7 @@ import classification.*;
 import userManagement.*;
 import versioning.*;
 import actions.*;
+import overviewExport.*;
 import search.*;
 import crossReference.*;
 import reclassification.*;
@@ -549,6 +550,28 @@ public class Project extends DataObject implements DataObjectInterface{
 
         return getContractFragmentsForProject(new LookupList());
     }
+
+
+
+    public List<Extraction> getExtractionsForProject(ConditionInterface condition){
+
+        condition.addFilter(new ReferenceFilter(ExtractionTable.Columns.Project.name(), getKey()));
+
+        List<DataObjectInterface> objects = new ExtractionTable(condition).getValues();
+
+        List<Extraction> list = (List<Extraction>)(List<?>) objects;
+
+        return list;
+    }
+
+    // No condition retrieves all items
+
+    public List<Extraction> getExtractionsForProject(){
+
+        return getExtractionsForProject(new LookupList());
+    }
+
+
 
     /*************************************************************************''
      *

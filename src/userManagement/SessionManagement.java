@@ -27,7 +27,7 @@ public class SessionManagement {
     private static PortalUser system = null;
     private static IPAccessList internalIPAccess = null;
 
-    public static final String MagicKey = "d1s7i55tD3bsii7NS8f";  //TODO: This is just a simple static password. Implement better solution here
+    public static final String MagicKey = "d1s7i55tD3bs7NS8fxx";  //TODO: This is just a simple static password. Implement better solution here
     private boolean allowMagicKeyAccess;
 
 

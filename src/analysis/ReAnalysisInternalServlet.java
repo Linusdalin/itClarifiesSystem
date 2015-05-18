@@ -31,7 +31,6 @@ import services.Formatter;
 import system.Analyser;
 import userManagement.Organization;
 import userManagement.PortalUser;
-import userManagement.SessionManagement;
 import versioning.Transposer;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,13 +46,14 @@ import java.util.List;
  *
  *          This is a web hook for the Analysis Queue
  *
- * //TODO: The check:        if(classification.getType().getName().equals(FeatureTypeTree.Reference.getName())){ should be optimized
 
  */
 
-public class AnalysisServlet extends DocumentService {
+public class ReAnalysisInternalServlet extends DocumentService {
 
-    public static final String DataServletName = "Analysis";
+    public static final String DataServletName = "ReAnalysis";
+
+    private String modelDirectory = MODEL_DIRECTORY; // Default value
 
     public void doGet(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
@@ -75,7 +75,7 @@ public class AnalysisServlet extends DocumentService {
      *
      * @param req
      * @param resp
-     * @throws IOException
+     * @throws java.io.IOException
      */
 
 
@@ -85,6 +85,8 @@ public class AnalysisServlet extends DocumentService {
         try{
             logRequest(req);
             ContractVersionInstance oldVersion = null;
+
+            sessionManagement.allowBOAccess();
 
             if(!validateSession(req, resp, HttpServletResponse.SC_OK))    // Send OK here. A 403 would trigger a retry in the event queue
                 return;
@@ -110,63 +112,11 @@ public class AnalysisServlet extends DocumentService {
 
             // Optional old version for transposing
 
-            DBKeyInterface _oldVersion = getOptionalKey("oldVersion", req);
-            if(_oldVersion != null){
-
-                oldVersion = new ContractVersionInstance(new LookupByKey(_oldVersion));
-
-                if(!mandatoryObjectExists(oldVersion, resp))
-                    return;
-
-                if(!mandatoryObjectExists(oldVersion.getDocument(), resp))
-                    return;
-            }
-
 
             Formatter formatter = getFormatFromParameters(req);
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Executing queued task - analysing " + versionInstance.getVersion());
 
-            RepositoryInterface repository = new BlobRepository();
-            RepositoryFileHandler fileHandler = new RepositoryFileHandler(document.getFile());
-
-            // Check for the file on the server. It should have been uploaded through the FileUploadServlet.
-
-            if(!repository.existsFile(fileHandler))
-                returnError("File " + versionInstance.getVersion() + " does not exist as a file on the server", HttpServletResponse.SC_OK, resp);
-
-
-            // Now parse the file
-
-            try{
-
-                parseFile(document, versionInstance);
-
-            } catch (BackOfficeException e) {
-
-                PukkaLogger.swallow( e );
-
-                document.setMessage("Failed to parse document: " + e.narration);
-                document.setStatus(ContractStatus.getFailed());
-                document.update();
-
-                invalidateDocumentCache(document, project);
-
-                returnError(e.narration, HttpServletResponse.SC_OK, resp);
-                return;
-            } catch (Exception e) {
-
-                PukkaLogger.log( e );
-
-                document.setMessage("Failed to parse document: Internal Error");
-                document.setStatus(ContractStatus.getFailed());
-                document.update();
-
-                invalidateDocumentCache(document, project);
-
-                returnError("Internal Error", HttpServletResponse.SC_OK, resp);
-                return;
-            }
 
             // Update the status of the document
 
@@ -176,11 +126,11 @@ public class AnalysisServlet extends DocumentService {
 
             invalidateDocumentCache(document, project);
 
-            PukkaLogger.log(PukkaLogger.Level.ACTION, "*****************************\nPhase III: The analysis");
+            PukkaLogger.log(PukkaLogger.Level.ACTION, "Re - analyse");
 
 
             // Perform the analysis and the transposing
-            analyse(versionInstance, oldVersion);
+            reAnalyse(versionInstance);
 
             invalidateDocumentCache(document, project);
             invalidateFragmentCache(versionInstance);
@@ -214,11 +164,17 @@ public class AnalysisServlet extends DocumentService {
 
     }
 
+    public void reAnalyse(ContractVersionInstance documentVersion) throws BackOfficeException {
+
+        PukkaLogger.log(PukkaLogger.Level.INFO, "Deleting old keywords and attributes");
+
+        // Remove existing attributes. These will be regenerated in the analysis
+
+        deleteKeywords(documentVersion);
+        deleteAttributes(documentVersion);
 
 
-    public void doDelete(HttpServletRequest req, HttpServletResponse resp)throws IOException {
-
-        returnError("Delete not supported in " + DataServletName, HttpServletResponse.SC_METHOD_NOT_ALLOWED, resp);
+        analyse(documentVersion, null);
 
     }
 

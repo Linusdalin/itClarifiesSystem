@@ -7,6 +7,7 @@ import actions.ChecklistTable;
 import cache.ServiceCache;
 import classification.FragmentClassTable;
 import classification.FragmentClassificationTable;
+import overviewExport.ExtractionTable;
 import reclassification.ReannotationTable;
 import reclassification.ReclassificationTable;
 import contractManagement.*;
@@ -339,6 +340,7 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
                                                      new ReriskTable( ),
                                                      new ReannotationTable( ),
                                                      new RedefinitionTable( ),
+                                                     new ExtractionTable( ),
 
 
                                              }
@@ -455,7 +457,7 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
                 new EditFragmentDetailsForm( this, ""),
                 new AddDefinitionForm( this, ""),
                 new AddReferenceForm( this, ""),
-
+                new ExportForm( this, null, ""),
         };
 
 

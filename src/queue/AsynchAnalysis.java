@@ -1,8 +1,10 @@
 package queue;
 
 import analysis.AnalysisServlet;
+import analysis.ReAnalysisInternalServlet;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.TaskOptions;
 import contractManagement.Contract;
 import contractManagement.ContractVersionInstance;
 import contractManagement.Project;
@@ -22,6 +24,8 @@ public class AsynchAnalysis {
 
     Queue queue;
     private String sessionToken;
+    private String magicKey = null;
+
     private static final boolean USE_SCHEDULING = true;
 
     public AsynchAnalysis(String sessionToken){
@@ -29,6 +33,12 @@ public class AsynchAnalysis {
         this.sessionToken = sessionToken;
         queue = QueueFactory.getDefaultQueue();
 
+    }
+
+
+    public void setMagicKey(String mKey){
+
+        this.magicKey = mKey;
     }
 
     /***********************************************************
@@ -60,24 +70,25 @@ public class AsynchAnalysis {
 
         // Add the task to the default queue.
 
+            TaskOptions call = withUrl("/Analyze")
+                    .param("version", version.getKey().toString());
 
-            if(oldVersion == null){
+            if(sessionToken != null)
+                call.param("session", sessionToken);
 
+            if(magicKey != null)
+                call.param("magicKey", magicKey);
+
+            if(oldVersion != null){
+                call.param("oldVersion", oldVersion.getKey().toString());
                 PukkaLogger.log(PukkaLogger.Level.INFO, "Analysing version of new document");
-
-                queue.add(withUrl("/Analyze")
-                        .param("session", sessionToken)
-                        .param("version", version.getKey().toString()));
             }
             else{
 
                 PukkaLogger.log(PukkaLogger.Level.INFO, "Analysing new version of existing document");
-
-                queue.add(withUrl("/Analyze")
-                        .param("session", sessionToken)
-                        .param("version", version.getKey().toString())
-                        .param("oldVersion", oldVersion.getKey().toString()));
             }
+
+                queue.add(call);
 
         }
         else{
@@ -121,5 +132,29 @@ public class AsynchAnalysis {
         }
 
     }
+
+
+
+    public void reAnalyse(ContractVersionInstance document) throws BackOfficeException{
+
+        if(USE_SCHEDULING){
+
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Re-analysing project");
+
+                queue.add(withUrl("/ReAnalyzeInternal")
+                        .param("magicKey", magicKey)
+                        .param("version", document.getKey().toString()));
+
+        }
+        else{
+
+                ReAnalysisInternalServlet servlet = new ReAnalysisInternalServlet();
+                servlet.reAnalyse(document);
+
+        }
+
+    }
+
 
 }

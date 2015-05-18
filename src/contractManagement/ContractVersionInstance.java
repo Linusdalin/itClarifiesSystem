@@ -1,12 +1,12 @@
 package contractManagement;
 
-import document.DefinitionType;
 import risk.*;
 import contractManagement.*;
 import classification.*;
 import userManagement.*;
 import versioning.*;
 import actions.*;
+import overviewExport.*;
 import search.*;
 import crossReference.*;
 import reclassification.*;
@@ -330,7 +330,7 @@ public class ContractVersionInstance extends DataObject implements DataObjectInt
         List<document.AbstractDefinition> abstractDefinitions = new java.util.ArrayList<document.AbstractDefinition>();
         for(Definition definition : definitions){
 
-            DefinitionType type = DefinitionType.getTypeByName(definition.getType());
+            document.DefinitionType type = document.DefinitionType.getTypeByName(definition.getType());
 
             document.AbstractDefinition aDefinition = new document.AbstractDefinition(definition.getName(), (int)definition.getFragmentNo(), type);
 

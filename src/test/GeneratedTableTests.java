@@ -1096,6 +1096,79 @@ public class GeneratedTableTests{
           }
 
          @Test
+         public void testExtraction(){
+     
+             try{
+     
+                 overviewExport.Extraction table1 = new overviewExport.Extraction("text 1", "text 2", "text 3", "text 4", 5, "text 6", dummyKey, "text 8", "text 9", "text 10", "text 11");
+
+                 assertThat(table1.getName(), is("text 1"));
+                 assertThat(table1.getClassification(), is("text 2"));
+                 assertThat(table1.getText(), is("text 3"));
+                 assertThat(table1.getFragmentKey(), is("text 4"));
+                 assertThat(table1.getOrdinal(), is((long)5));
+                 assertThat(table1.getStyle(), is("text 6"));
+                 assertThat(table1.getProjectId(), is(dummyKey));
+                 assertThat(table1.getProject().exists(), is(false));
+                 assertThat(table1.getRisk(), is("text 8"));
+                 assertThat(table1.getDescription(), is("text 9"));
+                 assertThat(table1.getComment(), is("text 10"));
+                 assertThat(table1.getSheet(), is("text 11"));
+
+                 table1.store();
+                 overviewExport.Extraction table2 = new overviewExport.Extraction();
+                 table2.load(new LookupByKey(table1.getKey()));
+
+                 assertThat(table2.getName(), is("text 1"));
+                 assertThat(table2.getClassification(), is("text 2"));
+                 assertThat(table2.getText(), is("text 3"));
+                 assertThat(table2.getFragmentKey(), is("text 4"));
+                 assertThat(table2.getOrdinal(), is((long)5));
+                 assertThat(table2.getStyle(), is("text 6"));
+                 assertThat(table2.getProjectId(), is(dummyKey));
+                 assertThat(table2.getProject().exists(), is(false));
+                 assertThat(table2.getRisk(), is("text 8"));
+                 assertThat(table2.getDescription(), is("text 9"));
+                 assertThat(table2.getComment(), is("text 10"));
+                 assertThat(table2.getSheet(), is("text 11"));
+
+                 table1.setName("text 11");
+                 table1.setClassification("text 12");
+                 table1.setText("text 13");
+                 table1.setFragmentKey("text 14");
+                 table1.setOrdinal(15);
+                 table1.setStyle("text 16");
+                 table1.setProject( dummyKey);
+                 table1.setRisk("text 18");
+                 table1.setDescription("text 19");
+                 table1.setComment("text 20");
+                 table1.setSheet("text 21");
+                 assertThat(table1.getName(), is("text 11"));
+                 assertThat(table1.getClassification(), is("text 12"));
+                 assertThat(table1.getText(), is("text 13"));
+                 assertThat(table1.getFragmentKey(), is("text 14"));
+                 assertThat(table1.getOrdinal(), is((long)15));
+                 assertThat(table1.getStyle(), is("text 16"));
+                 assertThat(table1.getProjectId(), is(dummyKey));
+                 assertThat(table1.getProject().exists(), is(false));
+                 assertThat(table1.getRisk(), is("text 18"));
+                 assertThat(table1.getDescription(), is("text 19"));
+                 assertThat(table1.getComment(), is("text 20"));
+                 assertThat(table1.getSheet(), is("text 21"));
+
+             }catch(BackOfficeException e){
+     
+                 e.logError("Error creating table Extraction");
+                 assertTrue(false);
+                 
+             }catch(Exception e){
+
+                 e.printStackTrace();
+                 assertTrue(false);
+             }
+          }
+
+         @Test
          public void testContractClause(){
      
              try{

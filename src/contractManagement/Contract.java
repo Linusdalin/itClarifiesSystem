@@ -1,12 +1,12 @@
 package contractManagement;
 
-import document.DefinitionType;
 import risk.*;
 import contractManagement.*;
 import classification.*;
 import userManagement.*;
 import versioning.*;
 import actions.*;
+import overviewExport.*;
 import search.*;
 import crossReference.*;
 import reclassification.*;
@@ -739,7 +739,7 @@ public class Contract extends DataObject implements DataObjectInterface{
                 for(Definition definition : definitions){
 
                     comments.append(" Definition of: \"" + definition.getName());
-                    if(!definition.getType().equals(DefinitionType.REGULAR.name()))
+                    if(!definition.getType().equals(document.DefinitionType.REGULAR.name()))
                         comments.append(" - " + definition.getType());
                     comments.append("\"<br/>");
                 }

@@ -6,7 +6,7 @@ package overviewExport;
  *             into the excel export
  *
  *
- *             //TODO: add style for headlines
+ *             //TODO: add different styles for different headlines
  *             //TODO: add annotations, classifications and risk
  *             //TODO: add washing of html tags in the text
  *
@@ -23,17 +23,41 @@ public class ExtractionFragment {
     private int ordinal;
     private Style style;
 
+    private String name = "";
+    private String risk = "";
+    private String riskDescription = "";
+    private String comment = "";
+    private String sheet = "";
+
+
     ExtractionFragment(String text, String key, int ordinal){
+
+        this("", text, key, ordinal, "", "", "", "");
+    }
+
+
+    ExtractionFragment(String name, String text, String key, int ordinal, String risk, String riskDescription, String comment, String sheet){
 
         this.text = text;
         this.ordinal = ordinal;
         this.key = key;
+
+        this.name = name;
+        this.risk = risk;
+        this.riskDescription = riskDescription;
+        this.comment = comment;
+        this.sheet = sheet;
+
+
         this.style = Style.Text;  //Default
+
+
+
     }
 
-    private String stripHtml(String text) {
+    public String toString(){
 
-        return text.replaceAll("\\<.*?>","");
+        return "(" +sheet + ": " + name + " " + text + ")";
     }
 
     public ExtractionFragment asHeadline(int level){

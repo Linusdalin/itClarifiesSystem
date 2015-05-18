@@ -439,6 +439,25 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>ReAnalysis</servlet-name>
+        <servlet-class>analysis.ReAnalysisServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ReAnalysis</servlet-name>
+        <url-pattern>/ReAnalyze</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ReAnalysisInternal</servlet-name>
+        <servlet-class>analysis.ReAnalysisInternalServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ReAnalysisInternal</servlet-name>
+        <url-pattern>/ReAnalyzeInternal</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
         <servlet-name>CrossReference</servlet-name>
         <servlet-class>crossReference.CrossReferenceServlet</servlet-class>
     </servlet>

@@ -42,6 +42,37 @@
 
                     System.out.println("Actions:  listAction = "+ action+" callbackAction =" + callbackAction);
 
+                    String callBackMessage = null;
+
+                    if(form != null && formAction != null){
+
+                        // We have a form with a submit action
+
+                        try {
+                            callBackMessage = form.submitCallBack(request, backOffice);
+
+                        } catch (BackOfficeException e) {
+
+                            e.logError("Error in submit callback");
+                        }
+
+                    }
+
+                    if(action.equals("pageSubmit")){
+
+                        try{
+                            callBackMessage = pageComponent.callBack(tabId, request, backOffice);
+
+                        } catch (BackOfficeException e){
+
+                            e.logError("Error in callback");
+                        }
+
+                    }
+
+                    if(callBackMessage != null)
+                        out.print(Html.variableBox(callBackMessage));
+
                     if(list == null){
 
                         // No list

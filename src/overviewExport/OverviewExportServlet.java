@@ -4,6 +4,7 @@ import analysis.ParseFeedback;
 import contractManagement.Project;
 import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
+import net.sf.json.JSONObject;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -82,7 +83,7 @@ public class OverviewExportServlet extends ItClarifiesService{
 
            XSSFWorkbook overview = getExcelTemplate();
            OverviewGenerator populator = new OverviewGenerator(overview, project);
-           ParseFeedback feedback = populator.populate();
+           ParseFeedback feedback = populator.get();
 
            //OutputStream os = new WriterOutputStream(resp.getWriter());
            //PrintStream ps = new PrintStream(os);
@@ -106,28 +107,82 @@ public class OverviewExportServlet extends ItClarifiesService{
            resp.flushBuffer();
            //resp.setCharacterEncoding("UTF-8");
 
-        } catch (IOException e) {
+       } catch (IOException e) {
 
            PukkaLogger.log( e );
 
-        }catch(BackOfficeException e){
+       }catch(BackOfficeException e){
 
            PukkaLogger.log(e);
            returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
 
-        } catch ( Exception e) {
+       } catch ( Exception e) {
 
            PukkaLogger.log(e);
            returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-        }
+       }
     }
 
+
+    /***********************************************************************
+     *
+     *          Post will trigger the export overview.
+     *
+     *          It will take all the parameters for the generation
+     *
+     *
+     * @param req
+     * @param resp
+     * @throws IOException
+     */
 
 
     public void doPost(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
-        doGet(req, resp);
 
+        try{
+            logRequest(req);
+
+            sessionManagement.allowBOAccess();
+
+            if(!validateSession(req, resp))
+                return;
+
+            if(blockedSmokey(sessionManagement, resp))
+                return;
+
+
+            setLoggerByParameters(req);
+
+            Formatter formatter = getFormatFromParameters(req);
+            formatter.setFormat(Formatter.OutputFormat.XLSX);
+
+            DBKeyInterface _project         = getMandatoryKey("project", req);
+            Project project = new Project(new LookupByKey(_project));
+
+
+            if(!mandatoryObjectExists(project, resp))
+                return;
+
+
+            OverviewGenerator generator = new OverviewGenerator(project);
+            ParseFeedback feedback = generator.preCalculate();
+
+
+            sendJSONResponse(feedback.toJSON(), formatter, resp);
+
+
+
+        }catch(BackOfficeException e){
+
+            PukkaLogger.log(e);
+            returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+
+        } catch ( Exception e) {
+
+            PukkaLogger.log(e);
+            returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+        }
      }
 
 

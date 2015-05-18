@@ -13,7 +13,7 @@
         <!-- ‘automatic’ is the default value. -->
         <min-pending-latency>automatic</min-pending-latency>
         <max-pending-latency>200ms</max-pending-latency>
-        <max-concurrent-requests>50</max-concurrent-requests>
+        <max-concurrent-requests>3</max-concurrent-requests>
     </automatic-scaling>
 
 
@@ -65,7 +65,7 @@
                     2-2-0:          Fingerprint, re-upload, reanalyze, transpose, doc in BO, doc modify date, export, pare improve
                     2-2-2:          Export functionality, classification reindex bug
                     2-2-3:          Document export, overview export styling, cross reference and upload fixes, definition analysis improvements, risk analysis improvement classification sideeffect
-                    2-2-4:
+                    2-2-4:          Optimizations and caching export data
       -->
 
 </appengine-web-app>

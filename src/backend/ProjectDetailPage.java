@@ -534,12 +534,19 @@ public class ProjectDetailPage extends NarrowPage {
             public String getBody(String page, int tabId, BackOfficeInterface backOffice, HttpServletRequest req) throws BackOfficeException {
 
                 StringBuffer html = new StringBuffer();
+                ExportForm form = new ExportForm(backOffice, project, "projectList");
 
                 String sessionToken = req.getParameter("session");
 
                 html.append(Html.paragraph("Details for the project " + project.getName() + Html.newLine() + Html.newLine()));
 
-                html.append(Html.link("/Overview?project="+ project.getKey().toString()+"&magicKey=" + SessionManagement.MagicKey, "Export Project"));
+                html.append(Html.paragraph("Create export for the project"));
+                html.append(form.renderForm());
+
+
+                html.append(Html.link("/ReAnalyze?project=" + project.getKey().toString() + "&magicKey=" + SessionManagement.MagicKey, "Re Analyse") + Html.newLine());
+                html.append(Html.link("/CrossReference?project=" + project.getKey().toString() + "&magicKey=" + SessionManagement.MagicKey, "Cross Reference Project") + Html.newLine());
+                html.append(Html.link("/Overview?project=" + project.getKey().toString() + "&magicKey=" + SessionManagement.MagicKey, "Export Project") + Html.newLine());
 
                 return html.toString();
 
