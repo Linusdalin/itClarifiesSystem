@@ -236,12 +236,7 @@ public class UserList extends GroupByList implements ListInterface{
             String organizationKey      = request.getParameter("Organization");
             DBTimeStamp timeStamp       = new DBTimeStamp();
 
-            String salt = "Random salt";
-
-
-            String loginServer = ServerFactory.getLoginServer();
-            String thisServer = ServerFactory.getLocalSystem();
-
+            UserManager usermanager = new UserManager();
 
             if(userKey == null){
 
@@ -267,34 +262,11 @@ public class UserList extends GroupByList implements ListInterface{
 
                 }
 
+                boolean isActive = true; //For users created in the back office we do not need an activation
+
                 // Create a user in the Login service
-
-                RequestHandler requestHandler = new RequestHandler(loginServer + "/User");
-                String output = requestHandler.excutePost(
-                        "user=" + name +
-                        "&password=" + password +
-                        "&organization="+ organization.getName() +
-                        "&session="+ organization.getToken());
-
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Got response from login server" + output);
-
-                JSONObject response = new JSONObject(output);
-
-                if(response.has("error")){
-
-                    String errorMessage = ((JSONObject) response.getJSONArray("error").get(0)).getString("message");
-                    return("Error: Got error from login service " + errorMessage);
-                }
-
-                int userId = response.getInt("user");
-
-
-
-                PortalUser newUser = new PortalUser(name, userId, PortalUser.Type.REGISTERED.name(), email, timeStamp.getISODate(), organization.getKey(), true, wsAdmin);
-                newUser.store();
-
-
-                return ("Success:A new User \""+newUser.getName()+"\"with id " + newUser.getKey() + " was created");
+                PortalUser user = usermanager.createUser(name, password, email, organization, wsAdmin, isActive);
+                return("Success: Created user " + user.getName());
 
             }
             else{
@@ -313,7 +285,6 @@ public class UserList extends GroupByList implements ListInterface{
 
                 if(password != null && !password.equals("")){
 
-
                     // If there is a password given in the update. It has to match the verify password field
 
                     if(!password.equals(confirmPassword)){
@@ -322,25 +293,7 @@ public class UserList extends GroupByList implements ListInterface{
 
                     }
 
-
-                    RequestHandler requestHandler = new RequestHandler(loginServer + "/User");
-                    String output = requestHandler.excutePost(
-                            "id=" + user.getUserId() +
-                            "&user=" + name +
-                            "&password=" + password +
-                            "&session=SystemSessionToken");
-
-                    PukkaLogger.log(PukkaLogger.Level.INFO, "Got response from login server" + output);
-
-                    JSONObject response = new JSONObject(output);
-
-                    if(response.has("error")){
-
-                        String errorMessage = ((JSONObject) response.getJSONArray("error").get(0)).getString("message");
-                        return("Error: Got error from login service " + errorMessage);
-                    }
-
-
+                    usermanager.updateUser(user, name, email, password, wsAdmin, active);
 
                 }
                 else{
@@ -349,16 +302,8 @@ public class UserList extends GroupByList implements ListInterface{
                         return("Error: cant update name without a password.");
                 }
 
-                user.setName(name);
-                user.setEmail(email);
-                user.setWSAdmin(wsAdmin);
-                user.setActive(active);
-
-
-                user.update();
 
                 return ("Success:Updated User \""+user.getName()+"\"");
-
 
             }
 

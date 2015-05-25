@@ -98,6 +98,25 @@
         <url-pattern>/UserExternal</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>Register</servlet-name>
+        <servlet-class>userManagement.RegistrationServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Register</servlet-name>
+        <url-pattern>/Register</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>Activation</servlet-name>
+        <servlet-class>userManagement.ActivationServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Activation</servlet-name>
+        <url-pattern>/Activate</url-pattern>
+    </servlet-mapping>
+
+
 
     <servlet>
         <servlet-name>Login</servlet-name>

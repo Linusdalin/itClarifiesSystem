@@ -118,14 +118,6 @@ public class ReAnalysisInternalServlet extends DocumentService {
             PukkaLogger.log(PukkaLogger.Level.INFO, "Executing queued task - analysing " + versionInstance.getVersion());
 
 
-            // Update the status of the document
-
-            document.setMessage("Completed parsing. Analysing");
-            document.setStatus(ContractStatus.getAnalysing());
-            document.update();
-
-            invalidateDocumentCache(document, project);
-
             PukkaLogger.log(PukkaLogger.Level.ACTION, "Re - analyse");
 
 

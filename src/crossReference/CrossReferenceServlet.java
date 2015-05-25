@@ -51,8 +51,11 @@ public class CrossReferenceServlet extends DocumentService {
 
             logRequest(req);
 
+            sessionManagement.allowBOAccess();
+
             if(!validateSession(req, resp))
                 return;
+
 
             if(blockedSmokey(sessionManagement, resp))
                 return;

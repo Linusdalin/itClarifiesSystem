@@ -54,17 +54,15 @@ public class ReAnalysisServlet extends DocumentService {
             //   return;
 
             DBKeyInterface _project      = getMandatoryKey("project", req);
-            String magicKey              = getMandatoryString("magicKey", req);
+            String magicKey              = getOptionalString("magicKey", req, null);
 
 
             Formatter formatter = getFormatFromParameters(req);
 
-            if(magicKey == null || !magicKey.equals(SessionManagement.MagicKey)){
+            sessionManagement.allowBOAccess();
 
-                sendJSONResponse(new ParseFeedbackItem(ParseFeedbackItem.Severity.ERROR,
-                        "No Access !", 0).toJSON(), formatter, resp);
-
-            }
+            if(!validateSession(req, resp))
+                return;
 
             Project project = new Project(new LookupByKey(_project));
 
@@ -78,10 +76,18 @@ public class ReAnalysisServlet extends DocumentService {
             }
 
             List<Contract> documentsForProject = project.getContractsForProject();
-            AsynchAnalysis analysisQueue = new AsynchAnalysis(null);
+            AsynchAnalysis analysisQueue = new AsynchAnalysis(sessionManagement.getToken());
             analysisQueue.setMagicKey(magicKey);
 
             for (Contract document : documentsForProject) {
+
+                            // Update the status of the document
+
+                document.setMessage("Re-analysing");
+                document.setStatus(ContractStatus.getAnalysing());
+                document.update();
+
+                invalidateDocumentCache(document, project);
 
                 ContractVersionInstance latestVersion = document.getHeadVersion();
 

@@ -116,11 +116,20 @@ public class AsynchAnalysis {
         if(USE_SCHEDULING){
 
 
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Cross Referencing project");
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Cross Referencing project");
 
-                queue.add(withUrl("/CrossReferenceInternal")
-                        .param("session", sessionToken)
-                        .param("project", project.getKey().toString()));
+            TaskOptions call = withUrl("/CrossReferenceInternal")
+                    .param("project", project.getKey().toString());
+
+
+            if(sessionToken != null)
+                call.param("session", sessionToken);
+
+            if(magicKey != null)
+                call.param("magicKey", magicKey);
+
+            queue.add(call);
+
 
         }
         else{
@@ -139,12 +148,18 @@ public class AsynchAnalysis {
 
         if(USE_SCHEDULING){
 
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Re-analysing project " + " with magicKey: "+ magicKey );
 
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Re-analysing project");
+            TaskOptions call = withUrl("/ReAnalyzeInternal")
+                    .param("version", document.getKey().toString());
 
-                queue.add(withUrl("/ReAnalyzeInternal")
-                        .param("magicKey", magicKey)
-                        .param("version", document.getKey().toString()));
+            if(sessionToken != null)
+                call.param("session", sessionToken);
+
+            if(magicKey != null)
+                call.param("magicKey", magicKey);
+
+            queue.add(call);
 
         }
         else{

@@ -146,6 +146,44 @@
     <p>Create and login a user</p>
 </div>
 
+
+<div style="float:left; width:33%">
+
+<FORM METHOD=POST action="<% out.print(host); %>/Register" id="register" name="register">
+    <fieldset style="height:560px">
+        <h3>Register new user</h3>
+        <p>Creates a new user and organization. This service does not require a session</p>
+
+        <p>	<label for="UserName">UserName</label>
+            <input type="text" id="Reg_UserName" name="username">
+        </p>
+
+        <p>	<label for="Email">Email</label>
+            <input type="text" id="Reg_Email" name="email">
+        </p>
+
+        <p>	<label for="Pwd">Password</label>
+            <input type="text" id="Reg_Pwd" name="password">
+        </p>
+
+        <p>	<label for="Pwd">Organization</label>
+            <input type="text" id="Reg_Org" name="organization">
+        </p>
+
+        <input type="hidden" name="html" value="on">
+
+        <p>
+            <input type="submit" value="SignUp" class="btn primary" id="submit_reg" />
+        </p>
+        <h3>Response json:</h3>
+        <p class="code">{ "PortalUser" : "&lt;key&gt;" }</p>
+    </fieldset>
+
+</FORM>
+
+
+
+</div>
 <div style="float:left; width:33%">
 
 <FORM METHOD=POST action="<% out.print(host); %>/User" id="newUser" name="newUser">
@@ -171,18 +209,38 @@
         <p>
             <input type="submit" value="Post" class="btn primary" id="submit_user" />
         </p>
-        <h3>Response json:</h3>
-        <p class="code">{ "PortalUser" : "&lt;key&gt;" }</p>
     </fieldset>
 
 </FORM>
+
+    <FORM METHOD=POST action="<% out.print(host); %>/Activate" id="activateUserForm" name="activateUser">
+        <fieldset style="height:230px">
+            <h3>Activate User</h3>
+            <p>Activates the user if the activation code is correct</p>
+
+            <p>	<label for="ActivateUser">User</label>
+                <input type="text" id="ActivateUser" name="user">
+            </p>
+
+            <p>	<label for="ActivateCode">ActivationCode</label>
+                <input type="text" id="ActivateCode" name="activation">
+            </p>
+
+
+            <p>
+                <input type="submit" value="Activate" class="btn primary" id="activate_user" />
+            </p>
+        </fieldset>
+
+    </FORM>
+
 
 
 </div>
 <div style="float:left; width:33%">
 
     <FORM METHOD=GET action="<% out.print(host); %>/User" id="getUser" name="getUser">
-        <fieldset style="height:320px">
+        <fieldset style="height:280px">
             <h3>Get User Details</h3>
             <p>Retrieve the details for a user given the session token. This is used to publish information like name on the site</p>
             <input type="hidden" name="html" value="on">
@@ -199,46 +257,29 @@
         </fieldset>
     </FORM>
 
-</div>
 
+    <FORM METHOD=POST action="<% out.print(host); %>/Validate" id="validateSessionForm" name="LogoutForm">
 
-<div style="float:left; width:33%">
+        <fieldset style="height:270px">
+            <h3>Validate Session</h3>
+            <p>Validate a session token</p>
+            <p class="code">POST: /Validate?token=&lt;key&gt;</p>
 
-    <FORM METHOD=GET action="<% out.print(host); %>/UserExternal" id="getUserExternal" name="getUserExternal">
-        <fieldset style="height:320px">
-            <h3>Get User External Details</h3>
-            <p>Retrieve the external profile information for any user given the session token. This is used for information like owner of documents, annotations etc.</p>
+            <p>	<label for="validate_token">Token</label>
+                <input type="text" id="validate_token" name="token"> </p>
 
-            <p>	<label for="ExternalUser">UserName</label>
-                <input type="text" id="ExternalUser" name="user">
-            </p>
-
-
-            <% out.print(getTokenParameter(useRealToken, "post_project"));%>
-            <input type="hidden" name="html" value="on">
+            <input type="hidden" id="html_validae" name="html" value="on">
 
             <p>
-                <input type="submit" value="Get User" class="btn primary" id="submit_get_user_external" />
+                <input type="submit" value="Validate" class="btn primary" id="submit_validate" />
             </p>
 
             <h3>Response json:</h3>
-            <p class="code">{ "PortalUserExternal" : [ <br/>
-                {"name" : "&lt;name&gt;", "id" : "&lt;key&gt;"} <br/> ] }</p>
-
-
-            <FORM METHOD=GET action="<% out.print(host); %>/UserExternal" id="getUserExternalAll" name="getUserExternal">
-                    <% out.print(getTokenParameter(useRealToken, "get_external"));%>
-                    <input type="hidden" name="html" value="on">
-
-                    <p>
-                        <input type="submit" value="Get All" class="btn primary" id="submit_get_user_external_all" />
-                    </p>
-
-            </FORM>
-
+            <p class="code">{ "Status" : "&lt;Closed | Implicit &gt;" }</p>
 
         </fieldset>
-    </FORM>
+
+    </form>
 
 </div>
 
@@ -331,28 +372,42 @@
 
     <div style="float:left; width:33%">
 
-        <FORM METHOD=POST action="<% out.print(host); %>/Validate" id="validateSessionForm" name="LogoutForm">
 
+        <FORM METHOD=GET action="<% out.print(host); %>/UserExternal" id="getUserExternal" name="getUserExternal">
             <fieldset style="height:300px">
-                <h3>Validate Session</h3>
-                <p>Validate a session token</p>
-                <p class="code">POST: /Validate?token=&lt;key&gt;</p>
+                <h3>Get User External Details</h3>
+                <p>Retrieve the external profile information for any user given the session token. This is used for information like owner of documents, annotations etc.</p>
 
-                <p>	<label for="validate_token">token</label>
-                    <input type="text" id="validate_token" name="token"> </p>
+                <p>	<label for="ExternalUser">UserName</label>
+                    <input type="text" id="ExternalUser" name="user">
+                </p>
 
-                <input type="hidden" id="html_validae" name="html" value="on">
+
+                <% out.print(getTokenParameter(useRealToken, "post_project"));%>
+                <input type="hidden" name="html" value="on">
 
                 <p>
-                    <input type="submit" value="Validate" class="btn primary" id="submit_validate" />
+                    <input type="submit" value="Get User" class="btn primary" id="submit_get_user_external" />
                 </p>
 
                 <h3>Response json:</h3>
-                <p class="code">{ "Status" : "&lt;Closed | Implicit &gt;" }</p>
+                <p class="code">{ "PortalUserExternal" : [ <br/>
+                    {"name" : "&lt;name&gt;", "id" : "&lt;key&gt;"} <br/> ] }</p>
+
+
+                <FORM METHOD=GET action="<% out.print(host); %>/UserExternal" id="getUserExternalAll" name="getUserExternal">
+                        <% out.print(getTokenParameter(useRealToken, "get_external"));%>
+                        <input type="hidden" name="html" value="on">
+
+                        <p>
+                            <input type="submit" value="Get All" class="btn primary" id="submit_get_user_external_all" />
+                        </p>
+
+                </FORM>
+
 
             </fieldset>
-
-        </form>
+        </FORM>
     </div>
 
 

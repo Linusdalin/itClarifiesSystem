@@ -21,10 +21,7 @@ import pukkaBO.formsPredefined.TableEditForm;
 import pukkaBO.list.*;
 import pukkaBO.renderer.ListRendererInterface;
 import pukkaBO.renderer.ListRendererJSStatic;
-import userManagement.Organization;
-import userManagement.OrganizationConf;
-import userManagement.OrganizationTable;
-import userManagement.PortalUser;
+import userManagement.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -228,60 +225,14 @@ public class OrganizationList extends SimpleList implements ListInterface{
 
             String name = request.getParameter("Name");
             String description = request.getParameter("Description");
-            DBTimeStamp timeStamp = new DBTimeStamp();
-            ContractRisk defaultRisk = ContractRisk.getUnknown();
 
-            // Organization names have to be unique
+            UserManager usermanager = new UserManager();
+            Organization newOrganization = usermanager.createOrganization(name, description);
 
-            Organization existingOrganization = new Organization(new LookupItem().addFilter(new ColumnFilter(OrganizationTable.Columns.Name.name(), name)));
-            if(existingOrganization.exists()){
-
-                return("Error: Organization with name " + name + " already exists");
-
-            }
-
-
-            // Create an organization in the Login service
-
-            String loginServer = ServerFactory.getLoginServer();
-            String thisServer = ServerFactory.getLocalSystem();
-
-            RequestHandler requestHandler = new RequestHandler(loginServer + "/Organization");
-            String output = requestHandler.excutePost("name=" + name + "&description=" + description + "&link="+ thisServer);
-
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Got response from login server" + output);
-
-            JSONObject response = new JSONObject(output);
-
-            if(response.has("error")){
-
-                String errorMessage = ((JSONObject) response.getJSONArray("error").get(0)).getString("message");
-                return("Error: Got error from login service " + errorMessage);
-            }
-
-            String token = response.getString("token");
-
-
-            // Create a new Organization config
-
-            OrganizationConf newConfig = new OrganizationConf(name);
-            newConfig.store();
-
-            Organization newOrganization = new Organization(name, timeStamp.getISODate(), description, token, newConfig.getKey());
-            newOrganization.store();
-
-            // Create default users for the organization
-
-            PortalUser system = new PortalUser("itClarifies",   0, PortalUser.Type.SYSTEM.name(),   "no email", timeStamp.getISODate(), newOrganization.getKey(), true, false);
-            system.store();
-            PortalUser empty = new PortalUser("<< not set >>",  0, PortalUser.Type.EMPTY.name(),    "no email", timeStamp.getISODate(), newOrganization.getKey(), true, false);
-            empty.store();
-            PortalUser external = new PortalUser("External",    0, PortalUser.Type.EXTERNAL.name(), "no email", timeStamp.getISODate(), newOrganization.getKey(), true, false);
-            external.store();
-
-
-
-            return ("Success:A new Organization \""+newOrganization.getName()+"\"with id " + newOrganization.getKey() + " was created");
+            if(newOrganization.exists())
+                return "Success: Created organization " + newOrganization.getName();
+            else
+                return "Error: Failed to create organization " + name;
 
         }
         catch(BackOfficeException e){

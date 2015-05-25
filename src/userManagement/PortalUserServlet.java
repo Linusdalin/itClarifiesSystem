@@ -30,9 +30,6 @@ public class PortalUserServlet extends ItClarifiesService {
      *              Create or update a new user
      *
      *
-     *              //TODO: This should include creating a user in the remote login service
-     *
-     *              //TODO: User ID is dummy value
      *
      *
      * @param req
