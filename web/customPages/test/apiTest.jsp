@@ -1723,6 +1723,9 @@
             <p>	<label for="gen_overview_comment">Comment</label>
                 <input type="text" id="gen_overview_comment" name="comment" value="" size="50"></p>
 
+            <p>	<label for="gen_overview_tags">Tags (json)</label>
+                <input type="text" id="gen_overview_tags" name="tags" value="" size="50"></p>
+
             <input type="hidden" name="html" value="on">
 
 

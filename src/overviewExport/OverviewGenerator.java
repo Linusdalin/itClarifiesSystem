@@ -15,6 +15,7 @@ import language.English;
 import language.LanguageInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -64,8 +65,9 @@ public class OverviewGenerator {
     private static final String SUBSTITUTE_DESCRIPTION = "$(DESCRIPTION)";
     private static final String SUBSTITUTE_DEFINITION =  "$(DEFINITION)";
 
+    /*
+
     // The hardcoded list of tags for the extraction
-    // TODO: This should be replaced with parameters in the request
 
     private static final String[] tagExtractions = {
 
@@ -85,6 +87,9 @@ public class OverviewGenerator {
 
     };
 
+*/
+
+    private String[] tagExtractions = new String[0];    // Default is no tag extractions
     private static final int SEARCH_LIMIT = 1000;  // Max number of cells to search before failing replace
 
     private Project project;                    // The actual project we are exporting
@@ -112,7 +117,7 @@ public class OverviewGenerator {
      */
 
 
-    public OverviewGenerator(Project project, PortalUser creator, String comment) throws BackOfficeException{
+    public OverviewGenerator(Project project, PortalUser creator, String comment, String tagJSON) throws BackOfficeException{
 
         this.project = project;
         exportDate = new DBTimeStamp();
@@ -126,7 +131,7 @@ public class OverviewGenerator {
         boolean isDirty = false; // When created it is not modified
 
 
-        statusEntry = new ExtractionStatus(name, exportDate.getISODate(), creator.getKey(), project.getKey(), comment, isDirty, description);
+        statusEntry = new ExtractionStatus(name, exportDate.getISODate(), creator.getKey(), project.getKey(), comment, isDirty, description, tagJSON);
         statusEntry.store();
 
         // Just for test
@@ -138,19 +143,38 @@ public class OverviewGenerator {
 
     }
 
+    /*************************************************************************************
+     *
+     *              This is the second pass constructor, used to generate the actual
+     *              sheet from the internal representation
+     *
+     *
+     * @param template                              - the workbook to write to
+     * @param project                               - project to export (with predefined extractions already genrated
+     * @param templateSheetIx                       - The index of the template sheet for the #tag-extractions
+     * @throws BackOfficeException
+     */
+
+
 
     public OverviewGenerator(XSSFWorkbook template, Project project, int templateSheetIx) throws BackOfficeException{
 
         this.project = project;
-        int noSheets = template.getNumberOfSheets() + tagExtractions.length - 1;  // Remove one for the template sheet
-
-        sheets = new XSSFSheet[noSheets];
         int sheetIx = 0;
+
 
         statusEntry = new ExtractionStatus(new LookupItem().addFilter(new ReferenceFilter(ExtractionStatusTable.Columns.Project.name(), project.getKey())));
 
+        // Get the tag xtractions stored as a JSON in the generate phase
+
+        this.tagExtractions = getListFromJSONParameter(statusEntry.getTags());
+
         if(!statusEntry.exists())
             throw new BackOfficeException(BackOfficeException.Usage, "No Extraction generated for project " + project.getName());
+
+        int noSheets = template.getNumberOfSheets() + tagExtractions.length - 1;  // Remove one for the template sheet
+        sheets = new XSSFSheet[noSheets];
+
 
         emptyLine = new Extraction("", "", "", "", 0, "", this.project.getKey(), this.project.getKey(), "", "", "", "", statusEntry.getKey());
 
@@ -201,7 +225,7 @@ public class OverviewGenerator {
      *
      */
 
-    public ParseFeedback preCalculate() {
+    public ParseFeedback preCalculate(String tagJSON) throws BackOfficeException{
 
         // Get basic values for the export
 
@@ -215,9 +239,11 @@ public class OverviewGenerator {
         List<Definition>             allDefinitions = project.getDefinitionsForProject();
         List<Contract>               allDocuments = project.getContractsForProject(new LookupList().addSorting(new Sorting(ContractTable.Columns.Ordinal.name(), Ordering.FIRST)));
 
+        String[] tagList = getListFromJSONParameter(tagJSON);
+
         feedback.add(deleteOldExtractions(project));
 
-        feedback.add(handleExtraction(allDocuments, allClassifications, allAnnotations, allRisks, allDefinitions));
+        feedback.add(handleExtraction(allDocuments, allClassifications, allAnnotations, allRisks, allDefinitions, tagList));
 
         // Update the status with the feedback from the analysis
 
@@ -267,12 +293,14 @@ public class OverviewGenerator {
      *          (This method is called on the second pass - writing to file
      *
      *
+     *
      * @param sheets            - All sheets
      * @param exportTime        - Time of export
-     * @return
+     * @param tagExtractions    - list of tags to extract
+     * @return                  - user feedback
      */
 
-    private ParseFeedback handleSubstitutions(XSSFSheet[] sheets, String exportTime) {
+    private ParseFeedback handleSubstitutions(XSSFSheet[] sheets, String exportTime, String[] tagExtractions) {
 
         ParseFeedback feedback = new ParseFeedback();
 
@@ -326,11 +354,13 @@ public class OverviewGenerator {
      *
      *
      *
+     *
      * @param allDocuments                 - complete list from the database
      * @param allClassifications           - complete list from the database
      * @param allAnnotations               - complete list from the database
      * @param allRisks                     - complete list from the database
      * @param allDefinitions               - complete list from the database
+     * @param tagExtractions
      * @return                             - user feedback
      */
 
@@ -338,7 +368,7 @@ public class OverviewGenerator {
                                            List<FragmentClassification> allClassifications,
                                            List<ContractAnnotation> allAnnotations,
                                            List<RiskClassification> allRisks,
-                                           List<Definition> allDefinitions) {
+                                           List<Definition> allDefinitions, String[] tagExtractions) {
 
 
         ParseFeedback feedback = new ParseFeedback();
@@ -366,7 +396,7 @@ public class OverviewGenerator {
 
                     if(fragment.getClassificatonCount() != 0){
 
-                        extractionsForDocument.addAll(matchClassification(fragment, document, allClassifications, fragmentsForDocument, allRisks, allAnnotations));
+                        extractionsForDocument.addAll(matchClassification(fragment, document, allClassifications, fragmentsForDocument, allRisks, allAnnotations, tagExtractions));
 
                     }
 
@@ -416,9 +446,10 @@ public class OverviewGenerator {
      * @param fragmentsForDocument
      * @param allRisks
      * @param allAnnotations
+     * @param tagExtractions
      */
 
-    private List<DataObjectInterface> matchClassification(ContractFragment fragment, Contract document, List<FragmentClassification> allClassifications, List<ContractFragment> fragmentsForDocument, List<RiskClassification> allRisks, List<ContractAnnotation> allAnnotations) {
+    private List<DataObjectInterface> matchClassification(ContractFragment fragment, Contract document, List<FragmentClassification> allClassifications, List<ContractFragment> fragmentsForDocument, List<RiskClassification> allRisks, List<ContractAnnotation> allAnnotations, String[] tagExtractions) {
 
         List<DataObjectInterface> extractionsForDocument = new ArrayList<DataObjectInterface>();
 
@@ -694,7 +725,7 @@ public class OverviewGenerator {
         int[] rowNo = new int[sheets.length];
 
         exportDate = latestGeneration.getDate();
-        feedback.add(handleSubstitutions(sheets, exportDate.getISODate()));
+        feedback.add(handleSubstitutions(sheets, exportDate.getISODate(), tagExtractions));
 
         feedback.add(handleDocumentList(project));
         Extraction lastExtraction[] = new Extraction[sheets.length];
@@ -704,7 +735,7 @@ public class OverviewGenerator {
             PukkaLogger.log(PukkaLogger.Level.INFO, " --- Parsing extraction: " + extraction.toString());
 
 
-            int sheetNo = getSheet(extraction.getSheet());
+            int sheetNo = getSheet(extraction.getSheet(), tagExtractions);
 
             if(sheetNo < 0){
 
@@ -793,12 +824,14 @@ public class OverviewGenerator {
      *
      *          Get the id of the given sheet
      *
+     *
      * @param sheet                     - name
+     * @param tagExtractions            - tags to extract
      * @return                          - the id of the sheet
      * @throws BackOfficeException      - if not found
      */
 
-    private int getSheet(String sheet) throws BackOfficeException{
+    private int getSheet(String sheet, String[] tagExtractions) throws BackOfficeException{
 
         if(sheet.equals("#Definition"))
             return 2;
@@ -1318,6 +1351,33 @@ public class OverviewGenerator {
         return classificationText.toString();
 
     }
+
+
+    private String[] getListFromJSONParameter(String exportTags) throws BackOfficeException{
+
+        try{
+
+            JSONArray tagArray = new JSONArray(exportTags);
+
+            String[] tagList = new String[tagArray.length()];
+
+            for(int i = 0; i < tagArray.length(); i++){
+
+                tagList[i] = tagArray.getString( i );
+            }
+
+            return tagList;
+
+        }catch(JSONException e){
+
+            throw new BackOfficeException(BackOfficeException.Usage, "Error reading tag parameter in export");
+        }
+
+
+
+
+    }
+
 
 
 }

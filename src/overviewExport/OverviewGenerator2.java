@@ -127,7 +127,7 @@ public class OverviewGenerator2 {
         boolean isDirty = false; // When created it is not modified
 
 
-        statusEntry = new ExtractionStatus(name, exportDate.getISODate(), creator.getKey(), project.getKey(), comment, isDirty, description);
+        statusEntry = new ExtractionStatus(name, exportDate.getISODate(), creator.getKey(), project.getKey(), comment, isDirty, description, "");
         statusEntry.store();
 
         // Just for test

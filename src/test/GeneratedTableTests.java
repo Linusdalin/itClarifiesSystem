@@ -1187,7 +1187,7 @@ public class GeneratedTableTests{
      
              try{
      
-                 overviewExport.ExtractionStatus table1 = new overviewExport.ExtractionStatus("text 1", "2012-01-02", dummyKey, dummyKey, "text 5", false, "text 7");
+                 overviewExport.ExtractionStatus table1 = new overviewExport.ExtractionStatus("text 1", "2012-01-02", dummyKey, dummyKey, "text 5", false, "text 7", "text 8");
 
                  assertThat(table1.getName(), is("text 1"));
                  assertThat(table1.getDate().getISODate(), is("2012-01-02"));
@@ -1198,6 +1198,7 @@ public class GeneratedTableTests{
                  assertThat(table1.getComment(), is("text 5"));
                  assertThat(table1.getDirty(), is(false));
                  assertThat(table1.getDescription(), is("text 7"));
+                 assertThat(table1.getTags(), is("text 8"));
 
                  table1.store();
                  overviewExport.ExtractionStatus table2 = new overviewExport.ExtractionStatus();
@@ -1212,6 +1213,7 @@ public class GeneratedTableTests{
                  assertThat(table2.getComment(), is("text 5"));
                  assertThat(table2.getDirty(), is(false));
                  assertThat(table2.getDescription(), is("text 7"));
+                 assertThat(table2.getTags(), is("text 8"));
 
                  table1.setName("text 11");
                  table1.setDate(new DBTimeStamp(DBTimeStamp.ISO_DATE, "2012-01-12"));
@@ -1220,6 +1222,7 @@ public class GeneratedTableTests{
                  table1.setComment("text 15");
                  table1.setDirty(false);
                  table1.setDescription("text 17");
+                 table1.setTags("text 18");
                  assertThat(table1.getName(), is("text 11"));
                  assertThat(table1.getDate().getISODate(), is("2012-01-12"));
                  assertThat(table1.getUserId(), is(dummyKey));
@@ -1229,6 +1232,7 @@ public class GeneratedTableTests{
                  assertThat(table1.getComment(), is("text 15"));
                  assertThat(table1.getDirty(), is(false));
                  assertThat(table1.getDescription(), is("text 17"));
+                 assertThat(table1.getTags(), is("text 18"));
 
              }catch(BackOfficeException e){
      

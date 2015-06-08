@@ -4,6 +4,7 @@ import analysis.ParseFeedback;
 import contractManagement.Project;
 import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -48,43 +49,31 @@ public class OverviewExportServlet extends ItClarifiesService{
     public void doGet(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
 
-       try{
-           logRequest(req);
+        try{
+            logRequest(req);
 
-           sessionManagement.allowBOAccess();
+            sessionManagement.allowBOAccess();
 
-           if(!validateSession(req, resp))
+            if(!validateSession(req, resp))
                return;
 
-           if(blockedSmokey(sessionManagement, resp))
+            if(blockedSmokey(sessionManagement, resp))
                return;
 
 
-           setLoggerByParameters(req);
+            setLoggerByParameters(req);
 
-           Formatter formatter = getFormatFromParameters(req);
-           formatter.setFormat(Formatter.OutputFormat.XLSX);
+            Formatter formatter = getFormatFromParameters(req);
+            formatter.setFormat(Formatter.OutputFormat.XLSX);
 
-           DBKeyInterface _project         = getMandatoryKey("project", req);
-           Project project = new Project(new LookupByKey(_project));
+            DBKeyInterface _project         = getMandatoryKey("project", req);
+
+            Project project = new Project(new LookupByKey(_project));
 
 
-           if(!mandatoryObjectExists(project, resp))
+            if(!mandatoryObjectExists(project, resp))
                return;
 
-           /*
-
-           RepositoryInterface repository = new BlobRepository();
-           ContractVersionInstance version = document.getHeadVersion();
-           RepositoryFileHandler fileHandler = new RepositoryFileHandler(document.getFile());
-           String filename = document.getFile();
-
-           if(!repository.existsFile(fileHandler))
-               returnError("File " + version.getVersion() + " does not exist as a file on the server", HttpServletResponse.SC_BAD_REQUEST, resp);
-
-           repository.serveFile(fileHandler, resp);
-
-             */
 
            XSSFWorkbook overview = getExcelTemplate();
            OverviewGenerator populator = new OverviewGenerator(overview, project, templateSheetIx );
@@ -169,6 +158,9 @@ public class OverviewExportServlet extends ItClarifiesService{
 
             DBKeyInterface _project         = getMandatoryKey("project", req);
             String comment                  = getOptionalString("comment", req, "");
+            String exportTags               = getOptionalString("tags", req, "[]");
+
+
             Project project = new Project(new LookupByKey(_project));
 
 
@@ -178,8 +170,8 @@ public class OverviewExportServlet extends ItClarifiesService{
             PortalUser user = sessionManagement.getUser();
 
 
-            OverviewGenerator generator = new OverviewGenerator(project, user, comment);
-            ParseFeedback feedback = generator.preCalculate();
+            OverviewGenerator generator = new OverviewGenerator(project, user, comment, exportTags);
+            ParseFeedback feedback = generator.preCalculate(exportTags);
 
 
             sendJSONResponse(feedback.toJSON(), formatter, resp);
