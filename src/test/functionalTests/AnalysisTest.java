@@ -71,11 +71,9 @@ public class AnalysisTest  extends ServletTests {
     @Test
     public void testAnalyseDocument() throws Exception {
 
-
-
         try{
 
-            String filename = "Functional Test Test Document.docx";
+            String filename = "Functional Test Test Document.docx";             // located in the project root
             FileInputStream stream = new FileInputStream(new File(filename));
 
             AccessRight accessRight = AccessRight.getrwd();
@@ -86,7 +84,7 @@ public class AnalysisTest  extends ServletTests {
 
 
             RepositoryInterface repository = new BlobRepository();
-            RepositoryFileHandler fileHandler = repository.saveFile("Test File", stream);
+            RepositoryFileHandler fileHandler = repository.saveFile(filename, stream);
 
             FileUploadServlet uploadServlet = new FileUploadServlet();
             DocumentSection section = demoProject.getDefaultSection();
@@ -105,9 +103,9 @@ public class AnalysisTest  extends ServletTests {
             List<FragmentClassification> classifications =  newVersion.getFragmentClassificationsForVersion();
             List<RiskClassification> risks =  newVersion.getRiskClassificationsForVersion();
 
-            assertVerbose("Found fragments in the test document", fragments.size(), is(158));
-            assertVerbose("Found classifications in the test document", classifications.size(), is(8));
-            assertVerbose("Found risk classifications in the test document", risks.size(), is(4));
+            assertVerbose("Found fragments in the test document", fragments.size(), is(79));
+            assertVerbose("Found classifications in the test document", classifications.size(), is(4));
+            assertVerbose("Found risk classifications in the test document", risks.size(), is(0));
 
 
         }catch(Exception e){

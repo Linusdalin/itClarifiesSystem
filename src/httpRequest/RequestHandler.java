@@ -35,7 +35,6 @@ public class RequestHandler {
      * @return
      */
 
-
     public String excutePost(String urlParameters)throws BackOfficeException{
 
         URL url;

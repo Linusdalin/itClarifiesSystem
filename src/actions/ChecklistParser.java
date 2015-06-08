@@ -133,7 +133,7 @@ public class ChecklistParser {
                         item.setSource(documentFragment.getKey());
                         item.update();
                         PukkaLogger.log(PukkaLogger.Level.INFO, "Setting source fragment on Checklist Item " + map.itemName + " source reference \"" + map.sourceText + "\" found in " + item.getName());
-                        System.out.println("source ref:" + map.sourceText.length()    );
+                        PukkaLogger.log(PukkaLogger.Level.DEBUG, "source ref:" + map.sourceText.length()    );
                         break;
 
                     } catch (BackOfficeException e) {
@@ -278,7 +278,7 @@ public class ChecklistParser {
                     try{
 
                         int id = new Double(fragment.getBody()).intValue();
-                        System.out.println("Extracted " + id + " from " + fragment.getBody());
+                        //System.out.println("Extracted " + id + " from " + fragment.getBody());
                         currentItem.setIdentifier(id);
 
                     }catch(NumberFormatException e){

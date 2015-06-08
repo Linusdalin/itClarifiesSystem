@@ -13,6 +13,7 @@ import pukkaBO.condition.LookupByKey;
 import pukkaBO.exceptions.BackOfficeException;
 import services.Formatter;
 import services.ItClarifiesService;
+import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,6 +31,10 @@ import java.util.TreeMap;
 public class OverviewExportServlet extends ItClarifiesService{
 
     public static final String DataServletName = "Overview";
+
+    // The active .xlsx template
+    private static final String TemplateFile = "exportTemplates/contracting framework template v2.xlsx";
+    private static final int templateSheetIx = 6;
 
 
     /*************************************************************************
@@ -82,8 +87,14 @@ public class OverviewExportServlet extends ItClarifiesService{
              */
 
            XSSFWorkbook overview = getExcelTemplate();
-           OverviewGenerator populator = new OverviewGenerator(overview, project);
+           OverviewGenerator populator = new OverviewGenerator(overview, project, templateSheetIx );
            ParseFeedback feedback = populator.get();
+           //ParseFeedback feedback = new ParseFeedback();
+
+           // Hide the template sheet. This should not be used displayed in the final document
+           overview.removeSheetAt( templateSheetIx );
+
+
 
            //OutputStream os = new WriterOutputStream(resp.getWriter());
            //PrintStream ps = new PrintStream(os);
@@ -155,17 +166,19 @@ public class OverviewExportServlet extends ItClarifiesService{
             setLoggerByParameters(req);
 
             Formatter formatter = getFormatFromParameters(req);
-            formatter.setFormat(Formatter.OutputFormat.XLSX);
 
             DBKeyInterface _project         = getMandatoryKey("project", req);
+            String comment                  = getOptionalString("comment", req, "");
             Project project = new Project(new LookupByKey(_project));
 
 
             if(!mandatoryObjectExists(project, resp))
                 return;
 
+            PortalUser user = sessionManagement.getUser();
 
-            OverviewGenerator generator = new OverviewGenerator(project);
+
+            OverviewGenerator generator = new OverviewGenerator(project, user, comment);
             ParseFeedback feedback = generator.preCalculate();
 
 
@@ -195,8 +208,8 @@ public class OverviewExportServlet extends ItClarifiesService{
 
     private XSSFWorkbook getExcelTemplate() throws BackOfficeException {
 
-        File templateFile = new File("exportTemplates/contracting framework template v1.xlsx");
-        FileInputStream templateStream = null;
+        File templateFile = new File(TemplateFile);
+        FileInputStream templateStream ;
         try{
 
             templateStream = new FileInputStream(templateFile);

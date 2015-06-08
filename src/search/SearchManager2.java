@@ -134,6 +134,12 @@ public class SearchManager2 {
 
         Document existingDocument = indexManager.getDocument(fragment.getKey().toString());
 
+        if(existingDocument == null){
+
+            PukkaLogger.log(PukkaLogger.Level.WARNING, " Index for fragment "+ fragment.getText()+" does not exist!");
+            return;
+        }
+
         // Add both the tag and the keywords (including the parent and aka tags) to the keyword field
 
         KeywordFieldHandler keywordField = new KeywordFieldHandler(existingDocument.getOnlyField(IndexManager.KEYWORD_FIELD).getText());

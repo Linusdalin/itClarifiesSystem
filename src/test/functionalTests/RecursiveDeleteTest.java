@@ -44,17 +44,13 @@ public class RecursiveDeleteTest extends ServletTests{
     @BeforeClass
     public static void preAmble(){
 
-        helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
-        helper.setUp();
 
-        PukkaLogger.setLogLevel(PukkaLogger.Level.DEBUG);
-
-
+        init();
     }
 
 
     @Test
-    public void delete(){
+    public void deleteTest(){
 
         deleteContract();
         deleteProject();
@@ -88,7 +84,7 @@ public class RecursiveDeleteTest extends ServletTests{
             FragmentClassification testClassification
                     = new FragmentClassification(new LookupItem().addFilter(new ReferenceFilter(FragmentClassificationTable.Columns.Fragment.name(), testFragment.getKey())));
 
-            DocumentDeleteOutcome outcome =  cannon.recursivelyDeleteDocument();
+            DocumentDeleteOutcome outcome =  cannon.recursivelyDeleteDocument(false);
 
             assertThat(outcome.documents,       is( 1 ));
             assertThat(outcome.versions,        is( 1 ));

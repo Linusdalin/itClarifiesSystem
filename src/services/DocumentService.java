@@ -145,7 +145,7 @@ public class DocumentService extends ItClarifiesService{
                 if(aFragment.getStyle() == StructureType.IMPLICIT){
 
 
-                    PukkaLogger.log(PukkaLogger.Level.INFO, "Creating a new implicit structure item");
+                    PukkaLogger.log(PukkaLogger.Level.DEBUG, "Creating a new implicit structure item");
 
                     StructureItem item = new StructureItem(
                             "Implicit Structure Item " + structureNo,
@@ -157,8 +157,6 @@ public class DocumentService extends ItClarifiesService{
                             indentation);
 
                     item.store();
-
-                    PukkaLogger.log(PukkaLogger.Level.INFO, "  - Stored");
 
                     /*
                     structureItemKey = item.getKey();
@@ -1036,7 +1034,7 @@ public class DocumentService extends ItClarifiesService{
 
                     if(definitionFragment.exists()){
 
-                        System.out.println("Check source = usage for " + classification.getPattern().getText());
+                        PukkaLogger.log(PukkaLogger.Level.DEBUG,"Check source = usage for " + classification.getPattern().getText());
 
                         if(definitionFragment.getKey().equals(fragment.getKey())){
 
@@ -1072,7 +1070,7 @@ public class DocumentService extends ItClarifiesService{
                                 "\" identified in analysis but then not found for processing. (Document: " + fragment.getVersion().getDocument().getName() + ")");
                     }
 
-                    System.out.println(" *** Storing Definition Usage classification for definition");
+                    PukkaLogger.log(PukkaLogger.Level.DEBUG," *** Storing Definition Usage classification for definition");
 
                     fragmentClassification = new FragmentClassification(
                             fragment.getKey(),
@@ -1119,7 +1117,7 @@ public class DocumentService extends ItClarifiesService{
 
                     //System.out.println(classification.getType().getName() + " " + classification.getTag());
 
-                    System.out.println(" *** Storing pattern " + classification.getPattern().getText() + " for classificaiton");
+                    PukkaLogger.log(PukkaLogger.Level.DEBUG, " *** Storing pattern " + classification.getPattern().getText() + " for classificaiton");
 
                     fragmentClassification = new FragmentClassification(
                             fragment.getKey(),
@@ -1179,7 +1177,7 @@ public class DocumentService extends ItClarifiesService{
 
 
             fragment.setClassificatonCount(classifications);
-            System.out.println("*** Updating classification count to " + classifications + " for fragment " + fragment.getName());
+            PukkaLogger.log(PukkaLogger.Level.DEBUG, "*** Updating classification count to " + classifications + " for fragment " + fragment.getName());
             updated = true;
         }
 
@@ -1395,6 +1393,10 @@ public class DocumentService extends ItClarifiesService{
             // Index all fragments in the search engine
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Indexing" + fragments.size() + " fragments for the analysis of the document " + document);
+
+            document.setMessage("Indexing document for search");
+            document.update();
+
             searchManager.indexFragments(fragments, newVersion, document);
 
 
@@ -1476,9 +1478,9 @@ public class DocumentService extends ItClarifiesService{
                 if(item.exists())
                     headline = item.getName();
 
-                System.out.println("**************************************************************");
-                System.out.println("* Analysing fragment " + fragment.getName() + "("+ fragment.getKey().toString()+")");
-                System.out.println("*  -with headline: " + headline);
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "**************************************************************");
+                PukkaLogger.log(PukkaLogger.Level.INFO, "* Analysing fragment " + fragment.getName() + "("+ fragment.getKey().toString()+")");
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "*  -with headline: " + headline);
 
                 // Old deprecated call. Just kept for the transition
 
@@ -1948,7 +1950,7 @@ public class DocumentService extends ItClarifiesService{
      * @param document
      * @param version
      * @throws BackOfficeException
-     * @throws java.io.IOException
+
      */
 
 
@@ -1961,15 +1963,9 @@ public class DocumentService extends ItClarifiesService{
 
             RepositoryInterface repository = new BlobRepository();
 
-            //System.out.println("Trying to access document: " + document.getFile() + " locally. ");
-
             RepositoryFileHandler fileHandler = new RepositoryFileHandler(document.getFile());
 
-            //System.out.println("So far so good");
-
             stream = repository.getInputStream(fileHandler);
-
-            //System.out.println("Got the stream!");
 
 
         }catch(IOException e){
@@ -1980,7 +1976,7 @@ public class DocumentService extends ItClarifiesService{
 
         try{
 
-            PukkaLogger.log(PukkaLogger.Level.ACTION, "*******************Phase I: Parsing document");
+            PukkaLogger.log(PukkaLogger.Level.ACTION, "*******************Phase I: Parsing document " + document.getFile());
             docXManager = new DocumentManager(document.getFile(), stream);
 
 

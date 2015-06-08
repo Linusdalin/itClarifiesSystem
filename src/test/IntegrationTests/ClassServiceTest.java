@@ -1,6 +1,7 @@
 package test.integrationTests;
 
 import backend.ItClarifies;
+import classifiers.ClassifierInterface;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import classification.FragmentClass;
@@ -79,22 +80,34 @@ public class ClassServiceTest extends ServletTests {
             int classCount = new FragmentClassTable().getCount();
             LanguageInterface defaultLanguage = new English();
 
-            int machineClassifiers = defaultLanguage.getSupportedClassifiers().length;
+            int machineClassifiers = defaultLanguage.getAllClassifiers().length;
+
             PukkaLogger.log(PukkaLogger.Level.INFO, "There are " + classCount + " user defined classes and " + machineClassifiers + " machine classifiers");
+
+            /*
+
+            for (ClassifierInterface classifierInterface : defaultLanguage.getAllClassifiers()) {
+
+                System.out.println("   >" + classifierInterface.getType().getName());
+            }
+
+            */
+
             MockWriter mockWriter;
             String output;
 
-            // Add one more classification
+            // Add one more classification called "#newClass"
 
 
             mockWriter = new MockWriter();
 
             when(request.getParameter("session")).thenReturn("DummyAdminToken");
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
-            when(request.getParameter("name")).thenReturn("new class");
-            when(request.getParameter("description")).thenReturn("description fro class");
+            when(request.getParameter("name")).thenReturn("newClass");
+            when(request.getParameter("description")).thenReturn("description for class");
             when(request.getParameter("keywords")).thenReturn("keywords for class");
             when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+
 
             new ClassServlet().doPost(request, response);
 
@@ -102,11 +115,16 @@ public class ClassServiceTest extends ServletTests {
             PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
 
 
+
+            int newClassCount = new FragmentClassTable().getCount();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "There are " + newClassCount + " user defined classes and " + machineClassifiers + " machine classifiers");
+
             // Check that the classification is in the database
 
-            FragmentClass contractFragmentClass = new FragmentClass(new LookupItem().addFilter(new ColumnFilter(FragmentClassTable.Columns.Name.name(), "new class")));
+            FragmentClass contractFragmentClass = new FragmentClass(new LookupItem().addFilter(new ColumnFilter(FragmentClassTable.Columns.Name.name(), "newClass")));
 
             assertVerbose("New class created", contractFragmentClass.exists(), is(true));
+            assertVerbose("Custom classes in database ", newClassCount, is(classCount + 1));
 
 
             // Now check the visibility for the creator

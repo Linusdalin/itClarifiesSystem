@@ -342,7 +342,7 @@ public class Contract extends DataObject implements DataObjectInterface{
      *
      */
 
-    public DocumentDeleteOutcome recursivelyDeleteDocument() throws BackOfficeException{
+    public DocumentDeleteOutcome recursivelyDeleteDocument(boolean deleteIndex) throws BackOfficeException{
 
         int noFragments = 0;
         int noClauses = 0;
@@ -376,7 +376,8 @@ public class Contract extends DataObject implements DataObjectInterface{
 
            // Clear the search index
 
-           noIndices += searchManager.remove(allFragments);
+           if(deleteIndex)
+                noIndices += searchManager.remove(allFragments);
 
 
            // Get all annotations for this version and delete them

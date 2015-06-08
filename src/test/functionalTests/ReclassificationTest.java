@@ -63,6 +63,9 @@ public class ReclassificationTest extends ServletTests {
     /*******************************************************************
      *
      *
+     *          Lift Sweep replace should allow to redo the automatic classification
+     *
+     *
      */
 
 
@@ -73,10 +76,17 @@ public class ReclassificationTest extends ServletTests {
         try {
 
             ContractFragment fragment = new ContractFragment(new LookupItem().addFilter(new ColumnFilter(ContractFragmentTable.Columns.Name.name(), "first fragment")));
+
             String classForFragment = FeatureTypeTree.DefinitionDef.getName();  // Just arbitrary class for test
 
             long classificationCount = fragment.getClassificatonCount();
             PukkaLogger.log(PukkaLogger.Level.INFO, "There are " + classificationCount + " classifications");
+
+            ReclassificationTable classificatons = new ReclassificationTable();
+            assertThat("Prerequisite: No re-classification notes", classificatons.getCount(), is( 0 ));
+
+            // Add the classification
+
 
             MockWriter mockWriter = new MockWriter();
 
@@ -103,7 +113,7 @@ public class ReclassificationTest extends ServletTests {
 
             // Adding a classification should have been noted in the reclassification log
 
-            ReclassificationTable classificatons = new ReclassificationTable();
+            classificatons = new ReclassificationTable();
 
             assertThat("There should be one re-classification note", classificatons.getCount(), is( 1 ));
 
@@ -136,7 +146,7 @@ public class ReclassificationTest extends ServletTests {
             // as the classification was revoked.
 
             ReclassificationTable classificatonLogAfter = new ReclassificationTable();
-            assertThat("There should still be one re-classification note", classificatonLogAfter.getCount(), is( 0 ));
+            assertThat("There should still be one re-classification note", classificatonLogAfter.getCount(), is( 1 ));
 
 
             // TODO: Put it back with the reclassification servlet here

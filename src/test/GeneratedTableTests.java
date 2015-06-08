@@ -1100,7 +1100,7 @@ public class GeneratedTableTests{
      
              try{
      
-                 overviewExport.Extraction table1 = new overviewExport.Extraction("text 1", "text 2", "text 3", "text 4", 5, "text 6", dummyKey, "text 8", "text 9", "text 10", "text 11");
+                 overviewExport.Extraction table1 = new overviewExport.Extraction("text 1", "text 2", "text 3", "text 4", 5, "text 6", dummyKey, dummyKey, "text 9", "text 10", "text 11", "text 12", dummyKey);
 
                  assertThat(table1.getName(), is("text 1"));
                  assertThat(table1.getClassification(), is("text 2"));
@@ -1110,10 +1110,14 @@ public class GeneratedTableTests{
                  assertThat(table1.getStyle(), is("text 6"));
                  assertThat(table1.getProjectId(), is(dummyKey));
                  assertThat(table1.getProject().exists(), is(false));
-                 assertThat(table1.getRisk(), is("text 8"));
-                 assertThat(table1.getDescription(), is("text 9"));
-                 assertThat(table1.getComment(), is("text 10"));
-                 assertThat(table1.getSheet(), is("text 11"));
+                 assertThat(table1.getDocumentId(), is(dummyKey));
+                 assertThat(table1.getDocument().exists(), is(false));
+                 assertThat(table1.getRisk(), is("text 9"));
+                 assertThat(table1.getDescription(), is("text 10"));
+                 assertThat(table1.getComment(), is("text 11"));
+                 assertThat(table1.getSheet(), is("text 12"));
+                 assertThat(table1.getExtractionRunId(), is(dummyKey));
+                 assertThat(table1.getExtractionRun().exists(), is(false));
 
                  table1.store();
                  overviewExport.Extraction table2 = new overviewExport.Extraction();
@@ -1127,10 +1131,14 @@ public class GeneratedTableTests{
                  assertThat(table2.getStyle(), is("text 6"));
                  assertThat(table2.getProjectId(), is(dummyKey));
                  assertThat(table2.getProject().exists(), is(false));
-                 assertThat(table2.getRisk(), is("text 8"));
-                 assertThat(table2.getDescription(), is("text 9"));
-                 assertThat(table2.getComment(), is("text 10"));
-                 assertThat(table2.getSheet(), is("text 11"));
+                 assertThat(table2.getDocumentId(), is(dummyKey));
+                 assertThat(table2.getDocument().exists(), is(false));
+                 assertThat(table2.getRisk(), is("text 9"));
+                 assertThat(table2.getDescription(), is("text 10"));
+                 assertThat(table2.getComment(), is("text 11"));
+                 assertThat(table2.getSheet(), is("text 12"));
+                 assertThat(table2.getExtractionRunId(), is(dummyKey));
+                 assertThat(table2.getExtractionRun().exists(), is(false));
 
                  table1.setName("text 11");
                  table1.setClassification("text 12");
@@ -1139,10 +1147,12 @@ public class GeneratedTableTests{
                  table1.setOrdinal(15);
                  table1.setStyle("text 16");
                  table1.setProject( dummyKey);
-                 table1.setRisk("text 18");
-                 table1.setDescription("text 19");
-                 table1.setComment("text 20");
-                 table1.setSheet("text 21");
+                 table1.setDocument( dummyKey);
+                 table1.setRisk("text 19");
+                 table1.setDescription("text 20");
+                 table1.setComment("text 21");
+                 table1.setSheet("text 22");
+                 table1.setExtractionRun( dummyKey);
                  assertThat(table1.getName(), is("text 11"));
                  assertThat(table1.getClassification(), is("text 12"));
                  assertThat(table1.getText(), is("text 13"));
@@ -1151,14 +1161,78 @@ public class GeneratedTableTests{
                  assertThat(table1.getStyle(), is("text 16"));
                  assertThat(table1.getProjectId(), is(dummyKey));
                  assertThat(table1.getProject().exists(), is(false));
-                 assertThat(table1.getRisk(), is("text 18"));
-                 assertThat(table1.getDescription(), is("text 19"));
-                 assertThat(table1.getComment(), is("text 20"));
-                 assertThat(table1.getSheet(), is("text 21"));
+                 assertThat(table1.getDocumentId(), is(dummyKey));
+                 assertThat(table1.getDocument().exists(), is(false));
+                 assertThat(table1.getRisk(), is("text 19"));
+                 assertThat(table1.getDescription(), is("text 20"));
+                 assertThat(table1.getComment(), is("text 21"));
+                 assertThat(table1.getSheet(), is("text 22"));
+                 assertThat(table1.getExtractionRunId(), is(dummyKey));
+                 assertThat(table1.getExtractionRun().exists(), is(false));
 
              }catch(BackOfficeException e){
      
                  e.logError("Error creating table Extraction");
+                 assertTrue(false);
+                 
+             }catch(Exception e){
+
+                 e.printStackTrace();
+                 assertTrue(false);
+             }
+          }
+
+         @Test
+         public void testExtractionStatus(){
+     
+             try{
+     
+                 overviewExport.ExtractionStatus table1 = new overviewExport.ExtractionStatus("text 1", "2012-01-02", dummyKey, dummyKey, "text 5", false, "text 7");
+
+                 assertThat(table1.getName(), is("text 1"));
+                 assertThat(table1.getDate().getISODate(), is("2012-01-02"));
+                 assertThat(table1.getUserId(), is(dummyKey));
+                 assertThat(table1.getUser().exists(), is(false));
+                 assertThat(table1.getProjectId(), is(dummyKey));
+                 assertThat(table1.getProject().exists(), is(false));
+                 assertThat(table1.getComment(), is("text 5"));
+                 assertThat(table1.getDirty(), is(false));
+                 assertThat(table1.getDescription(), is("text 7"));
+
+                 table1.store();
+                 overviewExport.ExtractionStatus table2 = new overviewExport.ExtractionStatus();
+                 table2.load(new LookupByKey(table1.getKey()));
+
+                 assertThat(table2.getName(), is("text 1"));
+                 assertThat(table2.getDate().getISODate(), is("2012-01-02"));
+                 assertThat(table2.getUserId(), is(dummyKey));
+                 assertThat(table2.getUser().exists(), is(false));
+                 assertThat(table2.getProjectId(), is(dummyKey));
+                 assertThat(table2.getProject().exists(), is(false));
+                 assertThat(table2.getComment(), is("text 5"));
+                 assertThat(table2.getDirty(), is(false));
+                 assertThat(table2.getDescription(), is("text 7"));
+
+                 table1.setName("text 11");
+                 table1.setDate(new DBTimeStamp(DBTimeStamp.ISO_DATE, "2012-01-12"));
+                 table1.setUser( dummyKey);
+                 table1.setProject( dummyKey);
+                 table1.setComment("text 15");
+                 table1.setDirty(false);
+                 table1.setDescription("text 17");
+                 assertThat(table1.getName(), is("text 11"));
+                 assertThat(table1.getDate().getISODate(), is("2012-01-12"));
+                 assertThat(table1.getUserId(), is(dummyKey));
+                 assertThat(table1.getUser().exists(), is(false));
+                 assertThat(table1.getProjectId(), is(dummyKey));
+                 assertThat(table1.getProject().exists(), is(false));
+                 assertThat(table1.getComment(), is("text 15"));
+                 assertThat(table1.getDirty(), is(false));
+                 assertThat(table1.getDescription(), is("text 17"));
+
+             }catch(BackOfficeException e){
+     
+                 e.logError("Error creating table ExtractionStatus");
                  assertTrue(false);
                  
              }catch(Exception e){

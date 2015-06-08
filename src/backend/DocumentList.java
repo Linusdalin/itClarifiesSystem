@@ -175,7 +175,7 @@ public class DocumentList extends GroupByList implements ListInterface{
 
                 case Callback_Action_Delete:
 
-                    DocumentDeleteOutcome outcome = document.recursivelyDeleteDocument();
+                    DocumentDeleteOutcome outcome = document.recursivelyDeleteDocument(true);
 
                     return "Deleted document " + document.getName() + " with<br>\n" +
                             " - " + outcome.versions + " versions" +

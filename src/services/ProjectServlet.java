@@ -182,6 +182,12 @@ public class ProjectServlet extends ItClarifiesService{
        DBKeyInterface key;
 
        try{
+
+           if(req.getParameter("_method") != null && req.getParameter("_method").equals("DELETE")){
+                doDelete(req, resp);
+                return;
+            }
+
            logRequest(req);
 
            if(!validateSession(req, resp))

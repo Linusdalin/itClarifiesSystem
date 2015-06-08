@@ -228,6 +228,7 @@ public class CrossReferenceInternalServlet extends DocumentService {
             // We need a separate analyser per document as they can have different languages
 
             LanguageCode documentLanguage = new LanguageCode(document.getLanguage());
+            System.out.println(" *** Language code: " + documentLanguage.code);
             Analyser analyser = new Analyser(documentLanguage, MODEL_DIRECTORY);
 
             List<ContractFragment> fragmentsInDocument = latestVersion.getFragmentsForVersion();
@@ -302,10 +303,9 @@ public class CrossReferenceInternalServlet extends DocumentService {
             invalidateFragmentCache(latestVersion);
             invalidateDocumentCache(document.getKey(), project.getKey());
 
-
         }
 
-        PukkaLogger.log(PukkaLogger.Level.ACTION, "*****************************\nClosing references");
+        PukkaLogger.log(PukkaLogger.Level.ACTION, "******* Closing references");
 
         //TODO: Improvement: This should be moved to the main pass above in the reference analysis to try to close it directly
 
@@ -313,7 +313,6 @@ public class CrossReferenceInternalServlet extends DocumentService {
         Analyser analyser = new Analyser(documentLanguage, MODEL_DIRECTORY);
 
         closeReferences(analyser, project);
-
 
         PukkaLogger.log(PukkaLogger.Level.ACTION, "*****************************\nDone");
 

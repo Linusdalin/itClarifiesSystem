@@ -151,7 +151,7 @@ public class ContractServlet extends DocumentService{
                    //if(right.exists())
                    //    accessName = right.getName();
 
-                   if(sessionManagement.getReadAccess(contract)){
+                   if(sessionManagement.isReadAccess(access)){
 
                        JSONObject document = new JSONObject()
                             .put("id", contract.getKey().toString())
@@ -242,7 +242,7 @@ public class ContractServlet extends DocumentService{
            if(!deletable(contract, resp))
                return;
 
-           DocumentDeleteOutcome outcome = contract.recursivelyDeleteDocument();
+           DocumentDeleteOutcome outcome = contract.recursivelyDeleteDocument( true );
 
            JSONObject output = new JSONObject()
                  .put("deleted", new JSONObject()

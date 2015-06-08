@@ -1,6 +1,7 @@
 package userManagement;
 
 import dataRepresentation.DBTimeStamp;
+import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONObject;
 import pukkaBO.password.PasswordManager;
@@ -110,6 +111,11 @@ public class PortalUserServlet extends ItClarifiesService {
 
         try{
 
+            if(req.getParameter("_method") != null && req.getParameter("_method").equals("DELETE")){
+                 doDelete(req, resp);
+                 return;
+             }
+
             logRequest(req);
 
             if(!validateSession(req, resp))
@@ -147,9 +153,16 @@ public class PortalUserServlet extends ItClarifiesService {
 
     }
 
-    // TODO: Add test case for deleting user
+    /************************************************************************************************
+     *
+     *          Deleting a user also requires deleting the user in the login service
+     *
+     *
+     * @param req
+     * @param resp
+     * @throws IOException
+     */
 
-    //TODO: We should not delete the object in the database here. We should just change state
 
     public void doDelete(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
@@ -159,11 +172,13 @@ public class PortalUserServlet extends ItClarifiesService {
             if(!validateSession(req, resp))
                 return;
 
+
             Formatter formatter = getFormatFromParameters(req);
 
             PortalUser user = sessionManagement.getUser();        // TODO: Add test for the case that the user already is deleted here
 
-            user.delete();                              // TODO: Close the ongoing session. (Store token in session?)
+            UserManager userManager = new UserManager( user );
+            userManager.deleteUser(user);
 
             JSONObject json = createDeletedResponse(DataServletName, user);
 

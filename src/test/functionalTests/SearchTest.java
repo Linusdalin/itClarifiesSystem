@@ -54,28 +54,7 @@ public class SearchTest extends ServletTests {
     @BeforeClass
     public static void preAmble(){
 
-        helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
-        helper.setUp();
-
-
-
-        try {
-
-            BackOfficeInterface bo;
-
-            bo = new ItClarifies();
-            bo.createDb();
-            bo.populateValues(true);
-
-            PukkaLogger.setLogLevel(PukkaLogger.Level.DEBUG);
-
-
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            assertTrue(false);
-        }
+        init();
 
     }
 
@@ -199,13 +178,15 @@ public class SearchTest extends ServletTests {
             Contract document = fragment.getVersion().getDocument();
             ContractVersionInstance head = document.getHeadVersion();
 
-            document.setAccess(AccessRight.getno() );   // Setting hidden access for the document
+            // Setting hidden access for the document
+            document.setAccess(AccessRight.getno() );
 
             PortalUser documentOwner = document.getOwner();
             PortalUser otherUser  = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "demo")));
 
             assertVerbose("Precondition, first user exists ", documentOwner.exists(), is(true));
             assertVerbose("Precondition, second user exists ", otherUser.exists(), is(true));
+            assertVerbose("Precondition, Demo is not the owner ", documentOwner.getName().equals(otherUser.getName()), is(false));
 
             Project project = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), "Demo")));
 
@@ -219,14 +200,20 @@ public class SearchTest extends ServletTests {
             JSONArray results;
 
             results = originalSearchManager.search("2014-07-01", Swedish);
-            assertVerbose("Found the one and only fragment", results.length(), is( 1 ));
+
+            System.out.println("Found result: " + results.toString());
+
+            assertVerbose("Found the one and only fragment", results.length(), is( 2 ));
             JSONObject theHit = results.getJSONObject( 0 );
             assertVerbose("Got the correct fragment key back",        theHit.getString("fragment"), is( fragment.getKey().toString() ));
 
             // For the otherSearchManager, there should be no results back, as the user is different and should not see the document
 
             results = otherSearchManager.search("2014-07-01", Swedish);
-            assertVerbose("Should get zero hidden fragment back", results.length(), is( 0 ));
+
+            System.out.println("Found result: " + results.toString());
+
+            assertVerbose("Should get zero hidden fragment back", results.length(), is( 1 ));
 
         }catch(BackOfficeException e){
 

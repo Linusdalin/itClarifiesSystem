@@ -311,6 +311,7 @@ public class ClassificationServlet extends DocumentService {
                         .put("id", fragmentClass.getKey().toString())
                         .put("name", fragmentClass.getName())
                         .put("desc", fragmentClass.getDescription())
+                        .put("org",  fragmentClass.getOrganization().getName())  //TODO: Only for testing. Remove
                         .put("type", "General");
                 list.put(riskObject);
 

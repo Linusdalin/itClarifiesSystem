@@ -63,8 +63,6 @@ public class ChecklistServiceTest extends ServletTests {
     @BeforeClass
     public static void preAmble(){
 
-        helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
-        helper.setUp();
 
         init();
 
@@ -207,6 +205,71 @@ public class ChecklistServiceTest extends ServletTests {
 
 
         }catch(NullPointerException e){
+
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+
+    @Test
+    public void testFailDelete() throws Exception {
+
+        try{
+
+            MockWriter mockWriter;
+
+
+            mockWriter = new MockWriter();
+
+            when(request.getParameter("session")).thenReturn("DummyAdminToken");
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+            when(response.getWriter()).thenReturn(mockWriter.getWriter());
+
+            new ChecklistServlet().doDelete(request, response);
+
+            String output = mockWriter.getOutput();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
+
+            JSONObject json = new JSONObject(output);
+
+            assertVerbose("Not allowed delete", output.contains("Delete not supported"), is(true));
+
+
+
+        }catch(Exception e){
+
+            e.printStackTrace();
+            assertTrue(false);
+        }
+    }
+
+    @Test
+    public void testFailNoSession() throws Exception {
+
+        try{
+
+            MockWriter mockWriter;
+
+
+            mockWriter = new MockWriter();
+
+            when(request.getParameter("session")).thenReturn("InvalidToken");
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+            when(response.getWriter()).thenReturn(mockWriter.getWriter());
+
+            new ChecklistServlet().doGet(request, response);
+
+            String output = mockWriter.getOutput();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
+
+            JSONObject json = new JSONObject(output);
+
+            assertVerbose("Not allowed without session", output.contains("No session"), is(true));
+
+
+
+        }catch(Exception e){
 
             e.printStackTrace();
             assertTrue(false);

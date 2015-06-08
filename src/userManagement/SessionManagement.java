@@ -205,9 +205,17 @@ public class SessionManagement {
             return false;
         }
 
+        PortalUser user = sessionCacheKey.getUser();
+
+        if(!user.exists()){
+
+            PukkaLogger.log(PukkaLogger.Level.INFO, "No user exists for token " + sessionToken);
+            return false;
+
+        }
 
 
-        System.out.println(" *** Access details: (" + sessionCacheKey.getUser().getName() + ", " +sessionCacheKey.getTs().getSQLTime().toString() + ", " + sessionCacheKey.getIpAddress() + ")" );
+        System.out.println(" *** Access details: (" + user.getName() + ", " +sessionCacheKey.getTs().getSQLTime().toString() + ", " + sessionCacheKey.getIpAddress() + ")" );
 
 
 
@@ -247,7 +255,7 @@ public class SessionManagement {
 
         if(system == null){
             system = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "itClarifies")));
-            System.out.println("Validate create system user");
+            //System.out.println("Validate create system user");
 
         }
         return isActive;
@@ -350,9 +358,17 @@ public class SessionManagement {
 
 
 
+
     public boolean getReadAccess(Contract document) throws BackOfficeException{
 
         AccessRight grantedAccess = getAccess(document);
+
+        return isReadAccess(grantedAccess);
+
+    }
+
+
+    public boolean isReadAccess(AccessRight grantedAccess) throws BackOfficeException{
 
         return(grantedAccess != null && !grantedAccess.equals(AccessRight.getno()));
 

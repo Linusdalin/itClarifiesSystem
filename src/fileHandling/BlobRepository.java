@@ -183,8 +183,6 @@ public class BlobRepository implements RepositoryInterface {
             outputChannel.close();
 
             PukkaLogger.log(PukkaLogger.Level.ACTION, "Stored file " + fileName);
-            System.out.println("Stored file");
-
             return new RepositoryFileHandler(fileName);  // Store the file path
 
         } catch (IOException e) {

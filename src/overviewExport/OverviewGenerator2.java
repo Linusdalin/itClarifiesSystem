@@ -28,8 +28,8 @@ import risk.RiskClassification;
 import services.DocumentService;
 import userManagement.PortalUser;
 
-import java.util.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /******************************************************************************************
@@ -49,12 +49,13 @@ import java.util.List;
  */
 
 
-public class OverviewGenerator {
+public class OverviewGenerator2 {
 
     // Include peers and children
     private static final boolean AddPeers = false;
 
-    private static final int headerRows = 7;        // 6 rows in the sheets for header plus one empty. Start export after
+    private static final int headerRows = 7;   // 6 rows in the sheets for header plus one empty. Start export after
+
 
     // Queues for the substitution in sheets
 
@@ -108,11 +109,11 @@ public class OverviewGenerator {
      * @param creator       - user generating the export
      * @param comment       - user initiated comment
      *
-     * @throws BackOfficeException
+     * @throws pukkaBO.exceptions.BackOfficeException
      */
 
 
-    public OverviewGenerator(Project project, PortalUser creator, String comment) throws BackOfficeException{
+    public OverviewGenerator2(Project project, PortalUser creator, String comment) throws BackOfficeException{
 
         this.project = project;
         exportDate = new DBTimeStamp();
@@ -135,48 +136,26 @@ public class OverviewGenerator {
         System.out.println("Now there are " + es.size() + " status entries");
 
 
+        emptyLine = new Extraction("", "", "", "", 0, "", this.project.getKey(), this.project.getKey(), "", "", "", "", statusEntry.getKey());
 
     }
 
 
-    public OverviewGenerator(XSSFWorkbook template, Project project, int templateSheetIx) throws BackOfficeException{
+    public OverviewGenerator2(XSSFWorkbook template, Project project) {
 
         this.project = project;
-        int noSheets = template.getNumberOfSheets() + tagExtractions.length - 1;  // Remove one for the template sheet
+        int noSheets = template.getNumberOfSheets();
 
         sheets = new XSSFSheet[noSheets];
-        int sheetIx = 0;
-
-        statusEntry = new ExtractionStatus(new LookupItem().addFilter(new ReferenceFilter(ExtractionStatusTable.Columns.Project.name(), project.getKey())));
-
-        if(!statusEntry.exists())
-            throw new BackOfficeException(BackOfficeException.Usage, "No Extraction generated for project " + project.getName());
-
-        emptyLine = new Extraction("", "", "", "", 0, "", this.project.getKey(), this.project.getKey(), "", "", "", "", statusEntry.getKey());
 
         // Get the Standard sheets
-        //TODO: Make this a loop and add exceptions if sheets are not found
 
-        this.sheets[ sheetIx++ ] = template.getSheet("Report Overview");
-        this.sheets[ sheetIx++ ] = template.getSheet("Documents");
-        this.sheets[ sheetIx++ ] = template.getSheet("Definitions");
-        this.sheets[ sheetIx++ ] = template.getSheet("External Ref");
-        this.sheets[ sheetIx++ ] = template.getSheet("Risks");
-
-
-        // Loop over the tags to create a sheet per tag
-
-        for(int tagNo = 0; tagNo < tagExtractions.length; tagNo++ ){
-
-            this.sheets[ tagNo + 5 ] = template.cloneSheet( templateSheetIx );
-
-            template.setSheetName(sheetIx + 2, tagExtractions[tagNo]);
-            sheetIx++;
-
-        }
-
-
-        /*
+        this.sheets[ 0] = template.getSheet("Report Overview");
+        this.sheets[ 1] = template.getSheet("Documents");
+        this.sheets[ 2] = template.getSheet("Definitions");
+        this.sheets[ 3] = template.getSheet("Classifications");
+        this.sheets[ 4] = template.getSheet("External Ref");
+        this.sheets[ 5] = template.getSheet("Risks");
 
         // Loop over the rest of the sheets to get the predefined sheets
 
@@ -186,7 +165,6 @@ public class OverviewGenerator {
             PukkaLogger.log(PukkaLogger.Level.DEBUG, " --- Located sheet " + i + " named " +this.sheets[ i ].getSheetName());
 
         }
-        */
 
 
     }
@@ -276,16 +254,15 @@ public class OverviewGenerator {
 
         ParseFeedback feedback = new ParseFeedback();
 
-        for(int i = 0; i < 5; i++){
+        for(int i = 0; i < 6; i++){
 
-            feedback.add(substitute(sheets[ i ], "", exportTime));
+            feedback.add(substitute(sheets[i+1], "", exportTime));
         }
 
-        System.out.println("No Sheets: " + sheets.length);
 
         for(int i = 0; i < tagExtractions.length; i++){
 
-            feedback.add(substitute(sheets[i+5], tagExtractions[i], exportTime));
+            feedback.add(substitute(sheets[i+7], tagExtractions[i], exportTime));
         }
 
         return feedback;
@@ -307,7 +284,7 @@ public class OverviewGenerator {
             definition  = featureType.getDefinition();
         }
 
-        System.out.println("Find and replace " + tag + " in sheet " + sheet.getSheetName());
+        System.out.println("Find and replace " + tag);
 
         feedback.add(findAndReplace(sheet, SUBSTITUTE_PROJECT, project.getName()));
         feedback.add(findAndReplace(sheet, SUBSTITUTE_TAG, tag));
@@ -697,7 +674,7 @@ public class OverviewGenerator {
         feedback.add(handleSubstitutions(sheets, exportDate.getISODate()));
 
         feedback.add(handleDocumentList(project));
-        Extraction lastExtraction[] = new Extraction[sheets.length];
+        Extraction lastExtraction = null; // For checking if we shall display a title
 
         for (Extraction extraction : extractionsForProject) {
 
@@ -715,12 +692,7 @@ public class OverviewGenerator {
             XSSFSheet sheet = sheets[ sheetNo ];
             int currentRow = rowNo[sheetNo];
 
-            if(sheet == null){
-                PukkaLogger.log(PukkaLogger.Level.ERROR, "Sheet " + extraction.getSheet() + " has index "+ sheetNo+" but does not exist!");
-                continue;
-            }
-
-            if(isNewDocument(extraction, lastExtraction[sheetNo])){
+            if(isNewDocument(extraction, lastExtraction)){
 
                 Extraction headline = new Extraction("", "", extraction.getDocument().getName(), "", 0, "Title", null, null, "", "", "", "", extraction.getKey());
 
@@ -729,23 +701,11 @@ public class OverviewGenerator {
 
             }
 
-            System.out.println(" --- Writing to sheet " + sheet.getSheetName() + "("+ sheetNo+")");
-
             int newRow = writeToSheet(extraction, sheet, currentRow);
             rowNo[sheetNo] = newRow;
-            lastExtraction[sheetNo] = extraction;
+            lastExtraction = extraction;
 
         }
-
-        // Add overview
-        int id = 5;   // Start at 6, the rest is static pages
-
-        for (String tagExtraction : tagExtractions) {
-
-            writeToSheet(tagExtraction, id, sheets[0], id - 2);
-            id++;
-        }
-
 
         return new ParseFeedback(); // TODO: Add some feedback here
 
@@ -753,13 +713,10 @@ public class OverviewGenerator {
 
     private boolean isNewDocument(Extraction extraction, Extraction lastExtraction) {
 
-        boolean isNew = false;
+        if(lastExtraction == null)
+            return true;
 
-        isNew = lastExtraction == null || !extraction.getDocumentId().equals(lastExtraction.getDocumentId());
-
-        System.out.println(" --- Fragment isNew = " + isNew);
-
-        return isNew;
+        return !extraction.getDocumentId().equals(lastExtraction.getDocumentId());
 
     }
 
@@ -783,56 +740,38 @@ public class OverviewGenerator {
 
     /*************************************************************
      *
+     *          Get the id of the given sheet
      *
      *
      * @param sheet
      * @return
      */
 
-    /***************************************************************
-     *
-     *          Get the id of the given sheet
-     *
-     * @param sheet                     - name
-     * @return                          - the id of the sheet
-     * @throws BackOfficeException      - if not found
-     */
-
-    private int getSheet(String sheet) throws BackOfficeException{
+    private int getSheet(String sheet) {
 
         if(sheet.equals("#Definition"))
             return 2;
 
         if(sheet.equals("#Risk"))
-            return 4;
+            return 5;
 
 
         for (int i = 0; i < tagExtractions.length; i++) {
 
             if(tagExtractions[i].equals(sheet))
-                return i + 5 ;
+                return i + 7;
         }
-        throw new BackOfficeException(BackOfficeException.Usage, "Could not find sheet " + sheet);
+        return -1;
 
     }
 
-    /************************************************************************'
-     *
-     *          Write an extraction to a sheet
-     *
-     *
-     * @param extraction         - extraction output
-     * @param sheet              - target sheet
-     * @param currentRow         - row counter to know where to write it
-     * @return                   - new row
-     *
-     *
-     */
 
 
     private int writeToSheet(Extraction extraction,  XSSFSheet sheet, int currentRow) {
 
         ParseFeedback feedback = new ParseFeedback();
+
+        List<String> keys = new ArrayList<String>();  // Store the used keys to avoid duplicates
 
         try{
 
@@ -907,31 +846,6 @@ public class OverviewGenerator {
 
     }
 
-    private void writeToSheet(String tag, int id, XSSFSheet sheet, int currentRow) {
-
-        ParseFeedback feedback = new ParseFeedback();
-
-        try{
-
-            CellValue[] elements = new CellValue[8];
-
-            elements[0] = new CellValue(id);
-            elements[2] = new CellValue(tag);
-            elements[3] = new CellValue("Extractions from project");
-
-
-            addRow(sheet, (headerRows + currentRow++), elements, 1);
-            feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Adding row in sheet " + sheet.getSheetName(), 0));
-
-        }catch(Exception e){
-
-            PukkaLogger.log( e );
-            feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.ABORT, "Internal error adding definitions in sheet " + sheet.getSheetName(), 0));
-
-        }
-
-
-    }
 
 
 

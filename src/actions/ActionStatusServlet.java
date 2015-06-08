@@ -1,19 +1,12 @@
 package actions;
 
-import actions.ActionStatus;
-import actions.ActionStatusTable;
-import contractManagement.*;
 import dataRepresentation.DataObjectInterface;
-import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
 import services.DocumentService;
 import services.Formatter;
-import userManagement.Organization;
-import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,7 +14,9 @@ import java.io.IOException;
 
 /********************************************************
  *
- *          Risk Flag Servlet
+ *          Action Stataus Servlet
+ *
+ *          Inquire the status of an action
  *
  */
 
@@ -32,7 +27,7 @@ public class ActionStatusServlet extends DocumentService {
 
     /***********************************************************************************
      *
-     *      Adding a new classification class
+     *      Post not supported
      *
      *
      * @param req -
@@ -53,7 +48,7 @@ public class ActionStatusServlet extends DocumentService {
 
     /*************************************************************************
      *
-     *          Get all classifications available
+     *          Get all possible action statuses
      *
      *
      * @throws java.io.IOException

@@ -144,7 +144,7 @@ public class FileUploadServlet extends DocumentService {
                     if ( fi.isFormField () ){
 
 
-                        System.out.println("Got form field " + fi.getName());
+                        //System.out.println("Got form field " + fi.getName());
 
                         if(fi.getFieldName().equals("session")){
 
@@ -456,16 +456,16 @@ public class FileUploadServlet extends DocumentService {
      */
 
 
-    public ContractVersionInstance handleUploadDocument(String title, RepositoryFileHandler fileHandler, Contract document, Project project, PortalUser portalUser, AccessRight accessRight, DocumentSection section, String fingerprint) throws BackOfficeException{
+    public ContractVersionInstance handleUploadDocument(String filename, RepositoryFileHandler fileHandler, Contract document, Project project, PortalUser portalUser, AccessRight accessRight, DocumentSection section, String fingerprint) throws BackOfficeException{
 
         ContractVersionInstance version;
 
         if(document == null){
 
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Creating a new document in db: " + title);
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Creating a new document in db: " + filename);
 
             LanguageCode languageCode = new LanguageCode("unknown");
-            version = new ContractTable().addNewDocument(project, title, fileHandler, languageCode, portalUser, accessRight, section, fingerprint);
+            version = new ContractTable().addNewDocument(project, filename, fileHandler, languageCode, portalUser, accessRight, section, fingerprint);
 
 
 
@@ -477,11 +477,10 @@ public class FileUploadServlet extends DocumentService {
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Adding new version for existing document " + document.getName());
             version = document.addNewVersion(portalUser, fileHandler, fingerprint);
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Fragmenting");
 
         }
 
-        PukkaLogger.log(PukkaLogger.Level.INFO, "Done creating document and version");
+        PukkaLogger.log(PukkaLogger.Level.DEBUG, "Done creating document and version");
         invalidateDocumentCache(version.getDocument(), project);
         invalidateFragmentCache(version);
 

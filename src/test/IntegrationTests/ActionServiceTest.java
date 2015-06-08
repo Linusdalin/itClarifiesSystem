@@ -61,8 +61,6 @@ public class ActionServiceTest extends ServletTests {
     @BeforeClass
     public static void preAmble(){
 
-        helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
-        helper.setUp();
 
         init();
 

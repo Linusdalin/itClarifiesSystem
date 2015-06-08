@@ -342,9 +342,6 @@
             </fieldset>
 
         </form>
-    </div>
-
-    <div style="float:left; width:33%">
 
         <FORM METHOD=POST action="<% out.print(host); %>/Logout" id="postLogoutForm" name="LogoutForm">
 
@@ -369,6 +366,34 @@
 
         </form>
     </div>
+
+<div style="float:left; width:33%">
+
+    <FORM METHOD=GET action="<% out.print(host); %>/User" id="postDeleteForm" name="LoginForm">
+
+        <fieldset style="height:300px">
+            <h3>Delete</h3>
+            <p>Delete a user permanently</p>
+            <p class="code">DELETE: /User?user=&lt;key</p>
+
+            <input type="hidden" name="html" value="on">
+            <input type="hidden" name="_method" value="DELETE" />
+
+            <% out.print(getTokenParameter(useRealToken, "postDelete"));%>
+
+
+            <p>
+                <input type="submit" value="Delete" class="btn primary" id="submit_delete" />
+            </p>
+
+
+        </fieldset>
+
+    </form>
+
+</div>
+
+
 
     <div style="float:left; width:33%">
 
@@ -1687,13 +1712,42 @@
 
 <div style="float:left; width:33%">
 
-    <FORM METHOD=GET action="<% out.print(host); %>/Overview" id="overviewForm" name="overviewForm" accept-charset="UTF-8">
+    <FORM METHOD=POST action="<% out.print(host); %>/Overview" id="genOverviewForm" name="genOverviewForm" accept-charset="UTF-8">
 
         <fieldset style="height:400px">
+            <h3>Create project overview</h3>
+
+            <p>	<label for="gen_overview_project">Project</label>
+                <input type="text" id="gen_overview_project" name="project" value="<% out.print(demoProjectKey);%>" size="50"></p>
+
+            <p>	<label for="gen_overview_comment">Comment</label>
+                <input type="text" id="gen_overview_comment" name="comment" value="" size="50"></p>
+
+            <input type="hidden" name="html" value="on">
+
+
+            <% out.print(getTokenParameter(useRealToken, "upload"));%>
+
+            <input type="submit" value="Create" />
+
+        <h3>Response json:</h3>
+
+            <p>The response:
+                <p><span class="code">{ "document" : "&lt;file name&gt;" )</span></p>
+        </fieldset>
+    </form>
+
+</div>
+
+<div style="float:left; width:33%">
+
+    <FORM METHOD=GET action="<% out.print(host); %>/Overview" id="getOverviewForm" name="getOverviewForm" accept-charset="UTF-8">
+
+        <fieldset style="height:200px">
             <h3>Get project overview</h3>
 
-            <p>	<label for="overview_project">Project</label>
-                <input type="text" id="overview_project" name="project" value="<% out.print(demoProjectKey);%>" size="50"></p>
+            <p>	<label for="get_overview_project">Project</label>
+                <input type="text" id="get_overview_project" name="project" value="<% out.print(demoProjectKey);%>" size="50"></p>
 
             <% out.print(getTokenParameter(useRealToken, "upload"));%>
 
@@ -1704,6 +1758,26 @@
 
             <p>The response:
                 <p><span class="code">{ "document" : "&lt;file name&gt;" )</span></p>
+        </fieldset>
+    </form>
+
+    <FORM METHOD=GET action="<% out.print(host); %>/ExportOverviewStatus" id="getStatusForm" name="getStatusForm" accept-charset="UTF-8">
+
+        <fieldset style="height:200px">
+            <h3>Get overview status</h3>
+
+            <p>	<label for="get_status_project">Project</label>
+                <input type="text" id="get_status_project" name="project" value="<% out.print(demoProjectKey);%>" size="50"></p>
+
+            <% out.print(getTokenParameter(useRealToken, "getStatusForm"));%>
+
+            <input type="hidden" name="html" value="on">
+
+            <input type="submit" value="Get status" />
+
+
+        <h3>Response json:</h3>
+
         </fieldset>
     </form>
 

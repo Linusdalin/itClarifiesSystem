@@ -253,7 +253,7 @@ public class Project extends DataObject implements DataObjectInterface{
         for(Contract contract : allContracts){
 
             // Compile the outcome
-            outcome.add(contract.recursivelyDeleteDocument());
+            outcome.add(contract.recursivelyDeleteDocument( true ));
 
         }
 
@@ -563,7 +563,6 @@ public class Project extends DataObject implements DataObjectInterface{
 
         return list;
     }
-
     // No condition retrieves all items
 
     public List<Extraction> getExtractionsForProject(){
@@ -571,6 +570,25 @@ public class Project extends DataObject implements DataObjectInterface{
         return getExtractionsForProject(new LookupList());
     }
 
+
+
+    public List<ExtractionStatus> getExtractionStatusForProject(ConditionInterface condition){
+
+        condition.addFilter(new ReferenceFilter(ExtractionStatusTable.Columns.Project.name(), getKey()));
+
+        List<DataObjectInterface> objects = new ExtractionStatusTable(condition).getValues();
+
+        List<ExtractionStatus> list = (List<ExtractionStatus>)(List<?>) objects;
+
+        return list;
+    }
+
+    // No condition retrieves all items
+
+    public List<ExtractionStatus> getExtractionStatusForProject(){
+
+        return getExtractionStatusForProject(new LookupList());
+    }
 
 
     /*************************************************************************''
@@ -601,5 +619,35 @@ public class Project extends DataObject implements DataObjectInterface{
 
     }
 
+    /*****************************************************************************
+     *
+     *          This method assumes that there is only one entry
+     *
+     *
+     */
 
+    public void invalidateExport(){
+
+        try {
+
+            List<ExtractionStatus> extractionStatusesForProject = getExtractionStatusForProject();
+
+            if(extractionStatusesForProject.size() == 0)
+                return;
+
+            if(extractionStatusesForProject.size() != 1){
+                PukkaLogger.log(PukkaLogger.Level.FATAL, "There are more than one export status for project " + getName());
+            }
+
+            ExtractionStatus oneAndOnly = extractionStatusesForProject.get(0);
+
+            oneAndOnly.setDirty(true);
+            oneAndOnly.update();
+
+        } catch (BackOfficeException e) {
+
+            PukkaLogger.log( e );
+        }
+
+    }
 }

@@ -26,11 +26,24 @@ public class UserManager {
     String loginServer = ServerFactory.getLoginServer();
 
     private String activationCode = null;
+    private PortalUser parent = null;
+
 
     public UserManager(){
 
     }
 
+    /***********************************************************'
+     *
+     *          Passing a parent to the user manager allows us to do more operations (like adding users to the organization
+     *
+     * @param parent
+     */
+
+    public UserManager(PortalUser parent){
+
+        this.parent = parent;
+    }
 
     /**********************************************************************************
      *
@@ -82,14 +95,6 @@ public class UserManager {
         return newUser;
 
     }
-
-    /**************************************************************************************'
-     *
-     *
-     *
-     * @param name
-     * @return
-     */
 
 
     /******************************************************************************************
@@ -250,4 +255,59 @@ public class UserManager {
         return activationCode;
     }
 
+    /**************************************************************************************
+     *
+     *          TODO: This does not delete any references to the user. Investigate how this works
+     *
+     *
+     * @param user
+     * @return
+     * @throws BackOfficeException
+     */
+
+    public boolean deleteUser(PortalUser user) throws BackOfficeException{
+
+        if(parent == null){
+
+            throw new BackOfficeException(BackOfficeException.AccessError, "Could not delete user without first assigning parent");
+        }
+
+        //TODO: Allow system user here...
+        if(!parent.equals(user)){
+
+            throw new BackOfficeException(BackOfficeException.AccessError, "Could not delete user that is not initiating request");
+        }
+
+        RequestHandler requestHandler = new RequestHandler(loginServer + "/DeleteUser");
+        String output = requestHandler.excutePost(
+                "user=" + user.getUserId() +
+                "&session=SystemSessionToken");
+
+        PukkaLogger.log(PukkaLogger.Level.INFO, "Got response from login server" + output);
+
+        JSONObject response = new JSONObject(output);
+
+        if(response.has("error")){
+
+            String errorMessage = ((JSONObject) response.getJSONArray("error").get(0)).getString("message");
+
+            throw new BackOfficeException(BackOfficeException.AccessError, "Error from login: " + errorMessage );
+        }
+
+
+        if(!user.exists()){
+
+            PukkaLogger.log(PukkaLogger.Level.INFO, "User already deleted.");
+        }
+
+        // Finally delete the user
+
+
+
+        PukkaLogger.log(PukkaLogger.Level.ACTION, "Deleting user " + user.getName());
+
+        user.delete();
+        return true;
+
+    }
 }

@@ -41,11 +41,6 @@ import static org.mockito.Mockito.when;
 public class ChangAccessRightsTest extends ServletTests {
 
 
-    private static LocalServiceTestHelper helper;
-    private static HttpServletRequest request;
-    private static HttpServletResponse response;
-
-
     @AfterClass
     public static void tearDown() {
 
@@ -56,31 +51,8 @@ public class ChangAccessRightsTest extends ServletTests {
     @BeforeClass
     public static void preAmble(){
 
+        init();
 
-        helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
-        helper.setUp();
-
-
-
-        try {
-
-            BackOfficeInterface bo;
-
-            bo = new ItClarifies();
-            bo.createDb();
-            bo.populateValues(true);
-
-            PukkaLogger.setLogLevel(PukkaLogger.Level.DEBUG);
-
-
-            request = mock(HttpServletRequest.class);
-            response = mock(HttpServletResponse.class);
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            assertTrue(false);
-        }
 
     }
 
@@ -100,6 +72,8 @@ public class ChangAccessRightsTest extends ServletTests {
 
                 Contract restrictedDocument = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Cannon")));
                 Project project = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), "Demo")));
+
+                assertVerbose("Prerequisite: Document exists.", restrictedDocument.exists(), is(true));
 
                 // First just check. We can only get one document
 

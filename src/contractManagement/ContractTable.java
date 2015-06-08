@@ -141,7 +141,7 @@ public class ContractTable extends DataTable implements DataTableInterface{
      *
      *
      *
-     * @param name              - document name
+     * @param filename          - document name
      * @param fileHandler
      * @param creator           - owner
      * @param accessRight       - access to grant
@@ -154,7 +154,7 @@ public class ContractTable extends DataTable implements DataTableInterface{
 
 
     public ContractVersionInstance addNewDocument(Project project,
-                                                  String name,
+                                                  String filename,
                                                   fileHandling.RepositoryFileHandler fileHandler,
                                                   language.LanguageCode languageCode,
                                                   PortalUser creator,
@@ -182,7 +182,7 @@ public class ContractTable extends DataTable implements DataTableInterface{
             //    public Contract(String name, long ordinal, DBKeyInterface type, String description, DBKeyInterface project, DBKeyInterface owner, String creation) throws BackOfficeException{
 
 
-            Contract newDoc = new Contract(name, fileHandler.getFileName(), number, type, status, defaultMessage, desc, project, creator, creationTime.getISODate(), languageCode.code, section, accessRight);
+            Contract newDoc = new Contract(filename, fileHandler.getFileName(), number, type, status, defaultMessage, desc, project, creator, creationTime.getISODate(), languageCode.code, section, accessRight);
             newDoc.store();
 
             // Grant access

@@ -103,7 +103,7 @@ public class ExportForm extends Form implements FormInterface {
             return "Error: Project " + _projectKey + " does not exist";
         }
 
-        OverviewGenerator extractor = new OverviewGenerator(project);
+        OverviewGenerator extractor = new OverviewGenerator(project, PortalUser.getSystemUser(), "generated from back office");
         extractor.preCalculate();
 
         return "Extraction cached in database";

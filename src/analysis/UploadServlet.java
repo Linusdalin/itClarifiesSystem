@@ -15,6 +15,7 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.poi.POIXMLException;
+import overviewExport.OverviewExportServlet;
 import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupByKey;
 import pukkaBO.condition.LookupItem;
@@ -265,6 +266,8 @@ public class UploadServlet extends DocumentService {
                         DocumentSection section = project.getDefaultSection();
 
                         ContractVersionInstance newVersion = handleUpload(title, fileHandler, document, project, portalUser, accessRight, section);
+
+                        project.invalidateExport();   // When uploading a document, the export should be regenerated
 
                         PukkaLogger.log(PukkaLogger.Level.INFO, "Analysing");
                         AsynchAnalysis analysisQueue = new AsynchAnalysis(sessionToken);

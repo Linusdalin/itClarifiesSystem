@@ -1,42 +1,28 @@
-package test;
+package test.integrationTests;
 
 import analysis.AnalysisServlet;
-import backend.ItClarifies;
 import classification.FragmentClassification;
-import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
-import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
-import contractManagement.*;
+import contractManagement.Contract;
+import contractManagement.ContractFragment;
+import contractManagement.ContractVersionInstance;
+import contractManagement.DocumentSection;
 import fileHandling.BlobRepository;
 import fileHandling.FileUploadServlet;
 import fileHandling.RepositoryFileHandler;
 import fileHandling.RepositoryInterface;
 import junit.framework.Assert;
-import log.PukkaLogger;
-import net.sf.json.JSONObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import pukkaBO.backOffice.BackOfficeInterface;
-import pukkaBO.condition.ColumnFilter;
-import pukkaBO.condition.LookupItem;
-
 import risk.RiskClassification;
+import test.ServletTests;
 import userManagement.AccessRight;
-import userManagement.PortalUser;
-import userManagement.PortalUserTable;
-import userManagement.Visibility;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 
 /*******************************************************************
@@ -46,7 +32,7 @@ import static org.mockito.Mockito.when;
  */
 
 
-public class UploadTest extends ServletTests {
+public class UploadAalyseExportTest extends ServletTests {
 
 
 

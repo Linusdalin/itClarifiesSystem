@@ -66,7 +66,7 @@
                     2-2-2:          Export functionality, classification reindex bug
                     2-2-3:          Document export, overview export styling, cross reference and upload fixes, definition analysis improvements, risk analysis improvement classification sideeffect
                     2-2-4:          Optimizations and caching export data, reanalyze
-                    2-2-5:          Login activation
+                    2-2-5:          Login activation, export status service
       -->
 
 </appengine-web-app>

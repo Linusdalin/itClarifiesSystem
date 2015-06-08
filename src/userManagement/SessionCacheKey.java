@@ -52,6 +52,8 @@ public class SessionCacheKey {
             if(timeStart <  0 || ipStart < 0)
                 throw new BackOfficeException(BackOfficeException.AccessError, " Error parsing usageTimestamp \""+ usageTimestamp+"\" from cache. ");
 
+            //System.out.println("Lookin up user named "+ usageTimestamp.substring(0, timeStart - 1));
+
             this.user = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), usageTimestamp.substring(0, timeStart - 1))));
             this.ipAddress = usageTimestamp.substring(ipStart);
             this.ts = new DBTimeStamp(DBTimeStamp.SQL_TIMESTAMP, usageTimestamp.substring(timeStart, ipStart - 1));
