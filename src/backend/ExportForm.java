@@ -57,6 +57,11 @@ public class ExportForm extends Form implements FormInterface {
                     .withValue(projectName)
             );
 
+            elements.add(new TextField("Tags")
+                    .setSize(0, 100, 20)
+                    .withFieldName("tags")
+                    .withPlaceholder("[#TAG1, #TAG2]")
+            );
 
 
             elements.add(new Button("Generate", FormPlacement.NEW_LINE, false));
@@ -104,6 +109,8 @@ public class ExportForm extends Form implements FormInterface {
         }
 
         String tagJSON = request.getParameter("tags");
+        if(tagJSON == null)
+            tagJSON = "[]";
 
         OverviewGenerator extractor = new OverviewGenerator(project, PortalUser.getSystemUser(), "generated from back office", tagJSON);
         extractor.preCalculate( tagJSON );
