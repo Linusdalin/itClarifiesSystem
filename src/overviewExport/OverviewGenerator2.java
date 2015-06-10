@@ -124,10 +124,8 @@ public class OverviewGenerator2 {
         ExtractionStatusTable statusEntriesForProject = new ExtractionStatusTable(new LookupList().addFilter(new ReferenceFilter(ExtractionStatusTable.Columns.Project.name(), project.getKey())));
         statusEntriesForProject.delete();
 
-        boolean isDirty = false; // When created it is not modified
 
-
-        statusEntry = new ExtractionStatus(name, exportDate.getISODate(), creator.getKey(), project.getKey(), comment, isDirty, description, "");
+        statusEntry = new ExtractionStatus(name, exportDate.getISODate(), creator.getKey(), project.getKey(), comment, ExtractionState.getReady(), description, "");
         statusEntry.store();
 
         // Just for test

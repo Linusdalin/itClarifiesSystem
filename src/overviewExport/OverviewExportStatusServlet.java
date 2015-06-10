@@ -81,6 +81,7 @@ public class OverviewExportStatusServlet extends DocumentService {
 
                 response.put(DataServletName,
                             new JSONObject()
+                                    .put("status", ExtractionState.getEmpty().getName())
                             );
 
 
@@ -91,9 +92,9 @@ public class OverviewExportStatusServlet extends DocumentService {
                             new JSONObject()
                                      .put("timeStamp", status.getDate().getISODate())
                                      .put("author", status.getUserId().toString())
-                                     .put("dirty", status.getDirty())
+                                     .put("status", status.getStatus().getName())
                                      .put("key", status.getKey().toString())
-                                     .put("status", status.getDescription())
+                                     .put("message", status.getDescription())
                             );
 
             }

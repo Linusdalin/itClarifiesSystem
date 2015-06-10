@@ -65,32 +65,9 @@ public class OverviewGenerator {
     private static final String SUBSTITUTE_DESCRIPTION = "$(DESCRIPTION)";
     private static final String SUBSTITUTE_DEFINITION =  "$(DEFINITION)";
 
-    /*
-
-    // The hardcoded list of tags for the extraction
-
-    private static final String[] tagExtractions = {
-
-
-
-            "#TERM_AND_TERMINATION",
-            "#RIGHTS_AND_OBLIGATIONS",
-            "#STANDARDS_COMPLIANCE",
-            //"#PARTY",
-            //"#BACKGROUND",
-            //"#DEADLINE",
-            //"#ACCEPTANCE",
-            //"#DELIVERY",
-            //"#GOVERNANCE",
-            //"#DATE",
-
-
-    };
-
-*/
 
     private String[] tagExtractions = new String[0];    // Default is no tag extractions
-    private static final int SEARCH_LIMIT = 1000;  // Max number of cells to search before failing replace
+    private static final int SEARCH_LIMIT = 1000;       // Max number of cells to search before failing replace
 
     private Project project;                    // The actual project we are exporting
     private ExtractionStatus statusEntry;       // The status entry
@@ -101,8 +78,13 @@ public class OverviewGenerator {
 
     XSSFSheet[] sheets;
 
+    private static final String[] standardSheets = {
 
-    private Extraction emptyLine;
+            "Report Overview", "Documents", "Definitions", "External Ref", "Risks"
+
+    };
+
+    private Extraction emptyLine;      // For adding empty lines in the output
 
     /***************************************************************************
      *
@@ -122,23 +104,17 @@ public class OverviewGenerator {
         this.project = project;
         exportDate = new DBTimeStamp();
 
+        // Default values
+
         String description = "no descr.";
         String name = "Export: " + creator.getName() + "@" + exportDate.getISODate();
 
         ExtractionStatusTable statusEntriesForProject = new ExtractionStatusTable(new LookupList().addFilter(new ReferenceFilter(ExtractionStatusTable.Columns.Project.name(), project.getKey())));
         statusEntriesForProject.delete();
 
-        boolean isDirty = false; // When created it is not modified
 
-
-        statusEntry = new ExtractionStatus(name, exportDate.getISODate(), creator.getKey(), project.getKey(), comment, isDirty, description, tagJSON);
+        statusEntry = new ExtractionStatus(name, exportDate.getISODate(), creator.getKey(), project.getKey(), comment, ExtractionState.getGenerating(), description, tagJSON);
         statusEntry.store();
-
-        // Just for test
-
-        List<ExtractionStatus> es = project.getExtractionStatusForProject();
-        System.out.println("Now there are " + es.size() + " status entries");
-
 
 
     }
@@ -165,7 +141,7 @@ public class OverviewGenerator {
 
         statusEntry = new ExtractionStatus(new LookupItem().addFilter(new ReferenceFilter(ExtractionStatusTable.Columns.Project.name(), project.getKey())));
 
-        // Get the tag xtractions stored as a JSON in the generate phase
+        // Get the tag axtractions stored as a JSON in the generate phase
 
         this.tagExtractions = getListFromJSONParameter(statusEntry.getTags());
 
@@ -179,13 +155,22 @@ public class OverviewGenerator {
         emptyLine = new Extraction("", "", "", "", 0, "", this.project.getKey(), this.project.getKey(), "", "", "", "", statusEntry.getKey());
 
         // Get the Standard sheets
-        //TODO: Make this a loop and add exceptions if sheets are not found
 
-        this.sheets[ sheetIx++ ] = template.getSheet("Report Overview");
-        this.sheets[ sheetIx++ ] = template.getSheet("Documents");
-        this.sheets[ sheetIx++ ] = template.getSheet("Definitions");
-        this.sheets[ sheetIx++ ] = template.getSheet("External Ref");
-        this.sheets[ sheetIx++ ] = template.getSheet("Risks");
+        for (String standardSheet : standardSheets) {
+
+            try{
+
+                XSSFSheet sheet = template.getSheet( standardSheet );
+
+                if(sheet == null)
+                    throw new BackOfficeException(BackOfficeException.General, "Could not find sheet " + standardSheet + " in template.");
+                this.sheets[ sheetIx++ ] = sheet;
+            }catch(Exception e){
+
+                PukkaLogger.log(PukkaLogger.Level.ERROR, "Error accessing page " + standardSheet + " in template.");
+            }
+        }
+
 
 
         // Loop over the tags to create a sheet per tag
@@ -245,11 +230,13 @@ public class OverviewGenerator {
 
         feedback.add(handleExtraction(allDocuments, allClassifications, allAnnotations, allRisks, allDefinitions, tagList));
 
-        // Update the status with the feedback from the analysis
 
         try {
 
+            // Update the status with the feedback from the analysis and set the state to ready
+
             statusEntry.setDescription(feedback.toJSON().toString());
+            statusEntry.setStatus(ExtractionState.getReady());
             statusEntry.update();
 
         } catch (BackOfficeException e) {
@@ -1353,9 +1340,22 @@ public class OverviewGenerator {
     }
 
 
+    /**************************************************************************
+     *
+     *          Convert the JSON list to an array of strings
+     *
+     *
+     * @param exportTags              - json array with tags
+     * @return                        - array of string
+     * @throws BackOfficeException
+     */
+
+
     private String[] getListFromJSONParameter(String exportTags) throws BackOfficeException{
 
         try{
+            if(exportTags == null || exportTags.equals(""))
+                return new String[] {};
 
             JSONArray tagArray = new JSONArray(exportTags);
 
@@ -1374,10 +1374,7 @@ public class OverviewGenerator {
         }
 
 
-
-
     }
-
 
 
 }

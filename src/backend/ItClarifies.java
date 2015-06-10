@@ -7,6 +7,7 @@ import actions.ChecklistTable;
 import cache.ServiceCache;
 import classification.FragmentClassTable;
 import classification.FragmentClassificationTable;
+import overviewExport.ExtractionStateTable;
 import overviewExport.ExtractionStatusTable;
 import overviewExport.ExtractionTable;
 import reclassification.ReannotationTable;
@@ -344,6 +345,7 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
                                                      new RedefinitionTable( ),
                                                      new ExtractionTable( ),
                                                      new ExtractionStatusTable( ),
+                                                     new ExtractionStateTable( ),
 
 
                                              }

@@ -1187,7 +1187,7 @@ public class GeneratedTableTests{
      
              try{
      
-                 overviewExport.ExtractionStatus table1 = new overviewExport.ExtractionStatus("text 1", "2012-01-02", dummyKey, dummyKey, "text 5", false, "text 7", "text 8");
+                 overviewExport.ExtractionStatus table1 = new overviewExport.ExtractionStatus("text 1", "2012-01-02", dummyKey, dummyKey, "text 5", new overviewExport.ExtractionStateTable().getDummyConstantValue( ), "text 7", "text 8");
 
                  assertThat(table1.getName(), is("text 1"));
                  assertThat(table1.getDate().getISODate(), is("2012-01-02"));
@@ -1196,7 +1196,7 @@ public class GeneratedTableTests{
                  assertThat(table1.getProjectId(), is(dummyKey));
                  assertThat(table1.getProject().exists(), is(false));
                  assertThat(table1.getComment(), is("text 5"));
-                 assertThat(table1.getDirty(), is(false));
+                 assertThat(table1.getStatus(), is(new overviewExport.ExtractionStateTable().getDummyConstantValue( )));
                  assertThat(table1.getDescription(), is("text 7"));
                  assertThat(table1.getTags(), is("text 8"));
 
@@ -1211,7 +1211,7 @@ public class GeneratedTableTests{
                  assertThat(table2.getProjectId(), is(dummyKey));
                  assertThat(table2.getProject().exists(), is(false));
                  assertThat(table2.getComment(), is("text 5"));
-                 assertThat(table2.getDirty(), is(false));
+                 assertThat(table2.getStatus(), is(new overviewExport.ExtractionStateTable().getDummyConstantValue( )));
                  assertThat(table2.getDescription(), is("text 7"));
                  assertThat(table2.getTags(), is("text 8"));
 
@@ -1220,7 +1220,7 @@ public class GeneratedTableTests{
                  table1.setUser( dummyKey);
                  table1.setProject( dummyKey);
                  table1.setComment("text 15");
-                 table1.setDirty(false);
+                 table1.setStatus(new overviewExport.ExtractionStateTable().getDummyConstantValue( ));
                  table1.setDescription("text 17");
                  table1.setTags("text 18");
                  assertThat(table1.getName(), is("text 11"));
@@ -1230,7 +1230,7 @@ public class GeneratedTableTests{
                  assertThat(table1.getProjectId(), is(dummyKey));
                  assertThat(table1.getProject().exists(), is(false));
                  assertThat(table1.getComment(), is("text 15"));
-                 assertThat(table1.getDirty(), is(false));
+                 assertThat(table1.getStatus(), is(new overviewExport.ExtractionStateTable().getDummyConstantValue( )));
                  assertThat(table1.getDescription(), is("text 17"));
                  assertThat(table1.getTags(), is("text 18"));
 

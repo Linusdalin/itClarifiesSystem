@@ -484,6 +484,8 @@ public class FileUploadServlet extends DocumentService {
         invalidateDocumentCache(version.getDocument(), project);
         invalidateFragmentCache(version);
 
+        project.invalidateExport();   // When uploading a document, the export should be regenerated
+
         return version;
 
     }

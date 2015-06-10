@@ -15,6 +15,9 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.poi.POIXMLException;
+import overviewExport.ExtractionState;
+import overviewExport.ExtractionStateTable;
+import overviewExport.ExtractionStatus;
 import overviewExport.OverviewExportServlet;
 import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupByKey;
@@ -267,8 +270,6 @@ public class UploadServlet extends DocumentService {
 
                         ContractVersionInstance newVersion = handleUpload(title, fileHandler, document, project, portalUser, accessRight, section);
 
-                        project.invalidateExport();   // When uploading a document, the export should be regenerated
-
                         PukkaLogger.log(PukkaLogger.Level.INFO, "Analysing");
                         AsynchAnalysis analysisQueue = new AsynchAnalysis(sessionToken);
                         analysisQueue.analyseDocument(newVersion, true, oldVersion);
@@ -283,6 +284,8 @@ public class UploadServlet extends DocumentService {
                 // Clear cache for project and document list
 
                 invalidateDocumentCache(document, project);
+
+                project.invalidateExport();   // When uploading a document, the export should be regenerated
 
                 sendJSONResponse(json, formatter, resp);
 
@@ -378,8 +381,12 @@ public class UploadServlet extends DocumentService {
         }
 
         PukkaLogger.log(PukkaLogger.Level.INFO, "Done");
+
+        // Invalidating cache
+
         invalidateDocumentCache(version.getDocument(), project);
         invalidateFragmentCache(version);
+
 
         return version;
 

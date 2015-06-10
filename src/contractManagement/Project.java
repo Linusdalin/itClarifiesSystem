@@ -632,17 +632,17 @@ public class Project extends DataObject implements DataObjectInterface{
 
             List<ExtractionStatus> extractionStatusesForProject = getExtractionStatusForProject();
 
-            if(extractionStatusesForProject.size() == 0)
-                return;
+            for (ExtractionStatus extractionStatus : extractionStatusesForProject) {
 
-            if(extractionStatusesForProject.size() != 1){
-                PukkaLogger.log(PukkaLogger.Level.FATAL, "There are more than one export status for project " + getName());
+                // Set dirty as the project content has changed
+                extractionStatus.setStatus(ExtractionState.getDirty());
+                extractionStatus.update();
+
+                System.out.println("Updating extractionstatus for project with dirty.");
+
             }
 
-            ExtractionStatus oneAndOnly = extractionStatusesForProject.get(0);
 
-            oneAndOnly.setDirty(true);
-            oneAndOnly.update();
 
         } catch (BackOfficeException e) {
 
