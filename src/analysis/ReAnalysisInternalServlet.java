@@ -124,14 +124,17 @@ public class ReAnalysisInternalServlet extends DocumentService {
             // Perform the analysis and the transposing
             reAnalyse(versionInstance);
 
-            invalidateDocumentCache(document, project);
-            invalidateFragmentCache(versionInstance);
 
             // Update the status of the document
 
             document.setMessage("Completed analyzing document.");
             document.setStatus(ContractStatus.getAnalysed());
             document.update();
+
+            // Invalidate cache
+
+            invalidateDocumentCache(document, project);
+            invalidateFragmentCache(versionInstance);
 
 
             // If anyone is interested in the result

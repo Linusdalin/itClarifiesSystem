@@ -7,6 +7,7 @@ import userManagement.*;
 import versioning.*;
 import actions.*;
 import overviewExport.*;
+import module.*;
 import search.*;
 import crossReference.*;
 import reclassification.*;
@@ -234,7 +235,50 @@ public class Organization extends DataObject implements DataObjectInterface{
         return getCustomTagsForOrganization(new LookupList());
     }
 
+    /*************************************************************************
+     *
+     *          Get modules for organization will use the ModuleOrganization table to
+     *          find access
+     *
+     *          It is implemented by getting all objects at once to avoid multiple db accesses.
+     *
+     *
+     * @return   - list of modules
+     */
 
 
+    public List<Module> getModulesForOrganization(){
+
+        List<Module> modulesForOrganization = new ArrayList<Module>();
+
+        List<DataObjectInterface> modules = new ModuleTable(new LookupList()).getValues();
+        List<DataObjectInterface> accessObjects = new ModuleOrganizationTable(new LookupList()).getValues();
+
+
+        for (DataObjectInterface _accessObject : accessObjects) {
+
+            ModuleOrganization accessObject = (ModuleOrganization)_accessObject;
+
+            if(accessObject.getOrganizationId().equals(getKey())){
+
+                // The access object is applicable to this organization
+
+                for (DataObjectInterface _module : modules) {
+
+                    Module module = (Module)_module;
+
+                    if(accessObject.getModuleId().equals(module.getKey())){
+
+                        modulesForOrganization.add(module);
+                    }
+
+                }
+
+            }
+
+
+        }
+        return modulesForOrganization;
+    }
 
 }

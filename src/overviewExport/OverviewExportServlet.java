@@ -1,7 +1,9 @@
 package overviewExport;
 
 import analysis.ParseFeedback;
+import com.google.apphosting.api.DeadlineExceededException;
 import contractManagement.Project;
+import dataRepresentation.DBTimeStamp;
 import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
@@ -11,7 +13,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import pukkaBO.condition.LookupByKey;
+import pukkaBO.condition.LookupItem;
+import pukkaBO.condition.ReferenceFilter;
 import pukkaBO.exceptions.BackOfficeException;
+import queue.AsynchAnalysis;
 import services.Formatter;
 import services.ItClarifiesService;
 import userManagement.PortalUser;
@@ -139,6 +144,10 @@ public class OverviewExportServlet extends ItClarifiesService{
 
     public void doPost(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
+        Project project = null;
+        PortalUser user = null;
+        String exportTags = "[]";
+        String comment = "";
 
         try{
             logRequest(req);
@@ -151,44 +160,78 @@ public class OverviewExportServlet extends ItClarifiesService{
             if(blockedSmokey(sessionManagement, resp))
                 return;
 
-
             setLoggerByParameters(req);
 
             Formatter formatter = getFormatFromParameters(req);
 
             DBKeyInterface _project         = getMandatoryKey("project", req);
-            String comment                  = getOptionalString("comment", req, "");
-            String exportTags               = getOptionalString("tags", req, "[]");
+            comment                         = getOptionalString("comment", req, "");
+            exportTags                      = getOptionalString("tags", req, "[]");
 
-
-            Project project = new Project(new LookupByKey(_project));
-
+            project = new Project(new LookupByKey(_project));
 
             if(!mandatoryObjectExists(project, resp))
                 return;
 
-            PortalUser user = sessionManagement.getUser();
+            user = sessionManagement.getUser();
 
+            // Queue the event
 
-            OverviewGenerator generator = new OverviewGenerator(project, user, comment, exportTags);
-            ParseFeedback feedback = generator.preCalculate(exportTags);
+            AsynchAnalysis queue = new AsynchAnalysis(sessionManagement.getToken());
+            queue.generateOverview(project);
 
+            JSONObject response =  new JSONObject().put(DataServletName, "Queued");
+            sendJSONResponse(response, formatter, resp);
 
-            sendJSONResponse(feedback.toJSON(), formatter, resp);
-
-
-
-        }catch(BackOfficeException e){
+        } catch ( DeadlineExceededException e) {
 
             PukkaLogger.log(e);
-            returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+            markAsFail(project);
+
+            returnError("Could not complete the overview generation.", HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+
+
+        } catch ( BackOfficeException e) {
+
+            PukkaLogger.log(e);
+            markAsFail(project);
+
+            returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
 
         } catch ( Exception e) {
 
             PukkaLogger.log(e);
-            returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+            markAsFail(project);
+
+            returnError("Internal Error", HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
         }
      }
+
+    private void markAsFail(Project project) {
+
+            // If there is a status for the project, set it to failed
+
+            try {
+
+                ExtractionStatus statusForProject = null;
+
+                if(project != null)
+                    statusForProject = new ExtractionStatus(new LookupItem().addFilter(new ReferenceFilter(ExtractionStatusTable.Columns.Project.name(), project.getKey())));
+
+                if(statusForProject != null && statusForProject.exists()){
+
+                    DBTimeStamp failTime = new DBTimeStamp();
+                    statusForProject.setStatus(ExtractionState.getFailed());
+                    statusForProject.setDate( failTime );
+                    statusForProject.update();
+                }
+
+            } catch (BackOfficeException e) {
+
+                PukkaLogger.log( e );
+            }
+
+    }
 
 
     public void doDelete(HttpServletRequest req, HttpServletResponse resp)throws IOException {

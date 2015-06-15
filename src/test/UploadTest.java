@@ -66,53 +66,53 @@ public class UploadTest extends ServletTests {
 
 
 
-        @Test
-        public void testUploadAndAnalyse() throws Exception {
+    @Test
+    public void testUploadAndAnalyse() throws Exception {
 
 
-            try{
+        try{
 
-                String filename = "Functional Test Test Document.docx";             // located in the project root
-                FileInputStream stream = new FileInputStream(new File(filename));
+            String filename = "Functional Test Test Document.docx";             // located in the project root
+            FileInputStream stream = new FileInputStream(new File(filename));
 
-                AccessRight accessRight = AccessRight.getrwd();
+            AccessRight accessRight = AccessRight.getrwd();
 
-                // Create new document
-                Contract document = null;
-                ContractVersionInstance oldVersion = null;
-
-
-                RepositoryInterface repository = new BlobRepository();
-                RepositoryFileHandler fileHandler = repository.saveFile(filename, stream);
-
-                FileUploadServlet uploadServlet = new FileUploadServlet();
-                DocumentSection section = demoProject.getDefaultSection();
-
-                ContractVersionInstance newVersion = uploadServlet.handleUploadDocument(filename, fileHandler, document, demoProject, adminUser, accessRight, section, "dummyFingerprint");
+            // Create new document
+            Contract document = null;
+            ContractVersionInstance oldVersion = null;
 
 
-                AnalysisServlet servlet = new AnalysisServlet();
-                servlet.setModelDirectory("web/models");
-                servlet.parseFile(newVersion.getDocument(), newVersion);
-                servlet.analyse(newVersion, oldVersion);
+            RepositoryInterface repository = new BlobRepository();
+            RepositoryFileHandler fileHandler = repository.saveFile(filename, stream);
 
-                // Now perform tests
+            FileUploadServlet uploadServlet = new FileUploadServlet();
+            DocumentSection section = demoProject.getDefaultSection();
 
-                List<ContractFragment> fragments =  newVersion.getFragmentsForVersion();
-                List<FragmentClassification> classifications =  newVersion.getFragmentClassificationsForVersion();
-                List<RiskClassification> risks =  newVersion.getRiskClassificationsForVersion();
-
-                assertVerbose("Found fragments in the test document", fragments.size(), is(79));
-                assertVerbose("Found classifications in the test document", classifications.size(), is(4));
-                assertVerbose("Found risk classifications in the test document", risks.size(), is(0));
+            ContractVersionInstance newVersion = uploadServlet.handleUploadDocument(filename, fileHandler, document, demoProject, adminUser, accessRight, section, "dummyFingerprint");
 
 
-            }catch(Exception e){
+            AnalysisServlet servlet = new AnalysisServlet();
+            servlet.setModelDirectory("web/models");
+            servlet.parseFile(newVersion.getDocument(), newVersion);
+            servlet.analyse(newVersion, oldVersion);
 
-                e.printStackTrace();
-                Assert.assertTrue(false);
-            }
+            // Now perform tests
+
+            List<ContractFragment> fragments =  newVersion.getFragmentsForVersion();
+            List<FragmentClassification> classifications =  newVersion.getFragmentClassificationsForVersion();
+            List<RiskClassification> risks =  newVersion.getRiskClassificationsForVersion();
+
+            assertVerbose("Found fragments in the test document", fragments.size(), is(79));
+            assertVerbose("Found classifications in the test document", classifications.size(), is(4));
+            assertVerbose("Found risk classifications in the test document", risks.size(), is(0));
+
+
+        }catch(Exception e){
+
+            e.printStackTrace();
+            Assert.assertTrue(false);
         }
+    }
 
 
 }

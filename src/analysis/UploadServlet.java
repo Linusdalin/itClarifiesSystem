@@ -260,9 +260,6 @@ public class UploadServlet extends DocumentService {
                             oldVersion = document.getHeadVersion();
 
 
-                        //TODO: Split this into multiple services
-                        // Store the file for later use
-
                         RepositoryInterface repository = new BlobRepository();
                         RepositoryFileHandler fileHandler = repository.saveFile(title, stream);
 

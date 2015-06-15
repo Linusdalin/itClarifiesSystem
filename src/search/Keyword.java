@@ -7,6 +7,7 @@ import userManagement.*;
 import versioning.*;
 import actions.*;
 import overviewExport.*;
+import module.*;
 import search.*;
 import crossReference.*;
 import reclassification.*;

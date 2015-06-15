@@ -79,6 +79,8 @@ public class ReAnalysisServlet extends DocumentService {
             AsynchAnalysis analysisQueue = new AsynchAnalysis(sessionManagement.getToken());
             analysisQueue.setMagicKey(magicKey);
 
+            project.invalidateExport();
+
             for (Contract document : documentsForProject) {
 
                             // Update the status of the document
@@ -91,10 +93,11 @@ public class ReAnalysisServlet extends DocumentService {
 
                 ContractVersionInstance latestVersion = document.getHeadVersion();
 
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Analysing");
+                PukkaLogger.log(PukkaLogger.Level.INFO, "re-Analysing document " + document.getName());
                 analysisQueue.reAnalyse(latestVersion);
 
                 invalidateFragmentCache(latestVersion);
+
 
             }
 

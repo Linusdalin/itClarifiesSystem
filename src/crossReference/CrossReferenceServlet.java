@@ -81,7 +81,7 @@ public class CrossReferenceServlet extends DocumentService {
             // Update the status for all the documents
 
             setStatusToCrossReferencing(project);
-
+            project.invalidateExport();
 
             JSONObject response =  new JSONObject().put(DataServletName, "Queued");
             sendJSONResponse(response, formatter, resp);
@@ -121,7 +121,7 @@ public class CrossReferenceServlet extends DocumentService {
             try {
 
                 document.setStatus(ContractStatus.getAnalysing());
-                document.setMessage("Cross Referencing project...");
+                document.setMessage("Awaiting Cross Reference...");
                 document.update();
 
                 invalidateDocumentCache(document.getKey(), project.getKey());

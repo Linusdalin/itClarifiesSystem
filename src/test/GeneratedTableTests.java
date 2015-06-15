@@ -1247,6 +1247,197 @@ public class GeneratedTableTests{
           }
 
          @Test
+         public void testModule(){
+     
+             try{
+     
+                 module.Module table1 = new module.Module("text 1", "text 2", true);
+
+                 assertThat(table1.getName(), is("text 1"));
+                 assertThat(table1.getDescription(), is("text 2"));
+                 assertThat(table1.getisPublic(), is(true));
+
+                 table1.store();
+                 module.Module table2 = new module.Module();
+                 table2.load(new LookupByKey(table1.getKey()));
+
+                 assertThat(table2.getName(), is("text 1"));
+                 assertThat(table2.getDescription(), is("text 2"));
+                 assertThat(table2.getisPublic(), is(true));
+
+                 table1.setName("text 11");
+                 table1.setDescription("text 12");
+                 table1.setisPublic(true);
+                 assertThat(table1.getName(), is("text 11"));
+                 assertThat(table1.getDescription(), is("text 12"));
+                 assertThat(table1.getisPublic(), is(true));
+
+             }catch(BackOfficeException e){
+     
+                 e.logError("Error creating table Module");
+                 assertTrue(false);
+                 
+             }catch(Exception e){
+
+                 e.printStackTrace();
+                 assertTrue(false);
+             }
+             try{
+                assertThat(module.Module.getTest(), is(module.Module.getTest()));
+
+             }catch(BackOfficeException e){
+     
+                 e.logError("Error creating table Module");
+                 assertTrue(false);
+                 
+             }catch(Exception e){
+
+                 e.printStackTrace();
+                 assertTrue(false);
+             }
+          }
+
+         @Test
+         public void testModuleOrganization(){
+     
+             try{
+     
+                 module.ModuleOrganization table1 = new module.ModuleOrganization("text 1", "2012-01-02 00:00:00.0", dummyKey, dummyKey, dummyKey);
+
+                 assertThat(table1.getName(), is("text 1"));
+                 assertThat(table1.getTimestamp().getSQLTime().toString(), is("2012-01-02 00:00:00.0"));
+                 assertThat(table1.getOrganizationId(), is(dummyKey));
+                 assertThat(table1.getOrganization().exists(), is(false));
+                 assertThat(table1.getModuleId(), is(dummyKey));
+                 assertThat(table1.getModule().exists(), is(false));
+                 assertThat(table1.getOwnerId(), is(dummyKey));
+                 assertThat(table1.getOwner().exists(), is(false));
+
+                 table1.store();
+                 module.ModuleOrganization table2 = new module.ModuleOrganization();
+                 table2.load(new LookupByKey(table1.getKey()));
+
+                 assertThat(table2.getName(), is("text 1"));
+                 assertThat(table2.getTimestamp().getSQLTime().toString(), is("2012-01-02 00:00:00.0"));
+                 assertThat(table2.getOrganizationId(), is(dummyKey));
+                 assertThat(table2.getOrganization().exists(), is(false));
+                 assertThat(table2.getModuleId(), is(dummyKey));
+                 assertThat(table2.getModule().exists(), is(false));
+                 assertThat(table2.getOwnerId(), is(dummyKey));
+                 assertThat(table2.getOwner().exists(), is(false));
+
+                 table1.setName("text 11");
+                 table1.setTimestamp(new DBTimeStamp(DBTimeStamp.SQL_TIMESTAMP, "2012-01-12 00:00:00.0"));
+                 table1.setOrganization( dummyKey);
+                 table1.setModule( dummyKey);
+                 table1.setOwner( dummyKey);
+                 assertThat(table1.getName(), is("text 11"));
+                 assertThat(table1.getTimestamp().getSQLTime().toString(), is("2012-01-12 00:00:00.0"));
+                 assertThat(table1.getOrganizationId(), is(dummyKey));
+                 assertThat(table1.getOrganization().exists(), is(false));
+                 assertThat(table1.getModuleId(), is(dummyKey));
+                 assertThat(table1.getModule().exists(), is(false));
+                 assertThat(table1.getOwnerId(), is(dummyKey));
+                 assertThat(table1.getOwner().exists(), is(false));
+
+             }catch(BackOfficeException e){
+     
+                 e.logError("Error creating table ModuleOrganization");
+                 assertTrue(false);
+                 
+             }catch(Exception e){
+
+                 e.printStackTrace();
+                 assertTrue(false);
+             }
+          }
+
+         @Test
+         public void testModuleProject(){
+     
+             try{
+     
+                 module.ModuleProject table1 = new module.ModuleProject("text 1", dummyKey, dummyKey);
+
+                 assertThat(table1.getName(), is("text 1"));
+                 assertThat(table1.getModuleId(), is(dummyKey));
+                 assertThat(table1.getModule().exists(), is(false));
+                 assertThat(table1.getProjectId(), is(dummyKey));
+                 assertThat(table1.getProject().exists(), is(false));
+
+                 table1.store();
+                 module.ModuleProject table2 = new module.ModuleProject();
+                 table2.load(new LookupByKey(table1.getKey()));
+
+                 assertThat(table2.getName(), is("text 1"));
+                 assertThat(table2.getModuleId(), is(dummyKey));
+                 assertThat(table2.getModule().exists(), is(false));
+                 assertThat(table2.getProjectId(), is(dummyKey));
+                 assertThat(table2.getProject().exists(), is(false));
+
+                 table1.setName("text 11");
+                 table1.setModule( dummyKey);
+                 table1.setProject( dummyKey);
+                 assertThat(table1.getName(), is("text 11"));
+                 assertThat(table1.getModuleId(), is(dummyKey));
+                 assertThat(table1.getModule().exists(), is(false));
+                 assertThat(table1.getProjectId(), is(dummyKey));
+                 assertThat(table1.getProject().exists(), is(false));
+
+             }catch(BackOfficeException e){
+     
+                 e.logError("Error creating table ModuleProject");
+                 assertTrue(false);
+                 
+             }catch(Exception e){
+
+                 e.printStackTrace();
+                 assertTrue(false);
+             }
+          }
+
+         @Test
+         public void testModuleTag(){
+     
+             try{
+     
+                 module.ModuleTag table1 = new module.ModuleTag("text 1", dummyKey, "text 3");
+
+                 assertThat(table1.getName(), is("text 1"));
+                 assertThat(table1.getModuleId(), is(dummyKey));
+                 assertThat(table1.getModule().exists(), is(false));
+                 assertThat(table1.getTag(), is("text 3"));
+
+                 table1.store();
+                 module.ModuleTag table2 = new module.ModuleTag();
+                 table2.load(new LookupByKey(table1.getKey()));
+
+                 assertThat(table2.getName(), is("text 1"));
+                 assertThat(table2.getModuleId(), is(dummyKey));
+                 assertThat(table2.getModule().exists(), is(false));
+                 assertThat(table2.getTag(), is("text 3"));
+
+                 table1.setName("text 11");
+                 table1.setModule( dummyKey);
+                 table1.setTag("text 13");
+                 assertThat(table1.getName(), is("text 11"));
+                 assertThat(table1.getModuleId(), is(dummyKey));
+                 assertThat(table1.getModule().exists(), is(false));
+                 assertThat(table1.getTag(), is("text 13"));
+
+             }catch(BackOfficeException e){
+     
+                 e.logError("Error creating table ModuleTag");
+                 assertTrue(false);
+                 
+             }catch(Exception e){
+
+                 e.printStackTrace();
+                 assertTrue(false);
+             }
+          }
+
+         @Test
          public void testContractClause(){
      
              try{

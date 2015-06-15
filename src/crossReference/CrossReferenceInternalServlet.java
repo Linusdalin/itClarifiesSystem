@@ -224,6 +224,8 @@ public class CrossReferenceInternalServlet extends DocumentService {
         for(Contract document : contractsForProject){
 
             ContractVersionInstance latestVersion = document.getHeadVersion();
+            document.setMessage("Cross Referencing Document");
+            document.update();
 
             // We need a separate analyser per document as they can have different languages
 

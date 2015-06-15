@@ -10,6 +10,8 @@ import language.English;
 import language.LanguageInterface;
 import language.Swedish;
 import log.PukkaLogger;
+import module.Module;
+import module.ModuleTable;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.hamcrest.CoreMatchers;
@@ -45,6 +47,7 @@ public class ServletTests extends PukkaTest{
     protected static final LanguageInterface Swedish = new Swedish();
 
     protected static Project demoProject;
+    protected static Module demoModule;
     protected static PortalUser adminUser, demoUser;
 
     protected static LocalServiceTestHelper helper;
@@ -84,6 +87,7 @@ public class ServletTests extends PukkaTest{
             // Demo values from the database
 
             demoProject = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), "Demo")));
+            demoModule = new Module(new LookupItem().addFilter(new ColumnFilter(ModuleTable.Columns.Name.name(), "Test")));
             adminUser = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "admin")));
             demoUser = new PortalUser(new LookupItem().addFilter(new ColumnFilter(PortalUserTable.Columns.Name.name(), "demo")));
 

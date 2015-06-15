@@ -514,6 +514,16 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>OverviewInternal</servlet-name>
+        <servlet-class>overviewExport.OverviewExportInternalServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>OverviewInternal</servlet-name>
+        <url-pattern>/OverviewExportInternal</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
          <servlet-name>OverviewStatus</servlet-name>
          <servlet-class>overviewExport.OverviewExportStatusServlet</servlet-class>
      </servlet>

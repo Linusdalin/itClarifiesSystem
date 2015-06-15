@@ -7,6 +7,7 @@ import userManagement.*;
 import versioning.*;
 import actions.*;
 import overviewExport.*;
+import module.*;
 import search.*;
 import crossReference.*;
 import reclassification.*;
@@ -650,4 +651,51 @@ public class Project extends DataObject implements DataObjectInterface{
         }
 
     }
+
+    /*************************************************************************
+     *
+     *          Get modules fora project will use the ModuleProject table to
+     *          find access
+     *
+     *          It is implemented by getting all objects at once to avoid multiple db accesses.
+     *
+     *
+     * @return   - list of modules
+     */
+
+
+    public List<Module> getModulesForProject(){
+
+        List<Module> modulesForProject = new ArrayList<Module>();
+
+        List<DataObjectInterface> modules = new ModuleTable(new LookupList()).getValues();
+        List<DataObjectInterface> accessObjects = new ModuleProjectTable(new LookupList()).getValues();
+
+
+        for (DataObjectInterface _accessObject : accessObjects) {
+
+            ModuleProject accessObject = (ModuleProject)_accessObject;
+
+            if(accessObject.getProjectId().equals(getKey())){
+
+                // The access object is applicable to this organization
+
+                for (DataObjectInterface _module : modules) {
+
+                    Module module = (Module)_module;
+
+                    if(accessObject.getModuleId().equals(module.getKey())){
+
+                        modulesForProject.add(module);
+                    }
+
+                }
+
+            }
+
+
+        }
+        return modulesForProject;
+    }
+
 }

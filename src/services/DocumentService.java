@@ -1111,8 +1111,8 @@ public class DocumentService extends ItClarifiesService{
                     PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Classifying fragment " + fragment.getName() + " with tag "+ classification.getType()+". Pattern(" + classification.getPattern().getText() + ")" + "Relevance: " + classification.getRelevance());
 
                     // If the classification is a legal reference, we add a link
-                    extractLinkForLegalReference(fragment, classification);
-                    extractLinkForURL(fragment, classification);
+                    //extractLinkForLegalReference(fragment, classification);
+                    //extractLinkForURL(fragment, classification);
 
 
                     //System.out.println(classification.getType().getName() + " " + classification.getTag());

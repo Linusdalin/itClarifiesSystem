@@ -10,6 +10,7 @@ import contractManagement.ContractVersionInstance;
 import contractManagement.Project;
 import crossReference.CrossReferenceInternalServlet;
 import log.PukkaLogger;
+import overviewExport.OverviewExportInternalServlet;
 import pukkaBO.exceptions.BackOfficeException;
 
 import static com.google.appengine.api.taskqueue.TaskOptions.Builder.*;
@@ -172,4 +173,29 @@ public class AsynchAnalysis {
     }
 
 
+    public void generateOverview(Project project) throws BackOfficeException{
+
+        if(USE_SCHEDULING){
+
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Generating project overview" + " with magicKey: "+ magicKey );
+
+            TaskOptions call = withUrl("/OverviewExportInternal")
+                    .param("project", project.getKey().toString());
+
+            if(sessionToken != null)
+                call.param("session", sessionToken);
+
+            if(magicKey != null)
+                call.param("magicKey", magicKey);
+
+            queue.add(call);
+
+        }
+        else{
+
+                OverviewExportInternalServlet servlet = new OverviewExportInternalServlet();
+                throw new BackOfficeException(BackOfficeException.General, " Not implemented generateOverview without queueing");
+
+        }
+    }
 }

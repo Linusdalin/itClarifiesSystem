@@ -7,6 +7,10 @@ import actions.ChecklistTable;
 import cache.ServiceCache;
 import classification.FragmentClassTable;
 import classification.FragmentClassificationTable;
+import module.ModuleOrganizationTable;
+import module.ModuleProjectTable;
+import module.ModuleTable;
+import module.ModuleTagTable;
 import overviewExport.ExtractionStateTable;
 import overviewExport.ExtractionStatusTable;
 import overviewExport.ExtractionTable;
@@ -367,6 +371,18 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
                                                      new ReferenceTable( ),
                                                      new ReferenceTypeTable( ),
                                                      new DefinitionTable( ),
+
+                                             }
+                                         ),
+
+                                        new SectionGroup("Modules",
+
+                                             new DataTableInterface[] {
+
+                                                     new ModuleTable( ),
+                                                     new ModuleOrganizationTable( ),
+                                                     new ModuleProjectTable( ),
+                                                     new ModuleTagTable()
 
                                              }
                                          ),

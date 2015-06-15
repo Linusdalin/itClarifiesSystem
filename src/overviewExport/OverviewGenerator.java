@@ -374,21 +374,26 @@ public class OverviewGenerator {
                 System.out.println("Found " + fragmentsForDocument.size() + " fragments in document " + document.getName());
 
                 List<DataObjectInterface> extractionsForDocument = new ArrayList<DataObjectInterface>();
+                int i = 0;
 
                 for (ContractFragment fragment : fragmentsForDocument) {
 
 
                     // Skip going through fragments that do not have a classification count
 
+                    System.out.println("  -- "+ (i++) +" Matching classifications");
 
                     if(fragment.getClassificatonCount() != 0){
 
-                        extractionsForDocument.addAll(matchClassification(fragment, document, allClassifications, fragmentsForDocument, allRisks, allAnnotations, tagExtractions));
+                        matchClassification(fragment, document, allClassifications, fragmentsForDocument, allRisks, allAnnotations, tagExtractions, extractionsForDocument);
 
                     }
 
-                    extractionsForDocument.addAll(matchRisk(fragment, document, allRisks, allAnnotations));
-                    extractionsForDocument.addAll(addDefinitions(fragment, document, allDefinitions));
+                    System.out.println("  -- Matching risk");
+                    matchRisk(fragment, document, allRisks, allAnnotations, extractionsForDocument);
+                    System.out.println("  -- Matching definition");
+                    addDefinitions(fragment, document, allDefinitions, extractionsForDocument);
+                    System.out.println("  -- DOne");
 
                 }
                 feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, " Creating overview from document "+document.getName() + " with " + extractionsForDocument.size() + " extractions", -1));
@@ -434,17 +439,18 @@ public class OverviewGenerator {
      * @param allRisks
      * @param allAnnotations
      * @param tagExtractions
+     * @param extractionsForDocument
      */
 
-    private List<DataObjectInterface> matchClassification(ContractFragment fragment, Contract document, List<FragmentClassification> allClassifications, List<ContractFragment> fragmentsForDocument, List<RiskClassification> allRisks, List<ContractAnnotation> allAnnotations, String[] tagExtractions) {
+    private void matchClassification(ContractFragment fragment, Contract document, List<FragmentClassification> allClassifications, List<ContractFragment> fragmentsForDocument, List<RiskClassification> allRisks, List<ContractAnnotation> allAnnotations, String[] tagExtractions, List<DataObjectInterface> extractionsForDocument) {
 
-        List<DataObjectInterface> extractionsForDocument = new ArrayList<DataObjectInterface>();
+        String fragmentKey = fragment.getKey().toString();
 
         for (FragmentClassification classification : allClassifications) {
 
             try{
 
-                if(classification.getFragmentId().equals(fragment.getKey())){
+                if(classification.getFragmentId().toString().equals(fragmentKey)){
 
                     // We found a classification that match the fragment we look at.
 
@@ -507,8 +513,6 @@ public class OverviewGenerator {
 
         }
 
-        return extractionsForDocument;
-
     }
 
 
@@ -516,28 +520,31 @@ public class OverviewGenerator {
     /*********************************************************************************************************
      *
      *
-     * @param fragment            - the current fragment in the project
-     * @param document
-     *@param allRisks            - All risks in the project (prefetched from database)
-     * @param allAnnotations      - All annotations in the project (prefetched from database)   @return
-     */
+     * @param fragment                  - the current fragment in the project
+     * @param document                  - current document
+     * @param allRisks                  - All risks in the project (prefetched from database)
+     * @param allAnnotations            - All annotations in the project (prefetched from database)   @return
+     * @param extractionsForDocument    - the final list
+     * */
 
-    private List<Extraction> matchRisk(ContractFragment fragment, Contract document, List<RiskClassification> allRisks, List<ContractAnnotation> allAnnotations) {
+    private void matchRisk(ContractFragment fragment, Contract document, List<RiskClassification> allRisks, List<ContractAnnotation> allAnnotations, List<DataObjectInterface> extractionsForDocument) {
 
-        List<Extraction> extractionsForFragment = new ArrayList<Extraction>();
+        String fragmentKey = fragment.getKey().toString();
 
         for (RiskClassification risk : allRisks) {
 
             try{
 
-                if(risk.getFragmentId().equals(fragment.getKey())){
+                if(risk.getFragmentId().toString().equals(fragmentKey)){
 
+                    System.out.println("risk1");
                     String riskClass = risk.getRisk().getName();
+                    String decodedText = fragment.htmlDecode();
 
                     Extraction entry = new Extraction(
                             "",
                             "",
-                            fragment.htmlDecode(),
+                            decodedText,
                             fragment.getKey().toString(),
                             (int)fragment.getOrdinal(),
                             "",
@@ -545,12 +552,13 @@ public class OverviewGenerator {
                             document.getKey(),
                             riskClass,
                             risk.getComment(),
-                            fragment.getVersion().getDocument().getName(),
+                            document.getName(),
                             "#Risk",
                             statusEntry.getKey());
 
-                        System.out.println("Adding risk '" + entry.getText() + "'");
-                        extractionsForFragment.add(entry);
+                    extractionsForDocument.add(entry);
+                    System.out.println("Adding risk '" + entry.getText() + "'");
+
 
                     }
 
@@ -560,9 +568,7 @@ public class OverviewGenerator {
 
             }
 
-
         }
-        return extractionsForFragment;
 
     }
 
@@ -572,18 +578,19 @@ public class OverviewGenerator {
      *
      * @param fragment
      * @param document
-     *@param allDefinitions  @return
+     * @param allDefinitions  @return
+     * @param extractionsForDocument       - the final list
      */
 
-    private List<Extraction> addDefinitions(ContractFragment fragment, Contract document, List<Definition> allDefinitions) {
+    private void addDefinitions(ContractFragment fragment, Contract document, List<Definition> allDefinitions, List<DataObjectInterface> extractionsForDocument) {
 
-        List<Extraction> extractionsForFragment = new ArrayList<Extraction>();
+        String fragmentKey = fragment.getKey().toString();
 
         for (Definition definition : allDefinitions) {
 
             try{
 
-                if(definition.getDefinedInId().equals(fragment.getKey())){
+                if(definition.getDefinedInId().toString().equals(fragmentKey)){
 
                     Extraction entry = new Extraction(
                             definition.getName(),
@@ -596,12 +603,12 @@ public class OverviewGenerator {
                             document.getKey(),
                             "",
                             "",
-                            definition.getVersion().getDocument().getName(),
+                            document.getName(),
                             "#Definition",
                             statusEntry.getKey());
 
                         System.out.println("Adding definition " + entry.getName() + " '" + entry.getText() + "'");
-                        extractionsForFragment.add(entry);
+                        extractionsForDocument.add(entry);
 
                     }
 
@@ -611,10 +618,7 @@ public class OverviewGenerator {
 
             }
 
-
         }
-        return extractionsForFragment;
-
     }
 
 
