@@ -16,6 +16,7 @@ import queue.AsynchAnalysis;
 import services.DocumentService;
 import services.Formatter;
 import userManagement.PortalUser;
+import userManagement.SessionManagement;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -66,7 +67,7 @@ public class CrossReferenceServlet extends DocumentService {
             Formatter formatter = getFormatFromParameters(req);
 
             DBKeyInterface _project             = getMandatoryKey("project", req);
-
+            boolean  forceAnalysis              = getOptionalBoolean("forceAnalysis", req, false);
 
             Project project = new Project(new LookupByKey(_project));
 
@@ -76,7 +77,8 @@ public class CrossReferenceServlet extends DocumentService {
             // Queue the event
 
             AsynchAnalysis queue = new AsynchAnalysis(sessionManagement.getToken());
-            queue.crossReference(project);
+            queue.setMagicKey(SessionManagement.MagicKey);
+            queue.crossReference(project, forceAnalysis);
 
             // Update the status for all the documents
 

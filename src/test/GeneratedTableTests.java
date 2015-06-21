@@ -1357,13 +1357,14 @@ public class GeneratedTableTests{
      
              try{
      
-                 module.ModuleProject table1 = new module.ModuleProject("text 1", dummyKey, dummyKey);
+                 module.ModuleProject table1 = new module.ModuleProject("text 1", dummyKey, dummyKey, "2012-01-04 00:00:00.0");
 
                  assertThat(table1.getName(), is("text 1"));
                  assertThat(table1.getModuleId(), is(dummyKey));
                  assertThat(table1.getModule().exists(), is(false));
                  assertThat(table1.getProjectId(), is(dummyKey));
                  assertThat(table1.getProject().exists(), is(false));
+                 assertThat(table1.getTimestamp().getSQLTime().toString(), is("2012-01-04 00:00:00.0"));
 
                  table1.store();
                  module.ModuleProject table2 = new module.ModuleProject();
@@ -1374,15 +1375,18 @@ public class GeneratedTableTests{
                  assertThat(table2.getModule().exists(), is(false));
                  assertThat(table2.getProjectId(), is(dummyKey));
                  assertThat(table2.getProject().exists(), is(false));
+                 assertThat(table2.getTimestamp().getSQLTime().toString(), is("2012-01-04 00:00:00.0"));
 
                  table1.setName("text 11");
                  table1.setModule( dummyKey);
                  table1.setProject( dummyKey);
+                 table1.setTimestamp(new DBTimeStamp(DBTimeStamp.SQL_TIMESTAMP, "2012-01-14 00:00:00.0"));
                  assertThat(table1.getName(), is("text 11"));
                  assertThat(table1.getModuleId(), is(dummyKey));
                  assertThat(table1.getModule().exists(), is(false));
                  assertThat(table1.getProjectId(), is(dummyKey));
                  assertThat(table1.getProject().exists(), is(false));
+                 assertThat(table1.getTimestamp().getSQLTime().toString(), is("2012-01-14 00:00:00.0"));
 
              }catch(BackOfficeException e){
      

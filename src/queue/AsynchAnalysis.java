@@ -112,7 +112,7 @@ public class AsynchAnalysis {
      */
 
 
-    public void crossReference(Project project) throws BackOfficeException{
+    public void crossReference(Project project, boolean forceAnalysis) throws BackOfficeException{
 
         if(USE_SCHEDULING){
 
@@ -120,7 +120,8 @@ public class AsynchAnalysis {
             PukkaLogger.log(PukkaLogger.Level.INFO, "Cross Referencing project");
 
             TaskOptions call = withUrl("/CrossReferenceInternal")
-                    .param("project", project.getKey().toString());
+                    .param("project", project.getKey().toString())
+                    .param("forceAnalysis", String.valueOf(forceAnalysis));
 
 
             if(sessionToken != null)
@@ -134,6 +135,8 @@ public class AsynchAnalysis {
 
         }
         else{
+
+                // Force-analysis not implemented for non scheduling
 
                 CrossReferenceInternalServlet servlet = new CrossReferenceInternalServlet();
                 servlet.deleteAll(project);

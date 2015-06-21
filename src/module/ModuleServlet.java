@@ -75,9 +75,12 @@ public class ModuleServlet extends ItClarifiesService {
             String description     = getMandatoryString("description", req);
             boolean isPublic       = getOptionalBoolean("public", req, true);
 
+            System.out.println("Public = " + isPublic);
+
             Module module;
 
             DBKeyInterface _module = getOptionalKey("key", req);
+            DBTimeStamp creationTime = new DBTimeStamp();
 
             PortalUser portalUser = sessionManagement.getUser();
 
@@ -118,6 +121,21 @@ public class ModuleServlet extends ItClarifiesService {
 
                 module = new Module(name, description, isPublic);
                 module.store();
+
+                if(!isPublic){
+
+                    // Not public, we need to add access rights specifically for the organization for which it is created
+
+                    String accessName = name + "@" + creationTime.getISODate();
+
+
+                    ModuleOrganization access = new ModuleOrganization(accessName, creationTime.toString(), portalUser.getOrganizationId(), module.getKey(), portalUser.getKey());
+                    access.store();
+
+
+                }
+
+
                 PukkaLogger.log(PukkaLogger.Level.MAJOR_EVENT, "Created a new "+(isPublic ? "public" : "")+" nodule \"" + module.getName() + "\"");
 
             }
@@ -178,8 +196,6 @@ public class ModuleServlet extends ItClarifiesService {
 
     public void doGet(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
-       DBKeyInterface key;
-
        try{
 
            if(req.getParameter("_method") != null && req.getParameter("_method").equals("DELETE")){
@@ -202,16 +218,32 @@ public class ModuleServlet extends ItClarifiesService {
            PortalUser user = sessionManagement.getUser();
            Organization organization = user.getOrganization();
 
-           List<Module> allModules = organization.getModulesForOrganization();
+           List<Module> modulesFrOrganization = organization.getModulesForOrganization();
+           PukkaLogger.log(PukkaLogger.Level.DEBUG, "There are " + modulesFrOrganization.size() + " modules for the organization");
+
+           ModuleTable allModules = new ModuleTable(new LookupList());  // Get all
+
+           for (DataObjectInterface item : allModules.getValues()) {
+
+               Module module = (Module)item;
+
+               if(module.getisPublic() && !exists(module, modulesFrOrganization)){
+
+                   PukkaLogger.log(PukkaLogger.Level.DEBUG, "Added common module " + module.toString());
+                   modulesFrOrganization.add(module);
+               }
+
+           }
 
            JSONArray moduleList = new JSONArray();
 
-           for (Module module : allModules) {
+           for (Module module : modulesFrOrganization) {
 
                JSONObject moduleJSON = new JSONObject()
                        .put("name",         module.getName())
-                       .put("description",  module.getDescription())
-                       .put("key",          module.getKey().toString());
+                       .put("description", module.getDescription())
+                       .put("key",          module.getKey().toString())
+                       .put("public",       module.getisPublic());
 
                moduleList.put(moduleJSON);
 
@@ -237,6 +269,16 @@ public class ModuleServlet extends ItClarifiesService {
         }
     }
 
+    private boolean exists(Module module, List<Module> modulesFrOrganization) {
+
+        for (Module existingModule : modulesFrOrganization) {
+
+            if(module.equals(existingModule))
+                return true;
+        }
+
+        return false;
+    }
 
 
     /***********************************************************************

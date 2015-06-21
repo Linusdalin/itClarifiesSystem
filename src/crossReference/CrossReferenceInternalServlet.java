@@ -1,6 +1,7 @@
 package crossReference;
 
 import analysis.NewAnalysisFeedback;
+import analysis.ReAnalysisServlet;
 import analysis.deferrance.DeferenceHandler;
 import analysis2.NewAnalysisOutcome;
 import classification.FragmentClassification;
@@ -23,6 +24,7 @@ import services.DocumentService;
 import services.Formatter;
 import system.Analyser;
 import userManagement.PortalUser;
+import userManagement.SessionManagement;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -54,6 +56,8 @@ public class CrossReferenceInternalServlet extends DocumentService {
 
             logRequest(req);
 
+            sessionManagement.allowBOAccess();
+
             if(!validateSession(req, resp, HttpServletResponse.SC_OK))    // Send OK here. A 403 would trigger a retry in the event queue
                 return;
 
@@ -66,11 +70,17 @@ public class CrossReferenceInternalServlet extends DocumentService {
             Formatter formatter = getFormatFromParameters(req);
 
             DBKeyInterface _project             = getMandatoryKey("project", req);
+            boolean  forceAnalysis              = getOptionalBoolean("forceAnalysis", req, false);
+
 
             Project project = new Project(new LookupByKey(_project));
 
             if(!mandatoryObjectExists(project, resp))
                 return;
+
+            // First ensure the analysis is done
+
+            awaitAnalysis( project, forceAnalysis, SessionManagement.MagicKey);
 
             // Delete all old cross references in the project
 
@@ -104,6 +114,91 @@ public class CrossReferenceInternalServlet extends DocumentService {
         }
 
      }
+
+    /***************************************************************
+     *
+     *          Before the cross referencing, we must
+     *          ensure that all the documents are analysed.
+     *
+     *
+     * @param project           - current project
+     * @param forceAnalysis     - shall we force the analysis, even if it is analysed. (Used for system updates)
+     * @param magicKey          - magic key for internal access
+     */
+
+
+    private void awaitAnalysis(Project project, boolean forceAnalysis, String magicKey) throws BackOfficeException {
+
+        ReAnalysisServlet servlet = new ReAnalysisServlet();
+
+        if(forceAnalysis){
+
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Force analyzing project " + project.getName());
+            servlet.analyzeProject(project, magicKey);
+
+        }else if(!isAnalysed(project)){
+
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Project " + project.getName() + " is not fully analyzed");
+            servlet.analyzeProject(project, magicKey);
+
+        }
+
+        // Pause for 5 seconds and then check again
+
+        while(!isAnalysed(project)){
+
+
+            try {
+                Thread.sleep(5000);
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Checking analysis status for project " + project.getName());
+
+            } catch (InterruptedException e) {
+                PukkaLogger.log( e );
+                throw new BackOfficeException(BackOfficeException.General, "Analysis interrupted");
+            }
+        }
+
+        PukkaLogger.log(PukkaLogger.Level.INFO, "Project " + project.getName() + " is analyzed. Proceeding... ");
+
+    }
+
+
+    /*************************************************************''
+     *
+     *          isAnalysed chacks a project to see if all the documents involved is analyzed
+     *
+     *
+     * @param project    - the project to analyze
+     * @return
+     * @throws BackOfficeException
+     */
+
+    private boolean isAnalysed(Project project) throws BackOfficeException{
+
+
+        List<Contract> documentsInProject = project.getContractsForProject();
+
+        for (Contract contract : documentsInProject) {
+
+            if(contract.getStatus().get__Id() == ContractStatus.getAnalysed().get__Id()) {
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Document " + contract.getName() + " is not analyzed properly. (" + contract.getStatus().getName() + "). Reanalyzing the project.");
+                continue;
+            }
+
+            if(contract.getStatus().get__Id() == ContractStatus.getFailed().get__Id())
+                throw new BackOfficeException(BackOfficeException.General, "Analysis Failed");
+
+            return false;
+        }
+
+        // All is analysed
+        return true;
+
+
+    }
+
 
 
     //TODO: Remove this. Should be handled document by document

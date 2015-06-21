@@ -61,6 +61,7 @@ public class ReAnalysisServlet extends DocumentService {
 
             sessionManagement.allowBOAccess();
 
+
             if(!validateSession(req, resp))
                 return;
 
@@ -75,31 +76,9 @@ public class ReAnalysisServlet extends DocumentService {
 
             }
 
-            List<Contract> documentsForProject = project.getContractsForProject();
-            AsynchAnalysis analysisQueue = new AsynchAnalysis(sessionManagement.getToken());
-            analysisQueue.setMagicKey(magicKey);
 
-            project.invalidateExport();
+            analyzeProject(project, magicKey);
 
-            for (Contract document : documentsForProject) {
-
-                            // Update the status of the document
-
-                document.setMessage("Re-analysing");
-                document.setStatus(ContractStatus.getAnalysing());
-                document.update();
-
-                invalidateDocumentCache(document, project);
-
-                ContractVersionInstance latestVersion = document.getHeadVersion();
-
-                PukkaLogger.log(PukkaLogger.Level.INFO, "re-Analysing document " + document.getName());
-                analysisQueue.reAnalyse(latestVersion);
-
-                invalidateFragmentCache(latestVersion);
-
-
-            }
 
             JSONObject json = new JSONObject().put("ReAnalysis", "QUEUED");
             sendJSONResponse(json, formatter, resp);
@@ -120,6 +99,52 @@ public class ReAnalysisServlet extends DocumentService {
 
      }
 
+    /***********************************************************************'
+     *
+     *          TODO: Add feedback here
+     *
+     *
+     * @param project             - the project
+     * @param magicKey            - magic key for internal access
+     */
+
+    public void analyzeProject(Project project, String magicKey) {
+
+        List<Contract> documentsForProject = project.getContractsForProject();
+        AsynchAnalysis analysisQueue = new AsynchAnalysis(sessionManagement.getToken());
+        analysisQueue.setMagicKey(magicKey);
+
+        project.invalidateExport();
+
+        for (Contract document : documentsForProject) {
+
+            try {
+
+                        // Update the status of the document
+
+                document.setMessage("Re-analysing");
+                document.setStatus(ContractStatus.getAnalysing());
+                document.update();
+
+                invalidateDocumentCache(document, project);
+
+                ContractVersionInstance latestVersion = document.getHeadVersion();
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "re-Analysing document " + document.getName());
+                analysisQueue.reAnalyse(latestVersion);
+
+                invalidateFragmentCache(latestVersion);
+
+            } catch (BackOfficeException e) {
+
+                PukkaLogger.log( e );
+
+            }
+
+
+        }
+
+    }
 
 
     /*************************************************************************

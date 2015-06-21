@@ -34,7 +34,7 @@ public class ModuleProjectServlet extends ItClarifiesService {
 
     /*************************************************************************************'
      *
-     *          Create a new module or update an existing
+     *          Assign a module to a project
      *
      *
      * @param req            - request
@@ -63,70 +63,52 @@ public class ModuleProjectServlet extends ItClarifiesService {
 
             setLoggerByParameters(req);
 
-
             Formatter formatter = getFormatFromParameters(req);
 
-            String name            = getMandatoryString("name", req);
-            String description     = getMandatoryString("description", req);
+            DBKeyInterface _project = getOptionalKey("project", req);
+            DBKeyInterface _module = getOptionalKey("module", req);
 
-            Project project;
-
-            DBKeyInterface _project = getOptionalKey("key", req);
 
             PortalUser portalUser = sessionManagement.getUser();
 
             if(!portalUser.getWSAdmin()){
 
-                returnError("Not sufficient access right to create project", ErrorType.PERMISSION, HttpServletResponse.SC_FORBIDDEN, resp);
+                returnError("Not sufficient access right to add modules to project", ErrorType.PERMISSION, HttpServletResponse.SC_FORBIDDEN, resp);
                 return;
 
             }
 
+            Project project = new Project(new LookupByKey(_project));
+            Module module = new Module(new LookupByKey(_module));
+            DBTimeStamp creationTime = new DBTimeStamp();
 
-            // Now check if the project exists.
+            if(!mandatoryObjectExists(project, resp))
+                return;
 
-            if(_project != null){
+            if(!mandatoryObjectExists(module, resp))
+                return;
 
-                project = new Project(new LookupByKey(_project));
+            // Create the access object
 
-                if(!mandatoryObjectExists(project, resp))
-                    return;
+            ModuleProject existingAccess = new ModuleProject(new LookupItem()
+                    .addFilter(new ReferenceFilter(ModuleProjectTable.Columns.Module.name(), _module))
+                    .addFilter(new ReferenceFilter(ModuleProjectTable.Columns.Project.name(), _project)));
 
-                System.out.print("Name=" + name);
+            if(!existingAccess.exists()){
 
-                project.setName(name);
-                project.setDescription(description);
-                project.setKey(_project);
-                project.update();
+                String name = portalUser.getName() + "@" + creationTime;
+                ModuleProject access = new ModuleProject(name, _module, _project, creationTime.toString());
+                access.store();
 
             }
-            else{
 
-                Project existingProject = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), name)));
 
-                if(existingProject.exists()){
 
-                    returnError("Project with name " + name + "already exists.", ErrorType.DATA, HttpServletResponse.SC_BAD_REQUEST, resp);
-                    return;
 
-                }
 
-                ProjectType projectType = ProjectType.getGeneric();    //TODO: Not implemented different project types. Using default
-                AccessRight projectAccess = AccessRight.getrwd();      //TODO: Not implemented access rights to project
 
-                DBTimeStamp creationTime = new DBTimeStamp();
-
-                // No project parameter given. We create a new project entry
-
-                project = new Project(name, description, portalUser.getKey(), portalUser.getOrganizationId(), creationTime.getISODate(), projectType,  projectAccess);
-                project.store();
-
-                // Create appropriate sections for the type of project
-                createSectionsForProject(project, projectType, portalUser, projectAccess, creationTime);
-            }
 
             JSONObject json = createPostResponse(DataServletName, project);
-
             sendJSONResponse(json, formatter, resp);
 
 
@@ -144,36 +126,13 @@ public class ModuleProjectServlet extends ItClarifiesService {
 
      }
 
-    /**********************************************************************************************************''
-     *
-     *              Create appropriate sections for a type of project
-     *
-     *
-     * @param project
-     * @param projectType
-     * @param owner
-     * @param projectAccess
-     * @param creationTime
-     * @throws pukkaBO.exceptions.BackOfficeException
-     *
-     *              //TODO: Different sections for different types of projects is not implemented. Always use exactly one section
-     *
-     */
-
-    private void createSectionsForProject(Project project, ProjectType projectType, PortalUser owner, AccessRight projectAccess, DBTimeStamp creationTime) throws BackOfficeException {
-
-        DocumentSection section = new DocumentSection("Unsorted", (long)0, "Unsorted Documents", project.getKey(), owner.getKey(), projectAccess, null, creationTime.getISODate());
-        section.store();
-
-    }
 
     /*************************************************************************
      *
-     *          Get projects matching the request criteria
+     *          Get modules for a given project
      *
      *          Parameters:
      *
-     *          &key=<key> (if left empty, it will return the entire list)
      *
      *
      * @throws java.io.IOException
@@ -226,7 +185,7 @@ public class ModuleProjectServlet extends ItClarifiesService {
            for (Module module : allModules) {
 
                JSONObject moduleJSON = new JSONObject()
-                       .put("name",         module.getName())
+                       .put("name", module.getName())
                        .put("description",  module.getDescription())
                        .put("key",          module.getKey().toString());
 
@@ -242,23 +201,23 @@ public class ModuleProjectServlet extends ItClarifiesService {
            sendJSONResponse(json, formatter, resp);
 
 
-        }catch(BackOfficeException e){
+       }catch(BackOfficeException e){
 
            PukkaLogger.log( e );
            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
 
-        } catch ( Exception e) {
+       } catch ( Exception e) {
 
            PukkaLogger.log( e );
            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-        }
+       }
     }
 
 
 
     /***********************************************************************
      *
-     *          Delete a project with recursively deleting all documents, fragments etc.
+     *          Delete access to a module for a project
      *
      *
      * @param req -
@@ -270,8 +229,8 @@ public class ModuleProjectServlet extends ItClarifiesService {
 
     public void doDelete(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
-        DBKeyInterface key;
         try{
+
             logRequest(req);
 
             if(!validateSession(req, resp))
@@ -284,32 +243,54 @@ public class ModuleProjectServlet extends ItClarifiesService {
 
             Formatter formatter = getFormatFromParameters(req);
 
-            key = getMandatoryKey("Key", req);
-            Project project = new Project(new LookupByKey(key));
+            DBKeyInterface _project = getOptionalKey("project", req);
+            DBKeyInterface _module = getOptionalKey("module", req);
 
-            // Deletable here means that the user owns the project
 
-            if(!deletable(project, resp))
+            PortalUser portalUser = sessionManagement.getUser();
+
+            if(!portalUser.getWSAdmin()){
+
+                returnError("Not sufficient access right to delete modules to project", ErrorType.PERMISSION, HttpServletResponse.SC_FORBIDDEN, resp);
                 return;
 
-            project.recursivelyDelete();
-            project.delete();
+            }
 
-            JSONObject json = createDeletedResponse(DataServletName, project);
+            Project project = new Project(new LookupByKey(_project));
+            Module module = new Module(new LookupByKey(_module));
+            DBTimeStamp creationTime = new DBTimeStamp();
+
+            if(!mandatoryObjectExists(project, resp))
+                return;
+
+            if(!mandatoryObjectExists(module, resp))
+                return;
+
+            // Get the access object and delete it
+
+            ModuleProject access = new ModuleProject(new LookupItem()
+                    .addFilter(new ReferenceFilter(ModuleProjectTable.Columns.Module.name(), _module))
+                    .addFilter(new ReferenceFilter(ModuleProjectTable.Columns.Project.name(), _project)));
+
+            if(access.exists())
+                access.delete();
+
+
+            JSONObject json = createPostResponse(DataServletName, project);
             sendJSONResponse(json, formatter, resp);
 
 
-        }catch(BackOfficeException e){
-        
-            PukkaLogger.log( e );
-            returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
-
-        }catch ( Exception e) {
+        } catch (BackOfficeException e) {
 
             PukkaLogger.log( e );
-            returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
 
+        } catch (Exception e) {
+
+            PukkaLogger.log( e );
+            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
         }
+
 
     }
 
