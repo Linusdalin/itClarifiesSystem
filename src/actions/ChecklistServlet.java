@@ -1,7 +1,7 @@
 package actions;
 
 import contractManagement.ContractFragment;
-import contractManagement.Project;
+import project.Project;
 import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
@@ -180,7 +180,7 @@ public class ChecklistServlet extends DocumentService {
                 ContractFragment complianceFragment = null;
 
                 if(tag != null && !tag.equals(""))
-                    item.setTagReference(tag);
+                    item.setConformanceTag(tag);
 
                 if(name != null && !name.equals(""))
                     item.setName(name);

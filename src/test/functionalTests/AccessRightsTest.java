@@ -1,6 +1,5 @@
 package test.functionalTests;
 
-import backend.ItClarifies;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import contractManagement.*;
@@ -10,7 +9,9 @@ import net.sf.json.JSONObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import pukkaBO.backOffice.BackOfficeInterface;
+import project.Project;
+import project.ProjectServlet;
+import project.ProjectTable;
 import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupItem;
 import pukkaBO.condition.ReferenceFilter;

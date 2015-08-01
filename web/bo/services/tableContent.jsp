@@ -17,7 +17,7 @@
 
 
 <%
-    boolean showId = true; // TODO: Implement this as parameter to the page
+    boolean showId = true; //Implement this as parameter to the page
 
     String tableName = request.getParameter("table");
     System.out.println("Retrieving table content for table = " + tableName);

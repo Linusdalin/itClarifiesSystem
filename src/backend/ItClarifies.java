@@ -14,6 +14,8 @@ import module.ModuleTagTable;
 import overviewExport.ExtractionStateTable;
 import overviewExport.ExtractionStatusTable;
 import overviewExport.ExtractionTable;
+import project.ProjectTable;
+import project.ProjectTypeTable;
 import reclassification.ReannotationTable;
 import reclassification.ReclassificationTable;
 import contractManagement.*;
@@ -53,7 +55,24 @@ import java.util.Arrays;
 
 /***************************************************************************'
  *
- *          It clarifies backoffice
+ *          It clarifies system
+ *
+ *           TODO:
+ *
+ *
+ *             Performance
+ *
+ *              - zip json in cache
+ *              - cache checklists and checklist items
+ *
+ *
+ *             References
+ *
+ *               - Verify that it is possible to add a reference in back office
+ *               - Chapter references as references
+ *               - Handle internal reference (links in word document)
+ *               - Handle page references as reference (as described on page X)
+ *
  *
  *
  *
@@ -89,7 +108,7 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
         styleConfig = new StyleConfiguration(
                 "bootstrap",
                 //properties.style,                                 // Style
-                "test/pukkaLogo.png",                               // TODO: Change logo to itClarifies logo
+                "test/pukkaLogo.png",                               // TODO: Improvement Usability: (bo) Change logo to itClarifies logo
                 "ItClarifies Backoffice",                           // Caption
                 "Welcome to itClarifies backoffice ",               // Welcome text
                 new TableRendererStarlightStatic(this)              // Table render logic to render all the tables
@@ -503,12 +522,12 @@ public class ItClarifies extends AppBackOffice implements BackOfficeInterface, S
                 //new ExamplePivotPage(),
                 //new UploadPage(),
 
-                //new ACS_AdminPage(),  //TODO: Make this automatically added when using acs
+                //new ACS_AdminPage(),
         };
 
 
 
-        //startScheduler();  //TODO: (Future) Implement closing this before turning back on
+        //startScheduler();
 
     }
 

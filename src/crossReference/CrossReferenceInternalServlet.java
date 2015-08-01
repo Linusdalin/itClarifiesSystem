@@ -17,6 +17,7 @@ import featureTypes.FeatureTypeTree;
 import language.LanguageCode;
 import log.PukkaLogger;
 import net.sf.json.JSONObject;
+import project.Project;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
 import search.SearchManager2;
@@ -144,14 +145,16 @@ public class CrossReferenceInternalServlet extends DocumentService {
         }
 
         // Pause for 5 seconds and then check again
+        int attempts = 30;
 
-        while(!isAnalysed(project)){
+        while(!isAnalysed(project) && attempts > 0){
 
 
             try {
                 Thread.sleep(5000);
 
                 PukkaLogger.log(PukkaLogger.Level.INFO, "Checking analysis status for project " + project.getName());
+                attempts--;
 
             } catch (InterruptedException e) {
                 PukkaLogger.log( e );
@@ -159,7 +162,12 @@ public class CrossReferenceInternalServlet extends DocumentService {
             }
         }
 
-        PukkaLogger.log(PukkaLogger.Level.INFO, "Project " + project.getName() + " is analyzed. Proceeding... ");
+        if(attempts == 0){
+
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Project " + project.getName() + " failed cross referencing. Proceeding... ");
+        }
+        else
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Project " + project.getName() + " is analyzed. Proceeding... ");
 
     }
 
@@ -183,7 +191,8 @@ public class CrossReferenceInternalServlet extends DocumentService {
 
             if(contract.getStatus().get__Id() == ContractStatus.getAnalysed().get__Id()) {
 
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Document " + contract.getName() + " is not analyzed properly. (" + contract.getStatus().getName() + "). Reanalyzing the project.");
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Document " + contract.getName() + " is not analyzed properly." +
+                        "( found " +contract.getStatus().getName() + " expecting "+ ContractStatus.getAnalysed().getName() +"). Reanalyzing the project.");
                 continue;
             }
 
@@ -193,7 +202,7 @@ public class CrossReferenceInternalServlet extends DocumentService {
             return false;
         }
 
-        // All is analysed
+        PukkaLogger.log(PukkaLogger.Level.INFO, "All Documents are analyzed.");
         return true;
 
 

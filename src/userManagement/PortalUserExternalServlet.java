@@ -1,8 +1,6 @@
 package userManagement;
 
-import contractManagement.ProjectTable;
 import dataRepresentation.DataObjectInterface;
-import dataRepresentation.DataTable;
 import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;

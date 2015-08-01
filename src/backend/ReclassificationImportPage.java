@@ -1,6 +1,5 @@
 package backend;
 
-import analysis2.AnalysisException;
 import classification.FragmentClass;
 import classification.FragmentClassification;
 import classifiers.ClassifierInterface;
@@ -15,6 +14,8 @@ import language.LanguageAnalyser;
 import language.LanguageCode;
 import language.LanguageInterface;
 import log.PukkaLogger;
+import project.Project;
+import project.ProjectTable;
 import pukkaBO.GenericPage.NarrowPage;
 import pukkaBO.GenericPage.PageTab;
 import pukkaBO.GenericPage.PageTabInterface;
@@ -129,7 +130,7 @@ public class ReclassificationImportPage extends NarrowPage {
 
 
                 html.append(Html.paragraph("Executing import of" + importMTDoc + " into project "+ project.getName()) + Html.newLine() + Html.newLine());
-                DBTimeStamp analysisTime = new DBTimeStamp();  //TODO: Add an optional field in the form for backDating
+                DBTimeStamp analysisTime = new DBTimeStamp();
                 html.append(reGenerateMT(importMTDoc, project, analysisTime));
             }
 
@@ -190,7 +191,7 @@ public class ReclassificationImportPage extends NarrowPage {
      * @throws BackOfficeException
      *
      *
-     *      TODO: There are a lot of lookup in this service that could be optimized getting once and for all
+     *      TODO: Improvement Performance: There are a lot of lookup in this service that could be optimized getting once and for all
      */
 
 
@@ -365,7 +366,7 @@ public class ReclassificationImportPage extends NarrowPage {
                 version.getKey(),
                 project.getKey(),
                 comment.pattern,
-                0,                          //TODO: Anchor position not implemented
+                0,                          //TODO: Not Implemented: Anchor position not implemented in reclassification import
                 analysisTime.getISODate());
 
             annotation.store();
@@ -491,7 +492,7 @@ public class ReclassificationImportPage extends NarrowPage {
      * @return
      *
      *
-     *              TODO: These are copied from DocumentService due to different inheritance trees. Refactor to reuse
+     *              TODO: Improvement Refactor: These are copied from DocumentService due to different inheritance trees. Refactor to reuse
      */
 
     protected String getTag(String className, Organization organization, LanguageInterface language) {

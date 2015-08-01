@@ -1,9 +1,10 @@
-package contractManagement;
+package project;
 
 import risk.*;
 import contractManagement.*;
 import classification.*;
 import userManagement.*;
+import project.*;
 import versioning.*;
 import actions.*;
 import overviewExport.*;
@@ -81,6 +82,7 @@ public class ProjectTable extends DataTable implements DataTableInterface{
     private static final String[][] TestValues = {
 
           {"Demo", "Test project", "admin", "demo.org", "2014-02-01", "Contracting", "rwd", "system"},
+          {"Empty", "Empty Test project", "admin", "demo.org", "2014-02-01", "Generic", "rwd", "system"},
           {"Evil proj", "Test project", "eve", "evil.org", "2014-02-01", "Generic", "rwd", "system"},
 
 

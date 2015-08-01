@@ -8,7 +8,7 @@
 
 
 <%
-    //TODO: This is deprecated. There is a preview service to use
+    //This is deprecated. There is a preview service to use
 
     String token =   request.getParameter("token");
     String _document = request.getParameter("document");

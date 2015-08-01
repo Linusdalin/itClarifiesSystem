@@ -1,17 +1,14 @@
 package test.functionalTests;
 
-import backend.ItClarifies;
-import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
-import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import contractManagement.*;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import pukkaBO.backOffice.BackOfficeInterface;
+import project.Project;
+import project.ProjectTable;
 import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupItem;
 
@@ -19,9 +16,6 @@ import test.MockWriter;
 import test.ServletTests;
 import userManagement.ACSServlet;
 import services.ContractServlet;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 
 import static org.hamcrest.CoreMatchers.is;

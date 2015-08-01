@@ -4,6 +4,7 @@ import risk.*;
 import contractManagement.*;
 import classification.*;
 import userManagement.*;
+import project.*;
 import versioning.*;
 import actions.*;
 import overviewExport.*;
@@ -660,5 +661,7 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
     }
 
 
-
+    public boolean isImplicit() {
+        return getText().equals("---");
+    }
 }

@@ -1,10 +1,7 @@
 package services;
 
 import actions.*;
-import analysis.NewAnalysisFeedback;
-import analysis.OutcomeMap;
-import analysis.ParseFeedbackItem;
-import analysis.Significance;
+import analysis.*;
 import analysis.deferrance.DeferenceHandler;
 import analysis.deferrance.NextFragment;
 import analysis2.AnalysisException;
@@ -20,7 +17,6 @@ import com.google.appengine.api.utils.SystemProperty;
 import contractManagement.*;
 import crossReference.*;
 import dataRepresentation.DBTimeStamp;
-import databaseLayer.DBKeyInterface;
 import document.*;
 import featureTypes.FeatureTypeInterface;
 import featureTypes.FeatureTypeTree;
@@ -33,6 +29,7 @@ import language.LanguageInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import project.Project;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
 import risk.ContractRisk;
@@ -68,26 +65,27 @@ public class DocumentService extends ItClarifiesService{
     private String modelDirectory = MODEL_DIRECTORY; // Default value
 
 
-    /*********************************************************************************
+    /******************************************************************************************
      *
-     *          Fragment a document
+     *          Fragment an uploaded document
      *
-     * @param fileName - the name of the file. Temporary name of the document
-     * @param versionInstance - the instance of the document
-     * @param fragmenter - The fragmenter to use
-     * @throws pukkaBO.exceptions.BackOfficeException
+     * @param versionInstance   - the instance of the document
+     * @param fragmenter        - The fragmenter to use
+     * @return                  - Feedback items
+     * @throws BackOfficeException
      *
-     * //TODO: Create a special class for document/file name to pass around here allowing for more dynamic display (e.g. truncate extensions)
-     * //TODO: Accumulate outcome on the analysis and return all the way to frontend
+     *       //TODO: Create a special class for document/file name to pass around here allowing for more dynamic display (e.g. truncate extensions)
+     *
      */
 
 
-    protected void fragmentDocument(String fileName, ContractVersionInstance versionInstance, FragmentSplitterInterface fragmenter) throws BackOfficeException {
+    protected ParseFeedback fragmentDocument(ContractVersionInstance versionInstance, FragmentSplitterInterface fragmenter) throws BackOfficeException {
+
+        ParseFeedback fragmentingFeedback = new ParseFeedback();
 
         Contract document = versionInstance.getDocument();
         Project project = document.getProject();
 
-        //AutoNumberer autoNumberer = new AutoNumberer();
         ContractRisk defaultRisk = ContractRisk.getNotSet();
         DBTimeStamp analysisTime = new DBTimeStamp();
 
@@ -104,28 +102,23 @@ public class DocumentService extends ItClarifiesService{
         Set<String> newKeywords = new HashSet<String>();  // To store all new keywords
 
         PukkaLogger.log(PukkaLogger.Level.ACTION, "*******************Phase II: Fragmenting Document");
-        PukkaLogger.log(PukkaLogger.Level.INFO, "Found " + fragmenter.getFragments().size() + " abstract fragments from the parsing");
+        PukkaLogger.log(PukkaLogger.Level.DEBUG, "Found " + fragmenter.getFragments().size() + " abstract fragments from the parsing");
 
         String imageServer = getImageServer();
 
-        ChecklistParser checklistParser = new ChecklistParser(fragmenter);
+        ChecklistParser checklistParser = new ChecklistParser(fragmenter, document.getOwner());
         CanonicalReferenceParser canonicalReferenceParser = new CanonicalReferenceParser(fragmenter, document, project);
-
-        ParseFeedbackItem feedback;
 
         for(AbstractFragment aFragment : fragments){
 
             try{
 
                 AbstractStructureItem aStructureItem = aFragment.getStructureItem();
-                DBKeyInterface structureItemKey = null;
                 String fragmentName = createNameFromBody(aFragment);
-                //int indentation = aStructureItem.getIndentation();
                 int indentation = (int)aFragment.getIndentation();
                 int structureNo = aStructureItem.getID();
-                boolean newStructureItemCreated = false;
 
-                feedback = null;
+                ParseFeedbackItem feedback = null;
 
                 PukkaLogger.log(PukkaLogger.Level.INFO, "fragment " + fragmentNo + ": ("+ aFragment.getStyle().name()+")" + aFragment.getBody() +"     (" +
                         indentation + ": " + aStructureItem.getStructureType().name() + ":" +
@@ -258,12 +251,26 @@ public class DocumentService extends ItClarifiesService{
 
                         String checklistName = bodyText;
 
-                        PukkaLogger.log(PukkaLogger.Level.INFO, "Found checklist name " + checklistName);
+                        PukkaLogger.log(PukkaLogger.Level.INFO, "Found checklist named " + checklistName);
+
                         Checklist newChecklist = new Checklist(checklistName, checklistName, checklistName.substring(0, 1),
                                 project.getKey(), document.getOwnerId(), document.getCreation().getISODate());
                         newChecklist.store();
 
-                        checklistParser.startNewChecklist(newChecklist);
+                        fragmentingFeedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Creating new checklist \"" + checklistName + "\"", 0));
+
+                        feedback = checklistParser.startNewChecklist(newChecklist);
+
+                        if(feedback != null){
+
+                            fragmentingFeedback.add(feedback);
+                            PukkaLogger.log(PukkaLogger.Level.INFO, feedback.severity.name()+ ": " + feedback.message);
+
+                            if(feedback.severity == ParseFeedbackItem.Severity.ABORT){
+                                isChecklist = false;
+
+                            }
+                        }
 
                     }
 
@@ -278,6 +285,8 @@ public class DocumentService extends ItClarifiesService{
                         feedback = checklistParser.parseChecklistCell(aFragment);
 
                         if(feedback != null){
+
+                            fragmentingFeedback.add(feedback);
                             PukkaLogger.log(PukkaLogger.Level.INFO, feedback.severity.name()+ ": " + feedback.message);
 
                             if(feedback.severity == ParseFeedbackItem.Severity.ABORT){
@@ -295,6 +304,8 @@ public class DocumentService extends ItClarifiesService{
                         feedback = canonicalReferenceParser.parseCell(aFragment);
 
                         if(feedback != null){
+
+                            fragmentingFeedback.add(feedback);
                             PukkaLogger.log(PukkaLogger.Level.INFO, feedback.severity.name()+ ": " + feedback.message);
 
                             if(feedback.severity == ParseFeedbackItem.Severity.ABORT){
@@ -315,7 +326,15 @@ public class DocumentService extends ItClarifiesService{
                     if(isChecklist){
 
                         isChecklist = false;
-                        checklistParser.endCurrentChecklist();
+                        feedback = checklistParser.endCurrentChecklist();
+
+                        if(feedback != null){
+
+                            fragmentingFeedback.add(feedback);
+                            PukkaLogger.log(PukkaLogger.Level.INFO, feedback.severity.name() + ": " + feedback.message);
+
+                        }
+
                     }
                 }
 
@@ -384,12 +403,31 @@ public class DocumentService extends ItClarifiesService{
 
         // Complete the checklist if it is still open
 
-        if(isChecklist)
-            checklistParser.endCurrentChecklist();
+        if(isChecklist){
+
+            ParseFeedbackItem feedback = checklistParser.endCurrentChecklist();
+
+            if(feedback != null){
+
+                fragmentingFeedback.add(feedback);
+                PukkaLogger.log(PukkaLogger.Level.INFO, feedback.severity.name() + ": " + feedback.message);
+
+            }
+
+
+        }
+
         if(isCanonicalDefinitionTable){
 
-            feedback =  canonicalReferenceParser.endCurrentTable();
-            PukkaLogger.log(PukkaLogger.Level.INFO, feedback.severity.name()+ ": " + feedback.message);
+            ParseFeedbackItem feedback =  canonicalReferenceParser.endCurrentTable();
+
+            if(feedback != null){
+
+                fragmentingFeedback.add(feedback);
+                PukkaLogger.log(PukkaLogger.Level.INFO, feedback.severity.name() + ": " + feedback.message);
+
+            }
+
 
         }
 
@@ -413,8 +451,14 @@ public class DocumentService extends ItClarifiesService{
         // so left to do is to find the corresponding fragment.
 
         PukkaLogger.log(PukkaLogger.Level.INFO, "** Found " + fragmenter.getComments().size() + " comments in the document" );
-        handleComments(fragmenter.getComments(), project, versionInstance, analysisTime);
+        ParseFeedback feedbackFromComments = handleComments(fragmenter.getComments(), project, document, versionInstance, analysisTime);
 
+        fragmentingFeedback.add(feedbackFromComments);
+
+        System.out.println(" --- Just checking again. Got " + feedbackFromComments.getNo() + " feedback items in handleComments()");
+
+
+        return fragmentingFeedback;
 
     }
 
@@ -428,22 +472,28 @@ public class DocumentService extends ItClarifiesService{
      *
      * @param comments          - list of all comments in the document
      * @param project           - Current project
-     * @param documentVersion   - The document
+     * @param document          - the document
+     * @param documentVersion   - The document version
      * @param analysisTime      - The time of analysis
      *
      *
-     *        //TODO: Future: Allow fro import in different languages
+     *
      */
 
 
-    private void handleComments(List<AbstractComment> comments, Project project, ContractVersionInstance documentVersion, DBTimeStamp analysisTime) throws BackOfficeException{
+    private ParseFeedback handleComments(List<AbstractComment> comments, Project project, Contract document, ContractVersionInstance documentVersion, DBTimeStamp analysisTime) throws BackOfficeException{
 
         PortalUser user = PortalUser.getExternalUser();
         LanguageInterface languageForImport = new English();
 
+        PukkaLogger.log(PukkaLogger.Level.INFO, "Handle comments: There are " + comments.size() + " comments in the document " + document.getName());
+        ParseFeedback feedback = new ParseFeedback();
+
         for(AbstractComment aComment : comments){
 
             try{
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Lookup Comment: "+ aComment.getComment()+". (Fragment id: " + aComment.getFragmentId() + ")");
 
                 ContractFragment fragment = new ContractFragment(new LookupItem()
                         .addFilter(new ColumnFilter(ContractFragmentTable.Columns.Ordinal.name(), aComment.getFragmentId()))
@@ -451,14 +501,22 @@ public class DocumentService extends ItClarifiesService{
 
                 if(!fragment.exists()){
 
+                    ParseFeedbackItem notFound = new ParseFeedbackItem(ParseFeedbackItem.Severity.ERROR,
+                            "Could not find fragment for comment. Fragment id: " + aComment.getFragmentId() + "("+ aComment.getComment()+")",
+                            aComment.getFragmentId());
+
+                    PukkaLogger.log(PukkaLogger.Level.FATAL, notFound.message);
+                    feedback.add(notFound);
+
                     // Debugging only
                     for(ContractFragment f : documentVersion.getFragmentsForVersion()){
-                        System.out.println("Fragment: " + f.getName() + "id" + f.getOrdinal());
+                        System.out.println(" - Fragment: " + f.getName() + "  (id" + f.getOrdinal() + ")");
                     }
 
-                    PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not find fragment for comment. Fragment id: " + aComment.getFragmentId() + "("+ aComment.getComment()+")");
                     continue;
                 }
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Found fragment "+ fragment.getName() +" for comment " + aComment.getComment() +" Fragment id: " + aComment.getFragmentId());
 
 
                 if(isClassification(aComment)){
@@ -468,7 +526,12 @@ public class DocumentService extends ItClarifiesService{
 
                     if(featureType == null){
 
-                        PukkaLogger.log(PukkaLogger.Level.ERROR, "Could not find feature type named " + classificationTag + " for language " + languageForImport.getLanguageCode().code);
+                        ParseFeedbackItem notFound = new ParseFeedbackItem(ParseFeedbackItem.Severity.WARNING,
+                                "Could not find classification for " + aComment.getComment(),
+                                aComment.getFragmentId());
+
+                        PukkaLogger.log(PukkaLogger.Level.WARNING, notFound.message);
+                        feedback.add(notFound);
                         continue;
                     }
 
@@ -537,6 +600,10 @@ public class DocumentService extends ItClarifiesService{
 
         }
 
+        System.out.println(" --- Just checking. Got " + feedback.getNo() + " feedback items in handleComments()");
+
+        return feedback;
+
     }
 
     private String firstWord(String comment) {
@@ -551,6 +618,18 @@ public class DocumentService extends ItClarifiesService{
         return comment.substring(0, firstSpace);
 
     }
+
+    /**************************************************************************
+     *
+     *          This is more "looks like classification"
+     *
+     *          It is used to be able to produce a warning when
+     *          referencing an unknown classification
+     *
+     *
+     * @param aComment   - the comment
+     * @return           - yes/no
+     */
 
     private boolean isClassification(AbstractComment aComment) {
 
@@ -640,18 +719,20 @@ public class DocumentService extends ItClarifiesService{
      *
      *          looking up the tag from both the classification tree and custom tags in the database
      *
+     *          #TAG -> #Tag
      *
      *
-     * @param className
-     * @param organization
-     * @param language         -document language
-     * @return
+     * @param className        - the actual Tag
+     * @param organization     - the org for lookup in the database
+     * @param language         - document language
+     *
+     * @return                 - the localizad name of the tag
      *
      *
      *
      */
 
-    public static String getTag(String className, Organization organization, LanguageInterface language) {
+    public static String getLocalizedTag(String className, Organization organization, LanguageInterface language) {
 
         //String classTag = languageInterface.getClassificationForName(className);
 
@@ -664,7 +745,7 @@ public class DocumentService extends ItClarifiesService{
             if(classifier.getType().getName().equals(className)){
 
                 PukkaLogger.log(PukkaLogger.Level.INFO, "Found static classTag " + className);
-                return classifier.getType().getName();   // This should be the #TAG as this is the key to the frontend
+                return classifier.getClassificationName();
             }
         }
 
@@ -2016,7 +2097,18 @@ public class DocumentService extends ItClarifiesService{
         }
 
 
-        fragmentDocument(document.getFile(), version, docXManager);
+        ParseFeedback feedback = fragmentDocument(version, docXManager);
+
+        if(feedback != null){
+            document.setAnalysisDetails(feedback.toJSON().toString());
+            document.update();
+
+            System.out.println(" --- Just checking after update: " + feedback.toJSON().toString());
+        }
+        else{
+
+            System.out.println(" --- Oooops something is null");
+        }
 
 
 

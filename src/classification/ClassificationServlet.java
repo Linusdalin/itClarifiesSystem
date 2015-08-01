@@ -14,6 +14,7 @@ import language.LanguageInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import project.Project;
 import pukkaBO.condition.*;
 
 import pukkaBO.exceptions.BackOfficeException;
@@ -69,7 +70,7 @@ public class ClassificationServlet extends DocumentService {
 
 
             DBKeyInterface key                = getMandatoryKey("fragment", req);
-            String classTag                  = getMandatoryString("class", req);
+            String classTag                   = getMandatoryString("class", req);
             String comment                    = getOptionalString("comment", req, "");
             String pattern                    = getOptionalString("pattern", req, "");
             String keyword                    = getOptionalString("keyword", req, "");
@@ -110,7 +111,7 @@ public class ClassificationServlet extends DocumentService {
 
             // Lookup the tag. Either in the static tree or custom tags in the database
 
-            String localizedClass = getTag(classTag, organization, languageForDocument);
+            String localizedClass = getLocalizedTag(classTag, organization, languageForDocument);
             String tagName = getTagName(classTag, organization, languageForDocument);
             FeatureTypeInterface featureType = getFeatureTypeByTag(classTag, languageForDocument);
 
@@ -262,7 +263,7 @@ public class ClassificationServlet extends DocumentService {
 
             JSONArray list = new JSONArray();
 
-            ClassifierInterface[] classifiers = defaultLanguage.getSupportedClassifiers();
+            ClassifierInterface[] classifiers = defaultLanguage.getAllClassifiers();
 
             for (ClassifierInterface classifier : classifiers) {
 
@@ -275,7 +276,7 @@ public class ClassificationServlet extends DocumentService {
                     JSONObject riskObject = new JSONObject()
                                 .put("id", classifier.getType().getName())
                                 .put("name", classifier.getClassificationName())
-                                .put("desc", classifier.getClassificationName())   //TODO: Description not implemented for standard classes
+                                .put("desc", classifier.getDescription())
                                 .put("type", "General");
                         list.put(riskObject);
 
@@ -283,21 +284,8 @@ public class ClassificationServlet extends DocumentService {
 
             }
 
-            classifiers = defaultLanguage.getPostProcessClassifiers();
 
-            for (ClassifierInterface classifier : classifiers) {
-
-                JSONObject riskObject = new JSONObject()
-                            .put("id", classifier.getType().getName())
-                            .put("name", classifier.getClassificationName())
-                            .put("desc", classifier.getClassificationName())   //TODO: Description not implemented for standard classes
-                            .put("type", "General");
-                    list.put(riskObject);
-
-            }
-
-
-            // Get generic classifications stored in the database. First generic
+            // Get Classifiers stored in the database. These are for checklist item compliance
 
             List<FragmentClass> customClasses = user.getOrganization().getCustomTagsForOrganization();
             List<FragmentClass> genericClasses = Organization.getnone().getCustomTagsForOrganization();
@@ -311,8 +299,7 @@ public class ClassificationServlet extends DocumentService {
                         .put("id", fragmentClass.getKey().toString())
                         .put("name", fragmentClass.getName())
                         .put("desc", fragmentClass.getDescription())
-                        .put("org",  fragmentClass.getOrganization().getName())  //TODO: Only for testing. Remove
-                        .put("type", "General");
+                        .put("type", "Checklist Compliance");
                 list.put(riskObject);
 
             }

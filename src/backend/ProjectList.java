@@ -1,8 +1,8 @@
 package backend;
 
 import contractManagement.DocumentDeleteOutcome;
-import contractManagement.Project;
-import contractManagement.ProjectTable;
+import project.Project;
+import project.ProjectTable;
 import dataRepresentation.DataObjectInterface;
 import dataRepresentation.DataTableInterface;
 import dataRepresentation.DisplayFormat;

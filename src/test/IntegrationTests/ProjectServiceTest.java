@@ -3,7 +3,6 @@ package test.integrationTests;
 import backend.ItClarifies;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
-import contractManagement.*;
 import databaseLayer.DBKeyInterface;
 import databaseLayer.DatabaseAbstractionFactory;
 import log.PukkaLogger;
@@ -11,17 +10,16 @@ import net.sf.json.JSONObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import project.Project;
+import project.ProjectTable;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.LookupByKey;
 import pukkaBO.condition.LookupList;
 import services.ItClarifiesService;
-import services.ProjectServlet;
+import project.ProjectServlet;
 import test.MockWriter;
 import test.ServletTests;
 
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;

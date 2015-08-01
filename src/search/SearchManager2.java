@@ -1,6 +1,5 @@
 package search;
 
-import classification.FragmentClass;
 import classifiers.ClassifierInterface;
 import com.google.appengine.api.search.*;
 import contractManagement.*;
@@ -12,12 +11,10 @@ import language.LanguageInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import project.Project;
 import pukkaBO.exceptions.BackOfficeException;
 import risk.RiskClassification;
-import services.DocumentService;
-import system.Analyser;
 import userManagement.AccessRight;
-import userManagement.Organization;
 import userManagement.PortalUser;
 
 import java.util.Arrays;

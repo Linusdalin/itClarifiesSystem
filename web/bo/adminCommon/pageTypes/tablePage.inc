@@ -126,7 +126,7 @@
 
             out.println("<p>" + table.getDescription() + "</p><br/>");
 
-            //TODO: Add help here
+            //Add help here
 
             out.print(renderer.getFilter());
 
@@ -157,7 +157,7 @@
                             int totalItems = table.getCount();
                             if(renderer.getTableAccess(adminUser, table, displayBrand, acsSystem, loginMethod)){
 
-                                //TODO: Not implemented Read Only. Enforce ReadOnly access to tables by using "hasEdit"
+                                //Not implemented Read Only. Enforce ReadOnly access to tables by using "hasEdit"
 
                                 out.print(renderer.getTableContent(table, id, selection, false, true, table.hasEdit(), request.getCookies()));
                                 out.print(renderer.getPagination(selection, tableParameter, pageId, pageSize, totalItems));

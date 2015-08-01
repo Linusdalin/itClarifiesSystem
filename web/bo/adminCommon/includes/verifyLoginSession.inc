@@ -234,7 +234,7 @@
             e.logError("Unknown section " + selection + " given. Using default login.");
         }
 
-        //TODO: Add an error message
+        //Add an error message
 
 
         System.out.println("Redirecting with parameter: " + notLogedInPage);

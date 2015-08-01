@@ -1,15 +1,10 @@
 package overviewExport;
 
 import analysis.ParseFeedback;
-import com.google.apphosting.api.DeadlineExceededException;
-import contractManagement.Project;
+import project.Project;
 import dataRepresentation.DBTimeStamp;
 import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import pukkaBO.condition.LookupByKey;
 import pukkaBO.condition.LookupItem;
 import pukkaBO.condition.ReferenceFilter;
@@ -21,9 +16,6 @@ import userManagement.PortalUser;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 
 /********************************************************
  *
@@ -38,7 +30,7 @@ public class OverviewExportInternalServlet extends ItClarifiesService{
     public static final String DataServletName = "OverviewInternal";
 
     // The active .xlsx template
-    private static final String TemplateFile = "exportTemplates/contracting framework template v2.xlsx";
+    private static final String TemplateFile = "exportTemplates/contracting framework template v3.xlsx";
     private static final int templateSheetIx = 6;
 
 

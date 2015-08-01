@@ -7,7 +7,7 @@ import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
 import contractManagement.Contract;
 import contractManagement.ContractVersionInstance;
-import contractManagement.Project;
+import project.Project;
 import crossReference.CrossReferenceInternalServlet;
 import log.PukkaLogger;
 import overviewExport.OverviewExportInternalServlet;
@@ -175,15 +175,31 @@ public class AsynchAnalysis {
 
     }
 
+    /***************************************************************************
+     *
+     *              Schedule the internal web hook for generating the overview.
+     *
+     *
+     * @param project              - the project key
+     * @param comment              - comment (from the user)
+     * @param exportTags           - JSON array of the tags to generate on.
+     *
+     * @throws BackOfficeException
+     *
+     *          //NOTE: The local execution is not implemented (not in use)
+     */
 
-    public void generateOverview(Project project) throws BackOfficeException{
+
+    public void generateOverview(Project project, String comment, String exportTags) throws BackOfficeException{
 
         if(USE_SCHEDULING){
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Generating project overview" + " with magicKey: "+ magicKey );
 
             TaskOptions call = withUrl("/OverviewExportInternal")
-                    .param("project", project.getKey().toString());
+                    .param("project",   project.getKey().toString())
+                    .param("comment",   comment)
+                    .param("tags",      exportTags);
 
             if(sessionToken != null)
                 call.param("session", sessionToken);

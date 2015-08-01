@@ -62,12 +62,17 @@ public class ParseFeedback {
 
         for (ParseFeedbackItem analysisFeedbackItem : list) {
 
-            feedbackArray.put(analysisFeedbackItem.toJSON());
+            if(analysisFeedbackItem.severity != ParseFeedbackItem.Severity.HIDE)
+                feedbackArray.put(analysisFeedbackItem.toJSON());
         }
 
 
         JSONObject json = new JSONObject().put("feedback", feedbackArray);
 
         return json;
+    }
+
+    public int getNo() {
+        return list.size();
     }
 }

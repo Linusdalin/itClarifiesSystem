@@ -1,36 +1,14 @@
 package test.integrationTests;
 
-import actions.Action;
-import actions.ActionServlet;
-import actions.ActionStatus;
 import actions.ActionStatusServlet;
-import com.google.appengine.api.datastore.KeyFactory;
-import com.sun.prism.shader.Solid_Color_Loader;
-import contractManagement.ContractFragment;
-import contractManagement.ContractFragmentTable;
-import contractManagement.Project;
-import contractManagement.ProjectTable;
-import databaseLayer.AppEngine.AppEngineKey;
-import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import pukkaBO.condition.ColumnFilter;
-import pukkaBO.condition.LookupByKey;
-import pukkaBO.condition.LookupItem;
-import services.AnnotationServlet;
 import test.MockWriter;
 import test.ServletTests;
-import userManagement.PortalUser;
-import userManagement.PortalUserTable;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;

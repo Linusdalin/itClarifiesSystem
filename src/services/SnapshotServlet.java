@@ -1,8 +1,8 @@
 package services;
 
-import contractManagement.*;
 import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
+import project.Project;
 import pukkaBO.condition.Sorting;
 import versioning.FreezeSnapshot;
 import versioning.Snapshot;

@@ -20,8 +20,8 @@ public class PingServlet extends ItClarifiesService {
      *          Post to åing service will fire up server or scale up during load
      *
      *
-     * @param req
-     * @param resp
+     * @param req           -
+     * @param resp          -
      * @throws java.io.IOException
      *
      *
@@ -44,7 +44,7 @@ public class PingServlet extends ItClarifiesService {
                 String ipAddress = getIPAddress(req);
                 if(!sessionManagement.keepAlive(sessionToken, ipAddress)){
 
-                    returnError("Failed to keep session alive", HttpServletResponse.SC_FORBIDDEN, resp);
+                    returnError("Failed to keep session alive", ErrorType.SESSION, HttpServletResponse.SC_FORBIDDEN, resp);
 
                 }
 

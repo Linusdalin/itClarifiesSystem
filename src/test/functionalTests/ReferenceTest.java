@@ -5,7 +5,6 @@ import backend.ItClarifies;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import contractManagement.*;
-import crossReference.Definition;
 import crossReference.Reference;
 import crossReference.ReferenceType;
 import dataRepresentation.DBTimeStamp;
@@ -16,6 +15,8 @@ import log.PukkaLogger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import project.Project;
+import project.ProjectTable;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupItem;
@@ -28,7 +29,6 @@ import userManagement.PortalUser;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -124,7 +124,7 @@ public class ReferenceTest extends ServletTests {
                 DocumentSection section = project.getDefaultSection();
 
 
-                Contract newDocument = new Contract("pricelist", "Test Document.docx", 3, documentType, status,  "no message", "test document", project, user, creationTime.toString(), "EN", section, AccessRight.getrwd());
+                Contract newDocument = new Contract("pricelist", "Test Document.docx", 3, documentType, status,  "no message", "[]", "test document", project, user, creationTime.toString(), "EN", section, AccessRight.getrwd());
                 newDocument.store();
 
                 // Create a new version for the document

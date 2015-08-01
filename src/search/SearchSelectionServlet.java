@@ -1,12 +1,8 @@
 package search;
 
-import contractManagement.Contract;
-import contractManagement.ContractVersionInstance;
-import contractManagement.Project;
+import project.Project;
 import databaseLayer.DBKeyInterface;
-import fileHandling.*;
 import log.PukkaLogger;
-import net.sf.json.JSONObject;
 import pukkaBO.condition.LookupByKey;
 import pukkaBO.exceptions.BackOfficeException;
 import services.Formatter;
@@ -15,7 +11,6 @@ import services.ItClarifiesService;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
 /********************************************************

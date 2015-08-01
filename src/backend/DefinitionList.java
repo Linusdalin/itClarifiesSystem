@@ -89,7 +89,7 @@ public class DefinitionList extends GroupByList implements ListInterface{
         actions.add(new ListAction(Callback_Action_Delete,     ActionType.List, "Delete").setIcon(Icon.Trash));
 
         // Set the number of elements to display
-        displaySize = 20;                                 //TODO: Size not implemented in the Starlight table
+        displaySize = 20;
     }
 
 
@@ -140,8 +140,7 @@ public class DefinitionList extends GroupByList implements ListInterface{
 
                 case Callback_Action_Delete:
 
-                    //TODO: Delete both definitions and definition source & usage classifications
-                    // How do we connect the definition usage with the definition?
+                    //TODO: Not Implemented: Delete both definitions and definition source & usage classifications
 
                     int count = definition.deleteReferencesForDefinition();
                     definition.delete();

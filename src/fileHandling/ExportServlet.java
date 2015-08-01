@@ -15,7 +15,8 @@ import java.io.IOException;
 
 /********************************************************
  *
- *
+ *                  Exporting one document with or without
+ *                  generated annotations
  *
  */
 
@@ -30,8 +31,12 @@ public class ExportServlet extends ItClarifiesService{
      *
      *          Parameters:
      *
-     *          &key=<key> (if left empty, it will return the entire list)
+     *              &document=<key>
+     *              &inject=<bool>     inject comments/annotations etc.
      *
+     *
+     *
+     *          //TODO: Pass a list of #tags to filter the annotation
      *
      * @throws java.io.IOException
      */
@@ -61,6 +66,8 @@ public class ExportServlet extends ItClarifiesService{
            _document         = getMandatoryKey("document", req);
            Contract document = new Contract(new LookupByKey(_document));
 
+           String filter     = getOptionalString("filter", req, "[]");
+
            if(!mandatoryObjectExists(document, resp))
                return;
 
@@ -80,7 +87,7 @@ public class ExportServlet extends ItClarifiesService{
            if(inject){
 
                Exporter exporter = new Exporter();
-               DocXExport exportFile = exporter.enhanceFile(version);
+               DocXExport exportFile = exporter.enhanceFile(version, filter);
                filename = exporter.getOutputName(fileHandler.getFileName());
                fileHandler = exportFile.saveToRepository(filename);
 

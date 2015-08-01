@@ -1,16 +1,13 @@
 package classification;
 
-import contractManagement.Project;
+import project.Project;
 import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONObject;
-import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupByKey;
-import pukkaBO.condition.LookupItem;
 import pukkaBO.exceptions.BackOfficeException;
 import services.DocumentService;
 import services.Formatter;
-import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

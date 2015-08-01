@@ -4,6 +4,7 @@ import risk.*;
 import contractManagement.*;
 import classification.*;
 import userManagement.*;
+import project.*;
 import versioning.*;
 import actions.*;
 import overviewExport.*;
@@ -124,10 +125,10 @@ public class Snapshot extends DataObject implements DataObjectInterface{
         return data.value;
     }
 
-    public contractManagement.Project getProject(){
+    public project.Project getProject(){
 
         ReferenceData data = (ReferenceData)this.data[1];
-        return new contractManagement.Project(new LookupByKey(data.value));
+        return new project.Project(new LookupByKey(data.value));
     }
 
     public void setProject(DBKeyInterface project){

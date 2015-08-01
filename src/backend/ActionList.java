@@ -84,7 +84,7 @@ public class ActionList extends GroupByList implements ListInterface{
         actions.add(new ListAction(Callback_Action_Close,      ActionType.List, "Close").setIcon(Icon.Check));
 
         // Set the number of elements to display
-        displaySize = 20;                                 //TODO: Size not implemented in the Starlight table
+        displaySize = 20;
     }
 
 

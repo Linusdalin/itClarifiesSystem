@@ -1,38 +1,26 @@
 package test.integrationTests;
 
 import actions.Action;
-import actions.ActionServlet;
 import actions.ActionStatus;
-import backend.ItClarifies;
-import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
-import databaseLayer.AppEngine.AppEngineKey;
-import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import pukkaBO.backOffice.BackOfficeInterface;
+import project.Project;
+import project.ProjectTable;
 import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupByKey;
 import pukkaBO.condition.LookupItem;
-import services.AnnotationServlet;
-import services.ItClarifiesService;
 import services.PriorityServlet;
 import test.MockWriter;
 import test.ServletTests;
 import userManagement.PortalUser;
 import userManagement.PortalUserTable;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;

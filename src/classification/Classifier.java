@@ -1,10 +1,9 @@
 package classification;
 
 import analysis2.Pattern;
-import classifiers.Classification;
 import contractManagement.ContractFragment;
 import contractManagement.ContractVersionInstance;
-import contractManagement.Project;
+import project.Project;
 import crossReference.Definition;
 import dataRepresentation.DBTimeStamp;
 import document.DefinitionType;

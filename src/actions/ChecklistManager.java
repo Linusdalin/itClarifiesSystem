@@ -1,12 +1,9 @@
 package actions;
 
 
-import classification.ClassificationOverviewNode;
-import classification.ClassificationOverviewTree;
+import module.ModuleNode;
+import module.ContractingModule;
 import classification.ClassificationStatistics;
-import classification.FragmentClassification;
-import databaseLayer.DBKeyInterface;
-import featureTypes.FeatureTypeInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -53,7 +50,7 @@ public class ChecklistManager {
         JSONObject checklistJSON = getChecklistOverview();
         JSONArray checklistItemsJSON = new JSONArray();
 
-        updateWithIndirectHits(ClassificationOverviewTree.root, statisticsMap);
+        updateWithIndirectHits(ContractingModule.root, statisticsMap);
 
 
         for(ChecklistItem item : items){
@@ -80,11 +77,11 @@ public class ChecklistManager {
      */
 
 
-    private int updateWithIndirectHits(ClassificationOverviewNode node, Map<String, ClassificationStatistics> statisticsMap) {
+    private int updateWithIndirectHits(ModuleNode node, Map<String, ClassificationStatistics> statisticsMap) {
 
         int childHits = 0;
 
-        for (ClassificationOverviewNode child : node.children) {
+        for (ModuleNode child : node.children) {
 
             childHits += updateWithIndirectHits(child, statisticsMap);
 
@@ -110,16 +107,16 @@ public class ChecklistManager {
 
         int classificationCount = 0;
 
-        if(item.getTagReference() != null && !item.getTagReference().equals("")){
+        if(item.getContextTag() != null && !item.getContextTag().equals("")){
 
-            ClassificationStatistics statisticsForTag = statisticsMap.get(item.getTagReference());
+            ClassificationStatistics statisticsForTag = statisticsMap.get(item.getContextTag());
             if(statisticsForTag != null){
 
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Getting statistics for tag \"" + item.getTagReference()+"\"");
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Getting statistics for tag \"" + item.getContextTag()+"\"");
                 classificationCount = statisticsForTag.direct + statisticsForTag.indirect;
             }else{
 
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Ignoring unknown tag \"" + item.getTagReference()+"\" when retrieving statistics");
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Ignoring unknown tag \"" + item.getContextTag()+"\" when retrieving statistics");
             }
         }else{
 
@@ -139,22 +136,24 @@ public class ChecklistManager {
                 item.getName(),
                 item.getDescription(),
                 item.getComment(),
-                item.getTagReference(),
+                item.getConformanceTag(),
+                item.getContextTag(),
                 classificationCount);
     }
 
 
-    private JSONObject createJSON(long id, String key, String source, String completion, long status, String name, String description, String comment, String tagReference, int classificationCount) {
+    private JSONObject createJSON(long id, String key, String source, String completion, long status, String name, String description, String comment, String tagConformance, String tagContext, int classificationCount) {
 
         return new JSONObject().put("checklistItem",
                 new JSONObject()
-                .put("key", key)
-                .put("id", id)
-                .put("status", status)
+                .put("key",             key)
+                .put("id",              id)
+                .put("status",          status)
                 .put("name",            name)
                 .put("description",     description)
-                .put("comment", comment)
-                .put("tag",             tagReference)
+                .put("comment",         comment)
+                .put("tag",             tagContext)
+                .put("conformance",     tagConformance)
                 .put("source",          source)
                 .put("completion",      completion)
                 .put("classifications", classificationCount)

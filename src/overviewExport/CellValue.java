@@ -1,6 +1,7 @@
 package overviewExport;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.xssf.usermodel.*;
 
@@ -26,11 +27,15 @@ public class CellValue {
     private Type type;
 
     private int fontSize;
-    private boolean bold, italics, wrap, udBorder,lrBorder, center;
+    private boolean bold, italics, wrap, udBorder,lrBorder, center, middle;
 
-    private static final byte[] borderColour = {(byte)0x33, (byte)0x33, (byte)0x33};
+    private boolean greyFill;
 
-    CellValue(String text){
+    private static final byte[] borderColour =  {(byte)0xAA, (byte)0xAA, (byte)0xAA};
+    private static final byte[] greyBackground =    {(byte)0xAA, (byte)0xAA, (byte)0xAA};
+    private static final byte[] whiteFont =    {(byte)0xFF, (byte)0xFF, (byte)0xFF};
+
+    public CellValue(String text){
 
         this.text = text;
         this.type = Type.STRING;
@@ -55,6 +60,9 @@ public class CellValue {
         this.lrBorder = false;
         this.udBorder = false;
         this.center = false;
+        this.middle = false;
+
+        this.greyFill = false;
     }
 
     public String getStringValue() {
@@ -103,6 +111,15 @@ public class CellValue {
         return this;
     }
 
+    public CellValue tableHeadline(){
+
+        this.greyFill = true;
+        this.middle = true;
+        return this;
+    }
+
+
+
     public XSSFCellStyle getStyle(XSSFSheet sheet) {
 
         XSSFCellStyle style = sheet.getWorkbook().createCellStyle();
@@ -115,11 +132,19 @@ public class CellValue {
         }
 
 
-        font.setFontHeightInPoints((short)fontSize);
+        font.setFontHeightInPoints((short) fontSize);
         font.setBold(bold);
         font.setItalic(italics);
-        style.setFont(font);
         style.setWrapText(wrap);
+
+        if(greyFill){
+            style.setFillPattern(CellStyle.SOLID_FOREGROUND);
+            style.setFillForegroundColor(new XSSFColor(greyBackground));
+            font.setColor(new XSSFColor(whiteFont));         //TODO: This doesn't work
+        }
+
+        style.setFont(font);
+
 
         if(lrBorder){
             style.setBorderLeft(BorderStyle.THIN);
@@ -134,7 +159,7 @@ public class CellValue {
             style.setTopBorderColor(new XSSFColor(borderColour));
 
             style.setBorderBottom(BorderStyle.THIN);
-            style.setTopBorderColor(new XSSFColor(borderColour));
+            style.setBottomBorderColor(new XSSFColor(borderColour));
 
 
         }
@@ -144,6 +169,8 @@ public class CellValue {
         if(center)
             style.setAlignment(HorizontalAlignment.CENTER);
 
+        if(middle)
+            style.setVerticalAlignment(XSSFCellStyle.VERTICAL_CENTER);
 
         return style;
     }

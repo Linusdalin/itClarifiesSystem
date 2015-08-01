@@ -1,21 +1,16 @@
 package crossReference;
 
-import actions.*;
-import classification.ClassificationOverviewManager;
 import contractManagement.Contract;
-import contractManagement.ContractFragment;
 import contractManagement.ContractStatus;
-import contractManagement.Project;
+import project.Project;
 import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import pukkaBO.condition.LookupByKey;
 import pukkaBO.exceptions.BackOfficeException;
 import queue.AsynchAnalysis;
 import services.DocumentService;
 import services.Formatter;
-import userManagement.PortalUser;
 import userManagement.SessionManagement;
 
 import javax.servlet.http.HttpServletRequest;

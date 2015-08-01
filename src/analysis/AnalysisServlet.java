@@ -1,45 +1,21 @@
 package analysis;
 
-import actions.Action;
-import actions.ActionStatus;
-import actions.ActionTable;
-import analysis.deferrance.DeferenceHandler;
-import analysis2.AnalysisException;
-import analysis2.NewAnalysisOutcome;
-import classification.FragmentClassificationTable;
 import contractManagement.*;
-import crossReference.*;
-import dataRepresentation.DBTimeStamp;
 import databaseLayer.DBKeyInterface;
-import document.*;
 import fileHandling.BlobRepository;
 import fileHandling.RepositoryFileHandler;
 import fileHandling.RepositoryInterface;
-import language.LanguageCode;
 import log.PukkaLogger;
 import net.sf.json.JSONObject;
+import project.Project;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
-import risk.ContractRisk;
-import risk.ContractRiskTable;
-import risk.RiskClassificationTable;
-import search.Keyword;
-import search.KeywordTable;
-import search.SearchManager2;
 import services.DocumentService;
 import services.Formatter;
-import system.Analyser;
-import userManagement.Organization;
-import userManagement.PortalUser;
-import userManagement.SessionManagement;
-import versioning.Transposer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 /********************************************************
  *
@@ -47,8 +23,6 @@ import java.util.List;
  *
  *          This is a web hook for the Analysis Queue
  *
- * //TODO: The check:        if(classification.getType().getName().equals(FeatureTypeTree.Reference.getName())){ should be optimized
-
  */
 
 public class AnalysisServlet extends DocumentService {

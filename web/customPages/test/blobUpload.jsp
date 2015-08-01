@@ -1,10 +1,10 @@
 <%@ page import="com.google.appengine.api.blobstore.BlobstoreServiceFactory" %>
 <%@ page import="com.google.appengine.api.blobstore.BlobstoreService" %>
 <%@ page import="log.PukkaLogger" %>
-<%@ page import="contractManagement.ProjectTable" %>
+<%@ page import="project.ProjectTable" %>
 <%@ page import="pukkaBO.condition.ColumnFilter" %>
 <%@ page import="pukkaBO.condition.LookupItem" %>
-<%@ page import="contractManagement.Project" %><%
+<%@ page import="project.Project" %><%
     BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
 
     String demoProjectKey = "";

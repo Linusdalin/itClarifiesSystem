@@ -10,7 +10,7 @@ import reclassification.*;
 import contractManagement.Contract;
 import contractManagement.ContractFragment;
 import contractManagement.ContractVersionInstance;
-import contractManagement.Project;
+import project.Project;
 import crossReference.Definition;
 import dataRepresentation.DataObjectInterface;
 import net.sf.json.JSONArray;
@@ -257,7 +257,7 @@ public class ProjectDetailPage extends NarrowPage {
             List<Checklist> checklistListsForProject = project.getChecklistsForProject();
 
             html.append("<table class=\"minimalist\" id=\"\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">");
-            html.append("<thead><th width=\"100px\">Checklist</th> <th width=\"30px\"></th><th width=\"500px\">Items</th> <th width=\"100px\"></th> <th width=\"100px\">Tag</th></thead>");
+            html.append("<thead><th width=\"100px\">Checklist</th> <th width=\"30px\"></th><th width=\"500px\">Items</th> <th width=\"100px\"></th> <th width=\"100px\">Conformance</th> <th width=\"100px\">Context</th></thead>");
             html.append("<tbody>");
 
             for (Checklist checklist : checklistListsForProject) {
@@ -273,7 +273,7 @@ public class ProjectDetailPage extends NarrowPage {
 
                     html.append("<tr>");
                     html.append("<td>"+"</td><td>"+ item.getIdentifier()+ "</td><td>" + item.getDescription()
-                            +"</td><td>" +item.getTagReference() +"</td><td>"+ "</td>");
+                            +"</td><td>" +item.getConformanceTag() +"</td><td>" +item.getContextTag() +"</td><td>"+ "</td>");
                     html.append("</tr>");
 
                 }
@@ -502,7 +502,7 @@ public class ProjectDetailPage extends NarrowPage {
                     .replaceAll("\n", " ")
                     .replaceAll("%", "")
                     .replaceAll("\"", "&#92;\"")
-                    .replaceAll("<br/>", "");               //TODO: All html style tags should be omitted
+                    .replaceAll("<br/>", "");               //TODO: Not Implemented: All html style tags should be omitted
 
             // Cap the size to optimize the communication. 500 chars should be sufficient to detect virtually all texts
 

@@ -1,7 +1,7 @@
 package email;
 
 import actions.Action;
-import contractManagement.Project;
+import project.Project;
 import pukkaBO.email.MailInterface;
 import userManagement.PortalUser;
 

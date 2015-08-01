@@ -1,17 +1,14 @@
 package services;
 
 import contractManagement.*;
-import dataRepresentation.DBTimeStamp;
-import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+import project.Project;
 import pukkaBO.condition.LookupByKey;
-import pukkaBO.condition.LookupList;
 import pukkaBO.exceptions.BackOfficeException;
-import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

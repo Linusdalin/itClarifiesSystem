@@ -55,7 +55,6 @@
 
 < %@ include file="../scripts/scripts.inc" %>
 
-    //TODO: Fix the style based on config parameter
 
 -->
 
@@ -199,7 +198,7 @@
     </div><!--mainleftinner-->
 </div><!--mainleft-->
 
-<!-- //TODO: Add logout                 out.print("<a href=\"?logout=true&section="+ selection+"\"> Logout </a></p>"); ->
+<!-- //Add logout                 out.print("<a href=\"?logout=true&section="+ selection+"\"> Logout </a></p>"); ->
 
 
 
@@ -212,7 +211,6 @@
                             <a class="close"></a>
                         </div><!-- notification msginfo -->
 
-                <!-- TODO: Fix tabs -->
 
                 <ul class="maintabmenu">
                 	<li class="current"><a href="dashboard.html">Tables</a></li>
@@ -222,15 +220,9 @@
     <h2>Default Headline</h2><p>Default Text</p>
 
 
-
-
-        
-
-
                 </div>
                 <div class="footer">
 
-    <!-- TODO: Make this a config parameter -->
 
     <span>&copy; 2011 - 2013 Pukka Gaming Solutions</span>
 </div>
@@ -239,11 +231,6 @@
             </div>
                 
 
-
-
-
-
-        <!-- TODO: Add logo somewhere and load it from config
 
         <div class="well">
 

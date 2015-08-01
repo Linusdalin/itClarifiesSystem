@@ -2,7 +2,7 @@ package actions;
 
 import classification.ClassificationOverviewManager;
 import contractManagement.ContractFragment;
-import contractManagement.Project;
+import project.Project;
 import databaseLayer.AppEngine.AppEngineKey;
 import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
@@ -16,7 +16,6 @@ import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.util.List;
 
@@ -226,7 +225,7 @@ public class ChecklistItemServlet extends DocumentService {
                 ContractFragment complianceFragment = null;
 
                 if(tag != null && !tag.equals(""))
-                    item.setTagReference(tag);
+                    item.setConformanceTag(tag);
 
                 if(name != null && !name.equals(""))
                     item.setName(name);

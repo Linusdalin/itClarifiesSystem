@@ -13,6 +13,7 @@ import maintenance.Smokey;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+import project.Project;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
 import userManagement.*;
@@ -661,7 +662,7 @@ public class ItClarifiesService extends GenericAdminServlet {
 
     protected JSONObject createPostResponse(String service, DataObjectInterface updatedObject) {
 
-        PukkaLogger.log(PukkaLogger.Level.ACTION, "Updated object " + updatedObject.getKey() + " in " + service );
+        PukkaLogger.log(PukkaLogger.Level.ACTION, "Created/Updated object " + updatedObject.getKey() + " in " + service );
 
         return new JSONObject().put(service, updatedObject.getKey().toString() );
     }

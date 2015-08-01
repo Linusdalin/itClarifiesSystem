@@ -8,10 +8,10 @@ import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import project.Project;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
-import userManagement.AccessGrant;
 import userManagement.AccessRight;
 import userManagement.Organization;
 import userManagement.PortalUser;
@@ -19,6 +19,7 @@ import userManagement.PortalUser;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 /********************************************************
  *
@@ -34,21 +35,96 @@ public class ContractServlet extends DocumentService{
 
     /***********************************************************************************
      *
-     *      Uploading a document
+     *      Updating document properties
      *
-     * @param req
-     * @param resp
+     *          - ordinal (will put the document on the desired position and shift documents down)
+     *
+     *      NOTE: This does NOT upload a document. For this there is a separate FileUploadServlet
+     *      NOTE: The service will pass the same key back
+     *
+     * @param req       -
+     * @param resp      -
      * @throws IOException
+     *
+     *
      */
 
 
     public void doPost(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
-        returnError("Post not supported in Document", HttpServletResponse.SC_METHOD_NOT_ALLOWED, resp);
-        resp.flushBuffer();
+        try{
+            logRequest(req);
+
+            if(!validateSession(req, resp))
+                return;
+
+            if(blockedSmokey(sessionManagement, resp))
+                return;
+
+            setLoggerByParameters(req);
+            boolean isUpdated = false;
+
+            Formatter formatter = getFormatFromParameters(req);
+
+            PortalUser user = sessionManagement.getUser();
+
+            DBKeyInterface key                = getMandatoryKey("key", req);
+            long ordinal                      = getOptionalLong("ordinal", req, -1);
+
+            Contract document = new Contract(new LookupByKey(key));
+            Project project = document.getProject();
+            List<Contract> allDocuments = project.getContractsForProject();
+
+            if(!mandatoryObjectExists(document, resp))
+                return;
+
+            if(!sessionManagement.getRenameDeleteAccess(document)){
+
+                returnError("Not sufficient access to move document", HttpServletResponse.SC_FORBIDDEN, resp);
+                return;
+            }
+
+            if(ordinal != -1){
+
+                if(ordinal < 0 || ordinal > allDocuments.size()){
+
+                    returnError("Could not set ordinal " + ordinal + " for document " + document.getName() + ". Range( 0.." + allDocuments.size() + ")", HttpServletResponse.SC_FORBIDDEN, resp);
+                    return;
+                }
+
+                //Update the ordinal for this document and others
+
+                moveDocument(document, ordinal, allDocuments);
+                isUpdated = true;
+
+            }
+
+            // Now check if there are any updates done. If not the request may be wrong
+
+
+            if(!isUpdated){
+
+                returnError("No update parameters given", HttpServletResponse.SC_BAD_REQUEST, resp);
+                return;
+            }
+
+            JSONObject jsonObject = createPostResponse(DataServletName, document);
+            sendJSONResponse(jsonObject, formatter, resp);
+
+    }catch(BackOfficeException e){
+
+        e.printStackTrace(System.out);
+        returnError(e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+
+    } catch ( Exception e) {
+
+        e.printStackTrace(System.out);
+        returnError(e.getLocalizedMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+
+    }
+
 
      }
-
 
 
     /*************************************************************************
@@ -139,10 +215,10 @@ public class ContractServlet extends DocumentService{
 
                for(DataObjectInterface object : all.getValues()){
 
-                   Contract contract = (Contract)object;
+                   Contract document = (Contract)object;
 
-                   AccessRight access = sessionManagement.getAccess(contract);
-                   ContractVersionInstance version = contract.getHeadVersion();
+                   AccessRight access = sessionManagement.getAccess(document);
+                   ContractVersionInstance version = document.getHeadVersion();
 
                    //AccessGrant grant = sessionManagement.getGrantForDocument(contract);
                    //AccessRight right = grant.getAccessRight();
@@ -153,27 +229,29 @@ public class ContractServlet extends DocumentService{
 
                    if(sessionManagement.isReadAccess(access)){
 
-                       JSONObject document = new JSONObject()
-                            .put("id", contract.getKey().toString())
-                            .put("file", encodeToJSON(contract.getFile()))
-                            .put("name", encodeToJSON(contract.getName()))
-                            .put("project", contract.getProject().getName())
-                            .put("status", contract.getStatus().getName())
-                            .put("message", contract.getMessage())
-                            .put("description", contract.getMessage())               // TODO: This should be a separate analysis feedback
-                            .put("owner", contract.getOwnerId().toString())
-                            .put("creation", contract.getCreation().getSQLTime().toString())
+                       JSONObject documentJSON = new JSONObject()
+                            .put("id", document.getKey().toString())
+                            .put("file", encodeToJSON(document.getFile()))
+                            .put("name", encodeToJSON(document.getName()))
+                            .put("project", document.getProject().getName())
+                            .put("status", document.getStatus().getName())
+                            .put("message", document.getMessage())
+                            .put("analysis", document.getAnalysisDetails())
+                            .put("description", document.getMessage())
+                            .put("owner", document.getOwnerId().toString())
+                            .put("creation", document.getCreation().getSQLTime().toString())
                             .put("updated", version.getCreation().getSQLTime().toString())
                             .put("visibility", "org")
+                            .put("ordinal", document.getOrdinal())
                             .put("fingerprint", version.getFingerprint())
                             .put("access", access.getName());
 
-                       documentList.put(document);
-                       PukkaLogger.log(PukkaLogger.Level.INFO, "Adding " + contract.getName() + " to document list.");
+                       documentList.put(documentJSON);
+                       PukkaLogger.log(PukkaLogger.Level.INFO, "Adding " + document.getName() + " to document list.");
                    }
                    else{
 
-                       PukkaLogger.log(PukkaLogger.Level.INFO, "Hiding " + contract.getName() + " from " + user.getName() + ". No read access");
+                       PukkaLogger.log(PukkaLogger.Level.INFO, "Hiding " + document.getName() + " from " + user.getName() + ". No read access");
                    }
 
                }
@@ -272,6 +350,76 @@ public class ContractServlet extends DocumentService{
        }
 
     }
+
+    /*********************************************************************************
+     *
+     *              Updating the ordinal and rippling the update to all documents between the positions
+     *
+     *              We either shift the documents up or down, depending on if we
+     *              are moving documents up or down
+     *
+     *
+     *              Examples
+     *
+     *                      down from 2 to 5                    up from 5 to 2
+     *                      1          1    1                   1        1    1
+     *                      2   -> 5   2    5                   2        3    3
+     *                      3          2    2                   3        4    4
+     *                      4          3    3                   4        5    5
+     *                      5          4    4                   5 -> 2   5    2
+     *                      6          6    6                   6        6    6
+     *
+     * @param document          - the document to move
+     * @param position           - the new position
+     * @param allDocuments      - list of documents
+     */
+
+
+    private void moveDocument(Contract document, long position, List<Contract> allDocuments) {
+
+        try{
+
+            long oldPosition = document.getOrdinal();
+
+            if(oldPosition < position){
+
+                // We are moving the document down. This means that we should shift documents up
+
+                for (Contract aDocument : allDocuments) {
+
+                    if(aDocument.getOrdinal() > oldPosition && aDocument.getOrdinal() <= position)
+                        aDocument.setOrdinal( aDocument.getOrdinal() - 1);
+
+                    aDocument.update();
+                }
+
+            }
+            else{
+
+                // We are moving the document up, shifting other documents up
+
+                for (Contract aDocument : allDocuments) {
+
+                    if(aDocument.getOrdinal() >= position && aDocument.getOrdinal() < oldPosition)
+                        aDocument.setOrdinal( aDocument.getOrdinal() + 1);
+
+                    aDocument.update();
+                }
+
+            }
+
+            document.setOrdinal(position);
+            document.update();
+
+        }catch(BackOfficeException e){
+
+            PukkaLogger.log( e );
+
+        }
+
+    }
+
+
 
 
 }

@@ -6,7 +6,7 @@ import classification.FragmentClassification;
 import classification.FragmentClassificationTable;
 import contractManagement.Contract;
 import contractManagement.ContractFragment;
-import contractManagement.Project;
+import project.Project;
 import crossReference.Definition;
 import crossReference.DefinitionTable;
 import diff.FragmentComparator;
@@ -178,7 +178,7 @@ public class CanonicalReferenceParser {
      *      parsing a checklist from the entire document
      *
      *
-     *      //TODO: Optimization: Add batch store here
+     *      //TODO: Improvement Performance: Add batch store here
      *
      */
 
@@ -232,7 +232,6 @@ public class CanonicalReferenceParser {
      * @param fragment
      * @return
      *
-     *              //TODO: Handle source
      *
      */
 

@@ -1228,7 +1228,7 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 			return (window.getSelection) ? window.getSelection() : window.document.selection;
 		};
 
-		// :TODO: you can type long string and letters will be hidden because of overflow
+		// :TO DO: you can type long string and letters will be hidden because of overflow
 		this.ui.grow = function () {
 			var self = this.self,
 				innerBody = $(self.editorDoc.body),
@@ -1645,7 +1645,7 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 				} else {
 					if (!this.editorDoc.execCommand("insertHTML", false, szHTML)) {
 						this.editor.focus();
-						/* :TODO: place caret at the end
+						/* :TO DO: place caret at the end
 						if (window.getSelection) {
 						} else {
 						}
@@ -1817,7 +1817,7 @@ html: '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.o
 			if (!found) {
 				return "<p>" + content + "</p>";
 			} else {
-				// :TODO: checking/replacing
+				// :TO DO: checking/replacing
 			}
 
 			return content;

@@ -2,11 +2,10 @@ package overviewExport;
 
 import analysis.ParseFeedback;
 import com.google.apphosting.api.DeadlineExceededException;
-import contractManagement.Project;
+import project.Project;
 import dataRepresentation.DBTimeStamp;
 import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -30,7 +29,7 @@ import java.util.TreeMap;
 
 /********************************************************
  *
- *          Project Overview servlet will return an excel document overview
+ *          Project Overview servlet will return generate or get an excel document overview
  *
  */
 
@@ -39,8 +38,8 @@ public class OverviewExportServlet extends ItClarifiesService{
     public static final String DataServletName = "Overview";
 
     // The active .xlsx template
-    private static final String TemplateFile = "exportTemplates/contracting framework template v2.xlsx";
-    private static final int templateSheetIx = 6;
+    private static final String TemplateFile = "exportTemplates/contracting framework template v3.xlsx";
+    private static final int templateSheetIx = 7;
 
 
     /*************************************************************************
@@ -178,7 +177,7 @@ public class OverviewExportServlet extends ItClarifiesService{
             // Queue the event
 
             AsynchAnalysis queue = new AsynchAnalysis(sessionManagement.getToken());
-            queue.generateOverview(project);
+            queue.generateOverview(project, comment, exportTags);
 
             JSONObject response =  new JSONObject().put(DataServletName, "Queued");
             sendJSONResponse(response, formatter, resp);

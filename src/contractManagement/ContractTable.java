@@ -4,6 +4,7 @@ import risk.*;
 import contractManagement.*;
 import classification.*;
 import userManagement.*;
+import project.*;
 import versioning.*;
 import actions.*;
 import overviewExport.*;
@@ -37,7 +38,7 @@ public class ContractTable extends DataTable implements DataTableInterface{
     public static final String TABLE = "Contract";
     private static final String DESCRIPTION = "All contract base data.";
 
-    public enum Columns {Name, File, Ordinal, Type, Status, Message, Description, Project, Owner, Creation, Language, Section, Access, }
+    public enum Columns {Name, File, Ordinal, Type, Status, Message, AnalysisDetails, Description, Project, Owner, Creation, Language, Section, Access, }
 
     private static final ColumnStructureInterface[] DATA = new ColumnStructureInterface[] {
 
@@ -47,6 +48,7 @@ public class ContractTable extends DataTable implements DataTableInterface{
             new ConstantColumn("Type", DataColumn.noFormatting, new TableReference("ContractType", "Name")),
             new ConstantColumn("Status", DataColumn.noFormatting, new TableReference("ContractStatus", "Name")),
             new TextColumn("Message", DataColumn.noFormatting),
+            new BlobColumn("AnalysisDetails", DataColumn.noFormatting),
             new TextColumn("Description", DataColumn.noFormatting),
             new ReferenceColumn("Project", DataColumn.noFormatting, new TableReference("Project", "Name")),
             new ReferenceColumn("Owner", DataColumn.noFormatting, new TableReference("PortalUser", "Name")),
@@ -86,8 +88,8 @@ public class ContractTable extends DataTable implements DataTableInterface{
     };
     private static final String[][] TestValues = {
 
-          {"Cannon", "Cannon.docx", "1", "Unknown", "Analysed", "Successfully analysed", "Printer support Contract", "Demo", "admin", "2014-06-01", "EN", "All Documents", "no", "system"},
-          {"Google Analytics", "GA.docx", "2", "Unknown", "Analysed", "Successfully uploaded", "EULA", "Demo", "admin", "2014-06-01", "EN", "All Documents", "rwd", "system"},
+          {"Cannon", "Cannon.docx", "1", "Unknown", "Analysed", "Successfully analysed", "[]", "Printer support Contract", "Demo", "admin", "2014-06-01", "EN", "All Documents", "no", "system"},
+          {"Google Analytics", "GA.docx", "2", "Unknown", "Analysed", "Successfully uploaded", "[]", "EULA", "Demo", "admin", "2014-06-01", "EN", "All Documents", "rwd", "system"},
 
 
 
@@ -173,6 +175,7 @@ public class ContractTable extends DataTable implements DataTableInterface{
             DBTimeStamp creationTime = new DBTimeStamp();               // Now
             String desc = "Unclassified document";
             String defaultMessage = "Successfully uploaded ";
+            String feedback = "[]";
 
             //PukkaLogger.log(PukkaLogger.Level.INFO, "Adding new document " + name);
 
@@ -183,7 +186,7 @@ public class ContractTable extends DataTable implements DataTableInterface{
             //    public Contract(String name, long ordinal, DBKeyInterface type, String description, DBKeyInterface project, DBKeyInterface owner, String creation) throws BackOfficeException{
 
 
-            Contract newDoc = new Contract(filename, fileHandler.getFileName(), number, type, status, defaultMessage, desc, project, creator, creationTime.getISODate(), languageCode.code, section, accessRight);
+            Contract newDoc = new Contract(filename, fileHandler.getFileName(), number, type, status, defaultMessage, feedback, desc, project, creator, creationTime.getISODate(), languageCode.code, section, accessRight);
             newDoc.store();
 
             // Grant access

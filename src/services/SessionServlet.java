@@ -122,7 +122,7 @@ public class SessionServlet extends ItClarifiesService{
 
     public void doDelete(HttpServletRequest req, HttpServletResponse resp)throws IOException {
 
-        returnError("Delete not supported in Login", HttpServletResponse.SC_METHOD_NOT_ALLOWED, resp);
+        returnError("Delete not supported in Session", HttpServletResponse.SC_METHOD_NOT_ALLOWED, resp);
         resp.flushBuffer();
 
     }

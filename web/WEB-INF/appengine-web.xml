@@ -3,7 +3,7 @@
 
     <application>itclarifiesapistage</application>
     <module>default</module>
-    <version>2-2-5</version>
+    <version>2-3-1</version>
     <threadsafe>true</threadsafe>
     <instance-class>F4</instance-class>
     <automatic-scaling>
@@ -67,6 +67,9 @@
                     2-2-3:          Document export, overview export styling, cross reference and upload fixes, definition analysis improvements, risk analysis improvement classification sideeffect
                     2-2-4:          Optimizations and caching export data, reanalyze
                     2-2-5:          Login activation, export status service, dynamic tab generation
+                    2-3-0:          Module and project type, feedback for analysis, comment on wrong fragment bug, removed emptyline in extraction (null)
+                    2-3-1:          Dynamic generation of tabs, styling, adding headlines
+
       -->
 
 </appengine-web-app>

@@ -72,7 +72,7 @@
             function = new Integer(request.getParameter("Function")) -1;
 
         }catch(Exception e){
-            //TODO: Fix this better
+            //Fix this better
         }
 
         if(table != null){

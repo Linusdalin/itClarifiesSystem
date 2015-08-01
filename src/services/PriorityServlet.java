@@ -1,8 +1,7 @@
 package services;
 
 import actions.Action;
-import contractManagement.Contract;
-import contractManagement.Project;
+import project.Project;
 import databaseLayer.DBKeyInterface;
 import databaseLayer.DatabaseAbstractionFactory;
 import log.PukkaLogger;
@@ -16,7 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.util.List;
 
 /********************************************************
  *

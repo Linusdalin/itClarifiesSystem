@@ -5,11 +5,12 @@ import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestC
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import contractManagement.*;
 import log.PukkaLogger;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import project.Project;
+import project.ProjectTable;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupItem;
@@ -18,9 +19,6 @@ import services.ContractServlet;
 import test.MockWriter;
 import test.ServletTests;
 
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
@@ -48,11 +46,7 @@ public class DocumentServiceTest extends ServletTests {
     @BeforeClass
     public static void preAmble(){
 
-        helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
-        helper.setUp();
-
         init();
-
 
     }
 
@@ -63,11 +57,6 @@ public class DocumentServiceTest extends ServletTests {
 
             try{
 
-                BackOfficeInterface bo;
-
-                bo = new ItClarifies();
-                bo.createDb();
-                bo.populateValues(true);
 
                 Project project = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), "Demo")));
                 assertTrue(project.exists());
@@ -151,6 +140,8 @@ public class DocumentServiceTest extends ServletTests {
     }
 
 
+    //TODO: Not implemented change order trest
+
 
     @Test
     public void testPost() throws Exception {
@@ -158,7 +149,8 @@ public class DocumentServiceTest extends ServletTests {
         try{
             MockWriter mockWriter = new MockWriter();
 
-            when(request.getParameter("session")).thenReturn("DummySessionToken");
+            when(request.getParameter("session")).thenReturn("DummyAdminToken");
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
             new ContractServlet().doPost(request, response);
@@ -166,12 +158,7 @@ public class DocumentServiceTest extends ServletTests {
 
             String output = mockWriter.getOutput();
             PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
-
             JSONObject json = new JSONObject(output);
-            JSONObject error = (JSONObject)json.getJSONArray("error").get(0);
-            String message = error.getString("message");
-
-            assertThat(message, is("Post not supported in Document"));
 
         }catch(NullPointerException e){
 

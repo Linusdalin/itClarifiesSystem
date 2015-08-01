@@ -8,6 +8,7 @@ import email.NewActionMail;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import project.Project;
 import pukkaBO.condition.LookupByKey;
 import pukkaBO.email.MailInterface;
 import pukkaBO.exceptions.BackOfficeException;
@@ -409,7 +410,7 @@ public class ActionServlet extends ItClarifiesService {
      * @param priority            - priority of deleted action
      * @param remainingActions    - all actions left
      *
-     *      //TODO: Optimize with bach update
+     *      //TODO: Improvement Performance: Optimize with batch update
      */
 
     private void adjustPriority(int priority, List<Action> remainingActions) {

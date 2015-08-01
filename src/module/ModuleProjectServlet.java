@@ -1,11 +1,7 @@
 package module;
 
-import contractManagement.DocumentSection;
-import contractManagement.Project;
-import contractManagement.ProjectTable;
-import contractManagement.ProjectType;
+import project.Project;
 import dataRepresentation.DBTimeStamp;
-import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
@@ -14,7 +10,6 @@ import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
 import services.Formatter;
 import services.ItClarifiesService;
-import userManagement.AccessRight;
 import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
@@ -219,6 +214,11 @@ public class ModuleProjectServlet extends ItClarifiesService {
      *
      *          Delete access to a module for a project
      *
+     *          As the moduleProject is a secondary data structure, this is not
+     *          done through a regular key, but rather by passing
+     *
+     *           - project
+     *           - module
      *
      * @param req -
      * @param resp -
@@ -258,7 +258,6 @@ public class ModuleProjectServlet extends ItClarifiesService {
 
             Project project = new Project(new LookupByKey(_project));
             Module module = new Module(new LookupByKey(_module));
-            DBTimeStamp creationTime = new DBTimeStamp();
 
             if(!mandatoryObjectExists(project, resp))
                 return;
@@ -275,10 +274,8 @@ public class ModuleProjectServlet extends ItClarifiesService {
             if(access.exists())
                 access.delete();
 
-
             JSONObject json = createPostResponse(DataServletName, project);
             sendJSONResponse(json, formatter, resp);
-
 
         } catch (BackOfficeException e) {
 
@@ -291,10 +288,6 @@ public class ModuleProjectServlet extends ItClarifiesService {
             returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
         }
 
-
     }
-
-
-
 
 }

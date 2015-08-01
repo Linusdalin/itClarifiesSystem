@@ -1,11 +1,13 @@
 package test.integrationTests;
 
 import backend.ItClarifies;
+import com.google.appengine.api.modules.ModulesException;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import contractManagement.*;
 import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
+import module.Module;
 import module.ModuleProjectServlet;
 import module.ModuleServlet;
 import module.ModuleTable;
@@ -112,6 +114,7 @@ public class ModuleServiceTest extends ServletTests {
             first.getString("name");
             first.getString("description");
             first.getString("key");
+            first.getString("public");
 
 
             // Now create a new module and assign it to the organization
@@ -138,12 +141,32 @@ public class ModuleServiceTest extends ServletTests {
 
             assertVerbose("Now there should be 3 modules ", new ModuleTable(new LookupList()).getValues().size(), is( (3 )));
 
-            // Accessing the module service should still only return two modules
-            // The new module is hidden
+            // Accessing the module service should now return three modules
+            // The new module is hidden for others but not in the organization
 
             mockWriter = new MockWriter();
 
             when(request.getParameter("session")).thenReturn("DummyAdminToken");
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+            when(response.getWriter()).thenReturn(mockWriter.getWriter());
+
+            new ModuleServlet().doGet(request, response);
+
+            output = mockWriter.getOutput();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
+
+            jsonResponse = new JSONObject(output);
+            modules = jsonResponse.getJSONArray("Module");
+
+            assertVerbose("Expecting 3 modules in project " + demoProject.getName(), modules.length(), is( 3 ) );
+
+            // For someone else, the module should be hidden. Now we try to
+            // access it with a user from another organization
+            // The new module is hidden
+
+            mockWriter = new MockWriter();
+
+            when(request.getParameter("session")).thenReturn("DummyEveToken");
             when(request.getRemoteAddr()).thenReturn("127.0.0.1");
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
@@ -167,6 +190,7 @@ public class ModuleServiceTest extends ServletTests {
             when(request.getParameter("session")).thenReturn("DummyAdminToken");
             when(request.getParameter("name")).thenReturn("Public Module");
             when(request.getParameter("description")).thenReturn("This is the description");
+            when(request.getParameter("public")).thenReturn(null);
 
             when(request.getRemoteAddr()).thenReturn("127.0.0.1");
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
@@ -180,7 +204,8 @@ public class ModuleServiceTest extends ServletTests {
 
             assertVerbose("Now there should be 4 modules ", new ModuleTable(new LookupList()).getValues().size(), is( ( 4 )));
 
-            // NOw try to get them
+            // Now try to get them. Both hidden own and public modules are found
+
             mockWriter = new MockWriter();
 
             when(request.getParameter("session")).thenReturn("DummyAdminToken");
@@ -195,8 +220,25 @@ public class ModuleServiceTest extends ServletTests {
             jsonResponse = new JSONObject(output);
             modules = jsonResponse.getJSONArray("Module");
 
-            assertVerbose("Expecting 3 modules in project " + demoProject.getName(), modules.length(), is( 3 ) );
+            assertVerbose("Expecting 4 modules in project " + demoProject.getName(), modules.length(), is( 4 ) );
 
+            // For the other organization, only the new public module is found (together with the two in the beginning
+
+            mockWriter = new MockWriter();
+
+            when(request.getParameter("session")).thenReturn("DummyEveToken");
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+            when(response.getWriter()).thenReturn(mockWriter.getWriter());
+
+            new ModuleServlet().doGet(request, response);
+
+            output = mockWriter.getOutput();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
+
+            jsonResponse = new JSONObject(output);
+            modules = jsonResponse.getJSONArray("Module");
+
+            assertVerbose("Expecting 3 modules in system " + demoProject.getName(), modules.length(), is( 3 ) );
 
 
     }catch(Exception e){
@@ -295,42 +337,18 @@ public class ModuleServiceTest extends ServletTests {
         }
     }
 
-    /*******************************************************************************
+
+    /*********************************************************************************'
      *
-     *          No access to the modules for a user of another organization
+     *          Modules are assigned to a project
+     *
+     *           - There are two modules in the demo project to start with
+     *           - We add another module to the project
+     *           - We can delete it and it should be two again
      *
      *
-     * @throws Exception
+     *
      */
-
-
-    @Test
-    public void testNoAccess() throws Exception {
-
-        try{
-            MockWriter mockWriter = new MockWriter();
-
-            when(request.getParameter("session")).thenReturn("DummyEveToken");
-            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
-            when(response.getWriter()).thenReturn(mockWriter.getWriter());
-
-            new ModuleServlet().doGet(request, response);
-
-            String output = mockWriter.getOutput();
-            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
-
-            JSONObject jsonResponse = new JSONObject(output);
-            JSONArray modules = jsonResponse.getJSONArray("Module");
-
-            assertVerbose("Expecting No modules for user eve " + demoProject.getName(), modules.length(), is( 0 ) );
-
-        }catch(NullPointerException e){
-
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
 
 
     @Test
@@ -360,7 +378,7 @@ public class ModuleServiceTest extends ServletTests {
             JSONObject jsonResponse = new JSONObject(output);
             JSONArray modules = jsonResponse.getJSONArray("ModuleForProject");
 
-            assertVerbose("Expecting 2 modules in project " + demoProject.getName(), modules.length(), is( 2 ) );
+            assertVerbose("Expecting 1 modules in project " + demoProject.getName(), modules.length(), is( 1 ) );
 
             // Check that the arguments have the correct names
 
@@ -368,6 +386,102 @@ public class ModuleServiceTest extends ServletTests {
             first.getString("name");
             first.getString("description");
             first.getString("key");
+
+
+            // Add a new module to the project
+
+            Module module = new Module(new LookupItem().addFilter(new ColumnFilter(ModuleTable.Columns.Name.name(), "Test")));
+
+            mockWriter = new MockWriter();
+
+            when(request.getParameter("session")).thenReturn("DummyAdminToken");
+            when(request.getParameter("project")).thenReturn(demoProject.getKey().toString());
+            when(request.getParameter("module")).thenReturn(module.getKey().toString());
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+            when(response.getWriter()).thenReturn(mockWriter.getWriter());
+
+            new ModuleProjectServlet().doPost(request, response);
+
+            output = mockWriter.getOutput();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
+
+            jsonResponse = new JSONObject(output);
+
+            // Granting it again should make no difference
+
+            mockWriter = new MockWriter();
+
+            when(request.getParameter("session")).thenReturn("DummyAdminToken");
+            when(request.getParameter("project")).thenReturn(demoProject.getKey().toString());
+            when(request.getParameter("module")).thenReturn(module.getKey().toString());
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+            when(response.getWriter()).thenReturn(mockWriter.getWriter());
+
+            new ModuleProjectServlet().doPost(request, response);
+
+            output = mockWriter.getOutput();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
+
+            jsonResponse = new JSONObject(output);
+
+
+
+            // Now we should get one more module listed for this project
+
+            mockWriter = new MockWriter();
+
+            when(request.getParameter("session")).thenReturn("DummyAdminToken");
+            when(request.getParameter("project")).thenReturn(demoProject.getKey().toString());
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+            when(response.getWriter()).thenReturn(mockWriter.getWriter());
+
+            new ModuleProjectServlet().doGet(request, response);
+
+            output = mockWriter.getOutput();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
+
+            jsonResponse = new JSONObject(output);
+            modules = jsonResponse.getJSONArray("ModuleForProject");
+
+            assertVerbose("Expecting 2 modules in project " + demoProject.getName(), modules.length(), is( 2 ) );
+
+            // Delete the module access
+
+            mockWriter = new MockWriter();
+
+            when(request.getParameter("session")).thenReturn("DummyAdminToken");
+            when(request.getParameter("project")).thenReturn(demoProject.getKey().toString());
+            when(request.getParameter("module")).thenReturn(module.getKey().toString());
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+            when(response.getWriter()).thenReturn(mockWriter.getWriter());
+
+            new ModuleProjectServlet().doDelete(request, response);
+
+            output = mockWriter.getOutput();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
+
+            jsonResponse = new JSONObject(output);
+
+
+            // Now we should be back to one module
+
+            mockWriter = new MockWriter();
+
+            when(request.getParameter("session")).thenReturn("DummyAdminToken");
+            when(request.getParameter("project")).thenReturn(demoProject.getKey().toString());
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+            when(response.getWriter()).thenReturn(mockWriter.getWriter());
+
+            new ModuleProjectServlet().doGet(request, response);
+
+            output = mockWriter.getOutput();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
+
+            jsonResponse = new JSONObject(output);
+            modules = jsonResponse.getJSONArray("ModuleForProject");
+
+            assertVerbose("Expecting 1 modules in project " + demoProject.getName(), modules.length(), is( 1 ) );
+
 
 
     }catch(Exception e){

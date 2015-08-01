@@ -5,13 +5,12 @@ import backend.ItClarifies;
 import cache.ServiceCache;
 import contractManagement.*;
 import crossReference.Reference;
-import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
-import document.CellInfo;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+import project.Project;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.*;
 
@@ -21,9 +20,7 @@ import userManagement.SessionManagement;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /********************************************************
  *

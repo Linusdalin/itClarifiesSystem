@@ -1,23 +1,28 @@
-package services;
+package project;
 
 import dataRepresentation.DBTimeStamp;
 import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
 import contractManagement.*;
 import log.PukkaLogger;
+import module.Module;
+import module.ModuleProject;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import project.Project;
+import project.ProjectTable;
+import project.ProjectType;
+import project.ProjectTypeTable;
 import pukkaBO.condition.*;
-import pukkaBO.export.ValuePair;
 import pukkaBO.exceptions.BackOfficeException;
+import services.Formatter;
+import services.ItClarifiesService;
 import userManagement.AccessRight;
 import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /********************************************************
  *
@@ -25,7 +30,7 @@ import java.util.List;
  *
  */
 
-public class ProjectServlet extends ItClarifiesService{
+public class ProjectServlet extends ItClarifiesService {
 
     public static final String DataServletName = "Project";
 
@@ -34,8 +39,12 @@ public class ProjectServlet extends ItClarifiesService{
      *          Create a new project or update an existing project
      *
      *
-     * @param req
-     * @param resp
+     *          The parameter empty=true is sent to suppress the assignment of default
+     *          modules to the project. It is mostly for legacy reasons
+     *
+     *
+     * @param req      -
+     * @param resp     -
      * @throws IOException
      *
      *
@@ -65,6 +74,7 @@ public class ProjectServlet extends ItClarifiesService{
 
             String name            = getMandatoryString("name", req);
             String description     = getMandatoryString("description", req);
+            boolean empty          = getOptionalBoolean("empty", req, false);
 
             Project project;
 
@@ -89,8 +99,6 @@ public class ProjectServlet extends ItClarifiesService{
                 if(!mandatoryObjectExists(project, resp))
                     return;
 
-                System.out.print("Name=" + name);
-
                 project.setName(name);
                 project.setDescription(description);
                 project.setKey(_project);
@@ -101,6 +109,8 @@ public class ProjectServlet extends ItClarifiesService{
 
                 Project existingProject = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), name)));
 
+                long      _projectType = getOptionalLong("type", req, -1);
+
                 if(existingProject.exists()){
 
                     returnError("Project with name " + name + "already exists.", ErrorType.DATA, HttpServletResponse.SC_BAD_REQUEST, resp);
@@ -108,7 +118,13 @@ public class ProjectServlet extends ItClarifiesService{
 
                 }
 
-                ProjectType projectType = ProjectType.getGeneric();    //TODO: Not implemented different project types. Using default
+                // Now get the project type
+
+                ProjectType projectType = ProjectType.getContracting();    //TODO: Change this to generic when project type is properly passed from frontend
+
+                if(_projectType != -1)
+                    projectType = new ProjectTypeTable().getValue((int)_projectType);
+
                 AccessRight projectAccess = AccessRight.getrwd();      //TODO: Not implemented access rights to project
 
                 DBTimeStamp creationTime = new DBTimeStamp();
@@ -120,6 +136,8 @@ public class ProjectServlet extends ItClarifiesService{
 
                 // Create appropriate sections for the type of project
                 createSectionsForProject(project, projectType, portalUser, projectAccess, creationTime);
+                if(!empty)
+                    createModulesForProject(project, projectType, creationTime);
             }
 
             JSONObject json = createPostResponse(DataServletName, project);
@@ -130,7 +148,7 @@ public class ProjectServlet extends ItClarifiesService{
         } catch (BackOfficeException e) {
 
             PukkaLogger.log( e );
-            returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+            returnError("Error in " + DataServletName + e.narration, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
 
         } catch (Exception e) {
 
@@ -141,16 +159,66 @@ public class ProjectServlet extends ItClarifiesService{
 
      }
 
+    /*********************************************************************************
+     *
+     *          Create default modules for the project
+     *
+     *          The available default modules are:
+     *
+     *           - itclarifies contracting
+     *           - risk
+     *           -definition analysis
+     *
+     *          and they are assigned automatically to a project of type "Contracting"
+     *
+     *
+     * @param project              - the project under creation
+     * @param projectType          - the type of the projects to determine which default modules do we need
+     * @param creationTime         - time of creation (same as for project)
+     *
+     *
+     */
+
+    private void createModulesForProject(Project project, ProjectType projectType, DBTimeStamp creationTime){
+
+
+        try {
+
+            if(projectType.get__Id() == ProjectType.getContracting().get__Id()){
+
+                ModuleProject default1 = new ModuleProject("Default Assignment", Module.getContracting().getKey(), project.getKey(), creationTime.getISODate());
+                default1.store();
+                ModuleProject default2 = new ModuleProject("Default Assignment", Module.getRisk().getKey(), project.getKey(), creationTime.getISODate());
+                default2.store();
+                ModuleProject default3 = new ModuleProject("Default Assignment", Module.getDefinitions().getKey(), project.getKey(), creationTime.getISODate());
+                default3.store();
+
+            }
+
+
+        } catch (BackOfficeException e) {
+
+            PukkaLogger.swallow( e );        // For now swallow this. Before the modules are deployed to the server, this will fail.
+
+        } catch (Exception e) {
+
+            PukkaLogger.log( e );
+        }
+
+
+    }
+
     /**********************************************************************************************************''
      *
      *              Create appropriate sections for a type of project
      *
+     *              NOTE: Sections are not implemented
      *
-     * @param project
-     * @param projectType
-     * @param owner
-     * @param projectAccess
-     * @param creationTime
+     * @param project              - project under creation
+     * @param projectType          - type of project (to define which sections are appropriate)
+     * @param owner                - owner of the project will also be owner of the sections
+     * @param projectAccess        - access will be inherited by the section from the project
+     * @param creationTime         - creation time (same as for the project
      * @throws BackOfficeException
      *
      *              //TODO: Different sections for different types of projects is not implemented. Always use exactly one section

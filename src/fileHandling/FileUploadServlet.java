@@ -16,6 +16,7 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.poi.POIXMLException;
+import project.Project;
 import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupByKey;
 import pukkaBO.condition.LookupItem;
@@ -57,8 +58,8 @@ public class FileUploadServlet extends DocumentService {
      *
      *      See also uploadTest.jsp
      *
-     * @param req
-     * @param resp
+     * @param req      -
+     * @param resp     -
      * @throws java.io.IOException
      *
      *
@@ -80,15 +81,15 @@ public class FileUploadServlet extends DocumentService {
             String sessionToken = "";
 
             Project project = null;
-            PortalUser owner = null;
+            PortalUser owner;
             Contract document = null;
             String title = null;
             boolean performAnalysis = true;
 
             UploadType uploadType = UploadType.DOCUMENT;    // Default if no parameter is given is to treat the upload as a regular document
 
-            String _project = null;
-            String _document = null;
+            String _project;
+            String _document;
 
             String ipAddress = getIPAddress(req);
 
@@ -98,7 +99,7 @@ public class FileUploadServlet extends DocumentService {
 
             // Default values
 
-            Visibility visibility = Visibility.getOrg();
+            Visibility visibility;
             AccessRight accessRight = AccessRight.getrwd();
             String fingerPrint = "";
 
@@ -259,8 +260,7 @@ public class FileUploadServlet extends DocumentService {
                         }
 
 
-                    }
-                     else{
+                    }else{
 
                         owner = sessionManagement.getUser();
 
@@ -286,12 +286,25 @@ public class FileUploadServlet extends DocumentService {
                         }
 
 
-                        //TODO; This should be more relaxed. Within a team more than the owner must be able to contribute. Fix this with team access rights
+
+                        //TODO; Improvement: This should be more relaxed. Within a team more than the owner must be able to contribute. Fix this with team access rights
 
                         if(!owner.equals(project.getCreator())){
 
                             returnError("Not sufficient access to upload document. Please contact project owner", ErrorType.PERMISSION, HttpServletResponse.SC_FORBIDDEN, resp);
                             return;
+                        }
+
+                        //String fileName = new String (fi.getName().getBytes ("UTF-8"), "UTF-8");
+                        String fileName = fi.getName();
+
+                        if(!isSupportedFileFormat(fileName)){
+
+                            // There was no project passed in the request
+
+                            returnError("Not supported file format", ErrorType.DATA, HttpServletResponse.SC_BAD_REQUEST, resp);
+                            return;
+
                         }
 
 
@@ -302,7 +315,6 @@ public class FileUploadServlet extends DocumentService {
                         // If there is no explicit title given, we use the document name as title
 
                         //String fileName = new String (fi.getName().getBytes ("iso-8859-1"), "UTF-8");
-                        String fileName = new String (fi.getName().getBytes ("UTF-8"), "UTF-8");
 
                         if(title == null || title.equals("")){
                             title = fileName;
@@ -310,12 +322,8 @@ public class FileUploadServlet extends DocumentService {
                             PukkaLogger.log(PukkaLogger.Level.WARNING, "No title found. Reusing the file name (potentially wrong encoding)");
                         }
 
-                        boolean isInMemory = fi.isInMemory();
-                        long sizeInBytes = fi.getSize();
-                        String fieldName = fi.getFieldName();
 
                         InputStream stream = fi.getInputStream();
-
 
                         switch (uploadType) {
 
@@ -408,6 +416,26 @@ public class FileUploadServlet extends DocumentService {
 
     }
 
+    /***********************************************************************'
+     *
+     *              Check if this is a supported file format.
+     *
+     *              This is done by checking the extension of the file.
+     *
+     * @param fileName         - filename
+     * @return                 - is it supported
+     *
+     *              NOTE: We are letting old office formats through. They may be mislabeled
+     */
+
+    private boolean isSupportedFileFormat(String fileName) {
+
+        return  fileName.endsWith(".xlsx") ||
+                fileName.endsWith(".xls") ||
+                fileName.endsWith(".docx") ||
+                fileName.endsWith(".doc");
+    }
+
     // TODO: Description for checklist not implemented. Reusing title
     // TODO: Create feedback and pass back here
 
@@ -425,7 +453,7 @@ public class FileUploadServlet extends DocumentService {
             newChecklist.store();
 
             DocumentManager document = new DocumentManager(title, inFile);
-            ChecklistParser parser = new ChecklistParser(document);
+            ChecklistParser parser = new ChecklistParser(document, owner);
             parser.startNewChecklist(newChecklist);
             feedback = parser.parseChecklist();
 
@@ -442,8 +470,9 @@ public class FileUploadServlet extends DocumentService {
 
     /******************************************************************************************************************
      *
+     *                  Handle the document
      *
-     * @param title
+     *
      * @param fileHandler
      * @param document
      * @param project

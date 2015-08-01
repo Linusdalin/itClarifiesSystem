@@ -16,6 +16,8 @@
 <%@ page import="actions.ChecklistTable" %>
 <%@ page import="pukkaBO.style.Html" %>
 <%@ page import="cache.ServiceCache" %>
+<%@ page import="project.Project" %>
+<%@ page import="project.ProjectTable" %>
 <html>
 
 
@@ -739,8 +741,32 @@
 
 <div style="float:left; width:33%">
 
-    <FORM METHOD=GET action="<% out.print(host); %>/VersionHistory" id="documentHistoryForm" name="documentHistoryForm" accept-charset="UTF-8">
+    <FORM METHOD=POST action="<% out.print(host); %>/Document" id="documentUpdate" name="documentUpdate" accept-charset="UTF-8">
         <fieldset style="height:330px">
+            <h3>VersionHistory</h3>
+
+            <p>	<label for="HistoryDocument">Document</label>
+                <input type="text" id="UpdateDocument" name="key" value="<% out.print(demoDocumentKey);%>" size="50"></p>
+            <p>	<label for="DocumentOrdinal">Position</label>
+                <input type="text" id="DocumentOrdinal" name="ordinal" value="" size="20"></p>
+
+            <input type="hidden" name="html" value="on">
+            <% out.print(getTokenParameter(useRealToken, "postDocument"));%>
+            </p>
+
+            <p>
+                <input type="submit" value="Update" class="btn primary" id="submit_documentUpdateForm" />
+            </p>
+        </fieldset>
+    </FORM>
+
+</div>
+
+
+<div style="float:left; width:33%">
+
+    <FORM METHOD=GET action="<% out.print(host); %>/VersionHistory" id="documentHistoryForm" name="documentHistoryForm" accept-charset="UTF-8">
+        <fieldset style="height:180px">
             <h3>VersionHistory</h3>
 
             <p>	<label for="HistoryDocument">Document</label>
@@ -756,13 +782,9 @@
         </fieldset>
     </FORM>
 
-</div>
-
-
-<div style="float:left; width:33%">
 
     <FORM METHOD=GET action="<% out.print(host); %>/Diff" id="diffForm" name="diffForm" accept-charset="UTF-8">
-        <fieldset style="height:330px">
+        <fieldset style="height:180px">
             <h3>Document Diff</h3>
             <p>Gett the diff between two versions of the same document</p>
 

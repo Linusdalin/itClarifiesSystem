@@ -3107,7 +3107,7 @@ VMLRenderer.prototype = merge( SVGRenderer.prototype, { // inherit SVGRenderer
 	 * VML uses a shape for rect to overcome bugs and rotation problems
 	 */
 	rect: function(x, y, width, height, r, strokeWidth) {
-		// todo: share this code with SVG
+		// to do: share this code with SVG
 		if (arguments.length > 1) {
 			var normalizer = (strokeWidth || 0) % 2 / 2;
 
@@ -6980,7 +6980,7 @@ Series.prototype = {
 		
 		
 		// bring to front
-		// Todo: optimize. This is one of two operations slowing down the tooltip in Firefox.
+		// To do: optimize. This is one of two operations slowing down the tooltip in Firefox.
 		// Can the tracking be done otherwise?
 		if (series.tracker) {
 			series.tracker.toFront();
@@ -7479,7 +7479,7 @@ Series.prototype = {
 						areaSegmentPath.push(segmentPath[i]);
 					}
 					if (options.stacking && series.type != 'areaspline') {
-						// follow stack back. Todo: implement areaspline
+						// follow stack back. To do: implement areaspline
 						for (i = segment.length - 1; i >= 0; i--) {
 							areaSegmentPath.push(segment[i].plotX, segment[i].yBottom);
 						}

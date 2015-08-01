@@ -82,7 +82,7 @@ public class ClassificationList extends GroupByList implements ListInterface{
         actions.add(new ListAction(Callback_Action_Delete,     ActionType.List, "Delete").setIcon(Icon.Trash));
 
         // Set the number of elements to display
-        displaySize = 20;                                 //TODO: Size not implemented in the Starlight table
+        displaySize = 20;
     }
 
 

@@ -4,8 +4,6 @@ import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestC
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import contractManagement.Contract;
 import backend.ItClarifies;
-import contractManagement.Project;
-import contractManagement.ProjectTable;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -13,14 +11,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import pukkaBO.backOffice.BackOfficeInterface;
-import pukkaBO.condition.ColumnFilter;
-import pukkaBO.condition.LookupItem;
 import pukkaBO.exceptions.BackOfficeException;
 import search.SearchManager;
-import search.SearchManager2;
 import system.TextMatcher;
-import userManagement.PortalUser;
-import userManagement.PortalUserTable;
 import userManagement.SessionManagement;
 
 import static org.hamcrest.CoreMatchers.is;

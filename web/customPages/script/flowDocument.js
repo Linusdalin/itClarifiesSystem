@@ -43,7 +43,7 @@ jQuery(document).ready(function(){
             //Change the button back to the original symbol
             jQuery(this).html("<img src=\"/bo/adminCommon/styles/bootstrap/images/icons/default/chat.png\">");
 
-            //TODO: Submit here
+            // Submit here
 
         }
         else{
@@ -97,7 +97,7 @@ jQuery(document).ready(function(){
 
           //alert("Submitting:" + content + " id:" + id);
 
-          //TODO: change this to API web service to store the new Annotation
+          //change this to API web service to store the new Annotation
 
           jQuery.post("demo_test_post.asp", { name: content, id: id },
                 function(data,status){
@@ -244,8 +244,6 @@ function submitSearch(){
 
 function submitTooltip(current, id){
 
-    //TODO: update
-
     //alert("Submitting:" + current + " id:" + id);
 
     /*
@@ -337,7 +335,7 @@ function selectHeadlines(showValues){
     var rowArray = obj.headline;
 
 
-    //TODO: Not implemented. Should be similar to the selectFragments
+    // Not implemented. Should be similar to the selectFragments
 }
 
 

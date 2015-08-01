@@ -13,6 +13,7 @@ import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import project.Project;
 import pukkaBO.exceptions.BackOfficeException;
 import risk.RiskClassification;
 import services.ItClarifiesService;

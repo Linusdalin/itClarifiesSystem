@@ -8,6 +8,7 @@ import dataRepresentation.DisplayFormat;
 import databaseLayer.DBKeyInterface;
 import databaseLayer.DatabaseAbstractionFactory;
 import log.PukkaLogger;
+import project.Project;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.backOffice.BackOfficeLocation;
 import pukkaBO.backOffice.Icon;
@@ -47,7 +48,7 @@ public class DocumentList extends GroupByList implements ListInterface{
     public static final String Name = "DocumentList";
     public static final String Title = "All Documents";
     public static final String Description = "All documents in the system grouped by project.";
-    public static final int GroupColumn = 8; // Group by Project
+    public static final int GroupColumn = 9; // Group by Project
 
     // ids for the callback actions
 
@@ -80,13 +81,13 @@ public class DocumentList extends GroupByList implements ListInterface{
             add(new ListTableColumn( 4, table ).withNameFromTableColumn().withFormat(new DisplayFormat(DisplayFormat.WIDE)));
             add(new ListTableColumn( 5, table ).withNameFromTableColumn());
             add(new ListTableColumn( 6, table ).withNameFromTableColumn());
-            add(new ListTableColumn( 7, table ).withNameFromTableColumn());
-            add(new ListTableColumn( 8, table ).withNameFromTableColumn().withConstantMap());
+            add(new ListTableColumn( 7, table ).withNameFromTableColumn().withFormat(new DisplayFormat(DisplayFormat.WIDE)));
+            add(new ListTableColumn( 8, table ).withNameFromTableColumn().withFormat(new DisplayFormat(DisplayFormat.WIDE)));
             add(new ListTableColumn( 9, table ).withNameFromTableColumn().withConstantMap());
             add(new ListTableColumn( 10, table ).withNameFromTableColumn());
+            add(new ListTableColumn( 11, table ).withNameFromTableColumn());
 
         }};
-
 
 
 
@@ -109,7 +110,7 @@ public class DocumentList extends GroupByList implements ListInterface{
         actions.add(new ListAction(Callback_Action_View,       ActionType.Item, "View").setIcon(Icon.Search));
 
         // Set the number of elements to display
-        displaySize = 20;                                 //TODO: Size not implemented in the Starlight table
+        displaySize = 20;
     }
 
 
@@ -159,8 +160,6 @@ public class DocumentList extends GroupByList implements ListInterface{
             switch(action){
 
                 case Callback_Action_Add:
-
-                    //TODO: Preprecess and then store the item here
 
                     document.store();
 
@@ -259,10 +258,10 @@ public class DocumentList extends GroupByList implements ListInterface{
      *
      *      Move a document to the top
      *
-     * @param thisDocument
+     * @param thisDocument             - the document to move
      * @throws BackOfficeException
      *
-     *          //TODO: Improvement this should use the service
+     *          //TODO: Improvement Refactor this should use the POST /Document service
      */
 
     private void moveToTop(Contract thisDocument) throws BackOfficeException{
@@ -364,9 +363,8 @@ public class DocumentList extends GroupByList implements ListInterface{
 
         DataTableInterface table = new ContractTable();
         BackOfficeLocation location = new BackOfficeLocation(backOffice, section, "");
-        String html = new TableEditForm(table, null, TableEditForm.FormType.ADD, location, "&list=" + Name).renderForm();
+        return new TableEditForm(table, null, TableEditForm.FormType.ADD, location, "&list=" + Name).renderForm();
 
-        return html;
     }
 
     @Override

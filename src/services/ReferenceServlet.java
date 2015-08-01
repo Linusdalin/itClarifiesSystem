@@ -3,7 +3,7 @@ package services;
 import contractManagement.Contract;
 import contractManagement.ContractTable;
 import contractManagement.ContractVersionInstance;
-import contractManagement.Project;
+import project.Project;
 import crossReference.Reference;
 import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
@@ -13,9 +13,7 @@ import pukkaBO.condition.LookupByKey;
 
 import pukkaBO.condition.LookupList;
 import pukkaBO.condition.Ordering;
-import pukkaBO.condition.ReferenceFilter;
 import pukkaBO.exceptions.BackOfficeException;
-import userManagement.AccessGrant;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

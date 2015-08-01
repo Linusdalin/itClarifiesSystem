@@ -4,6 +4,7 @@ import risk.*;
 import contractManagement.*;
 import classification.*;
 import userManagement.*;
+import project.*;
 import versioning.*;
 import actions.*;
 import overviewExport.*;
@@ -45,13 +46,13 @@ public class Contract extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public Contract(String name, String file, long ordinal, DataObjectInterface type, DataObjectInterface status, String message, String description, DataObjectInterface project, DataObjectInterface owner, String creation, String language, DataObjectInterface section, DataObjectInterface access) throws BackOfficeException{
+    public Contract(String name, String file, long ordinal, DataObjectInterface type, DataObjectInterface status, String message, String analysisdetails, String description, DataObjectInterface project, DataObjectInterface owner, String creation, String language, DataObjectInterface section, DataObjectInterface access) throws BackOfficeException{
 
-        this(name, file, ordinal, type, status, message, description, project.getKey(), owner.getKey(), creation, language, section.getKey(), access);
+        this(name, file, ordinal, type, status, message, analysisdetails, description, project.getKey(), owner.getKey(), creation, language, section.getKey(), access);
     }
 
 
-    public Contract(String name, String file, long ordinal, DataObjectInterface type, DataObjectInterface status, String message, String description, DBKeyInterface project, DBKeyInterface owner, String creation, String language, DBKeyInterface section, DataObjectInterface access){
+    public Contract(String name, String file, long ordinal, DataObjectInterface type, DataObjectInterface status, String message, String analysisdetails, String description, DBKeyInterface project, DBKeyInterface owner, String creation, String language, DBKeyInterface section, DataObjectInterface access){
 
         this();
         try{
@@ -66,13 +67,14 @@ public class Contract extends DataObject implements DataObjectInterface{
            data[3] = new ConstantData(type.get__Id(), columns[3].getTableReference());
            data[4] = new ConstantData(status.get__Id(), columns[4].getTableReference());
            data[5] = new TextData(message);
-           data[6] = new TextData(description);
-           data[7] = new ReferenceData(project, columns[7].getTableReference());
-           data[8] = new ReferenceData(owner, columns[8].getTableReference());
-           data[9] = new DateData(creation);
-           data[10] = new StringData(language);
-           data[11] = new ReferenceData(section, columns[11].getTableReference());
-           data[12] = new ConstantData(access.get__Id(), columns[12].getTableReference());
+           data[6] = new BlobData(analysisdetails);
+           data[7] = new TextData(description);
+           data[8] = new ReferenceData(project, columns[8].getTableReference());
+           data[9] = new ReferenceData(owner, columns[9].getTableReference());
+           data[10] = new DateData(creation);
+           data[11] = new StringData(language);
+           data[12] = new ReferenceData(section, columns[12].getTableReference());
+           data[13] = new ConstantData(access.get__Id(), columns[13].getTableReference());
 
            exists = true;
         }catch(BackOfficeException e){
@@ -198,15 +200,29 @@ public class Contract extends DataObject implements DataObjectInterface{
 
 
 
+    public String getAnalysisDetails(){
+
+        BlobData data = (BlobData) this.data[6];
+        return data.getStringValue();
+    }
+
+    public void setAnalysisDetails(String analysisdetails){
+
+        BlobData data = (BlobData) this.data[6];
+        data.setStringValue(analysisdetails);
+    }
+
+
+
     public String getDescription(){
 
-        TextData data = (TextData) this.data[6];
+        TextData data = (TextData) this.data[7];
         return data.getStringValue();
     }
 
     public void setDescription(String description){
 
-        TextData data = (TextData) this.data[6];
+        TextData data = (TextData) this.data[7];
         data.setStringValue(description);
     }
 
@@ -214,19 +230,19 @@ public class Contract extends DataObject implements DataObjectInterface{
 
     public DBKeyInterface getProjectId(){
 
-        ReferenceData data = (ReferenceData)this.data[7];
+        ReferenceData data = (ReferenceData)this.data[8];
         return data.value;
     }
 
     public Project getProject(){
 
-        ReferenceData data = (ReferenceData)this.data[7];
+        ReferenceData data = (ReferenceData)this.data[8];
         return new Project(new LookupByKey(data.value));
     }
 
     public void setProject(DBKeyInterface project){
 
-        ReferenceData data = (ReferenceData)this.data[7];
+        ReferenceData data = (ReferenceData)this.data[8];
         data.value = project;
     }
 
@@ -234,19 +250,19 @@ public class Contract extends DataObject implements DataObjectInterface{
 
     public DBKeyInterface getOwnerId(){
 
-        ReferenceData data = (ReferenceData)this.data[8];
+        ReferenceData data = (ReferenceData)this.data[9];
         return data.value;
     }
 
     public PortalUser getOwner(){
 
-        ReferenceData data = (ReferenceData)this.data[8];
+        ReferenceData data = (ReferenceData)this.data[9];
         return new PortalUser(new LookupByKey(data.value));
     }
 
     public void setOwner(DBKeyInterface owner){
 
-        ReferenceData data = (ReferenceData)this.data[8];
+        ReferenceData data = (ReferenceData)this.data[9];
         data.value = owner;
     }
 
@@ -254,13 +270,13 @@ public class Contract extends DataObject implements DataObjectInterface{
 
     public DBTimeStamp getCreation()throws BackOfficeException{
 
-        DateData data = (DateData) this.data[9];
+        DateData data = (DateData) this.data[10];
         return new DBTimeStamp(DBTimeStamp.ISO_DATE, data.value);
     }
 
     public void setCreation(DBTimeStamp creation){
 
-        DateData data = (DateData) this.data[9];
+        DateData data = (DateData) this.data[10];
         data.value = creation.getISODate().toString();
     }
 
@@ -268,13 +284,13 @@ public class Contract extends DataObject implements DataObjectInterface{
 
     public String getLanguage(){
 
-        StringData data = (StringData) this.data[10];
+        StringData data = (StringData) this.data[11];
         return data.getStringValue();
     }
 
     public void setLanguage(String language){
 
-        StringData data = (StringData) this.data[10];
+        StringData data = (StringData) this.data[11];
         data.setStringValue(language);
     }
 
@@ -282,19 +298,19 @@ public class Contract extends DataObject implements DataObjectInterface{
 
     public DBKeyInterface getSectionId(){
 
-        ReferenceData data = (ReferenceData)this.data[11];
+        ReferenceData data = (ReferenceData)this.data[12];
         return data.value;
     }
 
     public DocumentSection getSection(){
 
-        ReferenceData data = (ReferenceData)this.data[11];
+        ReferenceData data = (ReferenceData)this.data[12];
         return new DocumentSection(new LookupByKey(data.value));
     }
 
     public void setSection(DBKeyInterface section){
 
-        ReferenceData data = (ReferenceData)this.data[11];
+        ReferenceData data = (ReferenceData)this.data[12];
         data.value = section;
     }
 
@@ -302,14 +318,14 @@ public class Contract extends DataObject implements DataObjectInterface{
 
     public userManagement.AccessRight getAccess(){
 
-        ConstantData data = (ConstantData)this.data[12];
+        ConstantData data = (ConstantData)this.data[13];
         return (userManagement.AccessRight)(new userManagement.AccessRightTable().getConstantValue(data.value));
 
     }
 
     public void setAccess(DataObjectInterface access){
 
-        ConstantData data = (ConstantData)this.data[12];
+        ConstantData data = (ConstantData)this.data[13];
         data.value = access.get__Id();
     }
 

@@ -3,29 +3,34 @@ package fileHandling;
 import classification.FragmentClassification;
 import contractManagement.*;
 import document.AbstractComment;
-import featureTypes.FeatureType;
 import featureTypes.FeatureTypeTree;
+import language.English;
+import language.LanguageInterface;
 import log.PukkaLogger;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
+import project.Project;
 import pukkaBO.exceptions.BackOfficeException;
 import risk.RiskClassification;
+import services.DocumentService;
+import userManagement.Organization;
 import userManagement.PortalUser;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
+/***********************************************************************************************************
  *
- *              The exporter is responsible for taking a document (version) and exporting it my matching it to the
- *              original document.
+ *              The exporter is responsible for taking a document (version) and exporting it
+ *              by matching it to the original stored document.
  *
+ *              //TODO: Improvement: It would be nice to be able to have a version number or date in the file name in the export
  *
  */
+
 public class Exporter {
 
-    private static final String suffix = "_(clarified)";  // For output file
+
+    //The suffix for the exported file
+    private static final String suffix = "_(clarified)";
 
 
     public Exporter(){
@@ -41,18 +46,22 @@ public class Exporter {
      *
      *
      * @param documentVersion - the version to export
+     * @param filter - JSON tag list
+     *
      * @throws BackOfficeException
      */
 
 
 
 
-    public DocXExport enhanceFile(ContractVersionInstance documentVersion) throws BackOfficeException{
+    public DocXExport enhanceFile(ContractVersionInstance documentVersion, String filter) throws BackOfficeException{
 
-        String fileName = documentVersion.getDocument().getFile();
+        Contract document = documentVersion.getDocument();
+        String fileName = document.getFile();
+        Project project = document.getProject();
         DocXExport docXDocument = new DocXExport(new RepositoryFileHandler(fileName));
 
-        addComments(docXDocument, documentVersion);
+        addComments(docXDocument, documentVersion, project, filter);
 
         return docXDocument;
 
@@ -69,8 +78,8 @@ public class Exporter {
      *      myFile.docx -> myFile_(clarified).docx
      *
      *
-     * @param fileName
-     * @return
+     * @param fileName     - the name of the uploaded document
+     * @return             - the name of the exported document
      */
 
 
@@ -78,9 +87,8 @@ public class Exporter {
 
         int dot = fileName.lastIndexOf(".");
 
-        String name = fileName.substring(0, dot) + suffix + fileName.substring(dot);
+        return fileName.substring(0, dot) + suffix + fileName.substring(dot);
 
-        return name;
 
     }
 
@@ -97,9 +105,11 @@ public class Exporter {
      *
      * @param document              - the DocX file to generate to
      * @param documentVersion       - current version of the internal document
+     * @param project               - the project of the document (for project/organization settings)
+     * @param filter                - JSON list of tags
      */
 
-    private void addComments(DocXExport document, ContractVersionInstance documentVersion) {
+    private void addComments(DocXExport document, ContractVersionInstance documentVersion, Project project, String filter) {
 
         try {
 
@@ -113,7 +123,7 @@ public class Exporter {
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Adding "+ classificationsForDocument.size()+" classification comments");
 
-            commentList.addAll(createCommentsFromClassifications(classificationsForDocument));
+            commentList.addAll(createCommentsFromClassifications(classificationsForDocument, project, filter));
 
             PukkaLogger.log(PukkaLogger.Level.INFO, "Adding all annotation comments");
             commentList.addAll(createCommentsFromAnnotations(annotationsForDocument));
@@ -129,7 +139,7 @@ public class Exporter {
         } catch (BackOfficeException e) {
 
             PukkaLogger.log(e);
-            return;
+
         }
 
 
@@ -141,21 +151,28 @@ public class Exporter {
      *
      *
      *
+     *
+     *
      * @param classificationsForDocument          - all classifications
-     * @return - list of abstract comments of the type "Classification"
+     * @param project                             - the project
+     *@param filter                              - JSON list of #tags  @return - list of abstract comments of the type "Classification"
      */
 
-    private List<AbstractComment> createCommentsFromClassifications(List<FragmentClassification> classificationsForDocument) {
+    private List<AbstractComment> createCommentsFromClassifications(List<FragmentClassification> classificationsForDocument, Project project, String filter) {
 
         List<AbstractComment> list = new ArrayList<AbstractComment>();
+        LanguageInterface language = new English();
+        Organization organization = project.getOrganization();
 
         for(FragmentClassification classification : classificationsForDocument){
 
-            if(isRelevantForExport(classification)){
+            if(isRelevantForExport(classification, filter)){
 
-                PukkaLogger.log(PukkaLogger.Level.DEBUG, "  -- Found a classification " + classification.getClassTag() + " for " + classification.getPattern());
+                String localizedTag = "#" + DocumentService.getLocalizedTag(classification.getClassTag(), organization, language);
 
-                list.add(new AbstractComment("Classification", classification.getPattern(), classification.getClassTag(),
+                PukkaLogger.log(PukkaLogger.Level.INFO, "  -- Found a classification " + localizedTag + "(" + classification.getClassTag() + ") for " + classification.getPattern());
+
+                list.add(new AbstractComment("Classification", classification.getPattern(), localizedTag,
                         (int)classification.getFragment().getOrdinal(), (int)classification.getPos(), (int)classification.getLength()));
             }
             else{
@@ -178,19 +195,33 @@ public class Exporter {
      *              Filter classifications
      *
      *
+     *
      * @param classification     - the potential classification
+     * @param filter             - JSON list of tags
      * @return                   - is it relevant to export or not?
+     *
+     *              //TODO. Not implemented TAG filter
+     *
      */
 
-    private boolean isRelevantForExport(FragmentClassification classification) {
+    private boolean isRelevantForExport(FragmentClassification classification, String filter) {
 
         if(     classification.getClassTag().equals(FeatureTypeTree.DefinitionRepetition.getName()) ||
                 classification.getClassTag().equals(FeatureTypeTree.DefinitionDef.getName()) ||
                 classification.getClassTag().equals(FeatureTypeTree.DefinitionUsage.getName())
-        ){
+        )
+        {  return false; }
+
+        // A classification generated from a comment in the system is labelled with the external user.
+        // It already exists so we will ignore it when exporting.
+
+        if(classification.getCreator().getName().equals("External")){
 
             return false;
+
         }
+
+        System.out.println(" Classification to export: " + classification.toStringLong());
 
         return true;
 
@@ -201,7 +232,7 @@ public class Exporter {
      *          Convert the risks to a list of AbstractComments
      *
      *
-     * @param risksForDocument
+     * @param risksForDocument         - all risks in the document
      * @return - list of abstract comments of the type "Risk"
      */
 
@@ -231,7 +262,8 @@ public class Exporter {
      *
      *
      *
-     * @param annotationsForDocument
+     * @param annotationsForDocument   - all annotations pre-fetched from database
+     *
      * @return - list of abstract comments of the type "Annotation"
      */
 

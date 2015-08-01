@@ -1,9 +1,9 @@
 package module;
 
 import contractManagement.DocumentSection;
-import contractManagement.Project;
-import contractManagement.ProjectTable;
-import contractManagement.ProjectType;
+import project.Project;
+import project.ProjectTable;
+import project.ProjectType;
 import dataRepresentation.DBTimeStamp;
 import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
@@ -74,7 +74,7 @@ public class ModuleOrganizationServlet extends ItClarifiesService {
 
             PortalUser portalUser = sessionManagement.getUser();
 
-            if(!portalUser.getWSAdmin()){
+            if(!portalUser.getWSAdmin() || !portalUser.getOrganizationId().equals(_organization)){
 
                 returnError("Not sufficient access right to add modules to organization", ErrorType.PERMISSION, HttpServletResponse.SC_FORBIDDEN, resp);
                 return;

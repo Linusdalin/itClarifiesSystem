@@ -1,4 +1,5 @@
 <%@ page import="pukkaBO.condition.LookupList" %>
+<%@ page import="pukkaBO.exceptions.BackOfficeException" %>
 
 <!---
             This is the actual displaying of a list.
@@ -18,7 +19,7 @@
 
                     //out.print("<a href=\"csv.jsp?list="+ list.getName()+ "\"> export to csv</a>");
                     out.println(list.getRenderer().getTableScript("dyntable", "", ""));
-                    out.println(list.getRenderer().getTableContent(list, new LookupList(), selection, false, backOffice));   //TODO: Make show id parameter in the list
+                    out.println(list.getRenderer().getTableContent(list, new LookupList(), selection, false, backOffice));   //Make show id parameter in the list
                 }
             }catch(BackOfficeException e){
 

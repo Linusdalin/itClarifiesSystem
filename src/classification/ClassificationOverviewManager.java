@@ -3,7 +3,9 @@ package classification;
 
 import contractManagement.Contract;
 import contractManagement.ContractVersionInstance;
-import contractManagement.Project;
+import module.ContractingModule;
+import module.ModuleNode;
+import project.Project;
 import featureTypes.FeatureTypeInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
@@ -107,10 +109,10 @@ public class ClassificationOverviewManager {
 
     public JSONObject getStatistics(){
 
-        return getStatistics(ClassificationOverviewTree.root);
+        return getStatistics(ContractingModule.root);
     }
 
-    public JSONObject getStatistics(ClassificationOverviewNode node){
+    public JSONObject getStatistics(ModuleNode node){
 
         JSONObject levelN = new JSONObject();    // levelN represents this level in the resulting hierarchy tree
         JSONArray children = new JSONArray();    // The list of children below
@@ -123,7 +125,7 @@ public class ClassificationOverviewManager {
 
         // Traverse all children
 
-        for (ClassificationOverviewNode childNode : node.children) {
+        for (ModuleNode childNode : node.children) {
 
             JSONObject childLevel = getStatistics(childNode);
 

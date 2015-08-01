@@ -1,19 +1,16 @@
 package api;
 
-import adminServices.GenericAdminServlet;
 import com.google.appengine.api.appidentity.AppIdentityServiceFactory;
 import com.google.appengine.api.utils.SystemProperty;
-import contractManagement.Project;
-import contractManagement.ProjectTable;
+import project.Project;
+import project.ProjectTable;
 import dataRepresentation.DataObjectInterface;
-import maintenance.Smokey;
 import pukkaBO.condition.LookupList;
 import search.SearchManager2;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 
 /*************************************************************************'''
  *

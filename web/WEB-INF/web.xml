@@ -168,13 +168,21 @@
 
     <servlet>
          <servlet-name>Project</servlet-name>
-         <servlet-class>services.ProjectServlet</servlet-class>
+         <servlet-class>project.ProjectServlet</servlet-class>
      </servlet>
      <servlet-mapping>
          <servlet-name>Project</servlet-name>
          <url-pattern>/Project</url-pattern>
      </servlet-mapping>
 
+    <servlet>
+         <servlet-name>ProjectType</servlet-name>
+         <servlet-class>project.ProjectTypeServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>ProjectType</servlet-name>
+         <url-pattern>/ProjectType</url-pattern>
+     </servlet-mapping>
     <servlet>
          <servlet-name>Document</servlet-name>
          <servlet-class>services.ContractServlet</servlet-class>
@@ -532,6 +540,34 @@
          <url-pattern>/ExportOverviewStatus</url-pattern>
      </servlet-mapping>
 
+
+
+    <servlet>
+         <servlet-name>Module</servlet-name>
+         <servlet-class>module.ModuleServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>Module</servlet-name>
+         <url-pattern>/Module</url-pattern>
+     </servlet-mapping>
+
+    <servlet>
+         <servlet-name>ModuleOrganization</servlet-name>
+         <servlet-class>module.ModuleOrganizationServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>ModuleOrganization</servlet-name>
+         <url-pattern>/ModuleOrganization</url-pattern>
+     </servlet-mapping>
+
+    <servlet>
+         <servlet-name>ModuleProject</servlet-name>
+         <servlet-class>module.ModuleProjectServlet</servlet-class>
+     </servlet>
+     <servlet-mapping>
+         <servlet-name>ModuleProject</servlet-name>
+         <url-pattern>/ModuleProject</url-pattern>
+     </servlet-mapping>
 
     <servlet>
         <servlet-name>HealthCheck</servlet-name>

@@ -22,8 +22,7 @@
                 ]
             }
 
-            // TODO: Add exception handling on the parameters
-            // TODO: Move this to a web service
+            // TODO: Improvement Stability: Add exception handling on the parameters
     */
 %>
 

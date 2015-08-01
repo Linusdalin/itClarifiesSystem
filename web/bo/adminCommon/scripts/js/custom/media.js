@@ -3,7 +3,7 @@ jQuery(document).ready(function(){
     /*
 
         Linus: Removed this as it doesn't work with the new jQuery.
-        //TODO: Check out where this is used, and if it is a problem...
+        //TO DO: Check out where this is used, and if it is a problem...
 
 
 	//image edit

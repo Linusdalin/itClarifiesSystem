@@ -2,14 +2,22 @@ package actions;
 
 import analysis.ParseFeedback;
 import analysis.ParseFeedbackItem;
+import classification.FragmentClass;
+import classification.FragmentClassTable;
+import classifiers.ClassifierInterface;
 import contractManagement.ContractFragment;
 import dataRepresentation.DBTimeStamp;
 import document.AbstractFragment;
 import document.CellInfo;
 import document.FragmentSplitterInterface;
+import language.English;
+import language.LanguageInterface;
 import log.PukkaLogger;
+import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupByKey;
+import pukkaBO.condition.LookupItem;
 import pukkaBO.exceptions.BackOfficeException;
+import userManagement.PortalUser;
 
 import java.util.List;
 
@@ -42,12 +50,15 @@ import java.util.List;
 
 public class ChecklistParser {
 
-    private static final String[] checklistHeadlines = {"Id", "Name", "Description","#Tag", "Comment", "Source"};
+    private static final String[] checklistHeadlines = {"Id", "Name", "Description","#Conformance", "#Context", "Comment", "Source"};
 
     private FragmentSplitterInterface doc;
     private Checklist currentChecklist = null;
     private ChecklistItem currentItem;  // The current item that we are building up
     private String currentSourceText;   // The source text for the current item
+
+    PortalUser owner;
+
 
     // Create a map for the connection from a ChecklistItem to the source fragment.
     // As the source fragments are not yet stored at the point of parsing, we put this in a list and
@@ -62,11 +73,14 @@ public class ChecklistParser {
      *
      *
      * @param doc
+     * @param owner
      */
 
-    public ChecklistParser(FragmentSplitterInterface doc){
+    public ChecklistParser(FragmentSplitterInterface doc, PortalUser owner){
 
         this.doc = doc;
+        this.owner = owner;
+
     }
 
     /***********************************************************************
@@ -79,21 +93,33 @@ public class ChecklistParser {
      * @param checklist
      */
 
-    public void startNewChecklist(Checklist checklist){
+    public ParseFeedbackItem startNewChecklist(Checklist checklist){
+
+        ParseFeedbackItem feedbackItem = null;
 
         if(hasOpenCheckist())
-            endCurrentChecklist();
+            feedbackItem = endCurrentChecklist();
 
         this.currentChecklist = checklist;
         currentItem = createNewItem();
 
+        return feedbackItem;
 
     }
 
-    public void endCurrentChecklist(){
+    /********************************************************'
+     *
+     *          Close the current checklist
+     *
+     *
+     * @return
+     */
 
-        storeDefinition(0);
+    public ParseFeedbackItem  endCurrentChecklist(){
+
+        ParseFeedbackItem feedback = storeDefinition(0);
         currentChecklist = null;
+        return feedback;
 
     }
 
@@ -154,7 +180,7 @@ public class ChecklistParser {
      *      parsing a checklist from the entire document
      *
      *
-     *      //TODO: Optimization: Add batch store here
+     *      //TODO: Improvement Performance: Add batch store here
      *
      */
 
@@ -190,12 +216,23 @@ public class ChecklistParser {
     }
 
 
+    /************************************************************************************************
+     *
+     *          Create  new item with standard values
+     *
+     *
+     * @return
+     *
+     *
+     */
+
+
     private ChecklistItem createNewItem(){
 
         currentSourceText = null;
 
         return new ChecklistItem((long)0, (long)0, "name", "text", "comment", currentChecklist.getKey(),  null, null,
-                currentChecklist.getProjectId(), "", ActionStatus.getOpen(), new DBTimeStamp().getSQLTime().toString());
+                currentChecklist.getProjectId(), "", "", ActionStatus.getOpen(), new DBTimeStamp().getSQLTime().toString());
     }
 
 
@@ -208,7 +245,6 @@ public class ChecklistParser {
      * @param fragment
      * @return
      *
-     *              //TODO: Handle source
      *
      */
 
@@ -266,7 +302,7 @@ public class ChecklistParser {
 
                     // New row, create a new item
                     currentItem = new ChecklistItem((long)0, (long)0, "name", "text", "comment", currentChecklist.getKey(),  null, null,
-                            currentChecklist.getProjectId(), "", ActionStatus.getOpen(), new DBTimeStamp().getSQLTime().toString());
+                            currentChecklist.getProjectId(), "", "", ActionStatus.getOpen(), new DBTimeStamp().getSQLTime().toString());
 
                     if(fragment.getBody().equals("")){
 
@@ -299,12 +335,18 @@ public class ChecklistParser {
                     currentItem.setDescription(fragment.getBody());
                 }
 
+
+                // **************************************************
+                //  Handle conformance tag
+
+
+
                 if(cellInfo.row > 1 && cellInfo.col == 3){
 
                     String tag = fragment.getBody();
 
                     if(tag.equals("")){
-                        return(new ParseFeedbackItem(ParseFeedbackItem.Severity.WARNING, "Empty tag column, no tag set for checklist item.", cellInfo.row));
+                        return(new ParseFeedbackItem(ParseFeedbackItem.Severity.WARNING, "Empty #Conformance column, no tag set for checklist item.", cellInfo.row));
 
                     }
                     if(!tag.startsWith("#")){
@@ -314,17 +356,67 @@ public class ChecklistParser {
 
                     }
                     String trimmedTag = tag.trim();
-                    System.out.println("*** Storing tag:" + trimmedTag);
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "*** Setting Conformance tag:" + trimmedTag);
 
-                    currentItem.setTagReference(trimmedTag); // Remove # and potential trailing space
+                    currentItem.setConformanceTag(trimmedTag); // Remove # and potential trailing space
+
+                    FragmentClass classification = new FragmentClass(new LookupItem()
+                            .addFilter(new ColumnFilter(FragmentClassTable.Columns.Name.name(), tag)));
+
+                    if(!classification.exists()){
+
+                        FragmentClass newClass = new FragmentClass(tag, tag, "", "Conformance tag for checklist item " + currentItem.getName(), owner.getOrganizationId());
+                        newClass.store();
+                    }
+
+
                 }
 
+                //  ************************************''
+                //   Handle context tag
+
+
                 if(cellInfo.row > 1 && cellInfo.col == 4){
+
+                    String tag = fragment.getBody();
+
+                    if(tag.equals("")){
+                        return(new ParseFeedbackItem(ParseFeedbackItem.Severity.WARNING, "Empty #Context column, no tag set for checklist item.", cellInfo.row));
+
+                    }
+                    if(!tag.startsWith("#")){
+
+                        abortCurrentChecklist();
+                        return(new ParseFeedbackItem(ParseFeedbackItem.Severity.ABORT, "Expected to find #TAG in tag column. Found " + tag, cellInfo.row));
+
+                    }
+
+
+                    LanguageInterface languageForDocument = new English();  // Using english for the tags
+
+                    // Lookup the tag. Either in the static tree or custom tags in the database
+
+                    String trimmedTag = tag.trim();
+                    String tagClass = getTagByName(trimmedTag.substring(1), languageForDocument);
+
+                    if(tagClass == null){
+
+                        return(new ParseFeedbackItem(ParseFeedbackItem.Severity.ERROR, "The classification tag " + tag + " does not exist. No checklist item created", cellInfo.row));
+                    }
+
+
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "*** Setting Contact tag:" + tagClass);
+
+                    currentItem.setContextTag(tagClass); // Remove # and potential trailing space
+                }
+
+
+                if(cellInfo.row > 1 && cellInfo.col == 5){
 
                     currentItem.setComment(fragment.getBody());
                 }
 
-                if(cellInfo.row > 1 && cellInfo.col == 5){
+                if(cellInfo.row > 1 && cellInfo.col == 6){
 
                     currentSourceText = fragment.getBody().trim();  //Store this until we create the item.
                     return(new ParseFeedbackItem(ParseFeedbackItem.Severity.HIDE, "Found source reference", cellInfo.row));
@@ -354,7 +446,7 @@ public class ChecklistParser {
             if(currentSourceText != null)
                 sourceMap.add(new SourceMap(currentItem.getKey(), currentSourceText, currentItem.getName()));
 
-            return new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Created checklist item "+ currentItem.getName()+" with id " + currentItem.getIdentifier(), row);
+            return new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Created checklist item "+ currentItem.getName()+" with conformance tag " + currentItem.getConformanceTag() + " for tag context " + currentItem.getContextTag(), row);
 
         }catch(BackOfficeException e){
 
@@ -372,6 +464,36 @@ public class ChecklistParser {
     public boolean hasOpenCheckist() {
 
         return currentChecklist != null;
+    }
+
+    /****************************************************************
+     *
+     *          Lookup the tag by name (in the given language)
+     *
+     *
+     * @param tagName         - name (like Date without the # )
+     * @param language        - language to look up in
+     * @return                - The name of the tag class (e.g. #DATE)
+     */
+
+
+
+    public static String getTagByName(String tagName, LanguageInterface language) {
+
+        ClassifierInterface[] classifiers = language.getAllClassifiers();
+
+        for (ClassifierInterface classifier : classifiers) {
+
+            System.out.println(" --- Comparing classes \"" + classifier.getClassificationName() + "\" and \"" + tagName + "\"");
+
+            if(classifier.getClassificationName().equals(tagName)){
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Found static classTag " + tagName);
+                return classifier.getType().getName();   // This should be the #TAG as this is the key to the frontend
+            }
+        }
+
+        return null;
     }
 
 }

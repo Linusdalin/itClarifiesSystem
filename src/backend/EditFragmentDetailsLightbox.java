@@ -4,12 +4,11 @@ import classification.FragmentClassification;
 import contractManagement.Contract;
 import contractManagement.ContractFragment;
 import contractManagement.ContractVersionInstance;
-import contractManagement.Project;
+import project.Project;
 import crossReference.Definition;
 import crossReference.Reference;
 import crossReference.ReferenceType;
 import dataRepresentation.DBTimeStamp;
-import dataRepresentation.DataObjectInterface;
 import databaseLayer.DatabaseAbstractionFactory;
 import document.DefinitionType;
 import featureTypes.FeatureTypeTree;
@@ -176,7 +175,7 @@ class EditFragmentDetailsForm extends Form implements FormInterface {
                 // Add a message here when it is empty
             }
 
-            //TODO: make this hidden
+            //TODO: Improvement Usability (bo): make this hidden
 
             elements.add(new TextField("fragment")
                     .setSize(0, 100, 30)
@@ -245,7 +244,7 @@ class EditFragmentDetailsForm extends Form implements FormInterface {
 
                 for (Reference reference : referencesFromFragment) {
 
-                    // Todo set toFragment for reference here
+                    // TODO: Not Implemented: (bo) set toFragment for reference here
 
                     message.append(Html.paragraph("Update of reference " + reference.getName() + " NOT implemented!"));
 
@@ -322,7 +321,7 @@ class AddDefinitionForm extends Form implements FormInterface {
             }
 
 
-            //TODO: make this hidden
+            //TODO: Improvment Usability: (bo) make this hidden
 
             elements.add(new TextField("fragment")
                     .setSize(0, 30, 20)
@@ -355,12 +354,12 @@ class AddDefinitionForm extends Form implements FormInterface {
      *          Callback for creating a definition
      *
      *
-     * @param request
-     * @param backOffice
-     * @return
+     * @param request           -
+     * @param backOffice        -
+     * @return                  -
      * @throws BackOfficeException
      *
-     *          //TODO: Definition Type not implemented
+     *          //TODO: Improvement Functionality: Definition Type not implemented
      *
      */
 
@@ -479,7 +478,7 @@ class AddDefinitionForm extends Form implements FormInterface {
                 }
 
 
-                //TODO: make this hidden
+                //TODO: Improvement Usability: (bo) make this hidden
 
                 elements.add(new TextField("fragment")
                         .setSize(0, 100, 20)

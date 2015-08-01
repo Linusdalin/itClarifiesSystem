@@ -15,6 +15,8 @@ import log.PukkaLogger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import project.Project;
+import project.ProjectTable;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.condition.*;
 

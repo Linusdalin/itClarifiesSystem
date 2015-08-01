@@ -1,19 +1,14 @@
 package backend;
 
-import contractManagement.Project;
-import contractManagement.ProjectTable;
+import project.Project;
 import databaseLayer.DatabaseAbstractionFactory;
 import log.PukkaLogger;
-import org.apache.http.HttpRequest;
 import overviewExport.OverviewGenerator;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.backOffice.BackOfficeLocation;
-import pukkaBO.condition.ColumnFilter;
 import pukkaBO.condition.LookupByKey;
-import pukkaBO.condition.LookupItem;
 import pukkaBO.exceptions.BackOfficeException;
 import pukkaBO.form.*;
-import userManagement.OrganizationTable;
 import userManagement.PortalUser;
 import userManagement.SessionManagement;
 
@@ -84,7 +79,6 @@ public class ExportForm extends Form implements FormInterface {
      *
      *
      *          Generate the values for the overview export
-     *          //TODO: Handle parameters
      *
      * @param request
      * @param backOffice

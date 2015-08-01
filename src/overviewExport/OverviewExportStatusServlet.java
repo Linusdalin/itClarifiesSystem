@@ -1,22 +1,12 @@
 package overviewExport;
 
-import cache.ServiceCache;
-import contractManagement.*;
-import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
-import fileHandling.BlobRepository;
-import fileHandling.RepositoryFileHandler;
-import fileHandling.RepositoryInterface;
-import log.PukkaLogger;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import project.Project;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
 import services.DocumentService;
 import services.Formatter;
-import userManagement.AccessRight;
-import userManagement.Organization;
-import userManagement.PortalUser;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -90,11 +80,12 @@ public class OverviewExportStatusServlet extends DocumentService {
 
                 response.put(DataServletName,
                             new JSONObject()
-                                     .put("timeStamp", status.getDate().getISODate())
-                                     .put("author", status.getUserId().toString())
-                                     .put("status", status.getStatus().getName())
-                                     .put("key", status.getKey().toString())
-                                     .put("message", status.getDescription())
+                                     .put("timeStamp",  status.getDate().getISODate())
+                                     .put("author",     status.getUserId().toString())
+                                     .put("status",     status.getStatus().getName())
+                                     .put("key",        status.getKey().toString())
+                                     .put("tags",       status.getTags())
+                                     .put("message",    status.getDescription())
                             );
 
             }

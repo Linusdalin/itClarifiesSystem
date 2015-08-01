@@ -1,46 +1,22 @@
 package reclassification;
 
 import analysis.ParseFeedbackItem;
-import analysis.Significance;
-import classification.FragmentClass;
-import classification.FragmentClassification;
-import classifiers.ClassifierInterface;
-import com.google.appengine.api.datastore.Query;
 import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
-import databaseLayer.DBKeyInterface;
 import diff.FragmentComparator;
-import featureTypes.FeatureTypeInterface;
-import featureTypes.FeatureTypeTree;
-import language.English;
-import language.LanguageAnalyser;
-import language.LanguageCode;
-import language.LanguageInterface;
 import log.PukkaLogger;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import project.Project;
+import project.ProjectTable;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
-import reclassification.MTClassification;
-import reclassification.MechanicalTurkInterface;
-import reclassification.ReclassificationHistory;
-import risk.ContractRisk;
-import risk.ContractRiskTable;
-import risk.RiskClassification;
 import services.DocumentService;
 import services.Formatter;
-import services.ItClarifiesService;
-import userManagement.Organization;
 import userManagement.PortalUser;
-import userManagement.PortalUserTable;
 import userManagement.SessionManagement;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.List;
 
 /********************************************************

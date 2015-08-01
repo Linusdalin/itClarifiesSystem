@@ -1,11 +1,11 @@
 package search;
 
 import classifiers.ClassifierInterface;
-import contractManagement.*;
 import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import project.Project;
 import pukkaBO.condition.*;
 
 import pukkaBO.exceptions.BackOfficeException;

@@ -6,6 +6,8 @@
 <%@ page import="contractManagement.*" %>
 <%@ page import="risk.ContractRiskTable" %>
 <%@ page import="classification.FragmentClassTable" %>
+<%@ page import="project.Project" %>
+<%@ page import="project.ProjectTable" %>
 <html>
 
 

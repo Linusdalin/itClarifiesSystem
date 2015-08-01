@@ -4,6 +4,7 @@ import backend.ItClarifies;
 import contractManagement.*;
 import dataRepresentation.DataTableInterface;
 import log.PukkaLogger;
+import project.ProjectTable;
 import pukkaBO.backOffice.BackOfficeInterface;
 import pukkaBO.exceptions.BackOfficeException;
 import search.KeywordTable;

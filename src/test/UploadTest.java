@@ -102,7 +102,7 @@ public class UploadTest extends ServletTests {
             List<FragmentClassification> classifications =  newVersion.getFragmentClassificationsForVersion();
             List<RiskClassification> risks =  newVersion.getRiskClassificationsForVersion();
 
-            assertVerbose("Found fragments in the test document", fragments.size(), is(79));
+            assertVerbose("Found fragments in the test document", fragments.size(), is(82));
             assertVerbose("Found classifications in the test document", classifications.size(), is(4));
             assertVerbose("Found risk classifications in the test document", risks.size(), is(0));
 

@@ -1,6 +1,5 @@
 package test.integrationTests;
 
-import actions.ChecklistServlet;
 import api.AdminServlet;
 import backend.ItClarifies;
 import com.google.appengine.api.users.UserService;
@@ -8,23 +7,13 @@ import com.google.appengine.api.users.UserServiceFactory;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.sun.security.auth.UserPrincipal;
-import contractManagement.Project;
-import contractManagement.ProjectTable;
-import databaseLayer.DBKeyInterface;
-import databaseLayer.DatabaseAbstractionFactory;
 import log.PukkaLogger;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import pukkaBO.backOffice.BackOfficeInterface;
-import pukkaBO.condition.ColumnFilter;
-import pukkaBO.condition.LookupItem;
 import test.MockWriter;
 import test.ServletTests;
-import userManagement.PortalUser;
-import userManagement.PortalUserTable;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,7 +22,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

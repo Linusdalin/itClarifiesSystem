@@ -4,12 +4,12 @@ import contractManagement.*;
 import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
 import net.sf.json.JSONObject;
+import project.Project;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
 import queue.AsynchAnalysis;
 import services.DocumentService;
 import services.Formatter;
-import userManagement.SessionManagement;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -101,11 +101,15 @@ public class ReAnalysisServlet extends DocumentService {
 
     /***********************************************************************'
      *
-     *          TODO: Add feedback here
+     *          Analysing all documents in the project
      *
      *
      * @param project             - the project
      * @param magicKey            - magic key for internal access
+     *
+     *
+     *          //TODO: Improvement Usability: add feedback from the analysis
+     *
      */
 
     public void analyzeProject(Project project, String magicKey) {
