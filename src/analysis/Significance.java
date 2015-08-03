@@ -17,5 +17,5 @@ public class Significance {
     public static final long MATCH_SIGNIFICANCE = 60;
 
     // Required significance to display to the user
-    public static final int DISPLAY_SIGNIFICANCE = 60;
+    public static final int DISPLAY_SIGNIFICANCE = 50;
 }

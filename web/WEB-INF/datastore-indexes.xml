@@ -116,4 +116,9 @@
             <property name="Identifier" direction="asc"/>
         </datastore-index>
 
+    <datastore-index kind="Extraction" ancestor="false" source="manual">
+            <property name="Project" direction="asc"/>
+            <property name="ExtractionNumber" direction="asc"/>
+        </datastore-index>
+
 </datastore-indexes>

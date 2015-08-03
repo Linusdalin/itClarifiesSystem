@@ -46,13 +46,13 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
             table = TABLE;
     }
 
-    public ContractFragment(String name, DataObjectInterface version, DataObjectInterface project, long structureno, long ordinal, String text, long indentation, String type, DataObjectInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, long width, String display, String image) throws BackOfficeException{
+    public ContractFragment(String name, DataObjectInterface version, DataObjectInterface project, long paragraphid, long structureno, long ordinal, String text, long indentation, String type, DataObjectInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, long width, String display, String image) throws BackOfficeException{
 
-        this(name, version.getKey(), project.getKey(), structureno, ordinal, text, indentation, type, risk, annotationcount, referencecount, classificatoncount, actioncount, xpos, ypos, width, display, image);
+        this(name, version.getKey(), project.getKey(), paragraphid, structureno, ordinal, text, indentation, type, risk, annotationcount, referencecount, classificatoncount, actioncount, xpos, ypos, width, display, image);
     }
 
 
-    public ContractFragment(String name, DBKeyInterface version, DBKeyInterface project, long structureno, long ordinal, String text, long indentation, String type, DataObjectInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, long width, String display, String image){
+    public ContractFragment(String name, DBKeyInterface version, DBKeyInterface project, long paragraphid, long structureno, long ordinal, String text, long indentation, String type, DataObjectInterface risk, long annotationcount, long referencecount, long classificatoncount, long actioncount, long xpos, long ypos, long width, String display, String image){
 
         this();
         try{
@@ -64,21 +64,22 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
            data[0] = new StringData(name);
            data[1] = new ReferenceData(version, columns[1].getTableReference());
            data[2] = new ReferenceData(project, columns[2].getTableReference());
-           data[3] = new IntData(structureno);
-           data[4] = new IntData(ordinal);
-           data[5] = new BlobData(text);
-           data[6] = new IntData(indentation);
-           data[7] = new StringData(type);
-           data[8] = new ConstantData(risk.get__Id(), columns[8].getTableReference());
-           data[9] = new IntData(annotationcount);
-           data[10] = new IntData(referencecount);
-           data[11] = new IntData(classificatoncount);
-           data[12] = new IntData(actioncount);
-           data[13] = new IntData(xpos);
-           data[14] = new IntData(ypos);
-           data[15] = new IntData(width);
-           data[16] = new StringData(display);
-           data[17] = new StringData(image);
+           data[3] = new IntData(paragraphid);
+           data[4] = new IntData(structureno);
+           data[5] = new IntData(ordinal);
+           data[6] = new BlobData(text);
+           data[7] = new IntData(indentation);
+           data[8] = new StringData(type);
+           data[9] = new ConstantData(risk.get__Id(), columns[9].getTableReference());
+           data[10] = new IntData(annotationcount);
+           data[11] = new IntData(referencecount);
+           data[12] = new IntData(classificatoncount);
+           data[13] = new IntData(actioncount);
+           data[14] = new IntData(xpos);
+           data[15] = new IntData(ypos);
+           data[16] = new IntData(width);
+           data[17] = new StringData(display);
+           data[18] = new StringData(image);
 
            exists = true;
         }catch(BackOfficeException e){
@@ -172,15 +173,29 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
 
 
-    public long getStructureNo(){
+    public long getParagraphId(){
 
         IntData data = (IntData) this.data[3];
         return data.value;
     }
 
-    public void setStructureNo(long structureno){
+    public void setParagraphId(long paragraphid){
 
         IntData data = (IntData) this.data[3];
+        data.value = paragraphid;
+    }
+
+
+
+    public long getStructureNo(){
+
+        IntData data = (IntData) this.data[4];
+        return data.value;
+    }
+
+    public void setStructureNo(long structureno){
+
+        IntData data = (IntData) this.data[4];
         data.value = structureno;
     }
 
@@ -188,13 +203,13 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     public long getOrdinal(){
 
-        IntData data = (IntData) this.data[4];
+        IntData data = (IntData) this.data[5];
         return data.value;
     }
 
     public void setOrdinal(long ordinal){
 
-        IntData data = (IntData) this.data[4];
+        IntData data = (IntData) this.data[5];
         data.value = ordinal;
     }
 
@@ -202,13 +217,13 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     public String getText(){
 
-        BlobData data = (BlobData) this.data[5];
+        BlobData data = (BlobData) this.data[6];
         return data.getStringValue();
     }
 
     public void setText(String text){
 
-        BlobData data = (BlobData) this.data[5];
+        BlobData data = (BlobData) this.data[6];
         data.setStringValue(text);
     }
 
@@ -216,13 +231,13 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     public long getIndentation(){
 
-        IntData data = (IntData) this.data[6];
+        IntData data = (IntData) this.data[7];
         return data.value;
     }
 
     public void setIndentation(long indentation){
 
-        IntData data = (IntData) this.data[6];
+        IntData data = (IntData) this.data[7];
         data.value = indentation;
     }
 
@@ -230,13 +245,13 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     public String getType(){
 
-        StringData data = (StringData) this.data[7];
+        StringData data = (StringData) this.data[8];
         return data.getStringValue();
     }
 
     public void setType(String type){
 
-        StringData data = (StringData) this.data[7];
+        StringData data = (StringData) this.data[8];
         data.setStringValue(type);
     }
 
@@ -244,14 +259,14 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     public risk.ContractRisk getRisk(){
 
-        ConstantData data = (ConstantData)this.data[8];
+        ConstantData data = (ConstantData)this.data[9];
         return (risk.ContractRisk)(new risk.ContractRiskTable().getConstantValue(data.value));
 
     }
 
     public void setRisk(DataObjectInterface risk){
 
-        ConstantData data = (ConstantData)this.data[8];
+        ConstantData data = (ConstantData)this.data[9];
         data.value = risk.get__Id();
     }
 
@@ -259,13 +274,13 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     public long getAnnotationCount(){
 
-        IntData data = (IntData) this.data[9];
+        IntData data = (IntData) this.data[10];
         return data.value;
     }
 
     public void setAnnotationCount(long annotationcount){
 
-        IntData data = (IntData) this.data[9];
+        IntData data = (IntData) this.data[10];
         data.value = annotationcount;
     }
 
@@ -273,13 +288,13 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     public long getReferenceCount(){
 
-        IntData data = (IntData) this.data[10];
+        IntData data = (IntData) this.data[11];
         return data.value;
     }
 
     public void setReferenceCount(long referencecount){
 
-        IntData data = (IntData) this.data[10];
+        IntData data = (IntData) this.data[11];
         data.value = referencecount;
     }
 
@@ -287,13 +302,13 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     public long getClassificatonCount(){
 
-        IntData data = (IntData) this.data[11];
+        IntData data = (IntData) this.data[12];
         return data.value;
     }
 
     public void setClassificatonCount(long classificatoncount){
 
-        IntData data = (IntData) this.data[11];
+        IntData data = (IntData) this.data[12];
         data.value = classificatoncount;
     }
 
@@ -301,13 +316,13 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     public long getActionCount(){
 
-        IntData data = (IntData) this.data[12];
+        IntData data = (IntData) this.data[13];
         return data.value;
     }
 
     public void setActionCount(long actioncount){
 
-        IntData data = (IntData) this.data[12];
+        IntData data = (IntData) this.data[13];
         data.value = actioncount;
     }
 
@@ -315,13 +330,13 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     public long getxPos(){
 
-        IntData data = (IntData) this.data[13];
+        IntData data = (IntData) this.data[14];
         return data.value;
     }
 
     public void setxPos(long xpos){
 
-        IntData data = (IntData) this.data[13];
+        IntData data = (IntData) this.data[14];
         data.value = xpos;
     }
 
@@ -329,13 +344,13 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     public long getyPos(){
 
-        IntData data = (IntData) this.data[14];
+        IntData data = (IntData) this.data[15];
         return data.value;
     }
 
     public void setyPos(long ypos){
 
-        IntData data = (IntData) this.data[14];
+        IntData data = (IntData) this.data[15];
         data.value = ypos;
     }
 
@@ -343,13 +358,13 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     public long getwidth(){
 
-        IntData data = (IntData) this.data[15];
+        IntData data = (IntData) this.data[16];
         return data.value;
     }
 
     public void setwidth(long width){
 
-        IntData data = (IntData) this.data[15];
+        IntData data = (IntData) this.data[16];
         data.value = width;
     }
 
@@ -357,13 +372,13 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     public String getdisplay(){
 
-        StringData data = (StringData) this.data[16];
+        StringData data = (StringData) this.data[17];
         return data.getStringValue();
     }
 
     public void setdisplay(String display){
 
-        StringData data = (StringData) this.data[16];
+        StringData data = (StringData) this.data[17];
         data.setStringValue(display);
     }
 
@@ -371,13 +386,13 @@ public class ContractFragment extends DataObject implements DataObjectInterface{
 
     public String getImage(){
 
-        StringData data = (StringData) this.data[17];
+        StringData data = (StringData) this.data[18];
         return data.getStringValue();
     }
 
     public void setImage(String image){
 
-        StringData data = (StringData) this.data[17];
+        StringData data = (StringData) this.data[18];
         data.setStringValue(image);
     }
 

@@ -70,6 +70,7 @@ public class OverviewGenerator {
 
     private ExtractionTagList[] tagExtractions = new ExtractionTagList[0];    // Default is no tag extractions
     private static final int SEARCH_LIMIT = 1000;       // Max number of cells to search before failing replace
+    private static final int ComplianceSheetIx = 5;
 
     private Project project;                    // The actual project we are exporting
     private ExtractionStatus statusEntry;       // The status entry
@@ -91,6 +92,7 @@ public class OverviewGenerator {
     private Extraction emptyLine;      // For adding empty lines in the output
 
     int extractionOrdinal = 0;            // Global count for all the extractions to order the result
+
 
     /***************************************************************************
      *
@@ -385,8 +387,8 @@ public class OverviewGenerator {
                 ContractVersionInstance head = document.getHeadVersion();
                 List<ContractFragment> fragmentsForDocument = head.getFragmentsForVersion(new LookupList().addSorting(new Sorting(ContractFragmentTable.Columns.Ordinal.name(), Ordering.FIRST)));
                 List<StructureItem> allStructureItems = head.getStructureItemsForVersion();
-                System.out.println("Found " + fragmentsForDocument.size() + " fragments in document " + document.getName());
-
+                //System.out.println("Found " + fragmentsForDocument.size() + " fragments in document " + document.getName());
+                List<ChecklistItem> checklistItemsForProject = project.getChecklistItemsForProject();
                 List<DataObjectInterface> extractionsForDocument = new ArrayList<DataObjectInterface>();
 
                 for (ContractFragment fragment : fragmentsForDocument) {
@@ -396,7 +398,7 @@ public class OverviewGenerator {
 
                     if(fragment.getClassificatonCount() != 0){
 
-                        matchClassification(fragment, document, allClassifications, fragmentsForDocument, allRisks, allAnnotations, tagExtractions, extractionsForDocument, allStructureItems);
+                        matchClassification(fragment, document, tagExtractions, allClassifications, fragmentsForDocument, allRisks, allAnnotations, extractionsForDocument, allStructureItems);
 
                     }
 
@@ -444,36 +446,24 @@ public class OverviewGenerator {
     }
 
 
-    /****************************************************************************************************
-     *
+    /**************************************************************************************************
      *
      *                  handle adding classifications for a specific fragment.
      *
      *                  The process is to go through all the classifications to see if there is any that
      *                  has the correct fragmentid
      *
-     *
-     * @param fragment                    - the fragment
-     * @param document                    - the current document
-     * @param allClassifications          - all classifications pre-fetched
-     * @param fragmentsForDocument        - all fragments pre-fetched
-     * @param allRisks                    - all risks pre-fetched
-     * @param allAnnotations              - all annotations pre-fetched
-     * @param tagExtractions              - all tags
-     * @param extractionsForDocument      - ( the resulting ) list of extractions
-     * @param allStructureItems           - the structure items for adding headlines
-     *
-     *
-     *
+     * @param fragment
+     * @param document
+     * @param allClassifications
+     * @param fragmentsForDocument
+     * @param allRisks
+     * @param allAnnotations
+     * @param extractionsForDocument
+     * @param allStructureItems
      */
 
-    private void matchClassification(ContractFragment fragment, Contract document, List<FragmentClassification> allClassifications,
-                                     List<ContractFragment> fragmentsForDocument,
-                                     List<RiskClassification> allRisks,
-                                     List<ContractAnnotation> allAnnotations,
-                                     ExtractionTagList[] tagExtractions,
-                                     List<DataObjectInterface> extractionsForDocument,
-                                     List<StructureItem> allStructureItems) {
+    private void matchClassification(ContractFragment fragment, Contract document, ExtractionTagList[] tagExtractions, List<FragmentClassification> allClassifications, List<ContractFragment> fragmentsForDocument, List<RiskClassification> allRisks, List<ContractAnnotation> allAnnotations, List<DataObjectInterface> extractionsForDocument, List<StructureItem> allStructureItems) {
 
         String fragmentKey = fragment.getKey().toString();
 
@@ -492,53 +482,10 @@ public class OverviewGenerator {
                             // We now have a fragment with a tag that matches the tag(s) we are looking for
                             // We add it to the fragment (and potentially also the heading - if it is not already added)
 
-                            System.out.println("  --- Found match " + classification.getClassTag() + " in fragment " + fragment.getName());
-
-                            potentiallyAddHeading(fragment, tagExtraction, document, allStructureItems, extractionsForDocument);
-
-                            // Create a new entry for the classification
-
-                            Extraction entry = new Extraction(
-                                    "",
-                                    getClassificationsForFragment(fragment, allClassifications),
-                                    fragment.htmlDecode(),
-                                    fragment.getKey().toString(),
-                                    (int) fragment.getOrdinal(),
-                                    extractionOrdinal++,
-                                    "",
-                                    project.getKey(),
-                                    document.getKey(),
-                                    "",
-                                    getRisksForFragment(fragment, allRisks),
-                                    getAnnotationsForFragment(fragment, allAnnotations),
-                                    tagExtraction.getMainTag(),
-                                    statusEntry.getKey());
-
-                            if (fragment.getType().equals("HEADING")) {
-
-                                entry.asHeadline((int) fragment.getIndentation());
-                                //extractionsForDocument.add(emptyLine);               //TODO: Empty line has to be associated with the correct tab
-                                extractionsForDocument.add(entry);
-                                System.out.println(" -- After adding HEADING, we have " + extractionsForDocument.size() + " extractions.");
-
-                                if (AddPeers)
-                                    extractionsForDocument.addAll(findPeers(tagExtraction.getMainTag(), fragment, document, fragmentsForDocument, allAnnotations, allClassifications, allRisks, false));
-
-                                System.out.println(" -- After adding peers, we have " + extractionsForDocument.size() + " extractions");
-
-                            } else if (fragment.getType().equals("LIST")) {
-
-                                if (AddPeers)
-                                    extractionsForDocument.addAll(findPeers(tagExtraction.getMainTag(), fragment, document, fragmentsForDocument, allAnnotations, allClassifications, allRisks, true));
-                            } else {
-                                System.out.println("Adding '" + entry.getText() + "'");
-                                extractionsForDocument.add(entry);
-
-                            }
-                            System.out.println("Done..");
-
+                            createExtraction(fragment, classification, tagExtraction.getMainTag(), document, allStructureItems, extractionsForDocument, allClassifications, allRisks, allAnnotations, fragmentsForDocument);
                         }
                     }
+
 
                 }
 
@@ -554,6 +501,55 @@ public class OverviewGenerator {
 
     }
 
+    private void createExtraction(ContractFragment fragment, FragmentClassification classification, String mainTag,
+                                  Contract document, List<StructureItem> allStructureItems, List<DataObjectInterface> extractionsForDocument, List<FragmentClassification> allClassifications, List<RiskClassification> allRisks, List<ContractAnnotation> allAnnotations, List<ContractFragment> fragmentsForDocument) throws BackOfficeException{
+
+        System.out.println("  --- Found match " + classification.getClassTag() + " in fragment " + fragment.getName());
+
+        potentiallyAddHeading(fragment, mainTag, document, allStructureItems, extractionsForDocument);
+
+        // Create a new entry for the classification
+
+        Extraction entry = new Extraction(
+                "",
+                getClassificationsForFragment(fragment, allClassifications),
+                fragment.htmlDecode(),
+                fragment.getKey().toString(),
+                (int) fragment.getOrdinal(),
+                extractionOrdinal++,
+                "",
+                project.getKey(),
+                document.getKey(),
+                "",
+                getRisksForFragment(fragment, allRisks),
+                getAnnotationsForFragment(fragment, allAnnotations),
+                mainTag,
+                statusEntry.getKey());
+
+        if (fragment.getType().equals("HEADING")) {
+
+            entry.asHeadline((int) fragment.getIndentation());
+            //extractionsForDocument.add(emptyLine);               //TODO: Empty line has to be associated with the correct tab
+            extractionsForDocument.add(entry);
+            System.out.println(" -- After adding HEADING, we have " + extractionsForDocument.size() + " extractions.");
+
+            if (AddPeers)
+                extractionsForDocument.addAll(findPeers(mainTag, fragment, document, fragmentsForDocument, allAnnotations, allClassifications, allRisks, false));
+
+            System.out.println(" -- After adding peers, we have " + extractionsForDocument.size() + " extractions");
+
+        } else if (fragment.getType().equals("LIST")) {
+
+            if (AddPeers)
+                extractionsForDocument.addAll(findPeers(mainTag, fragment, document, fragmentsForDocument, allAnnotations, allClassifications, allRisks, true));
+        } else {
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Adding extraction'" + entry.getText() + "'");
+            extractionsForDocument.add(entry);
+
+        }
+
+    }
+
     /**************************************************************************************'
      *
      *              All fragments should be exported with their immediate parent for readability
@@ -562,7 +558,7 @@ public class OverviewGenerator {
      *               //TODO: Improvement Usability: Add ALL chapter levels, not only the parent
      *
      * @param fragment                        - the current fragment
-     * @param tagExtraction                   - the current tag extraction (to put on the correct sheet)
+     * @param mainTag                         - the current tag extraction (to put on the correct sheet)
      * @param document                        - the document
      * @param allStructureItems               - all structure items to lookup the parent
      * @param extractionsForDocument          - the resulting list
@@ -570,7 +566,7 @@ public class OverviewGenerator {
      */
 
 
-    private void potentiallyAddHeading(ContractFragment fragment, ExtractionTagList tagExtraction, Contract document, List<StructureItem> allStructureItems, List<DataObjectInterface> extractionsForDocument) throws BackOfficeException{
+    private void potentiallyAddHeading(ContractFragment fragment, String mainTag, Contract document, List<StructureItem> allStructureItems, List<DataObjectInterface> extractionsForDocument) throws BackOfficeException{
 
         StructureItem structure = fragment.getStructureItem(allStructureItems);
         if(!structure.exists() || fragment.getStructureNo() <= 1)
@@ -580,13 +576,11 @@ public class OverviewGenerator {
 
             // If the parent is NOT a headline we recurse up to find a headline
 
-            potentiallyAddHeading(structure.getFragmentForStructureItem(), tagExtraction, document, allStructureItems, extractionsForDocument);
+            potentiallyAddHeading(structure.getFragmentForStructureItem(), mainTag, document, allStructureItems, extractionsForDocument);
         }
         else{
 
             ContractFragment parent = structure.getFragmentForStructureItem();
-            System.out.println(" --- Adding a parent " + parent.getText() + " of type " + structure.getType());
-
             Extraction entry = new Extraction(
                     "",
                     "",                         // No classifications on the headline
@@ -600,15 +594,39 @@ public class OverviewGenerator {
                     "",
                     "",   // No risks in headline
                     "",   // No annotations added
-                    tagExtraction.getMainTag(),
+                    mainTag,
                     statusEntry.getKey());
 
             entry.asHeadline( 0 );
 
-            extractionsForDocument.add(entry);
+            if(!alreadyExist(entry, extractionsForDocument)){
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Adding a parent " + parent.getText() + " of type " + structure.getType());
+                extractionsForDocument.add(entry);
+            }
+            else{
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Ignoring headline parent " + parent.getText() + " as duplicate.");
+
+            }
 
         }
 
+    }
+
+
+
+    private boolean alreadyExist(Extraction entry, List<DataObjectInterface> extractionsForDocument) {
+
+        for (DataObjectInterface object : extractionsForDocument) {
+
+            Extraction existing = (Extraction)object;
+            if(existing.getFragmentKey().equals(entry.getFragmentKey()))
+                return true;
+
+        }
+
+        return false;
 
     }
 
@@ -971,7 +989,7 @@ public class OverviewGenerator {
      *
      *          All checklist items are added to the tab corresponding to the context tab
      *
-     *
+     *          And all checklist items are added to the checklist overview sheet
      *
      *
      * @param sheets              - all sheets (to write to)
@@ -985,6 +1003,8 @@ public class OverviewGenerator {
     private ParseFeedbackItem handleChecklistItems(XSSFSheet[] sheets, ExtractionTagList[] tagExtractions, SheetExportStyle[] sheetConfig) {
 
         List<ChecklistItem> checklistItemsForProject = project.getChecklistItemsForProject();
+        int checklistRow = sheetConfig[ComplianceSheetIx].currentRow;
+        XSSFSheet checklistSheet = sheets[ComplianceSheetIx];
 
         for (ChecklistItem checklistItem : checklistItemsForProject) {
 
@@ -999,6 +1019,7 @@ public class OverviewGenerator {
                     PukkaLogger.log(PukkaLogger.Level.INFO, " Adding " + checklistItem.getName() + " ( to tab  " + checklistItem.getContextTag() + ")" );
 
                     writeToSheet(checklistItem, sheets[sheet], sheetConfig[sheet].currentRow++);
+                    writeToChecklistSheet(checklistItem, checklistSheet, checklistRow++);
 
                 }
 
@@ -1311,6 +1332,37 @@ public class OverviewGenerator {
             elements[3] = new CellValue(item.getContextTag()).asBox();
             elements[4] = new CellValue(item.getChecklist().getName()).asBox();
             elements[5] = new CellValue("").asBox();
+
+
+            addRow(sheet, (currentRow), elements, 1);
+            feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Adding row in sheet " + sheet.getSheetName(), 0));
+
+        }catch(Exception e){
+
+            PukkaLogger.log( e );
+            feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.ABORT, "Internal error adding definitions in sheet " + sheet.getSheetName(), 0));
+
+        }
+
+
+    }
+
+    private void writeToChecklistSheet(ChecklistItem item, XSSFSheet sheet, int currentRow) {
+
+        ParseFeedback feedback = new ParseFeedback();
+
+        try{
+
+            CellValue[] elements = new CellValue[8];
+
+            elements[0] = new CellValue(item.getConformanceTag()).asBox();
+            elements[1] = new CellValue(item.getName()).asBox();
+            elements[2] = new CellValue(item.getDescription()).asBox();
+            elements[3] = new CellValue(item.getContextTag()).asBox();
+            elements[4] = new CellValue(item.getChecklist().getName()).asBox();
+            elements[5] = new CellValue("").asBox();
+            elements[6] = new CellValue("").asBox();
+            elements[7] = new CellValue("").asBox();
 
 
             addRow(sheet, (currentRow), elements, 1);
@@ -1707,12 +1759,20 @@ public class OverviewGenerator {
 
         for (FragmentClassification classification : classifications) {
 
-            if(classification.getFragmentId().equals(fragment.getKey()) &&
-                    classification.getSignificance() > Significance.DISPLAY_SIGNIFICANCE){
+            System.out.println(" --- Testing: " + classification.getClassTag());
 
-                classificationText.append(classification.getClassTag());
-                classificationText.append("\n");
+            if(classification.getFragmentId().equals(fragment.getKey())){
+
+                if(classification.getSignificance() >= Significance.DISPLAY_SIGNIFICANCE){
+
+                    classificationText.append(classification.getClassTag());
+                    classificationText.append("\n");
+                }
+                else
+                    System.out.println("        --- Ignoring because of not significant");
             }
+            System.out.println("        --- Ignoring not applicable to the fragment");
+
         }
 
 

@@ -108,6 +108,7 @@ public class DocumentService extends ItClarifiesService{
 
         ChecklistParser checklistParser = new ChecklistParser(fragmenter, document.getOwner());
         CanonicalReferenceParser canonicalReferenceParser = new CanonicalReferenceParser(fragmenter, document, project);
+        int paragraphCount = 0;  //Count the original aFragmentParagraphs to store in the fragment. Used for merging
 
         for(AbstractFragment aFragment : fragments){
 
@@ -351,6 +352,11 @@ public class DocumentService extends ItClarifiesService{
                     PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring item in canonical reference table");
 
                 }
+                else if(isChecklist){
+
+                    PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring item in checklist");
+
+                }
                 else if(feedback != null && feedback.severity == ParseFeedbackItem.Severity.HIDE){
 
                     PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring item in canonical reference table");
@@ -364,6 +370,7 @@ public class DocumentService extends ItClarifiesService{
                             fragmentName,
                             versionInstance.getKey(),
                             project.getKey(),
+                            paragraphCount,
                             aStructureItem.getID(),
                             fragmentNo++,
                             bodyText,
@@ -399,6 +406,7 @@ public class DocumentService extends ItClarifiesService{
             if(aFragment.getKeywords() != null)
                 newKeywords.addAll(aFragment.getKeywords());
 
+            paragraphCount++;
         }
 
         // Complete the checklist if it is still open
@@ -451,7 +459,7 @@ public class DocumentService extends ItClarifiesService{
         // so left to do is to find the corresponding fragment.
 
         PukkaLogger.log(PukkaLogger.Level.INFO, "** Found " + fragmenter.getComments().size() + " comments in the document" );
-        ParseFeedback feedbackFromComments = handleComments(fragmenter.getComments(), project, document, versionInstance, analysisTime);
+        ParseFeedback feedbackFromComments = handleComments(fragmenter.getComments(), project, document, versionInstance, analysisTime, fragments);
 
         fragmentingFeedback.add(feedbackFromComments);
 
@@ -470,21 +478,25 @@ public class DocumentService extends ItClarifiesService{
      *          #RISK:status    - will set the status of a risk (overriding any existing status
      *          other           - Create an annotation
      *
+     *          //TODO: Improvement Module: The tags and keywords should not be looked up statically
+     *
      * @param comments          - list of all comments in the document
      * @param project           - Current project
      * @param document          - the document
      * @param documentVersion   - The document version
      * @param analysisTime      - The time of analysis
+     * @param fragments
      *
      *
      *
      */
 
 
-    private ParseFeedback handleComments(List<AbstractComment> comments, Project project, Contract document, ContractVersionInstance documentVersion, DBTimeStamp analysisTime) throws BackOfficeException{
+    private ParseFeedback handleComments(List<AbstractComment> comments, Project project, Contract document, ContractVersionInstance documentVersion, DBTimeStamp analysisTime, List<AbstractFragment> fragments) throws BackOfficeException{
 
         PortalUser user = PortalUser.getExternalUser();
         LanguageInterface languageForImport = new English();
+        Organization organization = project.getOrganization();
 
         PukkaLogger.log(PukkaLogger.Level.INFO, "Handle comments: There are " + comments.size() + " comments in the document " + document.getName());
         ParseFeedback feedback = new ParseFeedback();
@@ -493,10 +505,10 @@ public class DocumentService extends ItClarifiesService{
 
             try{
 
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Lookup Comment: "+ aComment.getComment()+". (Fragment id: " + aComment.getFragmentId() + ")");
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Lookup Comment: "+ aComment.getComment()+". (Paragraph id: " + aComment.getFragmentId() + ")");
 
                 ContractFragment fragment = new ContractFragment(new LookupItem()
-                        .addFilter(new ColumnFilter(ContractFragmentTable.Columns.Ordinal.name(), aComment.getFragmentId()))
+                        .addFilter(new ColumnFilter(ContractFragmentTable.Columns.ParagraphId.name(), aComment.getFragmentId()))
                         .addFilter(new ReferenceFilter(ContractFragmentTable.Columns.Version.name(), documentVersion.getKey())));
 
                 if(!fragment.exists()){
@@ -523,26 +535,53 @@ public class DocumentService extends ItClarifiesService{
 
                     String classificationTag = firstWord(aComment.getComment());
                     FeatureTypeInterface featureType = getFeatureTypeByName(classificationTag, languageForImport);
+                    String keywords="", name="";
 
-                    if(featureType == null){
 
-                        ParseFeedbackItem notFound = new ParseFeedbackItem(ParseFeedbackItem.Severity.WARNING,
-                                "Could not find classification for " + aComment.getComment(),
-                                aComment.getFragmentId());
+                    if(featureType != null){
 
-                        PukkaLogger.log(PukkaLogger.Level.WARNING, notFound.message);
-                        feedback.add(notFound);
-                        continue;
+                        // The classification is a feature type. Get name and keyword from here
+
+                        keywords = featureType.createKeywordString("External");
+                        PukkaLogger.log(PukkaLogger.Level.INFO, "Found a classification " + aComment.getComment() + " in document comment. for fragment " + fragment.getName());
+                        name=featureType.getName();
                     }
+                    else{
 
-                    String keywords = featureType.createKeywordString("External");
+                        List<FragmentClass> customClasses = organization.getCustomTagsForOrganization();
 
-                    PukkaLogger.log(PukkaLogger.Level.INFO, "Found a classification "+ aComment.getComment()+" in document comment. for fragment " + fragment.getName());
 
+                        System.out.println(" --- Checking for classification " + classificationTag + " in "+ customClasses.size()+" organization specific tags...");
+
+                        boolean found = false;
+                        for (FragmentClass customClass : customClasses) {
+
+                            System.out.println("      --- '" + customClass.getName() + "'");
+
+                            if(classificationTag.equals(customClass.getName().substring(1))){
+
+                                name = customClass.getName();
+                                keywords = "External";
+                                found = true;
+                            }
+                        }
+
+                        if(!found){
+
+                            ParseFeedbackItem notFound = new ParseFeedbackItem(ParseFeedbackItem.Severity.WARNING,
+                                    "Could not find classification for " + aComment.getComment(),
+                                    aComment.getFragmentId());
+
+                            PukkaLogger.log(PukkaLogger.Level.WARNING, notFound.message);
+                            feedback.add(notFound);
+                            continue;
+                        }
+
+                    }
 
                     FragmentClassification classification = new FragmentClassification(
                             fragment.getKey(),
-                            featureType.getName(),
+                            name,
                             0,              // requirement level not implemented
                             0,              // applicable phase not implemented
                             "",

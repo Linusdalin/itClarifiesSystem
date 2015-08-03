@@ -277,7 +277,7 @@ public class ClassificationServlet extends DocumentService {
                                 .put("id", classifier.getType().getName())
                                 .put("name", classifier.getClassificationName())
                                 .put("desc", classifier.getDescription())
-                                .put("type", "General");
+                                .put("type", "Module Contracting");
                         list.put(riskObject);
 
                 }
