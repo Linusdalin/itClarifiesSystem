@@ -745,9 +745,49 @@ public class Contract extends DataObject implements DataObjectInterface{
 
                 for(FragmentClassification classification : classifications){
 
-                    comments.append(" Classification: \"" + classification.getClassTag() + "\"(" + classification.getSignificance() + ")(\""+  classification.getPattern() + "\" " +
-                            classification.getPos() + "-" + (classification.getPos() + classification.getLength()) +  "\") by " + classification.getCreator().getName() + "@" + classification.getTime().getISODate() +
-                            " comment: \"" + classification.getComment() + " keywords: \"" + classification.getKeywords() +"\"<br/>");
+                    switch((int)classification.getblockingState()){
+
+                        case FragmentClassification.NOT_BLOCKED:
+                            comments.append(" Classification: \"" + classification.getClassTag() + "\"(" + classification.getSignificance() + ")(\""+  classification.getPattern() + "\" " +
+                                    classification.getPos() + "-" + (classification.getPos() + classification.getLength()) +  "\") by " + classification.getCreator().getName() + "@" + classification.getTime().getISODate() +
+                                    " comment: \"" + classification.getComment() + " keywords: \"" + classification.getKeywords() +"\"<br/>");
+                            break;
+
+                        case FragmentClassification.BLOCKED:
+                            comments.append(" Blocked(invisible) Classification: \"" + classification.getClassTag() + "\"(" + classification.getSignificance() + ")(\""+  classification.getPattern() + "\" " +
+                                    classification.getPos() + "-" + (classification.getPos() + classification.getLength()) +  "\") by " + classification.getCreator().getName() + "@" + classification.getTime().getISODate() +
+                                    " comment: \"" + classification.getComment() + " keywords: \"" + classification.getKeywords() +"\"<br/>");
+                            break;
+
+                        case FragmentClassification.BLOCKING:
+                            comments.append(" Blocking: \"" + classification.getClassTag() + "\" for)\""+  classification.getPattern() + "\" " +
+                                    classification.getPos() + "-" + (classification.getPos() + classification.getLength()) +  "\") by " + classification.getCreator().getName() +
+                                    "@" + classification.getTime().getISODate() +
+                                    "\"<br/>");
+                            break;
+
+                        case FragmentClassification.IMPORTED:
+
+                            comments.append(" Imported Classification: \"" + classification.getClassTag() + "\"(" + classification.getSignificance() + ")(\""+  classification.getPattern() + "\" " +
+                                    classification.getPos() + "-" + (classification.getPos() + classification.getLength()) +  "\") by " + classification.getCreator().getName() + "@" + classification.getTime().getISODate() +
+                                    " comment: \"" + classification.getComment() + " keywords: \"" + classification.getKeywords() +"\"<br/>");
+                            break;
+                        case FragmentClassification.OVERRIDDEN:
+                            comments.append(" Overridden Classification: \"" + classification.getClassTag() + "\"(" + classification.getSignificance() + ")(\""+  classification.getPattern() + "\" " +
+                                    classification.getPos() + "-" + (classification.getPos() + classification.getLength()) +  "\") by " + classification.getCreator().getName() + "@" + classification.getTime().getISODate() +
+                                    " comment: \"" + classification.getComment() + " keywords: \"" + classification.getKeywords() +"\"<br/>");
+                            break;
+
+                        default:
+
+
+                    }
+
+
+
+
+
+
 
                 }
 

@@ -7,10 +7,7 @@ import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import contractManagement.*;
 import databaseLayer.DBKeyInterface;
 import log.PukkaLogger;
-import module.Module;
-import module.ModuleProjectServlet;
-import module.ModuleServlet;
-import module.ModuleTable;
+import module.*;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.junit.AfterClass;
@@ -38,6 +35,7 @@ import static org.mockito.Mockito.when;
  *           /Module
  *           /ModuleOrganization
  *           /ModuleProject
+ *           /ModuleTag
  *
  */
 
@@ -55,8 +53,6 @@ public class ModuleServiceTest extends ServletTests {
     @BeforeClass
     public static void preAmble(){
 
-        helper = new LocalServiceTestHelper(new LocalDatastoreServiceTestConfig());
-        helper.setUp();
 
         init();
 
@@ -66,7 +62,7 @@ public class ModuleServiceTest extends ServletTests {
 
     /**************************************************************************************
      *
-     *              Getting modules:
+     *              Getting tags for module:
      *
      *               - Get all modules for the user. This should return all the modules
      *               - Create a new module. Now there should be one more module but it is not accessible for the user.
@@ -106,7 +102,7 @@ public class ModuleServiceTest extends ServletTests {
             JSONObject jsonResponse = new JSONObject(output);
             JSONArray modules = jsonResponse.getJSONArray("Module");
 
-            assertVerbose("Expecting 2 modules in project " + demoProject.getName(), modules.length(), is( 2 ) );
+            assertVerbose("Expecting 4 modules for the organization ", modules.length(), is( 4 ) );
 
             // Check that the arguments have the correct names
 
@@ -139,7 +135,7 @@ public class ModuleServiceTest extends ServletTests {
 
             String module = jsonResponse.getString("Module");
 
-            assertVerbose("Now there should be 3 modules ", new ModuleTable(new LookupList()).getValues().size(), is( (3 )));
+            assertVerbose("Now there should be 5 modules ", new ModuleTable(new LookupList()).getValues().size(), is( ( 5 )));
 
             // Accessing the module service should now return three modules
             // The new module is hidden for others but not in the organization
@@ -561,6 +557,50 @@ public class ModuleServiceTest extends ServletTests {
     }
 
 
+    @Test
+    public void testGetModuleTags(){
+
+        try{
+
+            assertTrue(demoProject.exists());
+            assertTrue(demoModule.exists());
+
+            MockWriter mockWriter;
+            String output;
+
+
+            mockWriter = new MockWriter();
+
+            when(request.getParameter("session")).thenReturn("DummyAdminToken");
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
+            when(response.getWriter()).thenReturn(mockWriter.getWriter());
+
+            new ModuleTagServlet().doGet(request, response);
+
+            output = mockWriter.getOutput();
+            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
+
+            JSONObject jsonResponse = new JSONObject(output);
+            JSONArray modules = jsonResponse.getJSONArray("Module");
+
+            assertVerbose("Expecting 4 modules for the organization ", modules.length(), is( 4 ) );
+
+            // Check that the arguments have the correct names
+
+            JSONObject first = modules.getJSONObject( 0 );
+            first.getString("name");
+            first.getString("description");
+            first.getString("key");
+            first.getString("public");
+
+        }catch(Exception e){
+
+            e.printStackTrace();
+            assertTrue(false);
+        }
+
+
+    }
 
 
 }

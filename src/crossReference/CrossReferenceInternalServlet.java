@@ -4,6 +4,7 @@ import analysis.NewAnalysisFeedback;
 import analysis.ReAnalysisServlet;
 import analysis.deferrance.DeferenceHandler;
 import analysis2.NewAnalysisOutcome;
+import classification.Classifier;
 import classification.FragmentClassification;
 import classification.FragmentClassificationTable;
 import classifiers.Classification;
@@ -328,6 +329,9 @@ public class CrossReferenceInternalServlet extends DocumentService {
         for(Contract document : contractsForProject){
 
             ContractVersionInstance latestVersion = document.getHeadVersion();
+            Classifier classifier = new Classifier(project, latestVersion, analysisTime);
+
+
             document.setMessage("Cross Referencing Document");
             document.update();
 
@@ -347,7 +351,7 @@ public class CrossReferenceInternalServlet extends DocumentService {
                     //Post process for definitions
 
                     NewAnalysisOutcome postProcessOutcome = analyser.postProcess(fragment.getText(), (int)fragment.getOrdinal(), abstractProject, false);
-                    NewAnalysisFeedback feedback = handleResult(postProcessOutcome, fragment, deference, project, analysisTime, searchManager, null, definitionsForProject, latestVersion);
+                    NewAnalysisFeedback feedback = handleResult(postProcessOutcome, classifier, fragment, deference, project, analysisTime, searchManager, null, definitionsForProject, latestVersion);
 
                     /*
 
@@ -401,6 +405,8 @@ public class CrossReferenceInternalServlet extends DocumentService {
             }
 
             // Setting status back to analysed when we are ready
+
+            classifier.store();
 
             document.setStatus(ContractStatus.getAnalysed());
             document.setMessage("Analysed!");

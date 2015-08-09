@@ -114,6 +114,11 @@ public class FragmentComparator {
 
     public boolean isSame(String activeFragment, String referenceFragment) {
 
+        System.out.println("  -- Found length " + activeFragment.length());
+
+        if(activeFragment.trim().length() == 0)
+            return false;
+
         String washed1 = wash(activeFragment);
         String washed2 = wash(referenceFragment);
 

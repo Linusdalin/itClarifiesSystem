@@ -424,7 +424,7 @@ class AddDefinitionForm extends Form implements FormInterface {
                 Redefinition redefinition = new Redefinition(pattern, true, project.getName(), document.getName(),fragment.getOrdinal(), fragment.getText(), false, now.getISODate());
                 redefinition.store();
 
-                FragmentClassification definitionSource = new FragmentClassification(fragment, tag, 80, 0, "", "", user, version, project, pattern, patternPos, pattern.length(), 100, keyWords, now.getISODate());
+                FragmentClassification definitionSource = new FragmentClassification(fragment, tag, 80, 0, FragmentClassification.NOT_BLOCKED, "", "",  user, version, project, pattern, patternPos, pattern.length(), 100, keyWords, now.getISODate());
                 definitionSource.store();
 
                 Reclassification reclassification = new Reclassification(tag, true, now.getISODate(), project.getName(), document.getName(),fragment.getOrdinal(), fragment.getText(), pattern, patternPos, user.getName(), false);

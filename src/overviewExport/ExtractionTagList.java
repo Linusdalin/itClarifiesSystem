@@ -1,5 +1,7 @@
 package overviewExport;
 
+import classification.FragmentClassification;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,19 +47,24 @@ public class ExtractionTagList {
      *
      *          Match
      *
-     * @param classTag    - classification tag found for a fragment
-     * @return            - true if the classTag in the extraction is applicable
+     *          NOTE: This is filtering all blocking tags. We may want to display them some other way in the future
+     *
+     * @param classification    - classification found for a fragment
+     * @return                  - true if the classTag in the extraction is applicable
      */
 
 
-    public boolean isApplicableFor(String classTag) {
+    public boolean isApplicableFor(FragmentClassification classification) {
 
-        if(mainTag.equals(classTag))
+        if(classification.getblockingState() != FragmentClassification.NOT_BLOCKED)
+            return false;
+
+        if(mainTag.equals(classification.getClassTag()))
             return true;
 
         for (String child : children) {
 
-            if(child.equals(classTag))
+            if(child.equals(classification.getClassTag()))
                 return true;
         }
 

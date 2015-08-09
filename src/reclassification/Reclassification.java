@@ -333,6 +333,7 @@ public class Reclassification extends DataObject implements DataObjectInterface{
                 getClassification(),
                 0,
                 0,
+                FragmentClassification.NOT_BLOCKED,
                 "regenerated",
                 keywords,
                 user.getKey(),

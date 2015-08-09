@@ -32,10 +32,7 @@ import net.sf.json.JSONObject;
 import project.Project;
 import pukkaBO.condition.*;
 import pukkaBO.exceptions.BackOfficeException;
-import risk.ContractRisk;
-import risk.ContractRiskTable;
-import risk.RiskClassification;
-import risk.RiskClassificationTable;
+import risk.*;
 import search.Keyword;
 import search.KeywordTable;
 import search.SearchManager2;
@@ -90,6 +87,8 @@ public class DocumentService extends ItClarifiesService{
         DBTimeStamp analysisTime = new DBTimeStamp();
 
         List<AbstractFragment> fragments = fragmenter.getFragments();
+
+        Classifier classifier = new Classifier(project, versionInstance, analysisTime);
 
        // Create empty list to store the fragments in the list for batch storing in the database
 
@@ -459,9 +458,10 @@ public class DocumentService extends ItClarifiesService{
         // so left to do is to find the corresponding fragment.
 
         PukkaLogger.log(PukkaLogger.Level.INFO, "** Found " + fragmenter.getComments().size() + " comments in the document" );
-        ParseFeedback feedbackFromComments = handleComments(fragmenter.getComments(), project, document, versionInstance, analysisTime, fragments);
+        ParseFeedback feedbackFromComments = handleComments(fragmenter.getComments(), classifier, project, document, versionInstance, analysisTime, fragments);
 
         fragmentingFeedback.add(feedbackFromComments);
+        classifier.store();
 
         System.out.println(" --- Just checking again. Got " + feedbackFromComments.getNo() + " feedback items in handleComments()");
 
@@ -483,7 +483,7 @@ public class DocumentService extends ItClarifiesService{
      * @param comments          - list of all comments in the document
      * @param project           - Current project
      * @param document          - the document
-     * @param documentVersion   - The document version
+     * @param version   - The document version
      * @param analysisTime      - The time of analysis
      * @param fragments
      *
@@ -492,7 +492,7 @@ public class DocumentService extends ItClarifiesService{
      */
 
 
-    private ParseFeedback handleComments(List<AbstractComment> comments, Project project, Contract document, ContractVersionInstance documentVersion, DBTimeStamp analysisTime, List<AbstractFragment> fragments) throws BackOfficeException{
+    private ParseFeedback handleComments(List<AbstractComment> comments, Classifier classifier, Project project, Contract document, ContractVersionInstance version, DBTimeStamp analysisTime, List<AbstractFragment> fragments) throws BackOfficeException{
 
         PortalUser user = PortalUser.getExternalUser();
         LanguageInterface languageForImport = new English();
@@ -509,7 +509,7 @@ public class DocumentService extends ItClarifiesService{
 
                 ContractFragment fragment = new ContractFragment(new LookupItem()
                         .addFilter(new ColumnFilter(ContractFragmentTable.Columns.ParagraphId.name(), aComment.getFragmentId()))
-                        .addFilter(new ReferenceFilter(ContractFragmentTable.Columns.Version.name(), documentVersion.getKey())));
+                        .addFilter(new ReferenceFilter(ContractFragmentTable.Columns.Version.name(), version.getKey())));
 
                 if(!fragment.exists()){
 
@@ -521,7 +521,7 @@ public class DocumentService extends ItClarifiesService{
                     feedback.add(notFound);
 
                     // Debugging only
-                    for(ContractFragment f : documentVersion.getFragmentsForVersion()){
+                    for(ContractFragment f : version.getFragmentsForVersion()){
                         System.out.println(" - Fragment: " + f.getName() + "  (id" + f.getOrdinal() + ")");
                     }
 
@@ -531,32 +531,51 @@ public class DocumentService extends ItClarifiesService{
                 PukkaLogger.log(PukkaLogger.Level.INFO, "Found fragment "+ fragment.getName() +" for comment " + aComment.getComment() +" Fragment id: " + aComment.getFragmentId());
 
 
+                // Now see if the comment is really intended as a classification
+
                 if(isClassification(aComment)){
 
+                    boolean isBlocking = getIsNegativeClassification(aComment);
+
                     String classificationTag = firstWord(aComment.getComment());
-                    FeatureTypeInterface featureType = getFeatureTypeByName(classificationTag, languageForImport);
+
+                    if(isBlocking){
+                        classificationTag = classificationTag.substring( 1 );  // Remove the ! prefix
+
+                        System.out.println(" --- found blocking of tag " + classificationTag);
+                    }
+
+
+                    // First check if this is a risk
+
+                    if(ImportedRiskClassification.isRisk(aComment.getComment())){
+
+                        ImportedRiskClassification risk = new ImportedRiskClassification(aComment.getComment());
+                        PukkaLogger.log(PukkaLogger.Level.INFO, "found a risk classification " + risk.toString());
+
+                        new RiskFlagServlet().classifyRisk(risk.getRisk(), fragment, aComment.getAnchor(), -1, version, document, user, risk.getDescription(), analysisTime, true);
+                        continue;
+                    }
+
                     String keywords="", name="";
-
-
+                    FeatureTypeInterface featureType = getFeatureTypeByName(classificationTag, languageForImport);
                     if(featureType != null){
 
                         // The classification is a feature type. Get name and keyword from here
 
                         keywords = featureType.createKeywordString("External");
-                        PukkaLogger.log(PukkaLogger.Level.INFO, "Found a classification " + aComment.getComment() + " in document comment. for fragment " + fragment.getName());
+                        PukkaLogger.log(PukkaLogger.Level.INFO, "Found a "+(isBlocking ? "blocking": "")+" classification " + aComment.getComment() + " in document comment. for fragment " + fragment.getName());
                         name=featureType.getName();
                     }
                     else{
 
                         List<FragmentClass> customClasses = organization.getCustomTagsForOrganization();
-
-
                         System.out.println(" --- Checking for classification " + classificationTag + " in "+ customClasses.size()+" organization specific tags...");
 
                         boolean found = false;
                         for (FragmentClass customClass : customClasses) {
 
-                            System.out.println("      --- '" + customClass.getName() + "'");
+                            //System.out.println("      --- '" + customClass.getName() + "'");
 
                             if(classificationTag.equals(customClass.getName().substring(1))){
 
@@ -579,28 +598,27 @@ public class DocumentService extends ItClarifiesService{
 
                     }
 
+
+
                     FragmentClassification classification = new FragmentClassification(
                             fragment.getKey(),
                             name,
                             0,              // requirement level not implemented
                             0,              // applicable phase not implemented
+                            (isBlocking ? FragmentClassification.BLOCKING : FragmentClassification.IMPORTED),
                             "",
                             keywords,
                             user.getKey(),
-                            documentVersion.getKey(),
+                            version.getKey(),
                             project.getKey(),
                             aComment.getAnchor(),
-                            -1,
-                            0,
+                            fragment.getText().indexOf(aComment.getAnchor()),
+                            aComment.getAnchor().length(),
                             Significance.MATCH_SIGNIFICANCE,
                             "external import",
                             analysisTime.getSQLTime().toString());
 
-                    Classifier classifier = new Classifier(project, documentVersion, analysisTime);
                     classifier.addClassification(classification, fragment);
-                    classifier.store();
-
-
 
                     continue;
                 }
@@ -616,7 +634,7 @@ public class DocumentService extends ItClarifiesService{
                         (long)1,
                         aComment.getComment(),
                         PortalUser.getExternalUser(),
-                        documentVersion,
+                        version,
                         project,
                         aComment.getAnchor(),
                         0,                          //TODO: Anchor position not implemented
@@ -626,9 +644,6 @@ public class DocumentService extends ItClarifiesService{
 
                 fragment.setAnnotationCount(fragment.getAnnotationCount() + 1);
                 fragment.update();
-
-
-
 
 
             }catch(BackOfficeException e){
@@ -643,6 +658,11 @@ public class DocumentService extends ItClarifiesService{
 
         return feedback;
 
+    }
+
+    private boolean getIsNegativeClassification(AbstractComment aComment) {
+
+        return aComment.getComment().trim().startsWith("!#");
     }
 
     private String firstWord(String comment) {
@@ -665,6 +685,9 @@ public class DocumentService extends ItClarifiesService{
      *          It is used to be able to produce a warning when
      *          referencing an unknown classification
      *
+     *          # is a regular tag
+     *          !# is a blocking tag
+     *
      *
      * @param aComment   - the comment
      * @return           - yes/no
@@ -672,7 +695,7 @@ public class DocumentService extends ItClarifiesService{
 
     private boolean isClassification(AbstractComment aComment) {
 
-        return aComment.getComment().startsWith("#");
+        return aComment.getComment().startsWith("#") || aComment.getComment().startsWith("!#");
 
     }
 
@@ -779,7 +802,7 @@ public class DocumentService extends ItClarifiesService{
 
         for (ClassifierInterface classifier : classifiers) {
 
-            System.out.println(" --- Comparing classes " + classifier.getType().getName() + " and " + className);
+            //System.out.println(" --- Comparing classes " + classifier.getType().getName() + " and " + className);
 
             if(classifier.getType().getName().equals(className)){
 
@@ -794,18 +817,12 @@ public class DocumentService extends ItClarifiesService{
         if(organization != null){
 
             List<FragmentClass> customClasses = organization.getCustomTagsForOrganization();
-            try {
-                customClasses.addAll(Organization.getnone().getCustomTagsForOrganization());
-            } catch (BackOfficeException e) {
-
-                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Ignoring global classifications");
-            }
 
             for (FragmentClass customClass : customClasses) {
 
-                if(customClass.getKey().toString().equals(className)){
+                if(customClass.getName().equals(className)){
                     PukkaLogger.log(PukkaLogger.Level.DEBUG, "Found custom classTag " + customClass.getName());
-                    return customClass.getKey().toString();
+                    return customClass.getName().substring(1);
                 }
             }
         }
@@ -912,7 +929,9 @@ public class DocumentService extends ItClarifiesService{
      */
 
 
-    protected NewAnalysisFeedback handleResult(NewAnalysisOutcome analysisResult, ContractFragment fragment,
+    protected NewAnalysisFeedback handleResult(NewAnalysisOutcome analysisResult,
+                                               Classifier classifier,
+                                               ContractFragment fragment,
                                                DeferenceHandler deference, Project project, DBTimeStamp analysisTime,
                                                SearchManager2 searchManager,
                                                AbstractDocument aDocument, List<Definition> definitionsForProject,
@@ -932,7 +951,6 @@ public class DocumentService extends ItClarifiesService{
         analysisResult = deference.activateDeferences(analysisResult, fragment);
 
         FragmentClassification fragmentClassification;
-        Classifier classifier = new Classifier(project, version, analysisTime);
 
 
         ContractRisk defaultRisk = ContractRisk.getUnknown();
@@ -940,10 +958,6 @@ public class DocumentService extends ItClarifiesService{
 
         //System.out.println("Found " + analysisResult.getClassifications().size() + " classifications in analysis");
 
-        //TODO: Optimization; this batch store is done once per fragment result. Could be done once and for all for the analysis- (Pass this around)
-
-        FragmentClassificationTable classificationsToStore = new FragmentClassificationTable();
-        classificationsToStore.createEmpty();
 
 
         for(Classification classification : analysisResult.getClassifications()){
@@ -1051,6 +1065,7 @@ public class DocumentService extends ItClarifiesService{
                                 FeatureTypeTree.DefinitionDef.getName(),
                                 0,              // requirement level not implemented
                                 0,              // applicable phase not implemented
+                                0,             // Not blocking
                                 "",
                                 classification.getKeywords(),
                                 system.getKey(),
@@ -1064,7 +1079,7 @@ public class DocumentService extends ItClarifiesService{
                                 analysisTime.getSQLTime().toString());
 
 
-                        classificationsToStore.add(fragmentClassification);
+                        classifier.addClassification(fragmentClassification, fragment);
                         classifications++;
 
                         updated = true;
@@ -1104,7 +1119,8 @@ public class DocumentService extends ItClarifiesService{
                             project.getKey(),
                             classification.getPattern().getText(),
                             classification.getPattern().getPos(),
-                            analysisTime.getSQLTime().toString()
+                            analysisTime.getSQLTime().toString(),
+                            FragmentClassification.NOT_BLOCKED
                     );
                     risk.store();
                     risks++;
@@ -1197,6 +1213,7 @@ public class DocumentService extends ItClarifiesService{
                             classification.getType().getName(),
                             0,              // requirement level not implemented
                             0,              // applicable phase not implemented
+                            0,
                             "",
                             classification.getKeywords(),
                             system.getKey(),
@@ -1209,7 +1226,7 @@ public class DocumentService extends ItClarifiesService{
                             "not specified rule",
                             analysisTime.getSQLTime().toString());
 
-                    classificationsToStore.add(fragmentClassification);
+                    classifier.addClassification(fragmentClassification, fragment);
 
                     continue;
                 }
@@ -1224,7 +1241,7 @@ public class DocumentService extends ItClarifiesService{
 
                 if(classification.getRelevance() < RELEVANCE_THRESHOLD){
 
-                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Ignoring classification " + fragment.getName() + "( relevance "+ classification.getRelevance()+" below threshold)");
+                    PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Ignoring classification " + classification.getTag() + " for " + fragment.getName() + "( relevance "+ classification.getRelevance()+" below threshold)");
                 }
                 else{
 
@@ -1244,6 +1261,7 @@ public class DocumentService extends ItClarifiesService{
                             classification.getType().getName(),
                             0,              // requirement level not implemented
                             0,              // applicable phase not implemented
+                            0,
                             classification.getTag(),
                             classification.getKeywords(),
                             system.getKey(),
@@ -1256,11 +1274,7 @@ public class DocumentService extends ItClarifiesService{
                             "not specified rule",
                             analysisTime.getSQLTime().toString());
 
-                    classificationsToStore.add(fragmentClassification);
-
-                    // The classification may also render a risk
-
-                    classifier.extractRiskForClassification(fragment, fragmentClassification, classification.getPattern());
+                    classifier.addClassification(fragmentClassification, fragment);
 
                     fragment.keywordString =  searchManager.getUpdatedKeywords(fragment, fragmentClassification);
 
@@ -1288,13 +1302,7 @@ public class DocumentService extends ItClarifiesService{
 
         }
 
-        // Store all classifications. //TODO: Move all classifications to classifier
-
-        classificationsToStore.store();
-        classifier.store();
-
         if(classifications != 0){
-
 
             fragment.setClassificatonCount(classifications);
             PukkaLogger.log(PukkaLogger.Level.DEBUG, "*** Updating classification count to " + classifications + " for fragment " + fragment.getName());
@@ -1572,6 +1580,9 @@ public class DocumentService extends ItClarifiesService{
         StringBuffer errorMessages = new StringBuffer();
         SearchManager2 searchManager = new SearchManager2(project, owner);
 
+        Classifier classifier = new Classifier(project, document.getHeadVersion(), analysisTime);
+
+
         for (AbstractDocument abstractDocument : aProject.documents) {
             System.out.println(" *** Document " + abstractDocument.name + " has " + abstractDocument.getDefinitions().size() + " definitions for the analysis.");
 
@@ -1613,7 +1624,7 @@ public class DocumentService extends ItClarifiesService{
 
                 analysisOutcome = analyser.analyseFragment(fragment.getText(), (int)fragment.getOrdinal(), headline, contextText, aDocument, cellInfo, aProject);
 
-                NewAnalysisFeedback feedback = handleResult(analysisOutcome, fragment, deference, project, analysisTime, searchManager, aDocument, definitionsForProject, documentVersion);
+                NewAnalysisFeedback feedback = handleResult(analysisOutcome, classifier, fragment, deference, project, analysisTime, searchManager, aDocument, definitionsForProject, documentVersion);
                 risks += feedback.risks; // Count risks for the action message
 
                 // Store it for the second pass. In that pass we dont want to redo the parsing and analysis
@@ -1634,6 +1645,7 @@ public class DocumentService extends ItClarifiesService{
                 PukkaLogger.log( PukkaLogger.Level.WARNING, message );
             }
         }
+        classifier.store();
 
         // Create an action to review the potential risks.
         // This may have to be updated when re-uploading documents is implemented and we should only
@@ -1775,10 +1787,13 @@ public class DocumentService extends ItClarifiesService{
         for(Contract document : contractsForProject){
 
 
+
             //For all documents we look for references to the title and document name
             if(!document.equals(currentDocument)){
 
                 ContractVersionInstance latestVersion = document.getHeadVersion();
+                Classifier classifier = new Classifier(project, latestVersion, analysisTime);
+
                 List<ContractFragment> fragmentsForDocument = latestVersion.getFragmentsForVersion(
                         new LookupList().addSorting(new Sorting(ContractFragmentTable.Columns.Ordinal.name(), Ordering.FIRST))
                 );
@@ -1822,10 +1837,12 @@ public class DocumentService extends ItClarifiesService{
 
 
                     NewAnalysisOutcome postProcessOutcome = analyser.postProcess(fragment.getText(), (int)fragment.getOrdinal(), aProject, false);
-                    handleResult(postProcessOutcome, fragment, deference, project, analysisTime, searchManager, aDocument, definitionsForProject, latestVersion);
+                    handleResult(postProcessOutcome, classifier, fragment, deference, project, analysisTime, searchManager, aDocument, definitionsForProject, latestVersion);
 
 
                 }
+
+                classifier.store();
 
                 //TODO: Optimization: Only do this if it is changed
                 invalidateFragmentCache(latestVersion);

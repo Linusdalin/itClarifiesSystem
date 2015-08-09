@@ -658,22 +658,6 @@
 
 
 
-    <FORM METHOD=GET action="<% out.print(host); %>/Export" id="exportDocumentForm" name="exportDocumentForm" accept-charset="UTF-8">
-        <fieldset style="height:145px">
-            <h3>Export Document</h3>
-            <p> Internal view of the document (without frontend)</p>
-
-            <p>	<label for="exportDocument">Document</label>
-                <input type="text" id="exportDocument" name="document" value="" size="50"></p>
-
-            <% out.print(getTokenParameter(useRealToken, "postDocument"));%>
-            <p>
-                <input type="submit" value="Export" class="btn primary" id="submit_exportDocumentForm" />
-            </p>
-        </fieldset>
-    </FORM>
-
-
 
 </div>
 

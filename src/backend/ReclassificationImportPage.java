@@ -298,6 +298,7 @@ public class ReclassificationImportPage extends NarrowPage {
                 comment.classification,
                 comment.requirementLevel,
                 comment.applicablePhase,
+                FragmentClassification.NOT_BLOCKED,                           //Assuming this is not a negative tag
                 comment.comment,
                 keyword,
                 user.getKey(),
@@ -337,7 +338,7 @@ public class ReclassificationImportPage extends NarrowPage {
                     document.getProjectId(),
                     comment.pattern,
                     patternPos,
-                    analysisTime.getISODate());
+                    analysisTime.getISODate(), FragmentClassification.NOT_BLOCKED);
 
 
             riskClassification.store();

@@ -1,29 +1,19 @@
 package backend;
 
-import analysis.AnalysisServlet;
-import contractManagement.*;
 import crossReference.Definition;
 import crossReference.DefinitionTable;
 import dataRepresentation.DataObjectInterface;
 import dataRepresentation.DataTableInterface;
 import dataRepresentation.DisplayFormat;
 import databaseLayer.DBKeyInterface;
-import databaseLayer.DatabaseAbstractionFactory;
 import log.PukkaLogger;
 import pukkaBO.backOffice.BackOfficeInterface;
-import pukkaBO.backOffice.BackOfficeLocation;
 import pukkaBO.backOffice.Icon;
 import pukkaBO.condition.*;
-import pukkaBO.exceptions.BackOfficeException;
-import pukkaBO.formsPredefined.TableEditForm;
 import pukkaBO.list.*;
 import pukkaBO.renderer.GroupListRenderer;
 import pukkaBO.renderer.ListRendererInterface;
 import pukkaBO.style.Html;
-import services.ItClarifiesService;
-import userManagement.AccessGrant;
-import userManagement.AccessGrantTable;
-import userManagement.Visibility;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;

@@ -1,14 +1,13 @@
 package test.integrationTests;
 
 import actions.ActionStatusServlet;
-import crossReference.CrossReferenceInternalServlet;
-import crossReference.CrossReferenceServlet;
 import log.PukkaLogger;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import overviewExport.OverviewExportStatusServlet;
 import test.MockWriter;
 import test.ServletTests;
 
@@ -19,12 +18,12 @@ import static org.mockito.Mockito.when;
 
 /*******************************************************************
  *
- *          Cross reference functionality
+ *          Testing the service with mocked request and response messages
  *
  */
 
 
-public class CrossReferenceTest extends ServletTests {
+public class OverviewStatusServiceTest extends ServletTests {
 
 
     @AfterClass
@@ -46,20 +45,21 @@ public class CrossReferenceTest extends ServletTests {
     /***********************************************************************************'
      *
      *
+     *          Test that the get request returns the complete list of statuses
+     *
      *
      *
      * @throws Exception
      */
 
+    private static final int EXPECTED_NO_STATUSES = 6;
 
         @Test
-        public void testServlet() throws Exception {
+        public void testGetStatus() throws Exception {
 
             try{
 
                 MockWriter mockWriter;
-
-
                 mockWriter = new MockWriter();
 
                 when(request.getParameter("session")).thenReturn("DummyAdminToken");
@@ -67,15 +67,13 @@ public class CrossReferenceTest extends ServletTests {
                 when(request.getRemoteAddr()).thenReturn("127.0.0.1");
                 when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
-                new CrossReferenceServlet().doPost(request, response);
+                new OverviewExportStatusServlet().doGet(request, response);
 
                 String output = mockWriter.getOutput();
                 PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
 
                 JSONObject json = new JSONObject(output);
-                assertVerbose("Call is queued", json.getString("CrossReference"), is("Queued"));
-
-                //TODO: Add verification of analysis here. This just tested that the process is running
+                JSONObject status = json.getJSONObject("ExportStatus");
 
 
         }catch(Exception e){
@@ -86,8 +84,9 @@ public class CrossReferenceTest extends ServletTests {
     }
 
 
+
     @Test
-    public void testInternal() throws Exception {
+    public void testFailPost() throws Exception {
 
         try{
 
@@ -97,27 +96,26 @@ public class CrossReferenceTest extends ServletTests {
             mockWriter = new MockWriter();
 
             when(request.getParameter("session")).thenReturn("DummyAdminToken");
-            when(request.getParameter("project")).thenReturn(demoProject.getKey().toString());
             when(request.getRemoteAddr()).thenReturn("127.0.0.1");
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
-            new CrossReferenceInternalServlet().doPost(request, response);
+            new OverviewExportStatusServlet().doPost(request, response);
 
             String output = mockWriter.getOutput();
             PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
 
             JSONObject json = new JSONObject(output);
 
-            //TODO: Add verification of analysis here. This just tested that the process is running
+            assertVerbose("Not allowed post", output.contains("Post not supported"), is(true));
 
 
-    }catch(Exception e){
 
-        e.printStackTrace();
-        assertTrue(false);
+        }catch(Exception e){
+
+            e.printStackTrace();
+            assertTrue(false);
+        }
     }
-}
-
 
 
 
@@ -135,7 +133,7 @@ public class CrossReferenceTest extends ServletTests {
             when(request.getRemoteAddr()).thenReturn("127.0.0.1");
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
-            new CrossReferenceServlet().doDelete(request, response);
+            new OverviewExportStatusServlet().doDelete(request, response);
 
             String output = mockWriter.getOutput();
             PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
@@ -167,39 +165,7 @@ public class CrossReferenceTest extends ServletTests {
             when(request.getRemoteAddr()).thenReturn("127.0.0.1");
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
-            new CrossReferenceServlet().doGet(request, response);
-
-            String output = mockWriter.getOutput();
-            PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);
-
-            JSONObject json = new JSONObject(output);
-
-            assertVerbose("Not allowed without session", output.contains("No session"), is(true));
-
-
-
-        }catch(Exception e){
-
-            e.printStackTrace();
-            assertTrue(false);
-        }
-    }
-
-    @Test
-    public void testFailNoSessionPost() throws Exception {
-
-        try{
-
-            MockWriter mockWriter;
-
-
-            mockWriter = new MockWriter();
-
-            when(request.getParameter("session")).thenReturn("InvalidToken");
-            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
-            when(response.getWriter()).thenReturn(mockWriter.getWriter());
-
-            new CrossReferenceServlet().doPost(request, response);
+            new OverviewExportStatusServlet().doGet(request, response);
 
             String output = mockWriter.getOutput();
             PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);

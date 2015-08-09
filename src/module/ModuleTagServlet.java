@@ -25,6 +25,8 @@ import java.io.IOException;
  *
  *          Assign or get Tags for modules
  *
+ *
+ *          //TODO: Not Implemented: Setting tags for modules
  */
 
 public class ModuleTagServlet extends ItClarifiesService {
@@ -74,59 +76,6 @@ public class ModuleTagServlet extends ItClarifiesService {
 
             PortalUser portalUser = sessionManagement.getUser();
 
-            if(!portalUser.getWSAdmin()){
-
-                returnError("Not sufficient access right to create project", ErrorType.PERMISSION, HttpServletResponse.SC_FORBIDDEN, resp);
-                return;
-
-            }
-
-
-            // Now check if the project exists.
-
-            if(_project != null){
-
-                project = new Project(new LookupByKey(_project));
-
-                if(!mandatoryObjectExists(project, resp))
-                    return;
-
-                System.out.print("Name=" + name);
-
-                project.setName(name);
-                project.setDescription(description);
-                project.setKey(_project);
-                project.update();
-
-            }
-            else{
-
-                Project existingProject = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), name)));
-
-                if(existingProject.exists()){
-
-                    returnError("Project with name " + name + "already exists.", ErrorType.DATA, HttpServletResponse.SC_BAD_REQUEST, resp);
-                    return;
-
-                }
-
-                ProjectType projectType = ProjectType.getGeneric();    //TODO: Not implemented different project types. Using default
-                AccessRight projectAccess = AccessRight.getrwd();      //TODO: Not implemented access rights to project
-
-                DBTimeStamp creationTime = new DBTimeStamp();
-
-                // No project parameter given. We create a new project entry
-
-                project = new Project(name, description, portalUser.getKey(), portalUser.getOrganizationId(), creationTime.getISODate(), projectType,  projectAccess);
-                project.store();
-
-                // Create appropriate sections for the type of project
-                createSectionsForProject(project, projectType, portalUser, projectAccess, creationTime);
-            }
-
-            JSONObject json = createPostResponse(DataServletName, project);
-
-            sendJSONResponse(json, formatter, resp);
 
 
         } catch (BackOfficeException e) {
@@ -190,66 +139,8 @@ public class ModuleTagServlet extends ItClarifiesService {
                 return;
             }
 
-           logRequest(req);
-
-           if(!validateSession(req, resp))
-               return;
-
-           if(blockedSmokey(sessionManagement, resp))
-               return;
-
-           setLoggerByParameters(req);
-
-           Formatter formatter = getFormatFromParameters(req);
-
-            key             = getOptionalKey("key", req);
-
-           PortalUser user = sessionManagement.getUser();
-
-           ConditionInterface condition = getLookupConditionForOptionalKey(key);
-           condition.addFilter(new ReferenceFilter(ProjectTable.Columns.Organization.name(), user.getOrganizationId()));
-
-           ProjectTable all = new ProjectTable(condition);
-
-           JSONArray projectList = new JSONArray();
-
-           for(DataObjectInterface object : all.getValues()){
-
-               Project project = (Project)object;
-               String projectTypeName = "Generic";
-               ProjectType type = project.getType();
-               if(type != null)
-                   projectTypeName = type.getName();
-
-               int documentsForProject = project.getContractsForProject().size();
-
-               JSONObject projectJSON = new JSONObject()
-                    .put("id", project.getKey().toString())
-                    .put("name", project.getName())
-                    .put("description", project.getDescription())
-                    .put("type", projectTypeName)
-                    .put("organization", project.getOrganizationId().toString())
-                    .put("owner", project.getCreatorId().toString())
-                    .put("creation", project.getCreationTime().getSQLTime().toString())
-                    .put("status", "unknown")                       // TODO: Not implemented passing an analysis status
-                    .put("noDocs", documentsForProject);
-
-                PukkaLogger.log(PukkaLogger.Level.INFO, "*** Project: " + project.getName());
-                projectList.put(projectJSON);
-           }
-
-           JSONObject json = new JSONObject()
-                   .put(DataServletName, projectList);
-
-           PukkaLogger.log(PukkaLogger.Level.INFO, "Sent " + projectList.length() + " projects for user " +user.getName() + " (organization " + user.getOrganizationId() + ")" );
-
-           sendJSONResponse(json, formatter, resp);
 
 
-        }catch(BackOfficeException e){
-
-           PukkaLogger.log( e );
-           returnError("Error in " + DataServletName, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
 
         } catch ( Exception e) {
 
@@ -287,20 +178,6 @@ public class ModuleTagServlet extends ItClarifiesService {
             setLoggerByParameters(req);
 
             Formatter formatter = getFormatFromParameters(req);
-
-            key = getMandatoryKey("Key", req);
-            Project project = new Project(new LookupByKey(key));
-
-            // Deletable here means that the user owns the project
-
-            if(!deletable(project, resp))
-                return;
-
-            project.recursivelyDelete();
-            project.delete();
-
-            JSONObject json = createDeletedResponse(DataServletName, project);
-            sendJSONResponse(json, formatter, resp);
 
 
         }catch(BackOfficeException e){

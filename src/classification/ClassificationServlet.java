@@ -6,6 +6,7 @@ import com.google.appengine.api.datastore.Query;
 import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
 import databaseLayer.DBKeyInterface;
+import document.AbstractComment;
 import featureTypes.FeatureTypeInterface;
 import featureTypes.FeatureTypeTree;
 import language.LanguageAnalyser;
@@ -103,6 +104,7 @@ public class ClassificationServlet extends DocumentService {
             DBTimeStamp now = new DBTimeStamp();
 
             Organization organization = currentUser.getOrganization();
+            boolean blocking = false;
 
             Project project = document.getProject();
 
@@ -110,6 +112,13 @@ public class ClassificationServlet extends DocumentService {
             LanguageInterface languageForDocument = new LanguageAnalyser().getLanguage(documentLanguage);
 
             // Lookup the tag. Either in the static tree or custom tags in the database
+
+            if(isNegativeClassification(classTag)){
+
+                blocking = true;
+                classTag = classTag.substring( 1 );     //Remove ! prefix
+            }
+
 
             String localizedClass = getLocalizedTag(classTag, organization, languageForDocument);
             String tagName = getTagName(classTag, organization, languageForDocument);
@@ -132,6 +141,7 @@ public class ClassificationServlet extends DocumentService {
                     localizedClass,
                     0,              // requirement level not implemented
                     0,              // applicable phase not implemented
+                    (blocking ? FragmentClassification.BLOCKING : FragmentClassification.NOT_BLOCKED),
                     comment,
                     keyword,
                     currentUser.getKey(),
@@ -463,5 +473,9 @@ public class ClassificationServlet extends DocumentService {
 
     }
 
+    private boolean isNegativeClassification(String classTag) {
+
+        return classTag.startsWith("!#");
+    }
 
 }

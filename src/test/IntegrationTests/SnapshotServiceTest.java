@@ -67,6 +67,7 @@ public class SnapshotServiceTest extends ServletTests {
 
             when(request.getParameter("session")).thenReturn("DummyAdminToken");
             when(request.getParameter("project")).thenReturn(project.getKey().toString());
+            when(request.getRemoteAddr()).thenReturn("127.0.0.1");
             when(response.getWriter()).thenReturn(writer.getWriter());
 
             new SnapshotServlet().doGet(request, response);

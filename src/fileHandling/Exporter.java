@@ -116,12 +116,19 @@ public class Exporter {
             PukkaLogger.log(PukkaLogger.Level.INFO, "Adding comments for all attributes");
             List<FragmentClassification> classificationsForDocument = documentVersion.getFragmentClassificationsForVersion();
 
+            int i =0;
+            for (FragmentClassification classification : classificationsForDocument) {
+
+                System.out.println(i++ + ": " + classification.toString());
+            }
+
+
             List<RiskClassification> risksForDocument = documentVersion.getRiskClassificationsForVersion();
             List<ContractAnnotation> annotationsForDocument = documentVersion.getContractAnnotationsForVersion();
 
             List<AbstractComment> commentList = new ArrayList<AbstractComment>();
 
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Adding "+ classificationsForDocument.size()+" classification comments");
+            PukkaLogger.log(PukkaLogger.Level.INFO, "Parsing "+ classificationsForDocument.size()+" classification comments");
 
             commentList.addAll(createCommentsFromClassifications(classificationsForDocument, project, filter));
 
@@ -206,22 +213,31 @@ public class Exporter {
 
     private boolean isRelevantForExport(FragmentClassification classification, String filter) {
 
+        System.out.println("  -- Checking relevance in export for classification " + classification.toString());
+
+
         if(     classification.getClassTag().equals(FeatureTypeTree.DefinitionRepetition.getName()) ||
                 classification.getClassTag().equals(FeatureTypeTree.DefinitionDef.getName()) ||
                 classification.getClassTag().equals(FeatureTypeTree.DefinitionUsage.getName())
         )
-        {  return false; }
+        {
+            System.out.println("        - not exporting definitions");
+            return false; }
 
         // A classification generated from a comment in the system is labelled with the external user.
         // It already exists so we will ignore it when exporting.
 
-        if(classification.getCreator().getName().equals("External")){
+        if(classification.getblockingState() == FragmentClassification.BLOCKED ||
+           classification.getblockingState() == FragmentClassification.BLOCKING ||
+           classification.getblockingState() == FragmentClassification.IMPORTED ||
+           classification.getblockingState() == FragmentClassification.OVERRIDDEN  ){
 
+            System.out.println("        - not exporting blocked or overridden");
             return false;
 
         }
 
-        System.out.println(" Classification to export: " + classification.toStringLong());
+        System.out.println("        - OK!");
 
         return true;
 
@@ -244,14 +260,29 @@ public class Exporter {
 
             ContractFragment fragment = risk.getFragment();
 
-            int anchorStart = (int)risk.getPatternPos();
-            int anchorLength = risk.getPattern().length();
+            if(isRelevantForExport(risk)){
 
-            list.add(new AbstractComment("Risk", risk.getPattern(), "Risk(" + risk.getRisk().getName() + ")", (int)risk.getFragment().getOrdinal(), anchorStart, anchorLength));
-            System.out.println("**** Risk " + risk.getDescription() + "(" + risk.getPattern() + ") for fragment " + fragment.getName() + " with id " + fragment.getOrdinal());
+                int anchorStart = (int)risk.getPatternPos();
+                int anchorLength = risk.getPattern().length();
+
+                list.add(new AbstractComment("Risk", risk.getPattern(), "#Risk " + risk.getRisk().getName() + " " + risk.getComment(), (int)risk.getFragment().getOrdinal(), anchorStart, anchorLength));
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Added Risk to export: " + risk.getDescription() + "(" + risk.getPattern() + ") for fragment " + fragment.getName() + " with id " + fragment.getOrdinal()) ;
+
+            }
+            else
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Risk ignored in export: " + risk.getDescription() + "(" + risk.getPattern() + ") for fragment " + fragment.getName() + " with id " + fragment.getOrdinal()) ;
+
+
+
         }
 
         return list;
+
+    }
+
+    private boolean isRelevantForExport(RiskClassification risk) {
+
+        return risk.getblockingState() != FragmentClassification.IMPORTED;
 
     }
 

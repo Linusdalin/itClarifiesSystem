@@ -27,13 +27,15 @@ public class CellValue {
     private Type type;
 
     private int fontSize;
+    private String fontName = null;
+
     private boolean bold, italics, wrap, udBorder,lrBorder, center, middle;
 
-    private boolean greyFill;
+    private byte[] backgroundFill = null;
 
-    private static final byte[] borderColour =  {(byte)0xAA, (byte)0xAA, (byte)0xAA};
-    private static final byte[] greyBackground =    {(byte)0xAA, (byte)0xAA, (byte)0xAA};
-    private static final byte[] whiteFont =    {(byte)0xFF, (byte)0xFF, (byte)0xFF};
+    private static final byte[] borderColour =   {(byte)0xBB, (byte)0xBB, (byte)0xBB};
+    private static final byte[] greyBackground = {(byte)0xAA, (byte)0xAA, (byte)0xAA};
+    private static final byte[] whiteFont =      {(byte)0xFF, (byte)0xFF, (byte)0xFF};
 
     public CellValue(String text){
 
@@ -62,7 +64,6 @@ public class CellValue {
         this.center = false;
         this.middle = false;
 
-        this.greyFill = false;
     }
 
     public String getStringValue() {
@@ -92,6 +93,19 @@ public class CellValue {
         return this;
     }
 
+    public CellValue withFont(String fontName){
+
+        this.fontName = fontName;
+        return this;
+    }
+
+    public CellValue withFont(String fontName, int fontSize){
+
+        this.fontName = fontName;
+        this.fontSize = fontSize;
+        return this;
+    }
+
     public CellValue bold(){
 
         this.bold = true;
@@ -113,11 +127,18 @@ public class CellValue {
 
     public CellValue tableHeadline(){
 
-        this.greyFill = true;
+        this.backgroundFill = greyBackground;
+        this.fontName = "Proxima Nova Bold";
+        this.fontSize = 14;
         this.middle = true;
         return this;
     }
 
+    public CellValue fill(byte[] colour){
+
+        this.backgroundFill = colour;
+        return this;
+    }
 
 
     public XSSFCellStyle getStyle(XSSFSheet sheet) {
@@ -131,15 +152,17 @@ public class CellValue {
 
         }
 
+        if(fontName != null)
+            font.setFontName(fontName);
 
         font.setFontHeightInPoints((short) fontSize);
         font.setBold(bold);
         font.setItalic(italics);
         style.setWrapText(wrap);
 
-        if(greyFill){
+        if(backgroundFill != null){
             style.setFillPattern(CellStyle.SOLID_FOREGROUND);
-            style.setFillForegroundColor(new XSSFColor(greyBackground));
+            style.setFillForegroundColor(new XSSFColor(backgroundFill));
             font.setColor(new XSSFColor(whiteFont));         //TODO: This doesn't work
         }
 

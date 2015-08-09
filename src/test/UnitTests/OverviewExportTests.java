@@ -1,5 +1,6 @@
 package test.UnitTests;
 
+import classification.FragmentClassification;
 import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
 import diff.DiffStructure;
@@ -102,11 +103,18 @@ public class OverviewExportTests extends PukkaTest{
             ExtractionTagList tagList = new ExtractionTagList("#Main");
             tagList.setChildren(children);
 
+            FragmentClassification classification1 = new FragmentClassification((DBKeyInterface)null, "#Main", 0, 0, FragmentClassification.NOT_BLOCKED, "comment", "keywords", null, null, null, "pattern", 0, 0, 0, "ruleid", "2015-07-01");
+            FragmentClassification classification2 = new FragmentClassification((DBKeyInterface)null, "#Child1", 0, 0, FragmentClassification.NOT_BLOCKED, "comment", "keywords", null, null, null, "pattern", 0, 0, 0, "ruleid", "2015-07-01");
+            FragmentClassification classification3 = new FragmentClassification((DBKeyInterface)null, "#Cousin", 0, 0, FragmentClassification.NOT_BLOCKED, "comment", "keywords", null, null, null, "pattern", 0, 0, 0, "ruleid", "2015-07-01");
+
+            FragmentClassification block1 = new FragmentClassification((DBKeyInterface)null, "#Main", 0, 0, FragmentClassification.BLOCKED, "comment", "keywords", null, null, null, "pattern", 0, 0, 0, "ruleid", "2015-07-01");
+
 
             assertVerbose("Get Main Tag  ", tagList.getMainTag(), is("#Main"));
-            assertVerbose("Is  Applicable main", tagList.isApplicableFor("#Main"),   is(true));
-            assertVerbose("Is  Applicable child", tagList.isApplicableFor("#Child1"), is(true));
-            assertVerbose("NOT Applicable other", tagList.isApplicableFor("#Cousin"), is(false));
+            assertVerbose("Is  Applicable main", tagList.isApplicableFor(classification1),   is(true));
+            assertVerbose("Is  Applicable child", tagList.isApplicableFor(classification2), is(true));
+            assertVerbose("NOT Applicable other", tagList.isApplicableFor(classification3), is(false));
+            assertVerbose("NOT Applicable blocking", tagList.isApplicableFor(block1), is(false));
 
         }catch(Exception e){
 

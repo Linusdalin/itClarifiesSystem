@@ -101,7 +101,7 @@ public class OverviewExportInternalServlet extends ItClarifiesService{
         }
      }
 
-    private void markAsFail(Project project) {
+    public void markAsFail(Project project) {
 
             // If there is a status for the project, set it to failed
 
@@ -134,6 +134,14 @@ public class OverviewExportInternalServlet extends ItClarifiesService{
         resp.flushBuffer();
 
      }
+
+    public void doGet(HttpServletRequest req, HttpServletResponse resp)throws IOException {
+
+        returnError("Get not supported in " + DataServletName, HttpServletResponse.SC_METHOD_NOT_ALLOWED, resp);
+        resp.flushBuffer();
+
+     }
+
 
 
 }

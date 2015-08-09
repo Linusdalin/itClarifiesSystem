@@ -46,13 +46,13 @@ public class RiskClassification extends DataObject implements DataObjectInterfac
             table = TABLE;
     }
 
-    public RiskClassification(DataObjectInterface fragment, DataObjectInterface risk, String comment, String keywords, DataObjectInterface creator, DataObjectInterface version, DataObjectInterface project, String pattern, long patternpos, String time) throws BackOfficeException{
+    public RiskClassification(DataObjectInterface fragment, DataObjectInterface risk, String comment, String keywords, DataObjectInterface creator, DataObjectInterface version, DataObjectInterface project, String pattern, long patternpos, String time, long blockingstate) throws BackOfficeException{
 
-        this(fragment.getKey(), risk, comment, keywords, creator.getKey(), version.getKey(), project.getKey(), pattern, patternpos, time);
+        this(fragment.getKey(), risk, comment, keywords, creator.getKey(), version.getKey(), project.getKey(), pattern, patternpos, time, blockingstate);
     }
 
 
-    public RiskClassification(DBKeyInterface fragment, DataObjectInterface risk, String comment, String keywords, DBKeyInterface creator, DBKeyInterface version, DBKeyInterface project, String pattern, long patternpos, String time){
+    public RiskClassification(DBKeyInterface fragment, DataObjectInterface risk, String comment, String keywords, DBKeyInterface creator, DBKeyInterface version, DBKeyInterface project, String pattern, long patternpos, String time, long blockingstate){
 
         this();
         try{
@@ -71,6 +71,7 @@ public class RiskClassification extends DataObject implements DataObjectInterfac
            data[7] = new TextData(pattern);
            data[8] = new IntData(patternpos);
            data[9] = new DateData(time);
+           data[10] = new IntData(blockingstate);
 
            exists = true;
         }catch(BackOfficeException e){
@@ -271,6 +272,20 @@ public class RiskClassification extends DataObject implements DataObjectInterfac
 
         DateData data = (DateData) this.data[9];
         data.value = time.getISODate().toString();
+    }
+
+
+
+    public long getblockingState(){
+
+        IntData data = (IntData) this.data[10];
+        return data.value;
+    }
+
+    public void setblockingState(long blockingstate){
+
+        IntData data = (IntData) this.data[10];
+        data.value = blockingstate;
     }
 
 

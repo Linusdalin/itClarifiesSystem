@@ -37,6 +37,9 @@ public class Classifier {
     private List<ContractFragment>        fragmentsToUpdate = new ArrayList<ContractFragment>();
     private List<RiskClassification>      risksToStore = new ArrayList<RiskClassification>();
 
+    private List<FragmentClassification> existingClassifications;
+
+
     // These are classifications that also should be classified as risk
 
     private static final ClassificationPattern[] riskPattern = {
@@ -79,12 +82,10 @@ public class Classifier {
             PukkaLogger.log( e );
         }
 
+        existingClassifications =  version.getFragmentClassificationsForVersion();  // Get all existing classifications from previous runs.
     }
 
-    public void setClassifier(PortalUser classifier){
 
-        this.classifier = classifier;
-    }
 
     /**************************************************************************
      *
@@ -105,25 +106,109 @@ public class Classifier {
 
         Pattern pattern = new Pattern(classification.getPattern(), fragment.getText().indexOf(classification.getPattern()));
 
+        if(manuallyOverridden(classification, existingClassifications)){
+
+            classification.setblockingState(FragmentClassification.OVERRIDDEN);
+
+        }
+
         classificationsToStore.add(classification);
         fragmentsToUpdate.add(fragment);
         handleSideEffects(classification, fragment, pattern, analysisTime);
-        extractRiskForClassification(fragment, classification, pattern);
+        extractRiskForClassification(fragment, classification, pattern);                // -> new Risk
 
     }
 
-    //TODO: Implement batch update here
+
+    /*******************************************************************
+     *
+     *          A classification is manually overridden if the classification
+     *          already exists for the same fragment with the same pattern
+     *
+     *          (I.e. it was a comment in the document
+     *          either by the user or re-imported)
+     *
+     *          NOTE: This will also avoid duplicates
+     *
+     *          //TODO: Improvement Functionality: Note that the manual classification is covered by the generated classification to avoid generating comments
+     *
+     *
+     * @param classification          - the classification
+     * @param existingClassifications  - all previous classifications
+     * @return                        - true if the classification already exists
+     */
+
+    private boolean manuallyOverridden(FragmentClassification classification, List<FragmentClassification> existingClassifications) {
+
+        System.out.println("Checking for duplicate classifications among " + existingClassifications.size() + " existing classifications.");
+
+        //Only debug. TODO: Remove
+        int i = 1;
+        for (FragmentClassification fragmentClassification : existingClassifications) {
+
+            System.out.println(" --- "+ i++ + fragmentClassification.getClassTag() + "(" + classification.getblockingState() +  ") for " + classification.getPattern());
+        }
+
+
+        for (FragmentClassification existing : existingClassifications) {
+
+            System.out.println("  -- Comparing classification " + classification.getClassTag() + "("+ classification.getPattern() + ") with " +
+                    existing.getClassTag() + "("+ existing.getPattern() + ")");
+
+            if(     existing.getClassTag().equals(classification.getClassTag()) &&
+                    existing.getblockingState() != FragmentClassification.BLOCKING &&
+                    existing.getFragmentId().equals(classification.getFragmentId()) &&
+                    isSamePattern(existing.getPattern(), classification.getPattern())){
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Ignoring Classification " + classification.getClassTag() + " for " + classification.getPattern() + " already exists.");
+                return true;
+            }
+        }
+
+        return false;
+
+    }
+
+    /**********************************************************************
+     *
+     *          Comparing patterns.
+     *
+     *
+     *          //TODO: Improvement Functionality: We should really compare positions here to see overlap, but that requires implementation of pattern pos in export
+     *
+     * @param pattern1              -
+     * @param pattern2              -
+     * @return                      - are they actually the same
+     */
+
+    private boolean isSamePattern(String pattern1, String pattern2) {
+
+        return pattern1.contains(pattern2) || pattern2.contains(pattern1);
+
+    }
+
     // TODO: Handle classification count for multiple classifications added to the same fragment
 
     public void store() {
 
         try {
 
+            FragmentClassificationTable classificationTable = new FragmentClassificationTable();
+            classificationTable.createEmpty();
+
+            // Merge the existing classifications in the database with the new classifications added here
+            List<FragmentClassification> allClassifications = new ArrayList<FragmentClassification>();
+            allClassifications.addAll(existingClassifications);
+            allClassifications.addAll(classificationsToStore);
+
             for (FragmentClassification classification : classificationsToStore) {
 
-                classification.store();
+                updateBlockStatus(classification, allClassifications);  // Se if it is blocked by another block tag
+                classificationTable.add(classification);
 
             }
+
+            classificationTable.store();
 
             for (Definition definition : definitionsToStore) {
 
@@ -149,6 +234,42 @@ public class Classifier {
         } catch (BackOfficeException e) {
 
             PukkaLogger.log( e );
+        }
+
+
+    }
+
+    /****************************************************************************************'
+     *
+     *
+     *
+     *
+     * @param classification                 - this classification
+     * @param classificationsToStore         - all other classificaiton
+     */
+
+    private void updateBlockStatus(FragmentClassification classification, List<FragmentClassification> classificationsToStore) {
+
+        System.out.println("Checking for blocking classifications among " + classificationsToStore.size() + " existing classifications.");
+
+
+
+        for (FragmentClassification otherClassification : classificationsToStore) {
+
+            System.out.println(" --- Comparing Tag " + classification.getClassTag() + ": " + classification.getblockingState() + " for " + classification.getPattern() + " with " +
+                    otherClassification.getClassTag() + ": " + otherClassification.getblockingState() + " for " + classification.getPattern());
+
+
+            if(     classification.getblockingState() == FragmentClassification.NOT_BLOCKED &&
+                    otherClassification.getblockingState() == FragmentClassification.BLOCKING &&
+                    otherClassification.getFragmentId().equals(classification.getFragmentId()) &&
+                    otherClassification.getClassTag().equals(classification.getClassTag())){
+
+                classification.setblockingState( FragmentClassification.BLOCKED );       // Set the state to blocked here
+                PukkaLogger.log(PukkaLogger.Level.INFO, "    --- Blocking the classification " + classification.getClassTag() + " for " + classification.getPattern());
+            }else
+                System.out.println("    --- Ok to leave.");
+
         }
 
 
@@ -241,7 +362,8 @@ public class Classifier {
                             project.getKey(),
                             pattern.getText(),
                             pattern.getPos(),
-                            analysisTime.getSQLTime().toString()
+                            analysisTime.getSQLTime().toString(),
+                            FragmentClassification.NOT_BLOCKED
                     );
 
     }

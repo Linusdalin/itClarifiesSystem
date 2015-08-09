@@ -94,6 +94,12 @@ public class OverviewGenerator {
     int extractionOrdinal = 0;            // Global count for all the extractions to order the result
 
 
+    private static final String BoldFont = "Proxima Nova Bold";
+    private static final String RegularFont = "Proxima Nova Regular";
+    private static final String LightFont = "Proxima Nova Light";
+    private static final String TextFont = "Minion Pro";
+
+
     /***************************************************************************
      *
      *          Initiate the generator for generating the export
@@ -477,7 +483,7 @@ public class OverviewGenerator {
 
                     for (ExtractionTagList tagExtraction : tagExtractions) {
 
-                        if (tagExtraction.isApplicableFor(classification.getClassTag())) {
+                        if (tagExtraction.isApplicableFor(classification)) {
 
                             // We now have a fragment with a tag that matches the tag(s) we are looking for
                             // We add it to the fragment (and potentially also the heading - if it is not already added)
@@ -934,7 +940,7 @@ public class OverviewGenerator {
         // First set the values for the standard sheets
 
         sheetConfig[ 0 ] = new SheetExportStyle("Overview",        5);
-        sheetConfig[ 1 ] = new SheetExportStyle("Documents",       7);
+        sheetConfig[ 1 ] = new SheetExportStyle("Documents",       6);
         sheetConfig[ 2 ] = new SheetExportStyle("Definitions",     7);
         sheetConfig[ 3 ] = new SheetExportStyle("External Ref",    7);
         sheetConfig[ 4 ] = new SheetExportStyle("Risks",           7);
@@ -1142,11 +1148,11 @@ public class OverviewGenerator {
 
             CellValue[] elements = new CellValue[8];
 
-            elements[0] = new CellValue(extraction.getClassification());
+            elements[0] = new CellValue(extraction.getClassification()).withFont(BoldFont, 12);
             elements[1] = new CellValue("");
-            elements[2] = new CellValue(extraction.getText());
-            elements[3] = new CellValue(extraction.getComment());
-            elements[4] = new CellValue(extraction.getDescription());
+            elements[2] = new CellValue(extraction.getText()).withFont(TextFont, 12);
+            elements[3] = new CellValue(extraction.getComment()).withFont(RegularFont, 12);
+            elements[4] = new CellValue(extraction.getDescription()).withFont(RegularFont, 12);
 
 
             if(extraction.getStyle().equals("Title")){
@@ -1207,15 +1213,12 @@ public class OverviewGenerator {
 
         try{
 
-            CellValue[] elements = new CellValue[8];
+            CellValue[] elements = new CellValue[4];
 
-            elements[0] = new CellValue(extraction.getName());
-            elements[1] = new CellValue("");
-            elements[2] = new CellValue("");
-            elements[3] = new CellValue(extraction.getText());
-            elements[4] = new CellValue("");
-            elements[5] = new CellValue("");
-            elements[6] = new CellValue(documentName);
+            elements[0] = new CellValue(extraction.getName()).asBox().withFont(RegularFont, 12);
+            elements[1] = new CellValue(extraction.getText()).asBox().withFont(RegularFont, 12);
+            elements[2] = new CellValue("").asBox().withFont(RegularFont, 12);
+            elements[3] = new CellValue(documentName).asBox().withFont(RegularFont, 12);
 
             addRow(sheet, (currentRow++), elements, 1);
             feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Adding row in sheet " + sheet.getSheetName(), 0));
@@ -1256,10 +1259,10 @@ public class OverviewGenerator {
 
             CellValue[] elements = new CellValue[8];
 
-            elements[0] = new CellValue(document.getName());
-            elements[1] = new CellValue(document.getFile());
-            elements[2] = new CellValue(document.getCreation().getISODate());
-            elements[3] = new CellValue(document.getHeadVersion().getVersion());
+            elements[0] = new CellValue(document.getName()).asBox().withFont(RegularFont, 12);
+            elements[1] = new CellValue(document.getFile()).asBox().withFont(RegularFont, 12);
+            elements[2] = new CellValue(document.getCreation().getISODate()).asBox().withFont(RegularFont, 12);
+            elements[3] = new CellValue(document.getHeadVersion().getVersion()).asBox().withFont(RegularFont, 12);
 
 
             addRow(sheet, (currentRow++), elements, 1);
@@ -1288,9 +1291,12 @@ public class OverviewGenerator {
 
             CellValue[] elements = new CellValue[8];
 
-            elements[0] = new CellValue(id);
-            elements[2] = new CellValue(tag);
-            elements[3] = new CellValue("Extractions from project");
+            elements[0] = new CellValue(id).asBox().withFont(BoldFont, 14);
+            elements[1] = new CellValue("").asBox().fill(new byte[]{(byte)0xCC, (byte)0xCC, (byte)0xCC});
+            elements[2] = new CellValue(tag).asBox().withFont(RegularFont, 12);
+            elements[3] = new CellValue("Extractions from project").asBox().withFont(RegularFont, 12);
+            elements[4] = new CellValue("").asBox();
+            elements[5] = new CellValue("").asBox();
 
 
             addRow(sheet, (currentRow++), elements, 1);
@@ -1326,11 +1332,11 @@ public class OverviewGenerator {
 
             CellValue[] elements = new CellValue[8];
 
-            elements[0] = new CellValue(item.getConformanceTag()).asBox();
-            elements[1] = new CellValue(item.getName()).asBox();
-            elements[2] = new CellValue(item.getDescription()).asBox();
-            elements[3] = new CellValue(item.getContextTag()).asBox();
-            elements[4] = new CellValue(item.getChecklist().getName()).asBox();
+            elements[0] = new CellValue(item.getConformanceTag()).asBox().withFont(RegularFont).bold();
+            elements[1] = new CellValue(item.getName()).asBox().withFont(RegularFont);
+            elements[2] = new CellValue(item.getDescription()).asBox().withFont(RegularFont);
+            elements[3] = new CellValue(item.getContextTag()).asBox().withFont(RegularFont).bold();
+            elements[4] = new CellValue(item.getChecklist().getName()).asBox().withFont(RegularFont);
             elements[5] = new CellValue("").asBox();
 
 
@@ -1353,16 +1359,14 @@ public class OverviewGenerator {
 
         try{
 
-            CellValue[] elements = new CellValue[8];
+            CellValue[] elements = new CellValue[6];
 
-            elements[0] = new CellValue(item.getConformanceTag()).asBox();
-            elements[1] = new CellValue(item.getName()).asBox();
-            elements[2] = new CellValue(item.getDescription()).asBox();
-            elements[3] = new CellValue(item.getContextTag()).asBox();
-            elements[4] = new CellValue(item.getChecklist().getName()).asBox();
+            elements[0] = new CellValue(item.getConformanceTag()).asBox().withFont(BoldFont);
+            elements[1] = new CellValue(item.getName()).asBox().withFont(RegularFont);
+            elements[2] = new CellValue(item.getDescription()).asBox().withFont(RegularFont);
+            elements[3] = new CellValue(item.getContextTag()).asBox().withFont(RegularFont);
+            elements[4] = new CellValue(item.getChecklist().getName()).asBox().withFont(RegularFont);
             elements[5] = new CellValue("").asBox();
-            elements[6] = new CellValue("").asBox();
-            elements[7] = new CellValue("").asBox();
 
 
             addRow(sheet, (currentRow), elements, 1);

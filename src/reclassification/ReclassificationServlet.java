@@ -543,8 +543,7 @@ public class ReclassificationServlet extends DocumentService {
 
             PukkaLogger.log(PukkaLogger.Level.WARNING, "Could not find fragment " + fragmentText + " at " + fragmentNo + "( +/- 20)");
 
-            //TOD: Remove this. Only for reenginering
-            return fragmentsForDocument.get(fragmentNo);
+            return new ContractFragment();
 
 
         }catch(Exception e){

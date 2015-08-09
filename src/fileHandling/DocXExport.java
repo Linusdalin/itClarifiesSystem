@@ -196,7 +196,16 @@ public class DocXExport {
 
         PukkaLogger.log(PukkaLogger.Level.INFO, "Adding comments to document!");
         PukkaLogger.log(PukkaLogger.Level.INFO, "***** Found " + paragraphs.size() + " paragraphs and " + fragments.size() + " fragments.");
+        PukkaLogger.log(PukkaLogger.Level.INFO, "***** Adding " + commentsForDocument.size() + " comments");
 
+        int i = 0;
+        for (AbstractComment abstractComment : commentsForDocument) {
+
+            System.out.println(i++ +":"+ abstractComment.getComment());
+        }
+
+        int maxCommentId = getMaxCommentId(comments);
+        BigInteger commentId = BigInteger.valueOf(maxCommentId + 1);  // Start numbering from the number of existing comments
         int paragraphNo = 0;  // The paragraph counter, used to match the comment paragraphs
         int fragmentNo = 0;
 
@@ -204,7 +213,9 @@ public class DocXExport {
 
             P paragraph = (P)o;
 
+
             ContractFragment matchingFragment = ReclassificationServlet.locateFragment(paragraph.toString(), fragmentNo, fragments);
+            //paragraph = (P)removeAllCommentReferences(paragraph);
 
             if(!matchingFragment.exists()){
 
@@ -214,23 +225,25 @@ public class DocXExport {
 
                 // Update the paragraph number with the ordinal of the actual fragment
 
-                System.out.println(" --- matched paragraph " + paragraphNo + " " + paragraph.toString() + " with fragment " + matchingFragment.getOrdinal() + " " + matchingFragment.getName());
+                System.out.println(" --- matched paragraph " + paragraphNo + " \"" + paragraph.toString() + "\" with fragment " + matchingFragment.getOrdinal() + " " + matchingFragment.getName());
                 fragmentNo = (int)matchingFragment.getOrdinal();
 
                 List<AbstractComment> commentsForParagraph = getCommentsForParagraph(fragmentNo, commentsForDocument);
 
+                System.out.println(" -- Found " + commentsForParagraph.size() + " comments for paragraph!");
+
                 // Get all elements. We are interested in the runs and the comment ranges
 
                 List<Object> paragraphObjects = getAllElementForParagraph(paragraph);
-
-                BigInteger commentId = BigInteger.valueOf(comments.getComment().size());  // Start numbering from the number of existing comments
 
                 for (AbstractComment abstractComment : commentsForParagraph) {
 
                     Comments.Comment theComment = createComment(commentId, "Author", null, abstractComment.getComment());
            		    comments.getComment().add(theComment);
 
-                    System.out.println(" ! Replacing "+ abstractComment.getAnchor()+"("+abstractComment.getStart() + ", " + abstractComment.getLength() +") for paragraph " + paragraphNo);
+                    System.out.println(" ! Adding comment " + abstractComment.getComment() + "@\""+ abstractComment.getAnchor()+"\" ("+abstractComment.getStart() + ", " + abstractComment.getLength() +") for paragraph " + paragraphNo);
+
+                    // TODO: Not implemented: paragraph creator that allows to add multiple comments to one anchor. This replaces the current content
 
                     if(abstractComment.getStart() == -1){
 
@@ -249,6 +262,7 @@ public class DocXExport {
                         paragraph.getContent().clear();
 
                         int textPosition = 0;  // Counter for the entire paragraph text.
+                        boolean closed = false;
 
                         for (Object object : paragraphObjects) {
 
@@ -277,7 +291,7 @@ public class DocXExport {
 
                                     paragraph.getContent().add(createRangeEnd( commentId));
                                     paragraph.getContent().add(createCommentRef(commentId));
-
+                                    closed = true;
 
                                 }
 
@@ -286,8 +300,17 @@ public class DocXExport {
                             }
                             else{
 
-                                System.out.println("   - Could not find any texts!!!");
+                                System.out.println("   - Could not find any text in object");
+                                paragraph.getContent().add(object);  // Add the actual object
                             }
+
+                        }
+                        if(!closed){
+
+                            System.out.println("Closing comment at the end of text.");
+
+                            paragraph.getContent().add(createRangeEnd( commentId));
+                            paragraph.getContent().add(createCommentRef(commentId));
 
                         }
                     }
@@ -305,6 +328,63 @@ public class DocXExport {
 
 
     }
+
+    private int getMaxCommentId(Comments comments) {
+
+        int max = 0;
+
+        for (Comments.Comment comment : comments.getComment()) {
+
+            int id = comment.getId().intValue();
+            if(id > max)
+                max = id;
+        }
+
+        System.out.println(" - The highest comment id is " + max);
+        return max;
+    }
+
+    private Object removeAllCommentReferences(Object obj) {
+
+            System.out.println("  ---- In removing comment ref: found " + obj.getClass().toString());
+
+            if (obj instanceof JAXBElement)
+               return( removeAllCommentReferences(((JAXBElement<?>) obj).getValue()));
+
+
+            if (obj instanceof ContentAccessor) {
+
+                List<?> original = ((ContentAccessor) obj).getContent();
+                List<Object> allChildren = new ArrayList<Object>();
+
+                allChildren.addAll(original);
+
+                System.out.println("  ---- Recursing with " + ((ContentAccessor) obj).getContent().size() + " children");
+                ((ContentAccessor) obj).getContent().clear();
+
+                for (Object child : allChildren) {
+
+                    Object newChild = removeAllCommentReferences(child);
+                    if(newChild != null)
+                        ((ContentAccessor) obj).getContent().add(newChild);
+                    else
+                        System.out.println(" !!!! Removed an old comment reference");
+                }
+                System.out.println("Returning object of class "+ obj.getClass().toString()+" with " + ((ContentAccessor) obj).getContent().size() + " children");
+                return obj;
+            }
+
+            if (!obj.getClass().equals(CommentRangeStart.class) && !obj.getClass().equals(CommentRangeEnd.class))
+                return obj;
+
+            return null;
+
+
+
+
+    }
+
+
 
     private CommentRangeEnd createRangeEnd(BigInteger commentId) {
 

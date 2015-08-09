@@ -52,20 +52,20 @@ public class DocumentServiceTest extends ServletTests {
 
 
 
-        @Test
-        public void testGetDocumentsForProject(){
+    @Test
+    public void testGetDocumentsForProject(){
 
-            try{
+        try{
 
 
-                Project project = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), "Demo")));
-                assertTrue(project.exists());
+            Project project = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), "Demo")));
+            assertTrue(project.exists());
 
-                assertDocumentsInProject(project);
-                MockWriter mockWriter;
-                String output;
+            assertDocumentsInProject(project);
+            MockWriter mockWriter;
+            String output;
 
-                // Now test to delete
+            // Now test to delete
 
 
             Contract contract = new Contract(new LookupItem().addFilter(new ColumnFilter(ContractTable.Columns.Name.name(), "Cannon")));
@@ -73,7 +73,6 @@ public class DocumentServiceTest extends ServletTests {
 
             ContractVersionInstanceTable instances = new ContractVersionInstanceTable(new LookupItem().addFilter(new ReferenceFilter(ContractVersionInstanceTable.Columns.Document.name(), contract.getKey())));
             assertThat(instances.getValues().size(), is(1));
-
 
             mockWriter = new MockWriter();
 
@@ -83,7 +82,6 @@ public class DocumentServiceTest extends ServletTests {
             when(response.getWriter()).thenReturn(mockWriter.getWriter());
 
             new ContractServlet().doDelete(request, response);
-
 
             output = mockWriter.getOutput();
             PukkaLogger.log(PukkaLogger.Level.INFO, "JSON: " + output);

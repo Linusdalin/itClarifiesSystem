@@ -484,7 +484,7 @@ public class ChecklistParser {
 
         for (ClassifierInterface classifier : classifiers) {
 
-            System.out.println(" --- Comparing classes \"" + classifier.getClassificationName() + "\" and \"" + tagName + "\"");
+            //System.out.println(" --- Comparing classes \"" + classifier.getClassificationName() + "\" and \"" + tagName + "\"");
 
             if(classifier.getClassificationName().equals(tagName)){
 

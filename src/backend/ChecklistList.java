@@ -17,10 +17,6 @@ import pukkaBO.list.*;
 import pukkaBO.renderer.GroupListRenderer;
 import pukkaBO.renderer.ListRendererInterface;
 import pukkaBO.style.Html;
-import services.ItClarifiesService;
-import userManagement.AccessGrant;
-import userManagement.AccessGrantTable;
-import userManagement.Visibility;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;

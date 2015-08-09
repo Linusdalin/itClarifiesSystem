@@ -248,7 +248,7 @@ public class ReplaceDocumentTest extends ServletTests{
 
         new ContractAnnotation("", first, 1, "a comment", user, version, project, "", 0, now.getISODate()).store();
 
-        new FragmentClassification(first, FeatureTypeTree.Definition.getName(), 0, 0, "", "", user, version, project, "", 0, 0, 70, "no rule specified", now.getISODate()).store();
+        new FragmentClassification(first, FeatureTypeTree.Definition.getName(), 0, 0, FragmentClassification.NOT_BLOCKED, "", "", user, version, project, "", 0, 0, 70, "no rule specified", now.getISODate()).store();
 
         new Action(0, "name", "action description", "pattern", first, version, first, first.getVersion().getDocument().getProject(),
                 adminUser, adminUser, (long)4711, ActionStatus.getInProgress(), new DBTimeStamp().getISODate(), new DBTimeStamp().getISODate(), new DBTimeStamp().getISODate()).store();

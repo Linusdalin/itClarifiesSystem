@@ -46,13 +46,13 @@ public class FragmentClassification extends DataObject implements DataObjectInte
             table = TABLE;
     }
 
-    public FragmentClassification(DataObjectInterface fragment, String classtag, long requirementlevel, long applicablephase, String comment, String keywords, DataObjectInterface creator, DataObjectInterface version, DataObjectInterface project, String pattern, long pos, long length, long significance, String ruleid, String time) throws BackOfficeException{
+    public FragmentClassification(DataObjectInterface fragment, String classtag, long requirementlevel, long applicablephase, long blockingstate, String comment, String keywords, DataObjectInterface creator, DataObjectInterface version, DataObjectInterface project, String pattern, long pos, long length, long significance, String ruleid, String time) throws BackOfficeException{
 
-        this(fragment.getKey(), classtag, requirementlevel, applicablephase, comment, keywords, creator.getKey(), version.getKey(), project.getKey(), pattern, pos, length, significance, ruleid, time);
+        this(fragment.getKey(), classtag, requirementlevel, applicablephase, blockingstate, comment, keywords, creator.getKey(), version.getKey(), project.getKey(), pattern, pos, length, significance, ruleid, time);
     }
 
 
-    public FragmentClassification(DBKeyInterface fragment, String classtag, long requirementlevel, long applicablephase, String comment, String keywords, DBKeyInterface creator, DBKeyInterface version, DBKeyInterface project, String pattern, long pos, long length, long significance, String ruleid, String time){
+    public FragmentClassification(DBKeyInterface fragment, String classtag, long requirementlevel, long applicablephase, long blockingstate, String comment, String keywords, DBKeyInterface creator, DBKeyInterface version, DBKeyInterface project, String pattern, long pos, long length, long significance, String ruleid, String time){
 
         this();
         try{
@@ -65,17 +65,18 @@ public class FragmentClassification extends DataObject implements DataObjectInte
            data[1] = new StringData(classtag);
            data[2] = new IntData(requirementlevel);
            data[3] = new IntData(applicablephase);
-           data[4] = new TextData(comment);
-           data[5] = new TextData(keywords);
-           data[6] = new ReferenceData(creator, columns[6].getTableReference());
-           data[7] = new ReferenceData(version, columns[7].getTableReference());
-           data[8] = new ReferenceData(project, columns[8].getTableReference());
-           data[9] = new TextData(pattern);
-           data[10] = new IntData(pos);
-           data[11] = new IntData(length);
-           data[12] = new IntData(significance);
-           data[13] = new TextData(ruleid);
-           data[14] = new TimeStampData(time);
+           data[4] = new IntData(blockingstate);
+           data[5] = new TextData(comment);
+           data[6] = new TextData(keywords);
+           data[7] = new ReferenceData(creator, columns[7].getTableReference());
+           data[8] = new ReferenceData(version, columns[8].getTableReference());
+           data[9] = new ReferenceData(project, columns[9].getTableReference());
+           data[10] = new TextData(pattern);
+           data[11] = new IntData(pos);
+           data[12] = new IntData(length);
+           data[13] = new IntData(significance);
+           data[14] = new TextData(ruleid);
+           data[15] = new TimeStampData(time);
 
            exists = true;
         }catch(BackOfficeException e){
@@ -177,15 +178,29 @@ public class FragmentClassification extends DataObject implements DataObjectInte
 
 
 
+    public long getblockingState(){
+
+        IntData data = (IntData) this.data[4];
+        return data.value;
+    }
+
+    public void setblockingState(long blockingstate){
+
+        IntData data = (IntData) this.data[4];
+        data.value = blockingstate;
+    }
+
+
+
     public String getComment(){
 
-        TextData data = (TextData) this.data[4];
+        TextData data = (TextData) this.data[5];
         return data.getStringValue();
     }
 
     public void setComment(String comment){
 
-        TextData data = (TextData) this.data[4];
+        TextData data = (TextData) this.data[5];
         data.setStringValue(comment);
     }
 
@@ -193,13 +208,13 @@ public class FragmentClassification extends DataObject implements DataObjectInte
 
     public String getKeywords(){
 
-        TextData data = (TextData) this.data[5];
+        TextData data = (TextData) this.data[6];
         return data.getStringValue();
     }
 
     public void setKeywords(String keywords){
 
-        TextData data = (TextData) this.data[5];
+        TextData data = (TextData) this.data[6];
         data.setStringValue(keywords);
     }
 
@@ -207,19 +222,19 @@ public class FragmentClassification extends DataObject implements DataObjectInte
 
     public DBKeyInterface getCreatorId(){
 
-        ReferenceData data = (ReferenceData)this.data[6];
+        ReferenceData data = (ReferenceData)this.data[7];
         return data.value;
     }
 
     public userManagement.PortalUser getCreator(){
 
-        ReferenceData data = (ReferenceData)this.data[6];
+        ReferenceData data = (ReferenceData)this.data[7];
         return new userManagement.PortalUser(new LookupByKey(data.value));
     }
 
     public void setCreator(DBKeyInterface creator){
 
-        ReferenceData data = (ReferenceData)this.data[6];
+        ReferenceData data = (ReferenceData)this.data[7];
         data.value = creator;
     }
 
@@ -227,19 +242,19 @@ public class FragmentClassification extends DataObject implements DataObjectInte
 
     public DBKeyInterface getVersionId(){
 
-        ReferenceData data = (ReferenceData)this.data[7];
+        ReferenceData data = (ReferenceData)this.data[8];
         return data.value;
     }
 
     public ContractVersionInstance getVersion(){
 
-        ReferenceData data = (ReferenceData)this.data[7];
+        ReferenceData data = (ReferenceData)this.data[8];
         return new ContractVersionInstance(new LookupByKey(data.value));
     }
 
     public void setVersion(DBKeyInterface version){
 
-        ReferenceData data = (ReferenceData)this.data[7];
+        ReferenceData data = (ReferenceData)this.data[8];
         data.value = version;
     }
 
@@ -247,19 +262,19 @@ public class FragmentClassification extends DataObject implements DataObjectInte
 
     public DBKeyInterface getProjectId(){
 
-        ReferenceData data = (ReferenceData)this.data[8];
+        ReferenceData data = (ReferenceData)this.data[9];
         return data.value;
     }
 
     public Project getProject(){
 
-        ReferenceData data = (ReferenceData)this.data[8];
+        ReferenceData data = (ReferenceData)this.data[9];
         return new Project(new LookupByKey(data.value));
     }
 
     public void setProject(DBKeyInterface project){
 
-        ReferenceData data = (ReferenceData)this.data[8];
+        ReferenceData data = (ReferenceData)this.data[9];
         data.value = project;
     }
 
@@ -267,13 +282,13 @@ public class FragmentClassification extends DataObject implements DataObjectInte
 
     public String getPattern(){
 
-        TextData data = (TextData) this.data[9];
+        TextData data = (TextData) this.data[10];
         return data.getStringValue();
     }
 
     public void setPattern(String pattern){
 
-        TextData data = (TextData) this.data[9];
+        TextData data = (TextData) this.data[10];
         data.setStringValue(pattern);
     }
 
@@ -281,13 +296,13 @@ public class FragmentClassification extends DataObject implements DataObjectInte
 
     public long getPos(){
 
-        IntData data = (IntData) this.data[10];
+        IntData data = (IntData) this.data[11];
         return data.value;
     }
 
     public void setPos(long pos){
 
-        IntData data = (IntData) this.data[10];
+        IntData data = (IntData) this.data[11];
         data.value = pos;
     }
 
@@ -295,13 +310,13 @@ public class FragmentClassification extends DataObject implements DataObjectInte
 
     public long getLength(){
 
-        IntData data = (IntData) this.data[11];
+        IntData data = (IntData) this.data[12];
         return data.value;
     }
 
     public void setLength(long length){
 
-        IntData data = (IntData) this.data[11];
+        IntData data = (IntData) this.data[12];
         data.value = length;
     }
 
@@ -309,13 +324,13 @@ public class FragmentClassification extends DataObject implements DataObjectInte
 
     public long getSignificance(){
 
-        IntData data = (IntData) this.data[12];
+        IntData data = (IntData) this.data[13];
         return data.value;
     }
 
     public void setSignificance(long significance){
 
-        IntData data = (IntData) this.data[12];
+        IntData data = (IntData) this.data[13];
         data.value = significance;
     }
 
@@ -323,13 +338,13 @@ public class FragmentClassification extends DataObject implements DataObjectInte
 
     public String getRuleId(){
 
-        TextData data = (TextData) this.data[13];
+        TextData data = (TextData) this.data[14];
         return data.getStringValue();
     }
 
     public void setRuleId(String ruleid){
 
-        TextData data = (TextData) this.data[13];
+        TextData data = (TextData) this.data[14];
         data.setStringValue(ruleid);
     }
 
@@ -337,13 +352,13 @@ public class FragmentClassification extends DataObject implements DataObjectInte
 
     public DBTimeStamp getTime()throws BackOfficeException{
 
-        TimeStampData data = (TimeStampData) this.data[14];
+        TimeStampData data = (TimeStampData) this.data[15];
         return new DBTimeStamp(DBTimeStamp.SQL_TIMESTAMP, data.value);
     }
 
     public void setTime(DBTimeStamp time){
 
-        TimeStampData data = (TimeStampData) this.data[14];
+        TimeStampData data = (TimeStampData) this.data[15];
         data.value = time.getSQLTime().toString();
     }
 
@@ -360,6 +375,45 @@ public class FragmentClassification extends DataObject implements DataObjectInte
 
     /*__endAutoGenerated*/
 
+    public static final int NOT_BLOCKED = 0;
+    public static final int BLOCKED     = 1;
+    public static final int BLOCKING    = 2;
+    public static final int IMPORTED    = 3;
+    public static final int OVERRIDDEN  = 4;
+
+
+    public String toString(){
+
+        String type;
+
+        switch ((int) this.getblockingState()){
+
+            case NOT_BLOCKED:
+                type = "NOT_BLOCKED";
+                break;
+
+            case BLOCKED:
+                type = "BLOCKED";
+                break;
+
+            case BLOCKING:
+                type = "BLOCKING";
+                break;
+
+            case IMPORTED:
+                type = "IMPORTED";
+                break;
+
+            case OVERRIDDEN:
+                type = "OVERRIDDEN";
+                break;
+
+            default:
+                type = "unknown("+ this.getblockingState()+")";
+        }
+
+        return this.getClassTag() + "(" + type  + ") for \""+ this.getPattern() + "\"";
+    }
 
 
 }

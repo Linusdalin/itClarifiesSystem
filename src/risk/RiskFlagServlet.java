@@ -1,5 +1,6 @@
 package risk;
 
+import classification.FragmentClassification;
 import contractManagement.*;
 import dataRepresentation.DBTimeStamp;
 import dataRepresentation.DataObjectInterface;
@@ -91,57 +92,8 @@ public class RiskFlagServlet extends DocumentService {
             PortalUser classifier = sessionManagement.getUser();
             DBTimeStamp now = new DBTimeStamp();
 
-            if(patternPos == -1){
+            RiskClassification classification = classifyRisk(risk, fragment, pattern, patternPos, version, document, classifier, comment, now, false);
 
-                // If the pattern position is not given, fallback to finding the first occurrence
-
-                patternPos = fragment.getText().indexOf(pattern);
-                PukkaLogger.log(PukkaLogger.Level.INFO, "No pattern position give. Using the first occurrence");
-
-            }
-
-
-            // Create the classification object
-            // TODO: add transaction commit here
-
-            RiskClassification classification = new RiskClassification(
-                    fragment.getKey(),
-                    risk,
-                    comment,
-                    "#RISK",
-                    classifier.getKey(),
-                    version.getKey(),
-                    document.getProjectId(),
-                    pattern,
-                    patternPos,
-                    now.getISODate());
-            classification.store();
-
-            // Now update the fragment
-
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Updating risk for fragment "+ fragment.getName()+" to " + risk.getName() );
-
-            fragment.setRisk(risk);
-            fragment.update();
-
-            // And store the change in the log
-
-            Rerisk logEntry = new Rerisk(
-                    risk.getName(),
-                    now.getISODate(),
-                    document.getProject().getName(),
-                    document.getName(),
-                    fragment.getOrdinal(),
-                    fragment.getText(),
-                    pattern,
-                    patternPos,
-                    classifier.getName(),
-                    false);
-
-            logEntry.store();
-
-
-            invalidateFragmentCache(version);
 
             // Finally create the object
 
@@ -161,7 +113,82 @@ public class RiskFlagServlet extends DocumentService {
 
         }
 
-     }
+    }
+
+    /*************************************************************************************
+     *
+     *
+     *
+     * @param risk
+     * @param fragment
+     * @param pattern
+     * @param patternPos
+     * @param version
+     * @param document
+     * @param classifier
+     * @param comment
+     * @param classificationTime
+     * @return
+     * @throws BackOfficeException
+     */
+
+    public RiskClassification classifyRisk(ContractRisk risk, ContractFragment fragment, String pattern, long patternPos, ContractVersionInstance version,
+                                            Contract document, PortalUser classifier, String comment, DBTimeStamp classificationTime, boolean imported) throws BackOfficeException{
+
+        if(patternPos == -1){
+
+            // If the pattern position is not given, fallback to finding the first occurrence
+
+            patternPos = fragment.getText().indexOf(pattern);
+            PukkaLogger.log(PukkaLogger.Level.INFO, "No pattern position give. Using the first occurrence");
+
+        }
+
+        RiskClassification classification = new RiskClassification(
+                fragment.getKey(),
+                risk,
+                comment,
+                "#RISK",
+                classifier.getKey(),
+                version.getKey(),
+                document.getProjectId(),
+                pattern,
+                patternPos,
+                classificationTime.getISODate(),
+                (imported ? FragmentClassification.IMPORTED : FragmentClassification.NOT_BLOCKED)
+        );
+        classification.store();
+
+        // Now update the fragment
+
+        PukkaLogger.log(PukkaLogger.Level.INFO, "Updating risk for fragment "+ fragment.getName()+" to " + risk.getName() );
+
+        fragment.setRisk(risk);
+        fragment.update();
+
+        // And store the change in the log
+
+        Rerisk logEntry = new Rerisk(
+                risk.getName(),
+                classificationTime.getISODate(),
+                document.getProject().getName(),
+                document.getName(),
+                fragment.getOrdinal(),
+                fragment.getText(),
+                pattern,
+                patternPos,
+                classifier.getName(),
+                false);
+
+        logEntry.store();
+
+
+        invalidateFragmentCache(version);
+
+
+        return classification;
+
+    }
 
 
 
