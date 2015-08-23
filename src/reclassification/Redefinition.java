@@ -1,0 +1,320 @@
+package reclassification;
+
+import risk.*;
+import contractManagement.*;
+import classification.*;
+import userManagement.*;
+import project.*;
+import versioning.*;
+import actions.*;
+import overviewExport.*;
+import module.*;
+import search.*;
+import crossReference.*;
+import reclassification.*;
+import dataRepresentation.*;
+import databaseLayer.DBKeyInterface;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import log.PukkaLogger;
+import pukkaBO.exceptions.BackOfficeException;
+import pukkaBO.condition.*;
+import pukkaBO.database.*;
+
+import pukkaBO.acs.*;
+
+/********************************************************
+ *
+ *    Redefinition - Data Object
+ *    Automatically generated file by GenerateTable.java
+ *
+ *
+ */
+
+public class Redefinition extends DataObject implements DataObjectInterface{
+
+
+
+    private static final DataTableInterface TABLE = (DataTableInterface) new RedefinitionTable();
+
+    public Redefinition(){
+
+        super();
+
+        if(table == null)
+            table = TABLE;
+    }
+
+    public Redefinition(String name, boolean add, String project, String document, long fragmentno, String fragment, boolean closed, String date){
+
+        this();
+        try{
+           ColumnStructureInterface[] columns = getColumnFromTable();
+
+
+           data = new ColumnDataInterface[columns.length];
+
+           data[0] = new StringData(name);
+           data[1] = new BoolData(add);
+           data[2] = new StringData(project);
+           data[3] = new StringData(document);
+           data[4] = new IntData(fragmentno);
+           data[5] = new BlobData(fragment);
+           data[6] = new BoolData(closed);
+           data[7] = new DateData(date);
+
+           exists = true;
+        }catch(BackOfficeException e){
+            PukkaLogger.log(PukkaLogger.Level.FATAL, "Could not create object.");
+            exists = false;
+        }
+
+
+    }
+    /*********************************************************************''
+     *
+     *          Load from database
+     *
+     * @param condition - the SQL condition for selecting ONE UNIQUE object
+     */
+
+    public Redefinition(ConditionInterface condition){
+
+        this();
+
+        try{
+            exists = load(condition);
+
+        }catch(BackOfficeException e){
+
+            System.out.println("Error loading object from database" + e.narration);
+            e.printStackTrace();
+        }
+
+    }
+
+    public DataObjectInterface createNew(ColumnDataInterface[] data ) throws BackOfficeException {
+
+        Redefinition o = new Redefinition();
+        o.data = data;
+        o.exists = true;
+        return o;
+    }
+
+    public String getName(){
+
+        StringData data = (StringData) this.data[0];
+        return data.getStringValue();
+    }
+
+    public void setName(String name){
+
+        StringData data = (StringData) this.data[0];
+        data.setStringValue(name);
+    }
+
+
+
+    public boolean getAdd(){
+
+        BoolData data = (BoolData) this.data[1];
+        return data.value;
+    }
+
+    public void setAdd(boolean add){
+
+        BoolData data = (BoolData) this.data[1];
+        data.value = add;
+    }
+
+
+
+    public String getProject(){
+
+        StringData data = (StringData) this.data[2];
+        return data.getStringValue();
+    }
+
+    public void setProject(String project){
+
+        StringData data = (StringData) this.data[2];
+        data.setStringValue(project);
+    }
+
+
+
+    public String getDocument(){
+
+        StringData data = (StringData) this.data[3];
+        return data.getStringValue();
+    }
+
+    public void setDocument(String document){
+
+        StringData data = (StringData) this.data[3];
+        data.setStringValue(document);
+    }
+
+
+
+    public long getFragmentNo(){
+
+        IntData data = (IntData) this.data[4];
+        return data.value;
+    }
+
+    public void setFragmentNo(long fragmentno){
+
+        IntData data = (IntData) this.data[4];
+        data.value = fragmentno;
+    }
+
+
+
+    public String getFragment(){
+
+        BlobData data = (BlobData) this.data[5];
+        return data.getStringValue();
+    }
+
+    public void setFragment(String fragment){
+
+        BlobData data = (BlobData) this.data[5];
+        data.setStringValue(fragment);
+    }
+
+
+
+    public boolean getClosed(){
+
+        BoolData data = (BoolData) this.data[6];
+        return data.value;
+    }
+
+    public void setClosed(boolean closed){
+
+        BoolData data = (BoolData) this.data[6];
+        data.value = closed;
+    }
+
+
+
+    public DBTimeStamp getDate()throws BackOfficeException{
+
+        DateData data = (DateData) this.data[7];
+        return new DBTimeStamp(DBTimeStamp.ISO_DATE, data.value);
+    }
+
+    public void setDate(DBTimeStamp date){
+
+        DateData data = (DateData) this.data[7];
+        data.value = date.getISODate().toString();
+    }
+
+
+
+
+    public static void clearConstantCache(){
+
+        //  Clear all cache when the application is uploaded.
+
+    }
+
+    /* Code below this point will not be replaced when regenerating the file*/
+
+    /*__endAutoGenerated*/
+
+
+    public String getPostRequest() throws java.io.UnsupportedEncodingException {
+
+        String fragmentText = getFragment();
+        fragmentText = fragmentText.replaceAll("&", "").replaceAll("/", "").replaceAll("\\(", "").replaceAll("\\)", "").replaceAll("\\}", "").replaceAll("\\{", "").replaceAll("\\]", "").replaceAll("\\[", "");
+
+        return "&type=definition"+
+                "&magicKey=" + SessionManagement.MagicKey +
+                "&creating=" + getAdd() +
+                "&project=" + getProject() +
+                "&document=" + getDocument() +
+                "&ordinal=" + getFragmentNo() +
+                "&fragment=" + java.net.URLEncoder.encode(fragmentText, "UTF-8") +
+                "&user=System" +
+                "&pattern=" + getName() +
+                "&pos=0";
+    }
+
+    //TODO: The regeneration does not retain the order of the annotations
+
+    public analysis.ParseFeedbackItem generate(Project project, ContractVersionInstance version, PortalUser user, ContractFragment fragment) throws BackOfficeException {
+
+        System.out.println("Body: " + getFragment());
+        System.out.println("Located fragment: " + fragment.getOrdinal() + "(" + fragment.getName() + ")");
+
+        DefinitionTable existingDefinitions = new DefinitionTable(new LookupList()
+                .addFilter(new ReferenceFilter(DefinitionTable.Columns.DefinedIn.name(), fragment.getKey())));
+
+
+        for (DataObjectInterface object : existingDefinitions.getValues()) {
+
+            Definition definition = (Definition)object;
+
+            if(definition.getName().equals(getName())){
+
+                System.out.println("Found existing definition(s) \"" + getName() + "...\" in fragment " + fragment.getName() + " Skipping!");
+                return new analysis.ParseFeedbackItem(analysis.ParseFeedbackItem.Severity.WARNING,
+                        "Found existing definition(s) \"" + getName() + "...\" in fragment " + fragment.getName() + " Skipping!", 0);
+
+            }else{
+
+
+                System.out.println(" -- NOT matching definition " + getName() + "...");
+            }
+        }
+
+        Definition definition = new Definition(getName(), document.DefinitionType.REGULAR.name(), fragment, fragment.getOrdinal(), version, project, "");
+        definition.store();
+
+
+
+        return new analysis.ParseFeedbackItem(analysis.ParseFeedbackItem.Severity.INFO, "Generated definition " + getName() + " in fragment " + fragment.getName() + "!", 0);
+    }
+
+
+    public analysis.ParseFeedbackItem remove(Project project, ContractVersionInstance version, PortalUser user, ContractFragment fragment) throws BackOfficeException {
+
+        System.out.println("Body: " + getFragment());
+        System.out.println("Located fragment: " + fragment.getOrdinal() + "(" + fragment.getName() + ")");
+
+        DefinitionTable existingDefinitions = new DefinitionTable(new LookupList()
+                .addFilter(new ReferenceFilter(DefinitionTable.Columns.DefinedIn.name(), fragment.getKey())));
+
+
+        int existingDefinitionCount = existingDefinitions.getCount();
+
+        if(existingDefinitionCount == 0){
+
+            System.out.println("No existing definitions of  " + getName() + " in fragment " + fragment.getName() + "found  Aborting!");
+            return new analysis.ParseFeedbackItem(analysis.ParseFeedbackItem.Severity.WARNING,
+                    "No existing definition of type " + getName() + " in fragment " + fragment.getName() + "found  Aborting!", 0);
+        }
+
+        int count = 0;
+
+        for (DataObjectInterface object : existingDefinitions.getValues()) {
+
+            Definition definition = (Definition)object;
+
+            if(definition.getName().equals(getName())){
+
+                definition.delete();
+                count++;
+            }
+        }
+
+        return new analysis.ParseFeedbackItem(analysis.ParseFeedbackItem.Severity.INFO, "Removed "+ count+" definition(s) " + getName() + " in fragment " + fragment.getName() + "!", 0);
+    }
+
+
+
+
+}
