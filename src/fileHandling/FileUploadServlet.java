@@ -89,7 +89,7 @@ public class FileUploadServlet extends DocumentService {
             UploadType uploadType = UploadType.DOCUMENT;    // Default if no parameter is given is to treat the upload as a regular document
 
             String _project;
-            String _document;
+            String _document = "";
 
             String ipAddress = getIPAddress(req);
 
@@ -264,8 +264,13 @@ public class FileUploadServlet extends DocumentService {
 
                         owner = sessionManagement.getUser();
 
-                        if(document != null && !mandatoryObjectExists(document, resp))
+                        if(document != null && !mandatoryObjectExists(document, resp)){
+
+                            PukkaLogger.log(PukkaLogger.Level.ERROR, "Document " + _document + " could not be found");
+                            returnError("Document " + _document + " does not exist to replace." , ErrorType.DATA, HttpServletResponse.SC_BAD_REQUEST, resp);
                             return;
+
+                        }
 
                         if(project == null){
 
@@ -308,8 +313,7 @@ public class FileUploadServlet extends DocumentService {
                         }
 
 
-
-                        PukkaLogger.log(PukkaLogger.Level.INFO, "Found user " + owner.getName());
+                        PukkaLogger.log(PukkaLogger.Level.MAJOR_EVENT, "Replacing document...");
 
 
                         // If there is no explicit title given, we use the document name as title

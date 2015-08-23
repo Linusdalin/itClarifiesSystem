@@ -90,14 +90,14 @@ public class OverviewExportInternalServlet extends ItClarifiesService{
             PukkaLogger.log(e);
             markAsFail(project);
 
-            returnError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+            returnError(e.getMessage(), HttpServletResponse.SC_OK, resp);
 
         } catch ( Exception e) {
 
             PukkaLogger.log(e);
             markAsFail(project);
 
-            returnError("Internal Error", HttpServletResponse.SC_INTERNAL_SERVER_ERROR, resp);
+            returnError("Internal Error", HttpServletResponse.SC_OK, resp);
         }
      }
 

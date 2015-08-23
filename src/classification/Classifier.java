@@ -143,17 +143,20 @@ public class Classifier {
         System.out.println("Checking for duplicate classifications among " + existingClassifications.size() + " existing classifications.");
 
         //Only debug. TODO: Remove
+
+        /*
         int i = 1;
         for (FragmentClassification fragmentClassification : existingClassifications) {
 
             System.out.println(" --- "+ i++ + fragmentClassification.getClassTag() + "(" + classification.getblockingState() +  ") for " + classification.getPattern());
         }
 
+            */
 
         for (FragmentClassification existing : existingClassifications) {
 
-            System.out.println("  -- Comparing classification " + classification.getClassTag() + "("+ classification.getPattern() + ") with " +
-                    existing.getClassTag() + "("+ existing.getPattern() + ")");
+            //System.out.println("  -- Comparing classification " + classification.getClassTag() + "("+ classification.getPattern() + ") with " +
+            //        existing.getClassTag() + "("+ existing.getPattern() + ")");
 
             if(     existing.getClassTag().equals(classification.getClassTag()) &&
                     existing.getblockingState() != FragmentClassification.BLOCKING &&

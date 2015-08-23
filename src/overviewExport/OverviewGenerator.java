@@ -508,7 +508,9 @@ public class OverviewGenerator {
     }
 
     private void createExtraction(ContractFragment fragment, FragmentClassification classification, String mainTag,
-                                  Contract document, List<StructureItem> allStructureItems, List<DataObjectInterface> extractionsForDocument, List<FragmentClassification> allClassifications, List<RiskClassification> allRisks, List<ContractAnnotation> allAnnotations, List<ContractFragment> fragmentsForDocument) throws BackOfficeException{
+                                  Contract document, List<StructureItem> allStructureItems, List<DataObjectInterface> extractionsForDocument,
+                                  List<FragmentClassification> allClassifications, List<RiskClassification> allRisks, List<ContractAnnotation> allAnnotations,
+                                  List<ContractFragment> fragmentsForDocument) throws BackOfficeException{
 
         System.out.println("  --- Found match " + classification.getClassTag() + " in fragment " + fragment.getName());
 
@@ -537,12 +539,12 @@ public class OverviewGenerator {
             entry.asHeadline((int) fragment.getIndentation());
             //extractionsForDocument.add(emptyLine);               //TODO: Empty line has to be associated with the correct tab
             extractionsForDocument.add(entry);
-            System.out.println(" -- After adding HEADING, we have " + extractionsForDocument.size() + " extractions.");
+            //System.out.println(" -- After adding HEADING, we have " + extractionsForDocument.size() + " extractions.");
 
             if (AddPeers)
                 extractionsForDocument.addAll(findPeers(mainTag, fragment, document, fragmentsForDocument, allAnnotations, allClassifications, allRisks, false));
 
-            System.out.println(" -- After adding peers, we have " + extractionsForDocument.size() + " extractions");
+            //System.out.println(" -- After adding peers, we have " + extractionsForDocument.size() + " extractions");
 
         } else if (fragment.getType().equals("LIST")) {
 
@@ -574,48 +576,64 @@ public class OverviewGenerator {
 
     private void potentiallyAddHeading(ContractFragment fragment, String mainTag, Contract document, List<StructureItem> allStructureItems, List<DataObjectInterface> extractionsForDocument) throws BackOfficeException{
 
-        StructureItem structure = fragment.getStructureItem(allStructureItems);
-        if(!structure.exists() || fragment.getStructureNo() <= 1)
-            return;
+        try{
 
-        if(!structure.getType().equals("HEADING")){
+            StructureItem structure = fragment.getStructureItem(allStructureItems);
+            if(structure == null ||!structure.exists() || fragment.getStructureNo() <= 1)
+                return;
 
-            // If the parent is NOT a headline we recurse up to find a headline
+            if(!structure.getType().equals("HEADING")){
 
-            potentiallyAddHeading(structure.getFragmentForStructureItem(), mainTag, document, allStructureItems, extractionsForDocument);
-        }
-        else{
+                // If the parent is NOT a headline we recurse up to find a headline
 
-            ContractFragment parent = structure.getFragmentForStructureItem();
-            Extraction entry = new Extraction(
-                    "",
-                    "",                         // No classifications on the headline
-                    parent.htmlDecode(),
-                    parent.getKey().toString(),
-                    (int) parent.getOrdinal(),
-                    extractionOrdinal++,
-                    "",
-                    project.getKey(),
-                    document.getKey(),
-                    "",
-                    "",   // No risks in headline
-                    "",   // No annotations added
-                    mainTag,
-                    statusEntry.getKey());
+                ContractFragment parent = structure.getFragmentForStructureItem();
+                if(parent.equals(fragment))
+                    return;
 
-            entry.asHeadline( 0 );
-
-            if(!alreadyExist(entry, extractionsForDocument)){
-
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Adding a parent " + parent.getText() + " of type " + structure.getType());
-                extractionsForDocument.add(entry);
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Recursing with parent fragemnt " + parent.getName() + " (" + parent.getStructureNo()+")" );
+                potentiallyAddHeading(parent, mainTag, document, allStructureItems, extractionsForDocument);
             }
             else{
 
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Ignoring headline parent " + parent.getText() + " as duplicate.");
+                ContractFragment parent = structure.getFragmentForStructureItem();
+                Extraction entry = new Extraction(
+                        "",
+                        "",                         // No classifications on the headline
+                        parent.htmlDecode(),
+                        parent.getKey().toString(),
+                        (int) parent.getOrdinal(),
+                        extractionOrdinal++,
+                        "",
+                        project.getKey(),
+                        document.getKey(),
+                        "",
+                        "",   // No risks in headline
+                        "",   // No annotations added
+                        mainTag,
+                        statusEntry.getKey());
+
+                entry.asHeadline( 0 );
+
+                if(!alreadyExist(entry, extractionsForDocument)){
+
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "Adding a parent " + parent.getText() + " of type " + structure.getType());
+                    extractionsForDocument.add(entry);
+                }
+                else{
+
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "Ignoring headline parent " + parent.getText() + " as duplicate.");
+
+                }
 
             }
 
+        }catch(StackOverflowError e){
+
+            PukkaLogger.log(PukkaLogger.Level.ERROR, "Error getting a potential parent");
+
+        }catch(Exception e){
+
+            PukkaLogger.log(PukkaLogger.Level.ERROR, "Error getting a potential parent");
         }
 
     }
@@ -1763,7 +1781,7 @@ public class OverviewGenerator {
 
         for (FragmentClassification classification : classifications) {
 
-            System.out.println(" --- Testing: " + classification.getClassTag());
+            //System.out.println(" --- Testing: " + classification.getClassTag());
 
             if(classification.getFragmentId().equals(fragment.getKey())){
 
@@ -1772,10 +1790,12 @@ public class OverviewGenerator {
                     classificationText.append(classification.getClassTag());
                     classificationText.append("\n");
                 }
-                else
+                else{
                     System.out.println("        --- Ignoring because of not significant");
+                }
+
             }
-            System.out.println("        --- Ignoring not applicable to the fragment");
+            //System.out.println("        --- Ignoring not applicable to the fragment");
 
         }
 
