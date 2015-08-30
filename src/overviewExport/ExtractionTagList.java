@@ -56,7 +56,8 @@ public class ExtractionTagList {
 
     public boolean isApplicableFor(FragmentClassification classification) {
 
-        if(classification.getblockingState() != FragmentClassification.NOT_BLOCKED)
+        if(classification.getblockingState() == FragmentClassification.BLOCKED ||
+                classification.getblockingState() == FragmentClassification.OVERRIDDEN)
             return false;
 
         if(mainTag.equals(classification.getClassTag()))

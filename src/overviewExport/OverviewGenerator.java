@@ -1166,7 +1166,7 @@ public class OverviewGenerator {
 
             CellValue[] elements = new CellValue[8];
 
-            elements[0] = new CellValue(extraction.getClassification()).withFont(BoldFont, 12);
+            elements[0] = new CellValue(extraction.getClassification()).withFont(BoldFont, 10);
             elements[1] = new CellValue("");
             elements[2] = new CellValue(extraction.getText()).withFont(TextFont, 12);
             elements[3] = new CellValue(extraction.getComment()).withFont(RegularFont, 12);
@@ -1680,7 +1680,7 @@ public class OverviewGenerator {
             System.out.println("Created new row for Sheet=\"" + sheet.getSheetName() + "\" row = " + rowNo);
         }
 
-        System.out.println(" ! Adding row " + rowNo + " to sheet " + sheet.getSheetName());
+        //System.out.println(" ! Adding row " + rowNo + " to sheet " + sheet.getSheetName());
 
 
         for (CellValue value : values) {
@@ -1787,8 +1787,14 @@ public class OverviewGenerator {
 
                 if(classification.getSignificance() >= Significance.DISPLAY_SIGNIFICANCE){
 
-                    classificationText.append(classification.getClassTag());
-                    classificationText.append("\n");
+                    if(classification.getblockingState() != FragmentClassification.OVERRIDDEN &&
+                        classification.getblockingState() != FragmentClassification.BLOCKING ){
+
+                        classificationText.append(classification.getClassTag());
+                        classificationText.append("\n");
+
+                    }
+
                 }
                 else{
                     System.out.println("        --- Ignoring because of not significant");

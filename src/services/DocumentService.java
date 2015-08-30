@@ -564,7 +564,8 @@ public class DocumentService extends ItClarifiesService{
                         // The classification is a feature type. Get name and keyword from here
 
                         keywords = featureType.createKeywordString("External");
-                        PukkaLogger.log(PukkaLogger.Level.INFO, "Found a "+(isBlocking ? "blocking": "")+" classification " + aComment.getComment() + " in document comment. for fragment " + fragment.getName());
+                        PukkaLogger.log(PukkaLogger.Level.INFO, "Found a "+(isBlocking ? "blocking": "")+" classification " + aComment.getComment() + " in document comment. for text "+
+                                aComment.getAnchor()+" in fragment " + fragment.getName());
                         name=featureType.getName();
                     }
                     else{
@@ -903,7 +904,7 @@ public class DocumentService extends ItClarifiesService{
 
             if(classifier.getClassificationName().equals(className)){
 
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Found static classTag " + className);
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Found static classTag " + className);
                 return classifier.getType();
             }
         }

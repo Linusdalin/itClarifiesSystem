@@ -93,6 +93,8 @@ public class ContractFragmentTable extends DataTable implements DataTableInterfa
     };
     private static final String[][] TestValues = {
 
+
+
           {"first fragment", "Cannon v1.0", "Demo", "1", "1", "1", "Introduction text with åäö (written 2014-07-01) [ brackets ] and an unknown ref to Pricelist", "0", "TEXT", "Blocker", "1", "1", "1", "1", "1", "0", "0", "0", "0", "{}", "[]", "system"},
           {"Definition fragment", "Cannon v1.0", "Demo", "1", "2", "2", "Definition text... and btw as stated in the introduction or in Test document.docx", "0", "TEXT", "Not set", "0", "0", "0", "0", "0", "0", "0", "0", "{}", "[]", "system"},
           {"top1", "Google v1.0", "Demo", "1", "1", "1", "These Google Analytics Terms of Service (this \"Agreement\") are entered into by Google Inc. (\"Google\") and the entity executing this Agreement (\"You\").", "0", "TEXT", "Not set", "0", "0", "0", "0", "0", "0", "0", "0", "{}", "[]", "system"},
