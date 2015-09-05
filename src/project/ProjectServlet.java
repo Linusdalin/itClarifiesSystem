@@ -1,9 +1,11 @@
 package project;
 
+import com.google.appengine.labs.repackaged.org.json.JSONException;
 import dataRepresentation.DBTimeStamp;
 import dataRepresentation.DataObjectInterface;
 import databaseLayer.DBKeyInterface;
 import contractManagement.*;
+import databaseLayer.DatabaseAbstractionFactory;
 import log.PukkaLogger;
 import module.Module;
 import module.ModuleProject;
@@ -72,9 +74,10 @@ public class ProjectServlet extends ItClarifiesService {
 
             Formatter formatter = getFormatFromParameters(req);
 
-            String name            = getMandatoryString("name", req);
-            String description     = getMandatoryString("description", req);
+            String name            = getOptionalString("name", req);
+            String description     = getOptionalString("description", req);
             boolean empty          = getOptionalBoolean("empty", req, false);
+            String ordering        = getOptionalString("ordering", req);
 
             Project project;
 
@@ -94,14 +97,21 @@ public class ProjectServlet extends ItClarifiesService {
 
             if(_project != null){
 
+
                 project = new Project(new LookupByKey(_project));
 
                 if(!mandatoryObjectExists(project, resp))
                     return;
 
-                project.setName(name);
-                project.setDescription(description);
-                project.setKey(_project);
+                if(name != null)
+                    project.setName(name);
+
+                if(description != null)
+                    project.setDescription(description);
+
+                if(ordering != null)
+                    setOrdering(ordering, project);
+
                 project.update();
 
             }
@@ -157,7 +167,53 @@ public class ProjectServlet extends ItClarifiesService {
         }
 
 
-     }
+    }
+
+    /*************************************************************************
+     *
+     *              Set the ordering in the project given the ordering json array
+     *
+     *              Example: [  {"key": "<key>", "ordinal": number},
+     *                          {"key": "<key>", "ordinal": number} ]
+     *
+     *
+     * @param ordering   - JSON Array
+     * @param project    - project to rearrange
+     */
+
+    private boolean setOrdering(String ordering, Project project) throws BackOfficeException {
+
+        try{
+            DatabaseAbstractionFactory dbFactory = new DatabaseAbstractionFactory();
+
+            JSONArray array = new JSONArray(ordering);
+            for(int i = 0; i < array.length(); i++){
+
+                JSONObject doc = array.getJSONObject( i );
+
+                DBKeyInterface _document = dbFactory.createKey(doc.getString("key"));
+                int ordinal = doc.getInt("ordinal");
+
+                Contract document = new Contract(new LookupByKey( _document));
+                document.setOrdinal( ordinal );
+                document.update();
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Setting ordinal "+ ordinal + " for document " + document.getName());
+
+                invalidateDocumentCache(document, project);
+
+            }
+
+            return true;
+
+        }catch(Exception e){
+
+            PukkaLogger.log( e );
+            return false;
+
+        }
+
+    }
 
     /*********************************************************************************
      *

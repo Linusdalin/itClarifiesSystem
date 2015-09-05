@@ -489,7 +489,7 @@
         <h3>Update Project</h3>
         <p>Update only base data. Not affecting uploaded documents</p>
 
-        <p>The post request will either create a new entry or update an existing entry. For the update operation, all parameters has to be provided.</p>
+        <p>The post request will update an existing entry. Only parameters provided will update.</p>
 
         <p class="code">POST /Project?key=&lt;key&gt;&session=&lt;token&gt;&name=&lt;name&gt;&description=&lt;description&gt;</p>
 
@@ -501,6 +501,8 @@
             <input type="text" id="updateProjectName" name="name"></p>
         <p>	<label for="updateProjectDescription">Description</label>
             <input type="text" id="updateProjectDescription" name="description"></p>
+        <p>	<label for="updateProjectOrdering">Ordering JSON</label>
+            <input type="text" id="updateProjectOrdering" name="ordering"></p>
 
             <input type="hidden" name="html" value="on">
         <% out.print(getTokenParameter(useRealToken, "update_project"));%>

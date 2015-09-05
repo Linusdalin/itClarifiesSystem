@@ -69,7 +69,7 @@
                     2-2-5:          Login activation, export status service, dynamic tab generation
                     2-3-0:          Module and project type, feedback for analysis, comment on wrong fragment bug, removed emptyline in extraction (null)
                     2-3-1:          Dynamic generation of tabs, styling, adding headlines
-                    2-3-2:          Roundtrip work
+                    2-3-2:          Roundtrip work, refactor comment analysis, minor styling
 
       -->
 

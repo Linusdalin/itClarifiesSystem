@@ -111,6 +111,7 @@ public class ContractServlet extends DocumentService{
             JSONObject jsonObject = createPostResponse(DataServletName, document);
             sendJSONResponse(jsonObject, formatter, resp);
 
+
     }catch(BackOfficeException e){
 
         e.printStackTrace(System.out);
