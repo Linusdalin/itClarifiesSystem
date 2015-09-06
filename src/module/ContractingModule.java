@@ -136,8 +136,6 @@ public class ContractingModule extends AbstractModule implements ModuleInterface
                                             new ModuleNode(FeatureTypeTree.Delivery, LEAF),
 
                                     }),
-                                    new ModuleNode(FeatureTypeTree.Staffing, LEAF),
-
 
                                     new ModuleNode(FeatureTypeTree.Resources, new ModuleNode[]{
 

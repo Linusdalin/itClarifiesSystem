@@ -80,7 +80,7 @@ public class OverviewExportStatusServlet extends DocumentService {
 
                 response.put(DataServletName,
                             new JSONObject()
-                                     .put("timeStamp",  status.getDate().getISODate())
+                                     .put("timeStamp",  status.getDate().getSQLTime().toString())
                                      .put("author",     status.getUserId().toString())
                                      .put("status",     status.getStatus().getName())
                                      .put("key",        status.getKey().toString())
