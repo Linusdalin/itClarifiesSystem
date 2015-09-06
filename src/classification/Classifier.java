@@ -253,13 +253,13 @@ public class Classifier {
 
     private void updateBlockStatus(FragmentClassification classification, List<FragmentClassification> classificationsToStore) {
 
-        System.out.println("Checking for blocking classifications among " + classificationsToStore.size() + " existing classifications.");
+        PukkaLogger.log(PukkaLogger.Level.INFO, "Checking for blocking classifications among " + classificationsToStore.size() + " existing classifications.");
 
 
 
         for (FragmentClassification otherClassification : classificationsToStore) {
 
-            System.out.println(" --- Comparing Tag " + classification.getClassTag() + ": " + classification.getblockingState() + " for " + classification.getPattern() + " with " +
+            PukkaLogger.log(PukkaLogger.Level.DEBUG, " --- Comparing Tag " + classification.getClassTag() + ": " + classification.getblockingState() + " for " + classification.getPattern() + " with " +
                     otherClassification.getClassTag() + ": " + otherClassification.getblockingState() + " for " + classification.getPattern());
 
 
@@ -271,7 +271,7 @@ public class Classifier {
                 classification.setblockingState( FragmentClassification.BLOCKED );       // Set the state to blocked here
                 PukkaLogger.log(PukkaLogger.Level.INFO, "    --- Blocking the classification " + classification.getClassTag() + " for " + classification.getPattern());
             }else
-                System.out.println("    --- Ok to leave.");
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "    --- Ok to leave.");
 
         }
 

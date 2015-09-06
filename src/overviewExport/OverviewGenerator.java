@@ -83,12 +83,6 @@ public class OverviewGenerator {
 
     private static final int NoStandardSheets = 6;
 
-    private static final String[] standardSheetNames = {
-
-           "Report Overview", "Documents", "Definitions", "External Ref", "Risks", "Compliance",
-
-    };
-
     private Extraction emptyLine;      // For adding empty lines in the output
 
     int extractionOrdinal = 0;            // Global count for all the extractions to order the result
@@ -209,13 +203,23 @@ public class OverviewGenerator {
 
         for(int tagNo = 0; tagNo < tagExtractions.length; tagNo++ ){
 
-            this.sheets[ tagNo + NoStandardSheets ] = template.cloneSheet( templateSheetIx );
-            template.setSheetName(sheetIx + 2, tagExtractions[tagNo].getMainTag());
-            sheetIx++;
+            String sheetName =  tagExtractions[tagNo].getMainTag();
+
+            try{
+
+                this.sheets[ tagNo + NoStandardSheets ] = template.cloneSheet( templateSheetIx );
+                template.setSheetName(sheetIx + 2, sheetName);
+                sheetIx++;
+
+
+            }catch(Exception e){
+
+                PukkaLogger.log(e, "Failed to create sheet named " + sheetName);
+                throw new BackOfficeException(BackOfficeException.Usage, "Failed to create sheet named " + sheetName);
+
+            }
 
         }
-
-
 
     }
 
@@ -393,8 +397,6 @@ public class OverviewGenerator {
                 ContractVersionInstance head = document.getHeadVersion();
                 List<ContractFragment> fragmentsForDocument = head.getFragmentsForVersion(new LookupList().addSorting(new Sorting(ContractFragmentTable.Columns.Ordinal.name(), Ordering.FIRST)));
                 List<StructureItem> allStructureItems = head.getStructureItemsForVersion();
-                //System.out.println("Found " + fragmentsForDocument.size() + " fragments in document " + document.getName());
-                List<ChecklistItem> checklistItemsForProject = project.getChecklistItemsForProject();
                 List<DataObjectInterface> extractionsForDocument = new ArrayList<DataObjectInterface>();
 
                 for (ContractFragment fragment : fragmentsForDocument) {
@@ -459,17 +461,18 @@ public class OverviewGenerator {
      *                  The process is to go through all the classifications to see if there is any that
      *                  has the correct fragmentid
      *
-     * @param fragment
-     * @param document
-     * @param allClassifications
-     * @param fragmentsForDocument
-     * @param allRisks
-     * @param allAnnotations
-     * @param extractionsForDocument
-     * @param allStructureItems
+     * @param fragment                                - the fragment
+     * @param document                                - the document
+     * @param allClassifications                      - classifictions (prefetched from database)
+     * @param fragmentsForDocument                    - fragments (prefetched from database)
+     * @param allRisks                                - risks (prefetched from database)
+     * @param allAnnotations                          - annotations (prefetched from database)
+     * @param extractionsForDocument                  - extractions (prefetched from database)
+     * @param allStructureItems                       - headlines etc. (prefetched from database)
      */
 
-    private void matchClassification(ContractFragment fragment, Contract document, ExtractionTagList[] tagExtractions, List<FragmentClassification> allClassifications, List<ContractFragment> fragmentsForDocument, List<RiskClassification> allRisks, List<ContractAnnotation> allAnnotations, List<DataObjectInterface> extractionsForDocument, List<StructureItem> allStructureItems) {
+    private void matchClassification(ContractFragment fragment, Contract document, ExtractionTagList[] tagExtractions,
+                                     List<FragmentClassification> allClassifications, List<ContractFragment> fragmentsForDocument, List<RiskClassification> allRisks, List<ContractAnnotation> allAnnotations, List<DataObjectInterface> extractionsForDocument, List<StructureItem> allStructureItems) {
 
         String fragmentKey = fragment.getKey().toString();
 
