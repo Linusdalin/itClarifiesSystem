@@ -141,7 +141,7 @@ public class ClassificationServlet extends DocumentService {
                     localizedClass,
                     0,              // requirement level not implemented
                     0,              // applicable phase not implemented
-                    (blocking ? FragmentClassification.BLOCKING : FragmentClassification.NOT_BLOCKED),
+                    (blocking ? FragmentClassification.BLOCKING : FragmentClassification.MANUAL),
                     comment,
                     keyword,
                     currentUser.getKey(),

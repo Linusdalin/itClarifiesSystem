@@ -102,13 +102,21 @@ public class Classifier {
      */
 
 
-    public void addClassification(FragmentClassification classification, ContractFragment fragment) {
+    public void addClassification(FragmentClassification classification, ContractFragment fragment) throws BackOfficeException{
 
         Pattern pattern = new Pattern(classification.getPattern(), fragment.getText().indexOf(classification.getPattern()));
 
-        if(manuallyOverridden(classification, existingClassifications)){
+        FragmentClassification importedClassification = manuallyOverridden(classification, existingClassifications);
+
+        if(importedClassification != null){
 
             classification.setblockingState(FragmentClassification.OVERRIDDEN);
+            importedClassification.setblockingState(FragmentClassification.DUPLICATE_EXTERNAL);
+
+
+            importedClassification.update();
+
+
 
         }
 
@@ -138,20 +146,10 @@ public class Classifier {
      * @return                        - true if the classification already exists
      */
 
-    private boolean manuallyOverridden(FragmentClassification classification, List<FragmentClassification> existingClassifications) {
+    private FragmentClassification  manuallyOverridden(FragmentClassification classification, List<FragmentClassification> existingClassifications) {
 
         System.out.println("Checking for duplicate classifications among " + existingClassifications.size() + " existing classifications.");
 
-        //Only debug. TODO: Remove
-
-        /*
-        int i = 1;
-        for (FragmentClassification fragmentClassification : existingClassifications) {
-
-            System.out.println(" --- "+ i++ + fragmentClassification.getClassTag() + "(" + classification.getblockingState() +  ") for " + classification.getPattern());
-        }
-
-            */
 
         for (FragmentClassification existing : existingClassifications) {
 
@@ -164,11 +162,11 @@ public class Classifier {
                     isSamePattern(existing.getPattern(), classification.getPattern())){
 
                 PukkaLogger.log(PukkaLogger.Level.INFO, "Ignoring Classification " + classification.getClassTag() + " for " + classification.getPattern() + " already exists.");
-                return true;
+                return existing;
             }
         }
 
-        return false;
+        return null;
 
     }
 
@@ -263,7 +261,7 @@ public class Classifier {
                     otherClassification.getClassTag() + ": " + otherClassification.getblockingState() + " for " + classification.getPattern());
 
 
-            if(     classification.getblockingState() == FragmentClassification.NOT_BLOCKED &&
+            if(     classification.getblockingState() == FragmentClassification.GENERATED &&
                     otherClassification.getblockingState() == FragmentClassification.BLOCKING &&
                     otherClassification.getFragmentId().equals(classification.getFragmentId()) &&
                     otherClassification.getClassTag().equals(classification.getClassTag())){
@@ -366,7 +364,7 @@ public class Classifier {
                             pattern.getText(),
                             pattern.getPos(),
                             analysisTime.getSQLTime().toString(),
-                            FragmentClassification.NOT_BLOCKED
+                            FragmentClassification.GENERATED
                     );
 
     }

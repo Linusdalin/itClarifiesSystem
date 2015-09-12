@@ -75,13 +75,13 @@ public class ProjectServlet extends ItClarifiesService {
             Formatter formatter = getFormatFromParameters(req);
 
             String name            = getOptionalString("name", req);
-            String description     = getOptionalString("description", req);
+            String description     = getOptionalString("description", req, "");
             boolean empty          = getOptionalBoolean("empty", req, false);
-            String ordering        = getOptionalString("ordering", req);
+            String ordering        = getOptionalString("ordinals", req);
 
             Project project;
 
-            DBKeyInterface _project = getOptionalKey("key", req);
+            DBKeyInterface _project = getOptionalKey("project", req);
 
             PortalUser portalUser = sessionManagement.getUser();
 
@@ -116,6 +116,14 @@ public class ProjectServlet extends ItClarifiesService {
 
             }
             else{
+
+
+                if(name == null){
+
+                    returnError("No project name given.", ErrorType.DATA, HttpServletResponse.SC_BAD_REQUEST, resp);
+                    return;
+
+                }
 
                 Project existingProject = new Project(new LookupItem().addFilter(new ColumnFilter(ProjectTable.Columns.Name.name(), name)));
 

@@ -1121,7 +1121,7 @@ public class DocumentService extends ItClarifiesService{
                             classification.getPattern().getText(),
                             classification.getPattern().getPos(),
                             analysisTime.getSQLTime().toString(),
-                            FragmentClassification.NOT_BLOCKED
+                            FragmentClassification.GENERATED
                     );
                     risk.store();
                     risks++;

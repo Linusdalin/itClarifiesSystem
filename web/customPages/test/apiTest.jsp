@@ -496,13 +496,13 @@
 
 
         <p>	<label for="updateProjectId">Project</label>
-            <input type="text" id="updateProjectId" name="key" size=50></p>
+            <input type="text" id="updateProjectId" name="project" size=50></p>
         <p>	<label for="updateProjectName">Name</label>
             <input type="text" id="updateProjectName" name="name"></p>
         <p>	<label for="updateProjectDescription">Description</label>
             <input type="text" id="updateProjectDescription" name="description"></p>
         <p>	<label for="updateProjectOrdering">Ordering JSON</label>
-            <input type="text" id="updateProjectOrdering" name="ordering"></p>
+            <input type="text" id="updateProjectOrdering" name="ordinals"></p>
 
             <input type="hidden" name="html" value="on">
         <% out.print(getTokenParameter(useRealToken, "update_project"));%>

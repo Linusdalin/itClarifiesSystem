@@ -1,28 +1,20 @@
 package contractManagement;
 
 import risk.*;
-import contractManagement.*;
 import classification.*;
 import userManagement.*;
 import project.*;
 import versioning.*;
 import actions.*;
-import overviewExport.*;
-import module.*;
 import search.*;
 import crossReference.*;
-import reclassification.*;
 import dataRepresentation.*;
 import databaseLayer.DBKeyInterface;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
+
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
 import pukkaBO.condition.*;
-import pukkaBO.database.*;
-
-import pukkaBO.acs.*;
 
 /********************************************************
  *
@@ -747,7 +739,7 @@ public class Contract extends DataObject implements DataObjectInterface{
 
                     switch((int)classification.getblockingState()){
 
-                        case FragmentClassification.NOT_BLOCKED:
+                        case FragmentClassification.GENERATED:
                             comments.append(" Classification: \"" + classification.getClassTag() + "\"(" + classification.getSignificance() + ")(\""+  classification.getPattern() + "\" " +
                                     classification.getPos() + "-" + (classification.getPos() + classification.getLength()) +  "\") by " + classification.getCreator().getName() + "@" + classification.getTime().getISODate() +
                                     " comment: \"" + classification.getComment() + " keywords: \"" + classification.getKeywords() +"\"<br/>");

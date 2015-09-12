@@ -5,24 +5,10 @@ import contractManagement.*;
 import classification.*;
 import userManagement.*;
 import project.*;
-import versioning.*;
-import actions.*;
-import overviewExport.*;
-import module.*;
-import search.*;
-import crossReference.*;
-import reclassification.*;
 import dataRepresentation.*;
-import databaseLayer.DBKeyInterface;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
 import log.PukkaLogger;
 import pukkaBO.exceptions.BackOfficeException;
 import pukkaBO.condition.*;
-import pukkaBO.database.*;
-
-import pukkaBO.acs.*;
 
 /********************************************************
  *
@@ -329,7 +315,7 @@ public class Rerisk extends DataObject implements DataObjectInterface{
                 getPattern(),
                 getPatternPos(),
                 getDate().getISODate(),
-                FragmentClassification.NOT_BLOCKED);
+                FragmentClassification.GENERATED);
 
         classification.store();
 

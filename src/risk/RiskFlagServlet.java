@@ -155,7 +155,7 @@ public class RiskFlagServlet extends DocumentService {
                 pattern,
                 patternPos,
                 classificationTime.getISODate(),
-                (imported ? FragmentClassification.IMPORTED : FragmentClassification.NOT_BLOCKED)
+                (imported ? FragmentClassification.IMPORTED : FragmentClassification.GENERATED)
         );
         classification.store();
 
