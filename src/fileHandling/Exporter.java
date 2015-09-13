@@ -230,6 +230,7 @@ public class Exporter {
         if(classification.getblockingState() == FragmentClassification.BLOCKED ||
            classification.getblockingState() == FragmentClassification.BLOCKING ||
            classification.getblockingState() == FragmentClassification.IMPORTED ||
+           classification.getblockingState() == FragmentClassification.DUPLICATE_EXTERNAL ||
            classification.getblockingState() == FragmentClassification.OVERRIDDEN  ){
 
             System.out.println("        - not exporting blocked or overridden");

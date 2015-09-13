@@ -1222,8 +1222,8 @@ public class OverviewGenerator {
      * @return                        - the new rownumber
      *
      *
-     *      *          //TODO: Not Implemented feedback from write to sheet
-
+     *
+     *            //TODO: Not Implemented feedback from write to sheet
      */
 
 
@@ -1241,7 +1241,7 @@ public class OverviewGenerator {
             elements[2] = new CellValue("").asBox().withFont(RegularFont, 12);
             elements[3] = new CellValue(documentName).asBox().withFont(RegularFont, 12);
 
-            addRow(sheet, (currentRow++), elements, 1);
+            addRow(sheet, (currentRow++), elements, 1, 1750/5);
             feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Adding row in sheet " + sheet.getSheetName(), 0));
 
         }catch(Exception e){
@@ -1283,10 +1283,10 @@ public class OverviewGenerator {
             elements[0] = new CellValue(document.getName()).asBox().withFont(RegularFont, 12);
             elements[1] = new CellValue(document.getFile()).asBox().withFont(RegularFont, 12);
             elements[2] = new CellValue(document.getCreation().getISODate()).asBox().withFont(RegularFont, 12);
-            elements[3] = new CellValue(document.getHeadVersion().getVersion()).asBox().withFont(RegularFont, 12);
+            //elements[3] = new CellValue(document.getHeadVersion().getVersion()).asBox().withFont(RegularFont, 12);
 
 
-            addRow(sheet, (currentRow++), elements, 1);
+            addRow(sheet, (currentRow++), elements, 1, 2550/5);
             feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Adding row in sheet " + sheet.getSheetName(), 0));
 
         }catch(Exception e){
@@ -1298,9 +1298,6 @@ public class OverviewGenerator {
 
 
     }
-
-
-    // TODO: Not Implemented feedback from write to sheet
 
 
 
@@ -1320,7 +1317,7 @@ public class OverviewGenerator {
             elements[5] = new CellValue("").asBox();
 
 
-            addRow(sheet, (currentRow++), elements, 1);
+            addRow(sheet, (currentRow++), elements, 1, 2550 / 5);
             feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Adding row in sheet " + sheet.getSheetName(), 0));
 
         }catch(Exception e){
@@ -1361,7 +1358,7 @@ public class OverviewGenerator {
             elements[5] = new CellValue("").asBox();
 
 
-            addRow(sheet, (currentRow), elements, 1);
+            addRow(sheet, (currentRow), elements, 1, 2550/5);
             feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Adding row in sheet " + sheet.getSheetName(), 0));
 
         }catch(Exception e){
@@ -1390,7 +1387,7 @@ public class OverviewGenerator {
             elements[5] = new CellValue("").asBox();
 
 
-            addRow(sheet, (currentRow), elements, 1);
+            addRow(sheet, (currentRow), elements, 1, 2550/5);
             feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Adding row in sheet " + sheet.getSheetName(), 0));
 
         }catch(Exception e){
@@ -1464,7 +1461,7 @@ public class OverviewGenerator {
         elements[10] =   new CellValue().asRow();
         elements[11] =    new CellValue(hits).asBox();
 
-        addRow(sheet, currentRow++, elements);
+        addRow(sheet, currentRow++, elements, 0);
 
 
         for(int i = 0; i < children.length(); i++){
@@ -1656,16 +1653,27 @@ public class OverviewGenerator {
         return feedback;
     }
 
-    private void addRow(XSSFSheet sheet, int rowNo, CellValue[] values){
-
-        addRow(sheet, rowNo, values, 0);
-    }
-
     private void addRow(XSSFSheet sheet, int rowNo, CellValue[] values, int startColumn){
 
-        if(sheet == null){
-            System.out.println(" -- Sheet is empty");
+        addRow(sheet, rowNo, values, startColumn, -1);
+    }
 
+    /********************************************************************************************'
+     *
+     *              Add a new row to the sheet
+     *
+     * @param sheet
+     * @param rowNo
+     * @param values
+     * @param startColumn
+     * @param height               - height of the column in pixels
+     */
+
+    private void addRow(XSSFSheet sheet, int rowNo, CellValue[] values, int startColumn, int height){
+
+        if(sheet == null){
+
+            System.out.println(" -- Sheet is empty");
             return;
 
         }
@@ -1683,7 +1691,8 @@ public class OverviewGenerator {
             System.out.println("Created new row for Sheet=\"" + sheet.getSheetName() + "\" row = " + rowNo);
         }
 
-        //System.out.println(" ! Adding row " + rowNo + " to sheet " + sheet.getSheetName());
+        if(height != -1)
+            row.setHeight( (short )height );
 
 
         for (CellValue value : values) {

@@ -14,6 +14,7 @@ import org.apache.poi.xssf.usermodel.*;
 public class CellValue {
 
 
+
     public CellValue() {
 
         this.type = Type.EMPTY;
@@ -25,6 +26,7 @@ public class CellValue {
     private String text = "";
     private int value = 0;
     private Type type;
+    private boolean indentation;
 
     private int fontSize;
     private String fontName = null;
@@ -35,13 +37,14 @@ public class CellValue {
 
     private static final byte[] borderColour =   {(byte)0xBB, (byte)0xBB, (byte)0xBB};
     private static final byte[] greyBackground = {(byte)0xAA, (byte)0xAA, (byte)0xAA};
-    private static final byte[] whiteFont =      {(byte)0xFF, (byte)0xFF, (byte)0xFF};
+    private static final byte[] whiteFont =      {(byte)0x00, (byte)0x00, (byte)0x00};
 
     public CellValue(String text){
 
         this.text = text;
         this.type = Type.STRING;
         setDefaultStyle();
+        this.indentation = true;
 
     }
 
@@ -168,6 +171,10 @@ public class CellValue {
 
         style.setFont(font);
 
+        if(indentation){
+
+            style.setIndention((short)1);
+        }
 
         if(lrBorder){
             style.setBorderLeft(BorderStyle.THIN);
