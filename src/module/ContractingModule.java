@@ -42,18 +42,19 @@ public class ContractingModule extends AbstractModule implements ModuleInterface
 
                             new ModuleNode(FeatureTypeTree.General, new ModuleNode[]{
 
-                                new ModuleNode(FeatureTypeTree.TermAndTermination, new ModuleNode[]{
+                                new ModuleNode(FeatureTypeTree.TERM_AND_TERMINATION, new ModuleNode[]{
 
-                                        new ModuleNode(FeatureTypeTree.Term, LEAF),
-                                        new ModuleNode(FeatureTypeTree.Termination, LEAF),
+                                        new ModuleNode(FeatureTypeTree.TERM, LEAF),
+                                        new ModuleNode(FeatureTypeTree.TERMINATION, LEAF),
 
                                 }),
 
-                                    new ModuleNode(FeatureTypeTree.RightsAndRestrictions, new ModuleNode[]{
+                                    new ModuleNode(FeatureTypeTree.RIGHTS_AND_OBLIGATIONS, new ModuleNode[]{
 
-                                            new ModuleNode(FeatureTypeTree.Right, LEAF),
-                                            new ModuleNode(FeatureTypeTree.Restriction, LEAF),
-                                            new ModuleNode(FeatureTypeTree.Responsibility, LEAF),
+                                            new ModuleNode(FeatureTypeTree.RIGHT, LEAF),
+                                            new ModuleNode(FeatureTypeTree.RESTRICTION, LEAF),
+                                            new ModuleNode(FeatureTypeTree.RESPONSIBILITY, LEAF),
+                                            new ModuleNode(FeatureTypeTree.EXEMPTION, LEAF),
 
                                     }),
 
@@ -65,59 +66,59 @@ public class ContractingModule extends AbstractModule implements ModuleInterface
                                     new ModuleNode(FeatureTypeTree.IPR, LEAF),
                                     new ModuleNode(FeatureTypeTree.LegalEntity, new ModuleNode[]{
 
-                                            new ModuleNode(FeatureTypeTree.Parts, LEAF),
+                                            new ModuleNode(FeatureTypeTree.PARTY, LEAF),
                                             //new ClassificationOverviewNode(FeatureTypeTree.PartyUsage, LEAF),
 
                                     }),
                                     new ModuleNode(FeatureTypeTree.GeneralProvisions, new ModuleNode[]{
 
-                                            new ModuleNode(FeatureTypeTree.Arbitration, LEAF),
-                                            new ModuleNode(FeatureTypeTree.Precedence, LEAF),
+                                            new ModuleNode(FeatureTypeTree.ARBITRATION, LEAF),
+                                            new ModuleNode(FeatureTypeTree.PRECEDENCE, LEAF),
 
                                     }),
 
                             }),
-                            new ModuleNode(FeatureTypeTree.Governance, new ModuleNode[]{
+                            new ModuleNode(FeatureTypeTree.GOVERNANCE, new ModuleNode[]{
 
-                                    new ModuleNode(FeatureTypeTree.Reporting, LEAF),
-                                    new ModuleNode(FeatureTypeTree.ChangeMgmnt, LEAF),
-                                    new ModuleNode(FeatureTypeTree.Audit, LEAF),
-                                    new ModuleNode(FeatureTypeTree.Disclosure, LEAF),
+                                    new ModuleNode(FeatureTypeTree.REPORTING, LEAF),
+                                    new ModuleNode(FeatureTypeTree.CHANGE_MGMNT, LEAF),
+                                    new ModuleNode(FeatureTypeTree.AUDIT, LEAF),
+                                    new ModuleNode(FeatureTypeTree.DISCLOSURE, LEAF),
 
                             }),
 
                             new ModuleNode(FeatureTypeTree.Financial, new ModuleNode[]{
 
-                                    new ModuleNode(FeatureTypeTree.Terms, new ModuleNode[]{
+                                    new ModuleNode(FeatureTypeTree.TERMS, new ModuleNode[]{
 
-                                            new ModuleNode(FeatureTypeTree.Compensation, LEAF),
-                                            new ModuleNode(FeatureTypeTree.Expenses, LEAF),
-                                            new ModuleNode(FeatureTypeTree.Payment, LEAF),
-                                            new ModuleNode(FeatureTypeTree.Invoicing, LEAF),
+                                            new ModuleNode(FeatureTypeTree.COMPENSATION, LEAF),
+                                            new ModuleNode(FeatureTypeTree.EXPENSES, LEAF),
+                                            new ModuleNode(FeatureTypeTree.PAYMENT, LEAF),
+                                            new ModuleNode(FeatureTypeTree.INVOICING, LEAF),
 
-
-                                    }),
-                                    new ModuleNode(FeatureTypeTree.Damages, new ModuleNode[]{
-
-                                            new ModuleNode(FeatureTypeTree.Penalties, LEAF),
-                                            new ModuleNode(FeatureTypeTree.LiquidatedDamages, LEAF),
-                                            new ModuleNode(FeatureTypeTree.LimitationOfLiability, LEAF),
-                                            new ModuleNode(FeatureTypeTree.Indemnification, LEAF),
 
                                     }),
-                                    new ModuleNode(FeatureTypeTree.Warranty, LEAF),
+                                    new ModuleNode(FeatureTypeTree.DAMAGES, new ModuleNode[]{
+
+                                            new ModuleNode(FeatureTypeTree.PENALTIES, LEAF),
+                                            new ModuleNode(FeatureTypeTree.LIQUIDATED_DAMAGES, LEAF),
+                                            new ModuleNode(FeatureTypeTree.LIMITATION_OF_LIABILITY, LEAF),
+                                            new ModuleNode(FeatureTypeTree.INDEMNIFICATION, LEAF),
+
+                                    }),
+                                    new ModuleNode(FeatureTypeTree.WARRANTY, LEAF),
 
                             }),
 
-                            new ModuleNode(FeatureTypeTree.Compliance, new ModuleNode[]{
+                            new ModuleNode(FeatureTypeTree.COMPLIANCE, new ModuleNode[]{
 
-                                    new ModuleNode(FeatureTypeTree.LegalCompliance, LEAF),
-                                    new ModuleNode(FeatureTypeTree.RegulatoryCompliance, LEAF),
-                                    new ModuleNode(FeatureTypeTree.StandardsCompliance, LEAF),
+                                    new ModuleNode(FeatureTypeTree.LEGAL_COMPLIANCE, LEAF),
+                                    new ModuleNode(FeatureTypeTree.REGULATORY_COMPLIANCE, LEAF),
+                                    new ModuleNode(FeatureTypeTree.STANDARDS_COMPLIANCE, LEAF),
 
                             }),
 
-                            new ModuleNode(FeatureTypeTree.Solution, new ModuleNode[]{
+                            new ModuleNode(FeatureTypeTree.SOLUTION, new ModuleNode[]{
 
                                     new ModuleNode(FeatureTypeTree.Scope, new ModuleNode[]{
 
@@ -137,15 +138,15 @@ public class ContractingModule extends AbstractModule implements ModuleInterface
 
                                     }),
 
-                                    new ModuleNode(FeatureTypeTree.Resources, new ModuleNode[]{
+                                    new ModuleNode(FeatureTypeTree.RESOURCES, new ModuleNode[]{
 
-                                            new ModuleNode(FeatureTypeTree.Staffing, LEAF),
-                                            new ModuleNode(FeatureTypeTree.Subcontractors, LEAF),
+                                            new ModuleNode(FeatureTypeTree.STAFFING, LEAF),
+                                            new ModuleNode(FeatureTypeTree.SUBCONTRACTORS, LEAF),
 
                                     }),
-                                    new ModuleNode(FeatureTypeTree.Acceptance, new ModuleNode[]{
+                                    new ModuleNode(FeatureTypeTree.ACCEPTANCE, new ModuleNode[]{
 
-                                            new ModuleNode(FeatureTypeTree.AcceptanceCriteria, LEAF),
+                                            new ModuleNode(FeatureTypeTree.ACCEPTANCE_CRITERIA, LEAF),
 
                                     }),
 
@@ -168,10 +169,10 @@ public class ContractingModule extends AbstractModule implements ModuleInterface
 
                             new ModuleNode(FeatureTypeTree.Content, new ModuleNode[]{
 
-                                    new ModuleNode(FeatureTypeTree.Definition, new ModuleNode[]{
+                                    new ModuleNode(FeatureTypeTree.DEFINITION_CONCEPT, new ModuleNode[]{
 
-                                            new ModuleNode(FeatureTypeTree.DefinitionDef, LEAF),
-                                            new ModuleNode(FeatureTypeTree.DefinitionUsage, LEAF),
+                                            new ModuleNode(FeatureTypeTree.DEFINITION, LEAF),
+                                            new ModuleNode(FeatureTypeTree.DEFINITION_USAGE, LEAF),
                                             new ModuleNode(FeatureTypeTree.Background, LEAF),
 
                                     }),
@@ -190,7 +191,7 @@ public class ContractingModule extends AbstractModule implements ModuleInterface
 
                                     new ModuleNode(FeatureTypeTree.Date, LEAF),
                                     new ModuleNode(FeatureTypeTree.Percentage, LEAF),
-                                    new ModuleNode(FeatureTypeTree.Email, LEAF),
+                                    new ModuleNode(FeatureTypeTree.EMAIL, LEAF),
                             }),
 
                     }),

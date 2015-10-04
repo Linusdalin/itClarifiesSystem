@@ -92,6 +92,7 @@ public class OverviewGenerator {
     private static final String RegularFont = "Proxima Nova Regular";
     private static final String LightFont = "Proxima Nova Light";
     private static final String TextFont = "Minion Pro";
+    private int[] activeHeadlineLevel;
 
 
     /***************************************************************************
@@ -173,9 +174,6 @@ public class OverviewGenerator {
         SheetExportStyle[] sheetConfig = getSheetStyles( sheets.length );
 
 
-
-
-
         emptyLine = new Extraction("", "", "", "", 0, extractionOrdinal++, "", this.project.getKey(), this.project.getKey(), "", "", "", "", statusEntry.getKey());
 
         // Get the Standard sheets
@@ -252,7 +250,7 @@ public class OverviewGenerator {
 
         feedback.add(deleteOldExtractions(project));
 
-        feedback.add(handleExtraction(allDocuments, allClassifications, allAnnotations, allRisks, allDefinitions, tagList));
+        feedback.add(generateExtractions(allDocuments, allClassifications, allAnnotations, allRisks, allDefinitions, tagList));
 
 
         try {
@@ -375,12 +373,12 @@ public class OverviewGenerator {
      * @return                             - user feedback
      */
 
-    private ParseFeedback handleExtraction(List<Contract> allDocuments,
-                                           List<FragmentClassification> allClassifications,
-                                           List<ContractAnnotation> allAnnotations,
-                                           List<RiskClassification> allRisks,
-                                           List<Definition> allDefinitions,
-                                           ExtractionTagList[] tagExtractions) {
+    private ParseFeedback generateExtractions(List<Contract> allDocuments,
+                                              List<FragmentClassification> allClassifications,
+                                              List<ContractAnnotation> allAnnotations,
+                                              List<RiskClassification> allRisks,
+                                              List<Definition> allDefinitions,
+                                              ExtractionTagList[] tagExtractions) {
 
 
         ParseFeedback feedback = new ParseFeedback();
@@ -399,14 +397,17 @@ public class OverviewGenerator {
                 List<StructureItem> allStructureItems = head.getStructureItemsForVersion();
                 List<DataObjectInterface> extractionsForDocument = new ArrayList<DataObjectInterface>();
 
+                ContractFragment lastFragment = null;
+
                 for (ContractFragment fragment : fragmentsForDocument) {
 
+                    StructureItem structureItem =  fragment.getStructureItem(allStructureItems);
 
                     // Skip going through fragments that do not have a classification count
 
                     if(fragment.getClassificatonCount() != 0){
 
-                        matchClassification(fragment, document, tagExtractions, allClassifications, fragmentsForDocument, allRisks, allAnnotations, extractionsForDocument, allStructureItems);
+                        matchClassification(fragment, structureItem, lastFragment, document, tagExtractions, allClassifications, fragmentsForDocument, allRisks, allAnnotations, extractionsForDocument, allStructureItems);
 
                     }
 
@@ -415,6 +416,8 @@ public class OverviewGenerator {
                     //System.out.println("  -- Matching definition");
                     addDefinitions(fragment, document, allDefinitions, extractionsForDocument);
                     //System.out.println("  -- DOne");
+
+                    lastFragment = fragment;
 
                 }
                 feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, " Creating overview from document "+document.getName() + " with " + extractionsForDocument.size() + " extractions", -1));
@@ -462,6 +465,7 @@ public class OverviewGenerator {
      *                  has the correct fragmentid
      *
      * @param fragment                                - the fragment
+     * @param fragment                                - the preceeding fragment
      * @param document                                - the document
      * @param allClassifications                      - classifictions (prefetched from database)
      * @param fragmentsForDocument                    - fragments (prefetched from database)
@@ -471,8 +475,10 @@ public class OverviewGenerator {
      * @param allStructureItems                       - headlines etc. (prefetched from database)
      */
 
-    private void matchClassification(ContractFragment fragment, Contract document, ExtractionTagList[] tagExtractions,
-                                     List<FragmentClassification> allClassifications, List<ContractFragment> fragmentsForDocument, List<RiskClassification> allRisks, List<ContractAnnotation> allAnnotations, List<DataObjectInterface> extractionsForDocument, List<StructureItem> allStructureItems) {
+    private void matchClassification(ContractFragment fragment, StructureItem structureItem, ContractFragment previousFragment,
+                                     Contract document, ExtractionTagList[] tagExtractions,
+                                     List<FragmentClassification> allClassifications, List<ContractFragment> fragmentsForDocument,
+                                     List<RiskClassification> allRisks, List<ContractAnnotation> allAnnotations, List<DataObjectInterface> extractionsForDocument, List<StructureItem> allStructureItems) {
 
         String fragmentKey = fragment.getKey().toString();
 
@@ -480,18 +486,31 @@ public class OverviewGenerator {
 
             try{
 
+                System.out.println(" --- Testing fragment " + fragment.getName());
+
                 if(classification.getFragmentId().toString().equals(fragmentKey)){
 
                     // We found a classification that match the fragment we look at.
 
                     for (ExtractionTagList tagExtraction : tagExtractions) {
 
-                        if (tagExtraction.isApplicableFor(classification)) {
+                        System.out.println("   --- Testing extraction " + tagExtraction.getMainTag());
+
+                        if(structureItem != null && fragment.getType().equals("HEADING") && tagExtraction.activeHeadlineLevel >= (int)structureItem.getIndentation() && fragment.getOrdinal() >  tagExtraction.activeHeadlineStart){
+                            tagExtraction.activeHeadlineLevel = -1;
+                            System.out.println("  !! Exiting an active segment for fragment " + fragment.getName() + " on indentation level " + structureItem.getIndentation() + " for " + tagExtraction.getMainTag());
+                        }
+
+
+
+                        if (tagExtraction.isApplicableFor(classification)
+                               || isInActiveSection(tagExtraction)
+                                ) {
 
                             // We now have a fragment with a tag that matches the tag(s) we are looking for
                             // We add it to the fragment (and potentially also the heading - if it is not already added)
 
-                            createExtraction(fragment, classification, tagExtraction.getMainTag(), document, allStructureItems, extractionsForDocument, allClassifications, allRisks, allAnnotations, fragmentsForDocument);
+                            createExtraction(fragment, structureItem, tagExtraction, previousFragment, classification, tagExtraction.getMainTag(), document, allStructureItems, extractionsForDocument, allClassifications, allRisks, allAnnotations, fragmentsForDocument);
                         }
                     }
 
@@ -510,14 +529,21 @@ public class OverviewGenerator {
 
     }
 
-    private void createExtraction(ContractFragment fragment, FragmentClassification classification, String mainTag,
+    private boolean isInActiveSection(ExtractionTagList tagExtraction) {
+
+        return tagExtraction.activeHeadlineLevel > -1;
+    }
+
+    private void createExtraction(ContractFragment fragment, StructureItem structureItem, ExtractionTagList tagExtraction, ContractFragment previousFragment, FragmentClassification classification, String mainTag,
                                   Contract document, List<StructureItem> allStructureItems, List<DataObjectInterface> extractionsForDocument,
                                   List<FragmentClassification> allClassifications, List<RiskClassification> allRisks, List<ContractAnnotation> allAnnotations,
                                   List<ContractFragment> fragmentsForDocument) throws BackOfficeException{
 
         System.out.println("  --- Found match " + classification.getClassTag() + " in fragment " + fragment.getName());
 
-        potentiallyAddHeading(fragment, mainTag, document, allStructureItems, extractionsForDocument);
+        potentiallyAddHeading(fragment,  mainTag, document, allStructureItems, extractionsForDocument);
+
+        potentiallyAddPrevious(previousFragment, document, extractionsForDocument, allClassifications, allRisks, allAnnotations, allStructureItems, mainTag);
 
         // Create a new entry for the classification
 
@@ -540,9 +566,22 @@ public class OverviewGenerator {
         if (fragment.getType().equals("HEADING")) {
 
             entry.asHeadline((int) fragment.getIndentation());
-            //extractionsForDocument.add(emptyLine);               //TODO: Empty line has to be associated with the correct tab
-            extractionsForDocument.add(entry);
+            //extractionsForDocument.add(emptyLine);
+
+            if(!alreadyExist(entry, extractionsForDocument))
+                extractionsForDocument.add(entry);
+
             //System.out.println(" -- After adding HEADING, we have " + extractionsForDocument.size() + " extractions.");
+
+            // Now check and update the flag for headline to add all children. If we are in an
+            // active Headline segment (and we hit a new on the same level we exit. Otherwise we start a new
+
+            if(tagExtraction.activeHeadlineLevel == -1 && structureItem != null){
+                tagExtraction.activeHeadlineLevel = (int)structureItem.getIndentation();
+                tagExtraction.activeHeadlineStart = (int)fragment.getOrdinal();
+                System.out.println("  !! Entering an active segment for fragment " + fragment.getName() + " on indentation level " + structureItem.getIndentation() + " for " + tagExtraction.getMainTag());
+
+            }
 
             if (AddPeers)
                 extractionsForDocument.addAll(findPeers(mainTag, fragment, document, fragmentsForDocument, allAnnotations, allClassifications, allRisks, false));
@@ -554,8 +593,64 @@ public class OverviewGenerator {
             if (AddPeers)
                 extractionsForDocument.addAll(findPeers(mainTag, fragment, document, fragmentsForDocument, allAnnotations, allClassifications, allRisks, true));
         } else {
-            PukkaLogger.log(PukkaLogger.Level.INFO, "Adding extraction'" + entry.getText() + "'");
-            extractionsForDocument.add(entry);
+
+            if(!alreadyExist(entry, extractionsForDocument)){
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Adding extraction'" + entry.getText() + "'");
+                extractionsForDocument.add(entry);
+            }
+            else{
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Ignoring duplicate extraction'" + entry.getText() + "'");
+
+            }
+
+        }
+
+    }
+
+    private void potentiallyAddPrevious(ContractFragment previousFragment, Contract document, List<DataObjectInterface> extractionsForDocument, List<FragmentClassification> allClassifications, List<RiskClassification> allRisks, List<ContractAnnotation> allAnnotations, List<StructureItem> allStructureItems, String mainTag) {
+
+        try{
+
+            if(previousFragment == null)
+                return;
+
+            StructureItem structure = previousFragment.getStructureItem(allStructureItems);
+            if(structure == null ||!structure.exists() || previousFragment.getStructureNo() <= 1)
+                return;
+
+            if(structure.getType().equals("HEADING"))
+                return;
+
+            Extraction entry = new Extraction(
+                    "",
+                    getClassificationsForFragment(previousFragment, allClassifications),
+                    previousFragment.htmlDecode(),
+                    previousFragment.getKey().toString(),
+                    (int) previousFragment.getOrdinal(),
+                    extractionOrdinal++,
+                    "",
+                    project.getKey(),
+                    document.getKey(),
+                    "",
+                    getRisksForFragment(previousFragment, allRisks),
+                    getAnnotationsForFragment(previousFragment, allAnnotations),
+                    mainTag,
+                    statusEntry.getKey());
+
+            if(!alreadyExist(entry, extractionsForDocument)){
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Adding a parent " + previousFragment.getText() + " of type " + structure.getType());
+                extractionsForDocument.add(entry);
+            }
+            else{
+
+                PukkaLogger.log(PukkaLogger.Level.INFO, "Ignoring headline parent " + previousFragment.getText() + " as duplicate.");
+
+            }
+
+
+        }catch(BackOfficeException e){
 
         }
 
@@ -599,6 +694,10 @@ public class OverviewGenerator {
             else{
 
                 ContractFragment parent = structure.getFragmentForStructureItem();
+
+                if(parent.equals(fragment))
+                    return;
+
                 Extraction entry = new Extraction(
                         "",
                         "",                         // No classifications on the headline
@@ -1555,7 +1654,7 @@ public class OverviewGenerator {
 
             for (FragmentClassification classification : classifications) {
 
-                if(classification.getClassTag().equals(FeatureTypeTree.StandardsCompliance.getName())){
+                if(classification.getClassTag().equals(FeatureTypeTree.STANDARDS_COMPLIANCE.getName())){
 
                     CellValue[] elements = new CellValue[6];
 
@@ -1621,6 +1720,8 @@ public class OverviewGenerator {
                     //System.out.println("Cell: \"" + c.toString() + "\"");
                     if(c.toString().equals(token)){
 
+                        CellValue replaceValue = new CellValue(replacement).withFont(BoldFont, 16);
+
                         int rowNo = row.getRowNum();
                         int colNo = c.getColumnIndex();
                         //System.out.println(" -- Found token " + token + "@(" + rowNo +","+ colNo+ ") in "+ sheet.getSheetName()+" to replace with " + replacement);
@@ -1629,7 +1730,9 @@ public class OverviewGenerator {
 
                         XSSFRow actualRow = sheet.getRow(rowNo);
                         XSSFCell actualCell = actualRow.getCell(colNo);
-                        actualCell.setCellValue(replacement);
+                        actualCell.setCellValue(replaceValue.getStringValue());
+                        actualCell.setCellStyle(replaceValue.getStyle(sheet));
+
                         feedback.add(new ParseFeedbackItem(ParseFeedbackItem.Severity.INFO, "Replacing " + token + " with " + replacement + " in sheet " + sheet.getSheetName(), rowNo));
                         replacements++;
 
@@ -1688,7 +1791,7 @@ public class OverviewGenerator {
 
             sheet.createRow( rowNo );
             row = sheet.getRow( rowNo );
-            System.out.println("Created new row for Sheet=\"" + sheet.getSheetName() + "\" row = " + rowNo);
+            PukkaLogger.log(PukkaLogger.Level.DEBUG, "Created new row for Sheet=\"" + sheet.getSheetName() + "\" row = " + rowNo);
         }
 
         if(height != -1)

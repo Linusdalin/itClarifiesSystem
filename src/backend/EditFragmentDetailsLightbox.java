@@ -413,8 +413,8 @@ class AddDefinitionForm extends Form implements FormInterface {
                 Contract document = version.getDocument();
                 Project project = document.getProject();
                 PortalUser user = PortalUser.getSystemUser();
-                String tag = FeatureTypeTree.DefinitionDef.getName();
-                String keyWords = FeatureTypeTree.DefinitionDef.getHierarchy();
+                String tag = FeatureTypeTree.DEFINITION.getName();
+                String keyWords = FeatureTypeTree.DEFINITION.getHierarchy();
 
                 Definition definition = new Definition(pattern,
                         DefinitionType.REGULAR.name(),
@@ -588,8 +588,8 @@ class AddDefinitionForm extends Form implements FormInterface {
                 Contract document = version.getDocument();
                 Project project = document.getProject();
                 PortalUser user = PortalUser.getSystemUser();
-                String tag = FeatureTypeTree.DefinitionDef.getName();
-                String keyWords = FeatureTypeTree.DefinitionDef.getHierarchy();
+                String tag = FeatureTypeTree.DEFINITION.getName();
+                String keyWords = FeatureTypeTree.DEFINITION.getHierarchy();
 
                 Reference reference = new Reference(pattern, fragment.getKey(), destinationFragment.getKey(), version.getKey(), project.getKey(), referenceType, pattern, patternPos,  user.getKey());
                 reference.store();

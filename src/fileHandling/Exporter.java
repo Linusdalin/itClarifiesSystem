@@ -217,8 +217,8 @@ public class Exporter {
 
 
         if(     classification.getClassTag().equals(FeatureTypeTree.DefinitionRepetition.getName()) ||
-                classification.getClassTag().equals(FeatureTypeTree.DefinitionDef.getName()) ||
-                classification.getClassTag().equals(FeatureTypeTree.DefinitionUsage.getName())
+                classification.getClassTag().equals(FeatureTypeTree.DEFINITION.getName()) ||
+                classification.getClassTag().equals(FeatureTypeTree.DEFINITION_USAGE.getName())
         )
         {
             System.out.println("        - not exporting definitions");

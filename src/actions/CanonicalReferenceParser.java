@@ -369,7 +369,7 @@ public class CanonicalReferenceParser {
             // Find the definition usage classifications and remove the appropriate classificaitons
 
             List<FragmentClassification> classifications = currentItem.getProject().getFragmentClassificationsForProject(
-                    new LookupList().addFilter(new ColumnFilter(FragmentClassificationTable.Columns.ClassTag.name(), FeatureTypeTree.DefinitionDef.getName()))
+                    new LookupList().addFilter(new ColumnFilter(FragmentClassificationTable.Columns.ClassTag.name(), FeatureTypeTree.DEFINITION.getName()))
                     // .addFilter(new ColumnFilter(FragmentClassificationTable.Columns.Pattern.name(), currentItem.getName()))
 
             );

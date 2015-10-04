@@ -44,12 +44,12 @@ public class Classifier {
 
     private static final ClassificationPattern[] riskPattern = {
 
-            new ClassificationPattern(FeatureTypeTree.Obligation,            "Vague"),
-            new ClassificationPattern(FeatureTypeTree.Termination,           "Convenience"),
-            new ClassificationPattern(FeatureTypeTree.Acceptance,            "Subjective"),
-            new ClassificationPattern(FeatureTypeTree.LimitationOfLiability, "Uncapped"),
-            new ClassificationPattern(FeatureTypeTree.LimitationOfLiability, "Indirect"),
-            new ClassificationPattern(FeatureTypeTree.Compensation,          "Risk"),
+            new ClassificationPattern(FeatureTypeTree.OBLIGATION,            "Vague"),
+            new ClassificationPattern(FeatureTypeTree.TERMINATION,           "Convenience"),
+            new ClassificationPattern(FeatureTypeTree.ACCEPTANCE,            "Subjective"),
+            new ClassificationPattern(FeatureTypeTree.LIMITATION_OF_LIABILITY, "Uncapped"),
+            new ClassificationPattern(FeatureTypeTree.LIMITATION_OF_LIABILITY, "Indirect"),
+            new ClassificationPattern(FeatureTypeTree.COMPENSATION,          "Risk"),
             new ClassificationPattern(FeatureTypeTree.IPR,                   "Abstract"),
 
     };
@@ -60,9 +60,9 @@ public class Classifier {
      *      Create a classifier for a document in a project
      *
      *
-     * @param project
-     * @param version
-     * @param analysisTime
+     * @param project                         - current project
+     * @param version                         - current version
+     * @param analysisTime                    - thime of analysis
      */
 
 
@@ -95,14 +95,14 @@ public class Classifier {
      *          the lists pending the store command.
      *
      *
-     * @param classification
-     * @param fragment
+     * @param classification        - the classification
+     * @param fragment              - current fragment
      *
      *          //TODO: Pass pattern w position
      */
 
 
-    public void addClassification(FragmentClassification classification, ContractFragment fragment) throws BackOfficeException{
+    public void addClassification(FragmentClassification classification, ContractFragment fragment, List<Definition> definitionsForProject) throws BackOfficeException{
 
         Pattern pattern = new Pattern(classification.getPattern(), fragment.getText().indexOf(classification.getPattern()));
 
@@ -112,17 +112,13 @@ public class Classifier {
 
             classification.setblockingState(FragmentClassification.OVERRIDDEN);
             importedClassification.setblockingState(FragmentClassification.DUPLICATE_EXTERNAL);
-
-
             importedClassification.update();
-
-
 
         }
 
         classificationsToStore.add(classification);
         fragmentsToUpdate.add(fragment);
-        handleSideEffects(classification, fragment, pattern, analysisTime);
+        handleSideEffects(classification, fragment, definitionsForProject);
         extractRiskForClassification(fragment, classification, pattern);                // -> new Risk
 
     }
@@ -282,18 +278,21 @@ public class Classifier {
      *          attributes in the appropriate lists pending store
      *
      *
-     * @param classification
-     * @param fragment
-     * @param analysisTime
+     * @param classification                 - classification
+     * @param fragment                       - fragment
+     * @param definitionsForProject
      */
 
 
-    private void handleSideEffects(FragmentClassification classification, ContractFragment fragment, Pattern pattern, DBTimeStamp analysisTime) {
+    private void handleSideEffects(FragmentClassification classification, ContractFragment fragment, List<Definition> definitionsForProject) {
 
         // If the classification is a #Party, we shall also create a definition
         // for this with the type party
 
-        if(classification.getClassTag().equals(FeatureTypeTree.Parts.getName())){
+        System.out.println(" --- handle sideeffects for classification " + classification.getClassTag());
+
+
+        if(classification.getClassTag().equals(FeatureTypeTree.PARTY.getName())){
 
             Definition party = new Definition(
                     classification.getPattern(),
@@ -305,9 +304,30 @@ public class Classifier {
                     classification.getPattern());
 
             definitionsToStore.add(party);
+            // Also add the definition to the active list of definitions. This will be needed for subsequent reanalyze of the project
+            definitionsForProject.add(party);
+            System.out.println(" --- Adding a #PARTY definition");
 
         }
 
+        if(classification.getClassTag().equals(FeatureTypeTree.DEFINITION.getName())){
+
+            Definition definition = new Definition(
+                    classification.getPattern(),
+                    DefinitionType.REGULAR.name(),
+                    fragment.getKey(),
+                    fragment.getOrdinal(),
+                    version.getKey(),
+                    project.getKey(),
+                    classification.getPattern());
+
+            definitionsToStore.add(definition);
+            // Also add the definition to the active list of definitions. This will be needed for subsequent reanalyze of the project
+            definitionsForProject.add(definition);
+
+            System.out.println(" --- Adding a #REGULAR definition");
+
+        }
 
     }
 

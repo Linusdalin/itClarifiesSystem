@@ -600,10 +600,10 @@ public class ProjectDetailPage extends NarrowPage {
             html.append("    /***********************************************************\n");
             html.append("     *\n");
             html.append("     *      Test for classification "+ classification.getClassTag()+"\n");
-            html.append("     *      Type:  "+ classification.getType());
-            html.append("     *      Document:  "+ classification.getVersion().getDocument());
-            html.append("     *      Fragment:  "+ fragment.getText());
-            html.append("     *      Language:  "+ languageCode);
+            html.append("     *      Type:  "+ classification.getType() + "\n");
+            html.append("     *      Document:  "+ classification.getVersion().getDocument() + "\n");
+            html.append("     *      Fragment:  "+ fragment.getText() + "\n");
+            html.append("     *      Language:  "+ languageCode + "\n");
             html.append("     */\n");
             html.append("        try {\n" +
                     "\n\n" +
@@ -614,7 +614,7 @@ public class ProjectDetailPage extends NarrowPage {
                     "                     .withClassifier(new NumberClassifier"+languageCode+"())\n" +
                     "                     .withClassifier(new DefinitionUsageClassifier"+ languageCode+"())\n" +
                     "                     .withClassifier(new AcceptanceCriteriaClassifier"+ languageCode+"())\n" +
-                    "                     .expectingClassification(new ClassificationAssertion(FeatureTypeTree."+ classification.getClassTag()+", 1)\n" +
+                    "                     .expectingClassification(new ClassificationAssertion(FeatureTypeTree."+ classification.getClassTag().substring(1)+", 1)\n" +
                     "                         .withPattern(\""+ classification.getPattern()+"\")\n" +
                     "                         //.withTag(\"<add sub tag>\")\n" +
                     "                   )\n" +

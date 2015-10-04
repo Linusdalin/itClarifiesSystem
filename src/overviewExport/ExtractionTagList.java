@@ -19,6 +19,9 @@ public class ExtractionTagList {
     private List<String> children = new ArrayList<String>();
     private final String mainTag;
 
+    public int activeHeadlineLevel = -1;
+    public int activeHeadlineStart = 0;
+
 
     /*********************************************************
      *
@@ -57,7 +60,8 @@ public class ExtractionTagList {
     public boolean isApplicableFor(FragmentClassification classification) {
 
         if(classification.getblockingState() == FragmentClassification.BLOCKED ||
-                classification.getblockingState() == FragmentClassification.OVERRIDDEN)
+           classification.getblockingState() == FragmentClassification.BLOCKING ||
+           classification.getblockingState() == FragmentClassification.OVERRIDDEN)
             return false;
 
         if(mainTag.equals(classification.getClassTag()))

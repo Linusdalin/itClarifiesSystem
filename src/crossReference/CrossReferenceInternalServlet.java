@@ -276,7 +276,7 @@ public class CrossReferenceInternalServlet extends DocumentService {
         t.delete();
 
         List<FragmentClassification> definitionUsagesForProject = project.getFragmentClassificationsForProject(new LookupList()
-                .addFilter(new ColumnFilter(FragmentClassificationTable.Columns.ClassTag.name(), FeatureTypeTree.DefinitionUsage.getName()))
+                .addFilter(new ColumnFilter(FragmentClassificationTable.Columns.ClassTag.name(), FeatureTypeTree.DEFINITION_USAGE.getName()))
                 .addFilter(new ReferenceFilter(ReferenceTable.Columns.Creator.name(), systemUser.getKey()))
         );
 

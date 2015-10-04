@@ -120,7 +120,7 @@ public class DocumentService extends ItClarifiesService{
 
                 ParseFeedbackItem feedback = null;
 
-                PukkaLogger.log(PukkaLogger.Level.INFO, "fragment " + fragmentNo + ": ("+ aFragment.getStyle().name()+")" + aFragment.getBody() +"     (" +
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "fragment " + fragmentNo + ": ("+ aFragment.getStyle().name()+")" + aFragment.getBody() +"     (" +
                         indentation + ": " + aStructureItem.getStructureType().name() + ":" +
                         (aStructureItem.getTopElement() != null ? aStructureItem.getTopElement().getBody() : "--") +")" );
 
@@ -389,7 +389,7 @@ public class DocumentService extends ItClarifiesService{
                     );
 
                     fragmentsToStore.add(fragment);
-                    System.out.println("  ***** Adding a fragment " + fragment.getName() + " with ordinal " + (fragmentNo - 1));
+                    PukkaLogger.log(PukkaLogger.Level.INFO, "  ***** Adding a fragment ( ordinal "+ (fragmentNo - 1)+")" + fragment.getName());
 
 
                 }
@@ -439,10 +439,12 @@ public class DocumentService extends ItClarifiesService{
         }
 
 
-        PukkaLogger.log(PukkaLogger.Level.INFO, "Storing " + fragmentsToStore.getCount() + " fragments for the analysis of the document " + document);
+        PukkaLogger.log(PukkaLogger.Level.ACTION, "Storing " + fragmentsToStore.getCount() + " fragments for the analysis of the document " + document);
         fragmentsToStore.store(); // Save all
 
         // Now we can map the checklist sources to the correct fragment id:s
+
+        PukkaLogger.log(PukkaLogger.Level.INFO, "Mapping sources for canonical references and check list items in the document " + document);
 
         checklistParser.mapItemSources((List<ContractFragment>)(List<?>) fragmentsToStore.getValues());
         canonicalReferenceParser.mapItemSources(project);
@@ -451,14 +453,14 @@ public class DocumentService extends ItClarifiesService{
 
         // Store the keywords
 
-        PukkaLogger.log(PukkaLogger.Level.INFO, "Storing keywords for the analysis of the document " + document);
+        PukkaLogger.log(PukkaLogger.Level.ACTION, "Storing "+ newKeywords.size()+" keywords from the analysis of the document " + document);
         storeKeyWords(newKeywords, versionInstance, document, project);
 
         // Handle comments. The comments are extracted by the parsing and stored with a fragment id,
         // so left to do is to find the corresponding fragment.
 
-        PukkaLogger.log(PukkaLogger.Level.INFO, "** Found " + fragmenter.getComments().size() + " comments in the document" );
-        ParseFeedback feedbackFromComments = handleComments(fragmenter.getComments(), classifier, project, document, versionInstance, analysisTime, fragments);
+        PukkaLogger.log(PukkaLogger.Level.INFO, "Handling comments in the document" );
+        ParseFeedback feedbackFromComments = handleComments(fragmenter.getComments(), classifier, project, document, versionInstance, analysisTime);
 
         fragmentingFeedback.add(feedbackFromComments);
         classifier.store();
@@ -472,31 +474,44 @@ public class DocumentService extends ItClarifiesService{
 
     /********************************************************************************************
      *
-     *          Handle comments. For a comment in the document there are a number of actions to take:
-     *
-     *          #TAG            - will result in creating an action here
-     *          #RISK:status    - will set the status of a risk (overriding any existing status
-     *          other           - Create an annotation
-     *
-     *          //TODO: Improvement Module: The tags and keywords should not be looked up statically
      *
      * @param comments          - list of all comments in the document
      * @param project           - Current project
      * @param document          - the document
      * @param version   - The document version
      * @param analysisTime      - The time of analysis
-     * @param fragments
-     *
-     *
      *
      */
 
 
-    private ParseFeedback handleComments(List<AbstractComment> comments, Classifier classifier, Project project, Contract document, ContractVersionInstance version, DBTimeStamp analysisTime, List<AbstractFragment> fragments) throws BackOfficeException{
+    /***********************************************************************************************
+     *
+     *          Handle comments. For a comment in the document there are a number of actions to take:
+     *
+     *          #TAG            - will result in creating a classification here
+     *          #Definition     - will create a definition
+     *          #RISK:status    - will set the status of a risk (overriding any existing status
+     *          other           - Create an annotation
+     *
+     *          //TODO: Improvement Module: The tags and keywords should not be looked up statically
+     *
+     * @param comments              - list of all the comments
+     * @param classifier            - object to set classification
+     * @param project               - the current project
+     * @param document              - the current document
+     * @param version               - the current version
+     * @param analysisTime          - time of analysis
+     * @return                      - feedback to the end user
+     * @throws BackOfficeException
+     */
+
+    private ParseFeedback handleComments(List<AbstractComment> comments, Classifier classifier, Project project, Contract document, ContractVersionInstance version, DBTimeStamp analysisTime) throws BackOfficeException{
 
         PortalUser user = PortalUser.getExternalUser();
         LanguageInterface languageForImport = new English();
         Organization organization = project.getOrganization();
+        List<Definition> definitionsForProject = project.getDefinitionsForProject();
+
 
         PukkaLogger.log(PukkaLogger.Level.INFO, "Handle comments: There are " + comments.size() + " comments in the document " + document.getName());
         ParseFeedback feedback = new ParseFeedback();
@@ -505,7 +520,7 @@ public class DocumentService extends ItClarifiesService{
 
             try{
 
-                PukkaLogger.log(PukkaLogger.Level.INFO, "Lookup Comment: "+ aComment.getComment()+". (Paragraph id: " + aComment.getFragmentId() + ")");
+                PukkaLogger.log(PukkaLogger.Level.DEBUG, "Lookup Comment: "+ aComment.getComment()+". (Paragraph id: " + aComment.getFragmentId() + ")");
 
                 ContractFragment fragment = new ContractFragment(new LookupItem()
                         .addFilter(new ColumnFilter(ContractFragmentTable.Columns.ParagraphId.name(), aComment.getFragmentId()))
@@ -542,7 +557,7 @@ public class DocumentService extends ItClarifiesService{
                     if(isBlocking){
                         classificationTag = classificationTag.substring( 1 );  // Remove the ! prefix
 
-                        System.out.println(" --- found blocking of tag " + classificationTag);
+                        //System.out.println(" --- found blocking of tag " + classificationTag);
                     }
 
 
@@ -619,7 +634,7 @@ public class DocumentService extends ItClarifiesService{
                             "external import",
                             analysisTime.getSQLTime().toString());
 
-                    classifier.addClassification(classification, fragment);
+                    classifier.addClassification(classification, fragment, definitionsForProject);
 
                     continue;
                 }
@@ -916,7 +931,7 @@ public class DocumentService extends ItClarifiesService{
 
     /***************************************************************************
      *
-     *      Handle the result from the analysis
+     *              Handle the result from the analysis
      *
      * @param analysisResult - the feature definitions from the analysis
      * @param fragment - the data base fragment to update with classifications and references from analysis
@@ -956,10 +971,6 @@ public class DocumentService extends ItClarifiesService{
 
         ContractRisk defaultRisk = ContractRisk.getUnknown();
         PortalUser system = PortalUser.getSystemUser();
-
-        //System.out.println("Found " + analysisResult.getClassifications().size() + " classifications in analysis");
-
-
 
         for(Classification classification : analysisResult.getClassifications()){
 
@@ -1010,17 +1021,15 @@ public class DocumentService extends ItClarifiesService{
                  */
 
 
-                if(type.getName().equals(FeatureTypeTree.DefinitionDef.getName())){
+                if(type.getName().equals(FeatureTypeTree.DEFINITION.getName())){
 
                     // The analysis has classified a definition Source.
                     // We create a definition and also add a definition tag. (This may be removed
                     // later when definitions are properly displayed and searchable from the frontend)
 
-
                     // First we check for a definition to defer
 
-                    if(classification.getPass() != Analyser.DEFERENCE_PASS &&
-                            classification.getTag().equals("LeftColumn")){
+                    if(classification.getPass() != Analyser.DEFERENCE_PASS && classification.getTag().equals("LeftColumn")){
 
 
                             if(isFirstRow(fragment)){
@@ -1038,14 +1047,15 @@ public class DocumentService extends ItClarifiesService{
                     }
                     else{
 
-                        // A deferred table definition should hold the definition text to recognize repeat usage.
-
                         String definitionText = "";
+
                         if(classification.getTag().equals("LeftColumn"))
                             definitionText = fragment.getText();
 
                         PukkaLogger.log(PukkaLogger.Level.ACTION, "*** Creating definition for fragment " + fragment.getName() +
                                 "(match: " + classification.getPattern().getText() + " tag: " + classification.getTag() +  ")");
+
+                        /*
 
                         Definition definition = new Definition(
                                 classification.getPattern().getText(),
@@ -1057,13 +1067,12 @@ public class DocumentService extends ItClarifiesService{
                                 definitionText);
                         definition.store();
 
-                        // Also add the definition to the active list of definitions. This will be needed for subsequent reanalyze of the project
+                        */
 
-                        definitionsForProject.add(definition);
 
                         fragmentClassification = new FragmentClassification(
                                 fragment.getKey(),
-                                FeatureTypeTree.DefinitionDef.getName(),
+                                FeatureTypeTree.DEFINITION.getName(),
                                 0,              // requirement level not implemented
                                 0,              // applicable phase not implemented
                                 0,             // Not blocking
@@ -1080,14 +1089,15 @@ public class DocumentService extends ItClarifiesService{
                                 analysisTime.getSQLTime().toString());
 
 
-                        classifier.addClassification(fragmentClassification, fragment);
+                        classifier.addClassification(fragmentClassification, fragment, definitionsForProject);
                         classifications++;
 
                         updated = true;
 
                         // Also store the definition in the abstract document to be able to detect it later
                         if(aDocument != null)
-                            aDocument.addDefinition(new AbstractDefinition(definition.getName(), (int)fragment.getOrdinal()));
+                            aDocument.addDefinition(new AbstractDefinition(classification.getPattern().getText(), (int)fragment.getOrdinal()));
+
 
 
                     }
@@ -1160,7 +1170,7 @@ public class DocumentService extends ItClarifiesService{
                  */
 
 
-                if(type.getName().equals(FeatureTypeTree.DefinitionUsage.getName())){
+                if(type.getName().equals(FeatureTypeTree.DEFINITION_USAGE.getName())){
 
                     // The analysis has classified a definition usage
                     // We create a reference and a low priority classificaiton that will not be shown
@@ -1227,7 +1237,7 @@ public class DocumentService extends ItClarifiesService{
                             "not specified rule",
                             analysisTime.getSQLTime().toString());
 
-                    classifier.addClassification(fragmentClassification, fragment);
+                    classifier.addClassification(fragmentClassification, fragment, definitionsForProject);
 
                     continue;
                 }
@@ -1275,7 +1285,7 @@ public class DocumentService extends ItClarifiesService{
                             "not specified rule",
                             analysisTime.getSQLTime().toString());
 
-                    classifier.addClassification(fragmentClassification, fragment);
+                    classifier.addClassification(fragmentClassification, fragment, definitionsForProject);
 
                     fragment.keywordString =  searchManager.getUpdatedKeywords(fragment, fragmentClassification);
 
@@ -1566,6 +1576,32 @@ public class DocumentService extends ItClarifiesService{
 
     }
 
+    /********************************************************************************************
+     *
+     *
+     *                  Go through the fragments one by one
+     *
+     *
+     * @param fragments
+     * @param analyser
+     * @param documentVersion
+     * @param aDocument
+     * @param project
+     * @param document
+     * @param owner
+     * @param aProject
+     * @param analysisTime
+     * @param outcomeList
+     * @param definitionsForProject
+     * @throws BackOfficeException
+     *
+     *
+     *
+     *                  //TODO: Return error mssages for all that goes wrong
+     */
+
+
+
     private void analyseFragments(List<ContractFragment> fragments,
                                   Analyser analyser,
                                   ContractVersionInstance documentVersion,
@@ -1582,20 +1618,6 @@ public class DocumentService extends ItClarifiesService{
         SearchManager2 searchManager = new SearchManager2(project, owner);
 
         Classifier classifier = new Classifier(project, document.getHeadVersion(), analysisTime);
-
-
-        for (AbstractDocument abstractDocument : aProject.documents) {
-            System.out.println(" *** Document " + abstractDocument.name + " has " + abstractDocument.getDefinitions().size() + " definitions for the analysis.");
-
-            /*
-            for (String definition : abstractDocument.definitions) {
-
-                System.out.print( definition + ", ");
-
-            }
-            System.out.println(" *** ");
-              */
-        }
 
         int risks = 0;
         NewAnalysisOutcome analysisOutcome;
@@ -1624,8 +1646,8 @@ public class DocumentService extends ItClarifiesService{
                                           // relevant for the analysis e.g. Lists
 
                 analysisOutcome = analyser.analyseFragment(fragment.getText(), (int)fragment.getOrdinal(), headline, contextText, aDocument, cellInfo, aProject);
-
                 NewAnalysisFeedback feedback = handleResult(analysisOutcome, classifier, fragment, deference, project, analysisTime, searchManager, aDocument, definitionsForProject, documentVersion);
+
                 risks += feedback.risks; // Count risks for the action message
 
                 // Store it for the second pass. In that pass we dont want to redo the parsing and analysis

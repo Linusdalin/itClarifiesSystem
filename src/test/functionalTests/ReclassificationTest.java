@@ -77,7 +77,7 @@ public class ReclassificationTest extends ServletTests {
 
             ContractFragment fragment = new ContractFragment(new LookupItem().addFilter(new ColumnFilter(ContractFragmentTable.Columns.Name.name(), "first fragment")));
 
-            String classForFragment = FeatureTypeTree.DefinitionDef.getName();  // Just arbitrary class for test
+            String classForFragment = FeatureTypeTree.DEFINITION.getName();  // Just arbitrary class for test
 
             long classificationCount = fragment.getClassificatonCount();
             PukkaLogger.log(PukkaLogger.Level.INFO, "There are " + classificationCount + " classifications");
